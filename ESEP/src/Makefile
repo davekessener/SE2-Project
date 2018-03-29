@@ -2,7 +2,7 @@ CC=g++
 SRC=$(shell find . -name '*.cc')
 OBJ=$(SRC:.cc=.o)
 DEP=$(shell find . -name '*.h')
-CFLAGS=-Wall -ggdb -Wl,-subsystem,windows -O0
+CFLAGS=-Wall -ggdb -O0 -I.
 
 .PHONY: all clean
 
@@ -12,5 +12,5 @@ CFLAGS=-Wall -ggdb -Wl,-subsystem,windows -O0
 all: $(OBJ)
 
 clean:
-	rm -f *.o
+	rm -f $(OBJ)
 

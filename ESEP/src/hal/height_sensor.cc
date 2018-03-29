@@ -11,6 +11,7 @@ HeightSensor::HeightSensor(HAL *hal)
 
 uint16_t HeightSensor::measure(void)
 {
+	return 0; // TODO
 }
 
 bool HeightSensor::isValid(void)
