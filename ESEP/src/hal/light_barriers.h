@@ -10,13 +10,13 @@ namespace esep
 		class LightBarriers
 		{
 			public:
-			enum class LightBarrier : uint8_t
+			enum class LightBarrier : uint32_t
 			{
-				LB_START		= 0x01, // Bit 0
-				LB_HEIGHTSENSOR = 0x02, // Bit 1
-				LB_SWITCH		= 0x08, // Bit 3
-				LB_RAMP			= 0x40, // Bit 6
-				LB_END			= 0x80  // Bit 8
+				LB_START		= (1 << 2),
+				LB_HEIGHTSENSOR = (1 << 3),
+				LB_SWITCH		= (1 << 5),
+				LB_RAMP			= (1 << 15),
+				LB_END			= (1 << 20)
 			};
 
 			public:

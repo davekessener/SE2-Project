@@ -16,7 +16,7 @@ uint16_t HeightSensor::measure(void)
 
 bool HeightSensor::isValid(void)
 {
-	return mHAL->in8(HAL::Port::B) & MXT_BM_VALID;
+	return mHAL->in(HAL::Port::B) & MXT_BM_VALID;
 }
 
 }}

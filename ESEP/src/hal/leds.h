@@ -12,10 +12,10 @@ namespace esep
 			public:
 			enum class LED : uint8_t
 			{
-				START = 0x01, // Bit 0
-				RESET = 0x02, // Bit 1
-				Q1    = 0x04, // Bit 2
-				Q2    = 0x08  // Bit 3
+				START = (1 << 2),
+				RESET = (1 << 3),
+				Q1    = (1 << 4),
+				Q2    = (1 << 5)
 			};
 
 			public:

@@ -10,11 +10,11 @@ namespace esep
 		class Lights
 		{
 			public:
-			enum class Light : uint8_t
+			enum class Light : uint32_t
 			{
-				GREEN  = 0x20, // Bit 5
-				YELLOW = 0x40, // Bit 6
-				RED    = 0x80  // Bit 7
+				GREEN  = (1 << 18),
+				YELLOW = (1 << 17),
+				RED    = (1 << 16)
 			};
 
 			public:

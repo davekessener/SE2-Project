@@ -10,7 +10,7 @@ void Buffer::update(Field f, uint32_t v)
 	}
 	else
 	{
-		mPorts[static_cast<uint>(f)] = static_cast<uint8_t>(v);
+		mPorts[static_cast<uint>(f)] = v;
 	}
 }
 

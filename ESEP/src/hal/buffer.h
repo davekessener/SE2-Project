@@ -15,11 +15,11 @@ namespace esep
 		{
 			public:
 			public:
-				uint8_t in8(Port p) { return mPorts[static_cast<uint>(p)]; }
-				uint16_t in16( ) { return mAnalog; }
+				uint32_t in(Port p) { return mPorts[static_cast<uint>(p)]; }
+				uint16_t inAnalog( ) { return mAnalog; }
 				virtual void update(Field, uint32_t);
 			private:
-				uint8_t mPorts[MXT_N_PORTS];
+				uint32_t mPorts[MXT_N_PORTS];
 				uint16_t mAnalog;
 		};
 	}

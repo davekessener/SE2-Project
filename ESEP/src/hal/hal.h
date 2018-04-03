@@ -27,7 +27,7 @@ namespace esep
 				C
 			};
 
-			typedef uint8_t bitmask_t;
+			typedef uint32_t bitmask_t;
 
 			enum class Event : uint
 			{
@@ -42,16 +42,14 @@ namespace esep
 
 			public:
 				virtual ~HAL( ) { }
-				virtual uint8_t in8(Port) = 0;
-				virtual uint16_t in16( ) = 0;
-				virtual void out8(Port, uint8_t) = 0;
+				virtual uint32_t in(Port) = 0;
+				virtual uint16_t inAnalog( ) = 0;
+				virtual void out(Port, uint32_t) = 0;
 				virtual void subscribeEvent(Event, callback_t) = 0;
-				virtual void setBits(Port p, bitmask_t m)
-					{ uint8_t v = in8(p); v |= m; out8(p, v); }
-				virtual void resetBits(Port p, bitmask_t m)
-					{ uint8_t v = in8(p); v &= ~m; out8(p, v); }
+				virtual void setBits(Port, bitmask_t) = 0;
+				virtual void resetBits(Port, bitmask_t) = 0;
 				virtual void toggleBits(Port p, bitmask_t m)
-					{ uint8_t v = in8(p); v ^= m; out8(p, v); }
+					{ auto v = in(p); v ^= m; out(p, v); }
 			private:
 		};
 	}

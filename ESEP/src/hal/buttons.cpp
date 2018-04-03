@@ -11,7 +11,7 @@ Buttons::Buttons(HAL *hal)
 
 bool Buttons::isPressed(Button b)
 {
-	return (mHAL->in8(HAL::Port::C) ^ MXT_BM_STOP) & static_cast<uint8_t>(b);
+	return (mHAL->in(HAL::Port::C) ^ MXT_BM_STOP) & static_cast<uint32_t>(b);
 }
 
 }}
