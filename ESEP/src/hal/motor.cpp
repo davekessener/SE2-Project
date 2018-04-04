@@ -1,6 +1,6 @@
 #include "hal/motor.h"
 
-#define MXT_BM_RUN		(1 << 13)
+#define MXT_BM_RUN		(1 << 12)
 #define MXT_BM_SLOW		(1 << 14)
 #define MXT_BM_DISABLE	(1 << 15)
 
