@@ -56,7 +56,7 @@ $(OUTPUT_DIR)/%.o: %.c
 	$(CC) -c $(DEPS) -o $@ $(INCLUDES) $(CCFLAGS_all) $(CCFLAGS) $<
 $(OUTPUT_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) -c $(DEPS) -o $@ $(INCLUDES) $(CCFLAGS_all) $(CCFLAGS) $<
+	$(CXX) -c $(DEPS) -o $@ $(INCLUDES) $(CCFLAGS_all) $(CCFLAGS) -I./src $<
 
 #Linking rule
 $(TARGET):$(OBJS)
