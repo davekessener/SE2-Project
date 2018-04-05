@@ -10,7 +10,7 @@ namespace esep
 		class LEDs
 		{
 			public:
-			enum class LED : uint8_t
+			enum class LED : uint32_t
 			{
 				START = (1 << 2),
 				RESET = (1 << 3),
@@ -22,10 +22,10 @@ namespace esep
 				LEDs(HAL *);
 				void turnOn(LED);
 				void turnOff(LED);
-				bool isOn(LED led) const { return mStatus & static_cast<uint8_t>(led); }
+				bool isOn(LED led) const { return mStatus & static_cast<uint32_t>(led); }
 			private:
 				HAL * const mHAL;
-				uint8_t mStatus;
+				uint32_t mStatus;
 		};
 	}
 }

@@ -9,7 +9,7 @@ LightBarriers::LightBarriers(HAL *hal)
 
 bool LightBarriers::isBroken(LightBarrier lb)
 {
-	return mHAL->in(HAL::Port::B) & static_cast<uint32_t>(lb);
+	return mHAL->in(HAL::Field::GPIO_0) & static_cast<uint32_t>(lb);
 }
 
 }}

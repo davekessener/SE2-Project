@@ -11,7 +11,7 @@ Buttons::Buttons(HAL *hal)
 
 bool Buttons::isPressed(Button b)
 {
-	return (mHAL->in(HAL::Port::C) ^ MXT_BM_STOP) & static_cast<uint32_t>(b);
+	return (mHAL->in(HAL::Field::GPIO_0) ^ MXT_BM_STOP) & static_cast<uint32_t>(b);
 }
 
 }}

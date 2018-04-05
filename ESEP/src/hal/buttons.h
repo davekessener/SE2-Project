@@ -10,12 +10,12 @@ namespace esep
 		class Buttons
 		{
 			public:
-			enum class Button : uint8_t
+			enum class Button : uint32_t
 			{
-				START = 0x10, // Bit 4
-				STOP  = 0x20, // Bit 5
-				RESET = 0x40, // Bit 6
-				ESTOP = 0x80  // Bit 7
+				START = (1 << 22),
+				STOP  = (1 << 23),
+				RESET = (1 << 26),
+				ESTOP = (1 << 27)
 			};
 
 			public:
