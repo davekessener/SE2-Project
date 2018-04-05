@@ -9,6 +9,7 @@
 #include <sstream>
 
 typedef unsigned uint;
+typedef uint8_t byte_t;
 
 namespace esep
 {
