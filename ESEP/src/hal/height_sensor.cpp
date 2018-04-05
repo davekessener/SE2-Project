@@ -1,6 +1,6 @@
 #include "hal/height_sensor.h"
 
-#define MXT_BM_VALID 0x04 // 0b00000100
+#define MXT_BM_VALID (1 << 4)
 
 namespace esep { namespace hal {
 
@@ -16,7 +16,7 @@ uint16_t HeightSensor::measure(void)
 
 bool HeightSensor::isValid(void)
 {
-	return mHAL->in(HAL::Port::B) & MXT_BM_VALID;
+	return mHAL->in(HAL::Field::GPIO_0) & MXT_BM_VALID;
 }
 
 }}

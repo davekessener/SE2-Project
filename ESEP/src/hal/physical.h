@@ -3,8 +3,9 @@
 
 #include "lib/utils.h"
 #include "hal/buffer.h"
+#include "hal/gpio.h"
 
-#define MXT_NPORTS 3
+#define MXT_NGPIOS 3
 
 namespace esep
 {
@@ -12,16 +13,19 @@ namespace esep
 	{
 		class Physical : public Buffer
 		{
-			using HAL::Port;
+			public:
+			using HAL::Field;
+			using HAL::bitmask_t;
 
 			public:
 				Physical( );
-				void out(Port, uint32_t);
+				~Physical( );
+				void out(Field, uint32_t);
+				void set(Field, bitmask_t);
+				void reset(Field, bitmask_t);
 				void subscribeEvent(Event, callback_t);
-				void setBits(Port, uint32_t);
-				void resetBits(Port, uint32_t);
 			private:
-				uintptr_t mBaseAddr[MXT_NPORTS];
+				GPIO *mGPIOs[MXT_NGPIOS];
 		};
 	}
 }

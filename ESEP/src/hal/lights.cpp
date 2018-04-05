@@ -9,12 +9,12 @@ Lights::Lights(HAL *hal)
 
 void Lights::turnOn(Light l)
 {
-	mHAL->setBits(HAL::Port::A, static_cast<uint32_t>(l));
+	mHAL->set(HAL::Field::GPIO_1, static_cast<uint32_t>(l));
 }
 
 void Lights::turnOff(Light l)
 {
-	mHAL->resetBits(HAL::Port::A, static_cast<uint32_t>(l));
+	mHAL->reset(HAL::Field::GPIO_1, static_cast<uint32_t>(l));
 }
 
 void Lights::flash(Light l, uint p)
