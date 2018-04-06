@@ -5,6 +5,7 @@
 #include "lib/singleton.h"
 
 #include "hal/hal.h"
+#include "hal/buffer.h"
 
 namespace esep
 {
@@ -18,9 +19,9 @@ namespace esep
 				void run( );
 				uint64_t elapsed( );
 				void sleep(uint);
-				hal::HAL& hal( ) { return *mHAL; }
+				void updateHAL(hal::HAL::Field f, uint32_t v) { mHAL->update(f, v); }
 			private:
-				hal::HAL *mHAL;
+				hal::Buffer *mHAL;
 		};
 	}
 
