@@ -1,0 +1,30 @@
+#ifndef ESEP_TML_APPLY_H
+#define ESEP_TML_APPLY_H
+
+#include "lib/tml/type_list.h"
+
+namespace esep
+{
+	namespace tml
+	{
+		template<typename L, template<typename> class F>
+		struct Apply;
+
+		template<typename H, typename T, template<typename> class F>
+		struct Apply<TypeList<H, T>, F>
+		{
+			typedef TypeList<typename F<H>::Type, typename Apply<T, F>::Type> Type;
+		};
+
+		template<template <typename> class F>
+		struct Apply<Nil, F>
+		{
+			typedef Nil Type;
+		};
+
+		template<typename L, template <typename> class F>
+		using DoApply = typename Apply<L, F>::Type;
+	}
+}
+
+#endif

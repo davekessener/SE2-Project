@@ -11,6 +11,14 @@ namespace esep { namespace system {
 
 Impl::Impl(void)
 	: mHAL(new hal::Physical())
+	, mHALObjects(
+		hal::Buttons(mHAL),
+		hal::HeightSensor(mHAL),
+		hal::LEDs(mHAL),
+		hal::LightBarriers(mHAL),
+		hal::Lights(mHAL),
+		hal::MetalSensor(mHAL),
+		hal::Motor(mHAL))
 {
 }
 
@@ -23,8 +31,8 @@ void Impl::run(void)
 {
 	typedef hal::Lights::Light Light;
 
-	hal::Lights lights(mHAL);
-	hal::Motor motor(mHAL);
+	hal::Lights& lights(get<hal::Lights>());
+	hal::Motor& motor(get<hal::Motor>());
 
 	motor.start();
 
