@@ -80,6 +80,9 @@ namespace esep
 						Parser(const char * const (&t)[N])
 							: mTable(t), mN(N), mState(State::IDLE), mSpacing(0) { }
 					void parse(char);
+					template<typename T>
+						void parseAll(T&& o)
+							{ for(const char *i = &o[0] ; *i ; ++i) parse(*i); parse('\0'); }
 
 					std::vector<std::string> literals;
 					std::vector<std::pair<int, uint>> format;

@@ -114,12 +114,7 @@ void Base::setFormat(const std::string& f)
 {
 	format::Parser parser(FORMAT_ARGS);
 
-	for(const char& c : f)
-	{
-		parser.parse(c);
-	}
-
-	parser.parse('\0');
+	parser.parseAll(f);
 
 	std::swap(mLiterals, parser.literals);
 	std::swap(mFormat, parser.format);
