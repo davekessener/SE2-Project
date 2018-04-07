@@ -8,6 +8,14 @@
 #include <string>
 #include <sstream>
 
+#define MXT_GETA1(a1,...) a1
+#define MXT_GETA2(a1,a2,...) a2
+#define MXT_GETA3(a1,a2,a3,...) a3
+#define MXT_GETA4(a1,a2,a3,a4,...) a4
+#define MXT_GETA5(a1,a2,a3,a4,a5,...) a5
+
+#define MXT_THROW(...) throw ::esep::lib::stringify(__VA_ARGS__," [",__FILE__,": ",__LINE__,"]")
+
 typedef unsigned uint;
 typedef uint8_t byte_t;
 

@@ -4,8 +4,7 @@
 #include "system.h"
 
 #include "hal/physical.h"
-#include "hal/lights.h"
-#include "hal/motor.h"
+#include "lib/logger.h"
 
 namespace esep { namespace system {
 
@@ -29,10 +28,15 @@ Impl::~Impl(void)
 
 void Impl::run(void)
 {
+	mSystemStart = std::chrono::system_clock::now();
+
 	typedef hal::Lights::Light Light;
 
 	hal::Lights& lights(get<hal::Lights>());
 	hal::Motor& motor(get<hal::Motor>());
+
+	MXT_LOG("Hello, World!");
+	MXT_LOG("Starting 'Aktorik-Test'!");
 
 	motor.start();
 
@@ -42,9 +46,13 @@ void Impl::run(void)
 		sleep(500);
 		lights.turnOff(Light::RED);
 		sleep(500);
+
+		MXT_LOG(lib::stringify("Blinked for the ", (i + 1), "th time!"));
 	}
 
 	motor.stop();
+
+	MXT_LOG("Shutting down now, goodbye!");
 }
 
 void Impl::sleep(uint ms)
@@ -54,7 +62,7 @@ void Impl::sleep(uint ms)
 
 uint64_t Impl::elapsed(void)
 {
-	return 0; // TODO
+	return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - mSystemStart).count();
 }
 
 }}
