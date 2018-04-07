@@ -11,6 +11,8 @@ namespace esep
 	{
 		class Connection
 		{
+			private:
+				int fildes_;
 			public:
 				Connection(const std::string&);
 				Connection(Connection&&);
