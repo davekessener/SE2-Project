@@ -56,6 +56,8 @@ namespace esep
 		template<typename L>
 		struct Tuple : public tuple::TupleImpl<L, 0>
 		{
+			typedef L value_types;
+
 		    template<typename ... TT>
 		        Tuple(TT&& ... a)
 		            : tuple::TupleImpl<L, 0>(a...)

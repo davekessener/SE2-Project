@@ -44,6 +44,7 @@ namespace esep
 			private:
 				hal::Buffer *mHAL;
 				hal_t mHALObjects;
+				std::chrono::time_point<std::chrono::system_clock> mSystemStart;
 		};
 	}
 

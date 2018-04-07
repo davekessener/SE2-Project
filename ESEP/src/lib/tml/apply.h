@@ -13,7 +13,11 @@ namespace esep
 		template<typename H, typename T, template<typename> class F>
 		struct Apply<TypeList<H, T>, F>
 		{
-			typedef TypeList<typename F<H>::Type, typename Apply<T, F>::Type> Type;
+			template<typename TT> struct Gimme;
+
+			typedef typename F<H>::Type Element;
+			typedef typename Apply<T, F>::Type Tail;
+			typedef TypeList<Element, Tail> Type;
 		};
 
 		template<template <typename> class F>
