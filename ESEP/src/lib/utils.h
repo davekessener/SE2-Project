@@ -14,7 +14,10 @@
 #define MXT_GETA4(a1,a2,a3,a4,...) a4
 #define MXT_GETA5(a1,a2,a3,a4,a5,...) a5
 
-#define MXT_THROW(...) throw ::esep::lib::stringify(__VA_ARGS__," [",__FILE__,": ",__LINE__,"]")
+#define MXT_THROW_STR(...) ::esep::lib::stringify(__VA_ARGS__," [",__FILE__,": ",__LINE__,"]")
+
+#define MXT_THROW(...) throw MXT_THROW_STR(__VA_ARGS__)
+#define MXT_THROW_E(klass,...) throw klass(MXT_THROW_STR(__VA_ARGS__))
 
 typedef unsigned uint;
 typedef uint8_t byte_t;
@@ -37,6 +40,14 @@ namespace esep
 		{
 			template<typename S>
 			void stringifyImpl(S&) { }
+
+			template<typename S, typename T1, typename T2>
+			S& operator<<(S& s, const std::pair<T1, T2>& e)
+			{
+				s << "std::pair<" << e.first << "," << e.second << ">";
+
+				return s;
+			}
 
 			template<typename S, typename T, typename ... TT>
 			void stringifyImpl(S& ss, const T& o, const TT& ... tt)
