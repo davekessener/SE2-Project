@@ -1,5 +1,5 @@
 #ifndef ESEP_LIB_CRC_H
-#ifndef ESEP_LIB_CRC_H
+#define ESEP_LIB_CRC_H
 
 #include <stdint.h>
 
@@ -23,6 +23,12 @@ namespace esep
 					Generator(T);
 					template<typename I>
 						crc_t encode(I&&, I&&);
+					template<typename TT, size_t M>
+						crc_t encode(const TT (&a)[M])
+							{ return encode(&*a, &*a + M); }
+					template<typename TT>
+						crc_t encode(TT&& a)
+							{ return encode(std::begin(a), std::end(a)); }
 				private:
 					T mPolynomial;
 					T mTable[N];
@@ -47,13 +53,13 @@ namespace esep
 
 			template<typename T>
 			template<typename I>
-			Generator<T>::crc_t Generator<T>::encode(I&& i1, I&& i2)
+			typename Generator<T>::crc_t Generator<T>::encode(I&& i1, I&& i2)
 			{
 				crc_t crc = static_cast<crc_t>(-1);
 
 				for(; i1 != i2 ; ++i1)
 				{
-					c = mTable[(crc ^ *i1) % N] ^ (c >> 8);
+					crc = mTable[(crc ^ *i1) % N] ^ (crc >> 8);
 				}
 
 				return ~crc;
