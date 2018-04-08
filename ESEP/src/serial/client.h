@@ -17,9 +17,13 @@ namespace esep
 
 			public:
 				Client(Connection&&);
+				~Client( );
 				void write(const buffer_t&);
 				buffer_t read( );
 			private:
+				struct Impl;
+
+				Impl *pImpl;
 		};
 	}
 }
