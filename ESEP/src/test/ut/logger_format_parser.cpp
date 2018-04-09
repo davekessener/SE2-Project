@@ -1,5 +1,7 @@
 #ifdef ESEP_TEST
 
+#include "test/unit/assertions.h"
+
 #include "test/ut/logger_format_parser.h"
 
 namespace esep { namespace test { namespace unit {
