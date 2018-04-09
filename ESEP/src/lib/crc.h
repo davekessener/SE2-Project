@@ -20,7 +20,7 @@ namespace esep
 				typedef T crc_t;
 
 				public:
-					Generator(T);
+					Generator(T = DEFAULT_POLYNOMIAL);
 					template<typename I>
 						crc_t encode(I&&, I&&);
 					template<typename TT, size_t M>

@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "lib/utils.h"
+#include "lib/byte_buffer.h"
 #include "serial/connection.h"
 
 namespace esep
@@ -13,7 +14,7 @@ namespace esep
 		class Client
 		{
 			public:
-			typedef std::vector<byte_t> buffer_t;
+			typedef lib::ByteBuffer<> buffer_t;
 
 			public:
 				Client(Connection&&);

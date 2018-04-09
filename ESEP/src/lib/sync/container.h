@@ -5,33 +5,19 @@
 #include <mutex>
 #include <condition_variable>
 
+#include "lib/member_wrapper.h"
+
 namespace esep
 {
 	namespace sync
 	{
-		template<typename R, typename C, typename ... A>
-		struct MemberWrapper
-		{
-			typedef R (C::*cb_fn)(A...);
-
-			MemberWrapper(cb_fn f) : mF(f) { }
-
-			R operator()(C&& c, A&& ... a)
-			{
-				return (c.*mF)(std::forward<A>(a)...);
-			}
-
-		private:
-			cb_fn mF;
-		};
-
 		template
 		<
 			typename T,
 			typename C = std::deque<T>,
-			typename Access = MemberWrapper<T, C>,
-			typename Insert = MemberWrapper<void, C, const T&>,
-			typename Remove = MemberWrapper<void, C>
+			typename Access = lib::MemberWrapper<T, C>,
+			typename Insert = lib::MemberWrapper<void, C, const T&>,
+			typename Remove = lib::MemberWrapper<void, C>
 		>
 		class Container
 		{

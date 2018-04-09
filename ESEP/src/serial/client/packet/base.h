@@ -11,6 +11,15 @@ namespace esep
 	{
 		namespace packet
 		{
+			enum class Type : uint16_t
+			{
+				SDP    = 0x81A5,
+				MDP    = 0x4296,
+				LDP    = 0x42C9,
+				AP_OK  = 0x187C,
+				AP_ERR = 0x3613
+			};
+
 			class Base
 			{
 				public:

@@ -21,12 +21,14 @@ namespace esep
 		{
 			typedef std::unique_lock<std::mutex> lock_t;
 			typedef uint8_t id_t;
-			typedef uint16_t type_t;
 			typedef Client::buffer_t buffer_t;
 			typedef sync::Container<buffer_t> storage_t;
 
 			struct BadPacketException : public std::exception { };
 			struct ResetTriggeredException : public std::exception { };
+
+			struct PacketDataOverflowException : public std::runtime_error
+				{ PacketDataOverflowException(const std::string& s) : std::runtime_error(s) { } };
 		}
 	}
 }

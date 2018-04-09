@@ -12,16 +12,9 @@ namespace esep
 			class Answer : public Base
 			{
 				public:
-				enum class Type : uint16_t
-				{
-					OK = 0x187C,
-					ERR = 0x3613
-				};
-
-				public:
 					Answer(Type t, types::id_t id) : mType(t), mID(id) { }
 					virtual types::buffer_t serialize( );
-					static packet_ptr deserialize(const types::buffer_t&);
+					static packet_ptr deserialize(modules::In_Connection&);
 				private:
 					Type mType;
 					types::id_t mID;
