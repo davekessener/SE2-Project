@@ -93,7 +93,7 @@ namespace esep
 
 				auto crc = crcGen.encode(raw_data);
 
-				for(auto i = raw_data.cbegin() ; )
+
 			}
 		}
 	}

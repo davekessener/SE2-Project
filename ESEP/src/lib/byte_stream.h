@@ -41,6 +41,7 @@ namespace esep
 
 		    public:
 		        size_t size( ) const { return mSize; }
+		        bool empty( ) const { return mSize > 0; }
 		    protected:
 		        container_type& getContainer( ) { return mContainer; }
 		        void increment( ) { ++mSize; }
@@ -151,6 +152,17 @@ esep::lib::Out_ByteStream<C, I>& operator<<(esep::lib::Out_ByteStream<C, I>& os,
     }
 
     return os;
+}
+
+template<typename C1, typename I1, typename C2, typename I2>
+esep::lib::Out_ByteStream<C1, I1>& operator<<(esep::lib::Out_ByteStream<C1, I1>& os, esep::lib::In_ByteStream<C2, I2>& is)
+{
+	while(!is.empty())
+	{
+		os.insert(is.remove());
+	}
+
+	return os;
 }
 
 template<typename T, typename C, typename G, typename R>
