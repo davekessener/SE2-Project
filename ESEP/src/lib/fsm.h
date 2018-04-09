@@ -1,6 +1,12 @@
 #ifndef ESEP_LIB_FSM_H
 #define ESEP_LIB_FSM_H
 
+#include <functional>
+#include <map>
+#include <vector>
+
+#include "lib/tml.h"
+
 namespace esep
 {
 	namespace lib
@@ -28,9 +34,13 @@ namespace esep
 				typedef std::vector<State *> state_table_t;
 
 				public:
-				private:
-					FSM(state_table_t&& s, trans_table_t&& t) : mStates(std::move(s)), mTransitions(std::move(t))
-						{ mCurrent = mStates.first(); }
+					~FSM( ) { for(State *p : mStates) delete p; }
+					FSM(FSM<T>&& fsm)
+						: mStates(std::move(fsm.mStates))
+						, mTransitions(std::move(fsm.mTransitions))
+						, mCurrent(fsm.mCurrent)
+					{ }
+
 					void process(const event_type& e)
 					{
 						auto i = mTransitions.find(std::make_pair(mCurrent, e));
@@ -58,26 +68,32 @@ namespace esep
 						}
 					}
 				private:
+					FSM(state_table_t&& s, trans_table_t&& t) : mStates(std::move(s)), mTransitions(std::move(t))
+						{ mCurrent = mStates.front(); }
+
+					FSM(const FSM<T>&) = delete;
+
+				private:
 					state_table_t mStates;
 					trans_table_t mTransitions;
 					State *mCurrent;
 
 					template<typename TT>
-					friend class Generator<TT>;
+					friend class Generator;
 			};
 
 			template<typename T>
 			class Generator
 			{
-				typedef FSM<T>::transition_fn transition_fn;
-				typedef FSM<T>::trans_table_t trans_table_t;
-				typedef FSM<T>::state_table_t state_table_t;
+				typedef typename FSM<T>::transition_fn transition_fn;
+				typedef typename FSM<T>::trans_table_t trans_table_t;
+				typedef typename FSM<T>::state_table_t state_table_t;
 
 				public:
 					template<typename S, typename ... SS>
 						void addStates(S&& o, SS&& ... s)
 					{
-						mStates.push_back(static_cast<tml::DoDecay<S> *>(o));
+						mStates.push_back(static_cast<State *>(o));
 						addStates(s...);
 					}
 					Generator<T>& addTransition(State *a, State *b, const T& e, transition_fn f = transition_fn())
@@ -88,6 +104,9 @@ namespace esep
 					}
 					FSM<T> generate(void)
 					{
+						if(mStates.empty())
+							MXT_THROW("Can't generate a FSM without any states!");
+
 						return FSM<T>(std::move(mStates), std::move(mTransitions));
 					}
 				private:
