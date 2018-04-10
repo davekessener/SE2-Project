@@ -38,10 +38,18 @@ namespace esep
 		{
 		    public:
 		    typedef C container_type;
+		    typedef typename C::iterator iterator;
+		    typedef typename C::const_iterator const_iterator;
 
 		    public:
 		        size_t size( ) const { return mSize; }
 		        bool empty( ) const { return mSize > 0; }
+		        iterator begin( ) { return mContainer.begin(); }
+		        iterator end( ) { return mContainer.end(); }
+		        const_iterator begin( ) const { return mContainer.cbegin(); }
+		        const_iterator end( ) const { return mContainer.cend(); }
+		        const_iterator cbegin( ) const { return mContainer.cbegin(); }
+		        const_iterator cend( ) const { return mContainer.cend(); }
 		    protected:
 		        container_type& getContainer( ) { return mContainer; }
 		        void increment( ) { ++mSize; }
