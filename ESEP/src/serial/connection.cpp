@@ -16,8 +16,7 @@ Connection::Connection(const std::string& device)
 
 	if(this->fildes_ == -1)
 	{
-		std::cout << "Could not connect to device: " << device << std::endl;
-		exit(EXIT_FAILURE);
+		throw lib::stringify("Could not connect to device '", device, "'!");
 	}
 
 	struct termios ts;
@@ -45,20 +44,35 @@ Connection::~Connection()
     if(this->fildes_ != -1) {
     	if (close(this->fildes_) == -1)
     	{
-    		std::cout << "Could not close device" << std::endl;
-    		exit(EXIT_FAILURE);
+    		throw lib::stringify("Could not close device!");
     	}
     }
 }
 
 void Connection::write(const byte_t* buffer, size_t size)
 {
-    ::write(fildes_, buffer, size);
+	if(this->fildes_ != -1)
+	{
+		throw lib::stringify("Connection to device is closed!");
+	}
+
+    if(::write(fildes_, buffer, size) == -1)
+    {
+    	throw lib::stringify("An error occured writing to device!");
+    }
 }
 
 void Connection::read(byte_t* buffer, size_t size)
 {
-    ::read(this->fildes_, buffer, size);
+	if(this->fildes_ != -1)
+	{
+		throw lib::stringify("Connection to device is closed!");
+	}
+
+    if (readcond(this->fildes_, buffer, size, size, 0, 10000) == -1)
+    {
+    	throw lib::stringify("Could not read from device!");
+    }
 }
 
 }}
