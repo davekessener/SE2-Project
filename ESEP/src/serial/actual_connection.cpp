@@ -11,7 +11,7 @@ namespace esep { namespace serial {
 ActualConnection::ActualConnection(const std::string& device)
 : fildes_(0)
 {
-	fildes_ = open(device.c_str(),O_RDWR);
+	fildes_ = ::open(device.c_str(),O_RDWR);
 
 	if(this->fildes_ == -1)
 	{
@@ -35,7 +35,7 @@ ActualConnection::ActualConnection(const std::string& device)
 ActualConnection::~ActualConnection()
 {
     if(this->fildes_ != -1) {
-    	if (close(this->fildes_) == -1)
+    	if (::close(this->fildes_) == -1)
     	{
     		throw lib::stringify("Could not close device!");
     	}
