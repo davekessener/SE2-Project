@@ -11,11 +11,59 @@ namespace esep { namespace serial {
 ActualConnection::ActualConnection(const std::string& device)
 : fildes_(0)
 {
+	open(device);
+}
+
+ActualConnection::~ActualConnection()
+{
+    close();
+}
+
+void ActualConnection::write(const byte_t* buffer, size_t size)
+{
+	if(!isOpen())
+	{
+		MXT_THROW("Connection to device is closed!");
+	}
+
+    if(::write(fildes_, buffer, size) != (ssize_t) size)
+    {
+    	MXT_THROW("An error occured writing to device!");
+    }
+}
+
+void ActualConnection::read(byte_t* buffer, size_t size)
+{
+	size_t bytes_read = 0;
+	int return_value = 0;
+
+	while(bytes_read != size)
+	{
+		if(!isOpen())
+		{
+			MXT_THROW("Connection to device is closed!");
+		}
+
+		return_value = readcond(this->fildes_, buffer+bytes_read, size-bytes_read, size-bytes_read, 0, 5); // timeout is specified with 1/10 of a second
+
+		if (return_value == -1)
+		{
+			MXT_THROW("Could not read from device!");
+		}
+
+		bytes_read += return_value;
+	}
+}
+
+void ActualConnection::open(const std::string& device)
+{
+	close(); // Ensure that connection is closed before opening a new one
+
 	fildes_ = ::open(device.c_str(),O_RDWR);
 
 	if(this->fildes_ == -1)
 	{
-		throw lib::stringify("Could not connect to device '", device, "'!");
+		MXT_THROW("Could not connect to device '", device, "'!");
 	}
 
 	struct termios ts;
@@ -32,57 +80,19 @@ ActualConnection::ActualConnection(const std::string& device)
 	tcsetattr(this->fildes_, TCSANOW, &ts);
 }
 
-ActualConnection::~ActualConnection()
-{
-    if(this->fildes_ != -1) {
-    	if (::close(this->fildes_) == -1)
-    	{
-    		throw lib::stringify("Could not close device!");
-    	}
-    }
-}
-
-void ActualConnection::write(const byte_t* buffer, size_t size)
-{
-	if(this->fildes_ != -1)
-	{
-		throw lib::stringify("Connection to device is closed!");
-	}
-
-    if(::write(fildes_, buffer, size) == -1)
-    {
-    	throw lib::stringify("An error occured writing to device!");
-    }
-}
-
-void ActualConnection::read(byte_t* buffer, size_t size)
-{
-	if(this->fildes_ != -1)
-	{
-		throw lib::stringify("Connection to device is closed!");
-	}
-
-    if (readcond(this->fildes_, buffer, size, size, 0, 10000) == -1)
-    {
-    	throw lib::stringify("Could not read from device!");
-    }
-}
-
-void ActualConnection::open(const std::string& device)
-{
-	// TODO
-}
-
 void ActualConnection::close(void)
 {
-	// TODO
+	if(isOpen()) {
+		if (::close(this->fildes_) == -1)
+		{
+			MXT_THROW("Could not close device!");
+		}
+	}
 }
 
 bool ActualConnection::isOpen(void) const
 {
-	// TODO
-
-	return false;
+	return this->fildes_ != -1;
 }
 
 }}
