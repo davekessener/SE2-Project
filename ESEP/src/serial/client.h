@@ -21,6 +21,9 @@ namespace esep
 				virtual void write(const buffer_t&) = 0;
 				virtual buffer_t read( ) = 0;
 			private:
+				struct Impl;
+
+				Impl *pImpl;
 		};
 	}
 }

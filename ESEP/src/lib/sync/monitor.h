@@ -15,7 +15,9 @@ namespace esep
 			typedef std::unique_lock<std::mutex> lock_t;
 
 			public:
-				Monitor(T&& o) : mObject(o) { }
+				template<typename TT>
+					explicit Monitor(TT&& o) : mObject(o) { }
+				Monitor( ) { }
 				template<typename F>
 					auto operator()(F&&) -> typename lib::FunctionTraits<F>::return_type;
 			private:

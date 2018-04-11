@@ -1,4 +1,3 @@
-
 #include <fcntl.h>
 #include <serial/actual_connection.h>
 #include <termios.h>

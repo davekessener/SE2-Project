@@ -1,8 +1,9 @@
 #ifndef ESEP_TEST_UT_LOGGERFORMATPARSER_H
 #define ESEP_TEST_UT_LOGGERFORMATPARSER_H
 
-#include "test/unit/unit.h"
 #include "lib/log/format.h"
+
+#include "test/unit/unit.h"
 
 namespace esep
 {
@@ -14,6 +15,7 @@ namespace esep
 			{
 				public:
 					LoggerFormatParser( );
+				protected:
 					void setup( );
 					void teardown( );
 					void define( );

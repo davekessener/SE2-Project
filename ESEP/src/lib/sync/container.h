@@ -5,33 +5,19 @@
 #include <mutex>
 #include <condition_variable>
 
+#include "lib/member_wrapper.h"
+
 namespace esep
 {
 	namespace sync
 	{
-		template<typename R, typename C, typename ... A>
-		struct MemberWrapper
-		{
-			typedef R (C::*cb_fn)(A...);
-
-			MemberWrapper(cb_fn f) : mF(f) { }
-
-			R operator()(C&& c, A&& ... a)
-			{
-				return (c.*mF)(std::forward<A>(a)...);
-			}
-
-		private:
-			cb_fn mF;
-		};
-
 		template
 		<
 			typename T,
 			typename C = std::deque<T>,
-			typename Access = MemberWrapper<T, C>,
-			typename Insert = MemberWrapper<void, C, const T&>,
-			typename Remove = MemberWrapper<void, C>
+			typename Access = lib::ConstMemberWrapper<const T&, C>,
+			typename Insert = lib::MemberWrapper<void, C, const T&>,
+			typename Remove = lib::MemberWrapper<void, C>
 		>
 		class Container
 		{
@@ -48,9 +34,12 @@ namespace esep
 					access_fn a = access_fn(&container_type::front),
 					insert_fn i = insert_fn(&container_type::push_back),
 					remove_fn r = remove_fn(&container_type::pop_front))
-				: mAccess(a), mInsert(i), mRemove(r) { }
+				: mAccess(a), mInsert(i), mRemove(r), mSize(0) { }
 				void insert(const value_type&);
 				value_type remove( );
+				size_t size( ) const { return mSize; }
+				bool empty( ) const { return mSize; }
+				void clear( ) { lock_t lock(mMutex); while(mSize) { --mSize; mRemove(mContainer); } }
 			private:
 				container_type mContainer;
 				access_fn mAccess;
@@ -58,6 +47,7 @@ namespace esep
 				remove_fn mRemove;
 				std::mutex mMutex;
 				std::condition_variable mCond;
+				size_t mSize;
 		};
 
 		template<typename T, typename C, typename A, typename I, typename R>
@@ -67,6 +57,7 @@ namespace esep
 				lock_t lock(mMutex);
 
 				mInsert(mContainer, o);
+				++mSize;
 			}
 
 			mCond.notify_all();
@@ -85,6 +76,7 @@ namespace esep
 			value_type o(mAccess(mContainer));
 
 			mRemove(mContainer);
+			--mSize;
 
 			return o;
 		}

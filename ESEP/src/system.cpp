@@ -19,6 +19,7 @@ Impl::Impl(void)
 		hal::MetalSensor(mHAL),
 		hal::Motor(mHAL))
 {
+	mSystemStart = std::chrono::system_clock::now();
 }
 
 Impl::~Impl(void)

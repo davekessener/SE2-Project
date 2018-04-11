@@ -83,12 +83,12 @@ void LoggerFormatParser::define(void)
 
 	UNIT_TEST("fails an unterminated id")
 	{
-		ASSERT_FAILURE(uut->parseAll("%line"));
+		ASSERT_ANY_FAILURE(uut->parseAll("%line"));
 	};
 
 	UNIT_TEST("fails an unknown id")
 	{
-		ASSERT_FAILURE(uut->parseAll("%something%"));
+		ASSERT_ANY_FAILURE(uut->parseAll("%something%"));
 	};
 }
 

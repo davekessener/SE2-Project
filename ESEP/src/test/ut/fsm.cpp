@@ -77,7 +77,7 @@ void FSM::define(void)
 	{
 		gen_t generator;
 
-		ASSERT_FAILURE(generator.generate());
+		ASSERT_ANY_FAILURE(generator.generate());
 	};
 
 	UNIT_TEST("can do one transition")

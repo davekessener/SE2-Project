@@ -3,7 +3,7 @@
 
 #define UNIT_TEST(desc) \
 	mWriter.name = desc; \
-	mWriter = [this](void) -> void
+	mWriter = [&,this](void) -> void
 
 
 #define ASSERT_EQUALS(a,b) \
@@ -21,6 +21,7 @@
 			MXT_THROW_E(std::logic_error, "Expession '" #e "' failed!"); \
 		} } while(0)
 
+#define ASSERT_FALSE(e) ASSERT_TRUE(!(e))
 
 #define ASSERT_NOT_EQUAL(a,b) ASSERT_TRUE((a)!=(b))
 
@@ -40,7 +41,7 @@
 		} } while(0)
 
 
-#define ASSERT_FAILURE(e) \
+#define ASSERT_ANY_FAILURE(e) \
 	do { \
 		bool success = true; \
 		try { \
@@ -48,8 +49,18 @@
 			success = false; \
 		} catch(...) { } \
 		if(!success) \
-			MXT_THROW_E(std::logic_error, "Expected an exception but got none."); \
+			MXT_THROW_E(std::logic_error, "Expected any exception in expression '" #e "' but got none."); \
 	} while(0)
 
+#define ASSERT_FAILURE(e,t) \
+	do { \
+		bool success = true; \
+		try { \
+			e; \
+			success = false; \
+		} catch(t) { } \
+		if(!success) \
+			MXT_THROW_E(std::logic_error, "Expected an excpetion of type " #t " in expression '" #e "' but got none."); \
+	} while(0)
 
 #endif

@@ -17,6 +17,13 @@ namespace esep
 
 		template<typename T>
 		using DoDecay = typename Decay<T>::Type;
+
+		template<typename T1, typename T2>
+		struct TypeAssoc
+		{
+			typedef T1 Key;
+			typedef T2 Value;
+		};
 	}
 }
 

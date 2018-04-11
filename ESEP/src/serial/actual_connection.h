@@ -16,7 +16,7 @@ namespace esep
 				int fildes_;
 			public:
 				ActualConnection(const std::string&);
-				~ActualConnection( );
+				virtual ~ActualConnection( );
 				virtual void write(const byte_t *, size_t);
 				virtual void read(byte_t *, size_t);
 				virtual void open(const std::string&);
