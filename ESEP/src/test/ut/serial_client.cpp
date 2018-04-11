@@ -62,6 +62,42 @@ void SerialClient::define(void)
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	};
+
+	UNIT_TEST("can send large amounts of data")
+	{
+		std::vector<byte_t> cmp;
+
+		for(uint i = 0, a = 1, b = 1 ; i < 100 ; ++i)
+		{
+			a += b;
+
+			std::swap(a, b);
+
+			cmp.push_back(static_cast<byte_t>(a));
+		}
+
+		mClients[0]->write(cmp);
+
+		auto r = mClients[1]->read();
+
+		ASSERT_EACH_EQUALS(r, cmp);
+	};
+
+	UNIT_TEST("can send extremely large amounts of data (chaining)")
+	{
+		std::vector<byte_t> cmp;
+
+		for(uint i = 0 ; i < 10000 ; ++i)
+		{
+			cmp.push_back(i * i);
+		}
+
+		mClients[0]->write(cmp);
+
+		auto r = mClients[1]->read();
+
+		ASSERT_EACH_EQUALS(r, cmp);
+	};
 }
 
 }}}

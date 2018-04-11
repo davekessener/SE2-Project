@@ -33,9 +33,13 @@ void main(const std::vector<std::string>& args)
 {
 	std::stringstream my_cout, unit_testresults;
 
-	runUnitTests(unit_testresults);
+	{
+		lib::StreamIntercept si(my_cout, std::cout);
 
-	std::cout << "\n\n" << unit_testresults.str();
+		runUnitTests(unit_testresults);
+	}
+
+	std::cout << my_cout.str() << "\n" << unit_testresults.str();
 }
 
 }}

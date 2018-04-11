@@ -27,7 +27,7 @@ namespace esep
 			const_iterator cbegin( ) const { return &mContent[0]; }
 			const_iterator cend( ) const { return begin() + size(); }
 			size_t size( ) const { return mFull ? Size : mIdx; }
-			void insert(const value_type& e) { mContent[mIdx = (mIdx + 1) % N] = e; if(!mIdx) mFull = true; }
+			void insert(const value_type& e) { mContent[mIdx++] = e; mIdx %= N; if(!mIdx) mFull = true; }
 			void clear( ) { mFull = false; mIdx = 0; }
 			private:
 				container_type mContent;

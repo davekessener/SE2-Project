@@ -91,7 +91,7 @@ namespace esep
 				: Base_Data(id)
 			{
 				mChained = (l == 0);
-				mLength = mChained ? SIZE : l;
+				mLength = (mChained ? SIZE : l);
 				mCRC = crc;
 
 				std::copy(std::begin(buf), std::end(buf), mData);

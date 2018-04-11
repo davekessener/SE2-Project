@@ -4,6 +4,8 @@
 
 #include "lib/logger.h"
 
+#define MXT_MIN(a,b) (((a)<(b))?(a):(b))
+
 namespace esep { namespace serial { namespace modules {
 
 void Out_Connection::write(const types::buffer_t& o)
@@ -11,9 +13,9 @@ void Out_Connection::write(const types::buffer_t& o)
 	get()([&o](Connection *c) {
 		std::stringstream ss;
 
-		for(const auto& e : o)
+		for(uint i = 0, n = MXT_MIN(20, o.size()) ; i < n ; ++i)
 		{
-			ss << lib::hex<8>(e) << " ";
+			ss << lib::hex<8>((&*o.cbegin())[i]); if(i + 1 != n) ss << " ";
 		}
 
 		MXT_LOG(lib::stringify("Sending packet (", o.size(), ") [", ss.str(), "]"));
@@ -31,9 +33,9 @@ void In_Connection::read(types::buffer_t& o, size_t n)
 
 		std::stringstream ss;
 
-		for(const auto& e : b)
+		for(uint i = 0, n = MXT_MIN(20, b.size()) ; i < n ; ++i)
 		{
-			ss << lib::hex<8>(e) << " ";
+			ss << lib::hex<8>(b[i]); if(i + 1 != n) ss << " ";
 		}
 
 		MXT_LOG(lib::stringify("Receiving packet (", b.size(), ") [", ss.str(), "]"));
