@@ -34,9 +34,12 @@ namespace esep
 					access_fn a = access_fn(&container_type::front),
 					insert_fn i = insert_fn(&container_type::push_back),
 					remove_fn r = remove_fn(&container_type::pop_front))
-				: mAccess(a), mInsert(i), mRemove(r) { }
+				: mAccess(a), mInsert(i), mRemove(r), mSize(0) { }
 				void insert(const value_type&);
 				value_type remove( );
+				size_t size( ) const { return mSize; }
+				bool empty( ) const { return mSize; }
+				void clear( ) { lock_t lock(mMutex); while(mSize) { --mSize; mRemove(mContainer); } }
 			private:
 				container_type mContainer;
 				access_fn mAccess;
@@ -44,6 +47,7 @@ namespace esep
 				remove_fn mRemove;
 				std::mutex mMutex;
 				std::condition_variable mCond;
+				size_t mSize;
 		};
 
 		template<typename T, typename C, typename A, typename I, typename R>
@@ -53,6 +57,7 @@ namespace esep
 				lock_t lock(mMutex);
 
 				mInsert(mContainer, o);
+				++mSize;
 			}
 
 			mCond.notify_all();
@@ -71,6 +76,7 @@ namespace esep
 			value_type o(mAccess(mContainer));
 
 			mRemove(mContainer);
+			--mSize;
 
 			return o;
 		}

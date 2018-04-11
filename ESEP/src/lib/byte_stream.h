@@ -5,6 +5,7 @@
 
 #include "lib/utils.h"
 #include "lib/member_wrapper.h"
+#include "lib/tml.h"
 
 namespace esep
 {
@@ -47,10 +48,10 @@ namespace esep
 				return IterableWrapper<iterator>(std::begin(o), std::end(o));
 			}
 
-			template<typename I>
-			IterableWrapper<I> insert_all(I&& i1, I&& i2)
+			template<typename I1, typename I2>
+			IterableWrapper<tml::DoDecay<I1>> insert_all(I1&& i1, I2&& i2)
 			{
-				return IterableWrapper<I>(i1, i2);
+				return IterableWrapper<tml::DoDecay<I1>>(i1, i2);
 			}
 		}
 
@@ -202,7 +203,7 @@ esep::lib::Out_ByteStream<C, I>& operator<<(esep::lib::Out_ByteStream<C, I>& os,
 }
 
 template<typename T, typename C, typename I>
-esep::lib::Out_ByteStream<C, I>& operator<<(esep::lib::Out_ByteStream<C, I>& os, const esep::lib::byte_stream::IterableWrapper<T>& w)
+esep::lib::Out_ByteStream<C, I>& operator<<(esep::lib::Out_ByteStream<C, I>& os, esep::lib::byte_stream::IterableWrapper<T> w)
 {
 	auto i = w.i1;
 

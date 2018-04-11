@@ -16,7 +16,8 @@ namespace esep
 
 			public:
 				template<typename TT>
-					Monitor(TT&& o) : mObject(o) { }
+					explicit Monitor(TT&& o) : mObject(o) { }
+				Monitor( ) { }
 				template<typename F>
 					auto operator()(F&&) -> typename lib::FunctionTraits<F>::return_type;
 			private:

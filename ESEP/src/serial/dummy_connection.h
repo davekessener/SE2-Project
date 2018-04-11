@@ -5,6 +5,8 @@
 
 #include "serial/connection.h"
 
+#include "lib/sync/container.h"
+
 namespace esep
 {
 	namespace serial
@@ -12,20 +14,19 @@ namespace esep
 		class DummyConnection : public Connection
 		{
 			public:
-			typedef std::function<void(byte_t)> write_fn;
-			typedef std::function<byte_t(void)> read_fn;
+			typedef sync::Container<byte_t> buffer_t;
 
 			public:
-				DummyConnection(read_fn rf, write_fn wf)
-					: mRead(rf), mWrite(wf) { }
+				DummyConnection( ) : mCounterpart(nullptr) { }
+				void connect(DummyConnection& c) { c.close(); mCounterpart = &c; c.mCounterpart = this; }
 				void write(const byte_t *, size_t);
 				void read(byte_t *, size_t);
-				void open(const std::string&) { }
-				void close( ) { }
-				bool isOpen( ) const { return true; }
+				void open(const std::string&) { MXT_THROW("Cannot open a dummy-connection!"); }
+				void close( ) { mCounterpart = nullptr; mBuffer.clear(); }
+				bool isOpen( ) const { return mCounterpart; }
 			private:
-				read_fn mRead;
-				write_fn mWrite;
+				DummyConnection *mCounterpart;
+				buffer_t mBuffer;
 		};
 	}
 }

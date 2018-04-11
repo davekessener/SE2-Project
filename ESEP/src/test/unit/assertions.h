@@ -3,7 +3,7 @@
 
 #define UNIT_TEST(desc) \
 	mWriter.name = desc; \
-	mWriter = [this](void) -> void
+	mWriter = [&,this](void) -> void
 
 
 #define ASSERT_EQUALS(a,b) \

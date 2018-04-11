@@ -9,6 +9,7 @@
 #include "test/ut/crc32.h"
 #include "test/ut/fsm.h"
 #include "test/ut/byte_stream.h"
+#include "test/ut/dummy_connection.h"
 
 namespace esep { namespace test {
 
@@ -19,6 +20,7 @@ void runUnitTests(std::ostream& os)
 		.addTest<unit::CRC32>()
 		.addTest<unit::FSM>()
 		.addTest<unit::ByteStream>()
+		.addTest<unit::DummyConnection>()
 		.run(os);
 }
 
