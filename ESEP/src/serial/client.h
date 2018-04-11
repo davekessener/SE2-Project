@@ -17,9 +17,9 @@ namespace esep
 
 			public:
 				Client(Connection&);
-				virtual ~Client( ) { }
-				virtual void write(const buffer_t&) = 0;
-				virtual buffer_t read( ) = 0;
+				~Client( );
+				void write(const buffer_t&);
+				buffer_t read( );
 			private:
 				struct Impl;
 
