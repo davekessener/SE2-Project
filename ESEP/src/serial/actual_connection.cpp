@@ -1,7 +1,6 @@
 
-#include "connection.h"
-
 #include <fcntl.h>
+#include <serial/actual_connection.h>
 #include <termios.h>
 #include <iostream>
 
@@ -9,7 +8,7 @@
 
 namespace esep { namespace serial {
 
-Connection::Connection(const std::string& device)
+ActualConnection::ActualConnection(const std::string& device)
 : fildes_(0)
 {
 	fildes_ = open(device.c_str(),O_RDWR);
@@ -33,13 +32,7 @@ Connection::Connection(const std::string& device)
 	tcsetattr(this->fildes_, TCSANOW, &ts);
 }
 
-Connection::Connection(Connection&& other)
-{
-	this->fildes_ = other.fildes_;
-    other.fildes_ = -1;
-}
-
-Connection::~Connection()
+ActualConnection::~ActualConnection()
 {
     if(this->fildes_ != -1) {
     	if (close(this->fildes_) == -1)
@@ -49,7 +42,7 @@ Connection::~Connection()
     }
 }
 
-void Connection::write(const byte_t* buffer, size_t size)
+void ActualConnection::write(const byte_t* buffer, size_t size)
 {
 	if(this->fildes_ != -1)
 	{
@@ -62,7 +55,7 @@ void Connection::write(const byte_t* buffer, size_t size)
     }
 }
 
-void Connection::read(byte_t* buffer, size_t size)
+void ActualConnection::read(byte_t* buffer, size_t size)
 {
 	if(this->fildes_ != -1)
 	{
@@ -73,6 +66,23 @@ void Connection::read(byte_t* buffer, size_t size)
     {
     	throw lib::stringify("Could not read from device!");
     }
+}
+
+void ActualConnection::open(const std::string& device)
+{
+	// TODO
+}
+
+void ActualConnection::close(void)
+{
+	// TODO
+}
+
+bool ActualConnection::isOpen(void) const
+{
+	// TODO
+
+	return false;
 }
 
 }}

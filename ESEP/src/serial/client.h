@@ -3,8 +3,8 @@
 
 #include <vector>
 
-#include "lib/utils.h"
 #include "serial/connection.h"
+#include "lib/utils.h"
 
 namespace esep
 {
@@ -16,9 +16,10 @@ namespace esep
 			typedef std::vector<byte_t> buffer_t;
 
 			public:
-				Client(Connection&&);
-				void write(const buffer_t&);
-				buffer_t read( );
+				Client(Connection&);
+				virtual ~Client( ) { }
+				virtual void write(const buffer_t&) = 0;
+				virtual buffer_t read( ) = 0;
 			private:
 		};
 	}
