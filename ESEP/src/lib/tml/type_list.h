@@ -32,6 +32,12 @@ namespace esep
 
 		template<typename ... T>
 		using MakeTypeList = typename TypeListMaker<T...>::Type;
+
+		template<typename L>
+		using Car = typename L::Head;
+
+		template<typename L>
+		using Cdr = typename L::Tail;
 	}
 }
 

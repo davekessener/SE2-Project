@@ -36,7 +36,12 @@ namespace esep
 			{
 				public:
 					In_Connection(Connection *c) : Base_Connection(c) { }
-					virtual types::buffer_t read(size_t);
+					virtual void read(types::buffer_t&, size_t);
+					types::buffer_t read(size_t s)
+						{ types::buffer_t o; read(o, s); return o; }
+					template<typename T>
+						T read( )
+							{ types::buffer_t o; T r; read(o, sizeof(T)); o >> r; return r; }
 			};
 
 			class InOut_Connection : public In_Connection, public Out_Connection
@@ -52,7 +57,7 @@ namespace esep
 					SeperatedConnection(In_Connection& in, Out_Connection& out)
 						: InOut_Connection(nullptr), mIn(in), mOut(out) { }
 					virtual void write(const types::buffer_t& o) { mOut.write(o); }
-					virtual types::buffer_t read(size_t l) { return mIn.read(l); }
+					virtual void read(types::buffer_t& b, size_t l) { mIn.read(b, l); }
 				private:
 					In_Connection& mIn;
 					Out_Connection& mOut;

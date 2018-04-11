@@ -4,15 +4,15 @@ namespace esep { namespace serial {
 
 using namespace types;
 
-Client::Impl::Impl(Connection&& c)
-	: mBaseConnection(new Connection(std::move(c)))
-	, mWriteConnection(mBaseConnection)
-	, mReadConnection(mBaseConnection)
+Client::Impl::Impl(Connection& c)
+	: mBaseConnection(c)
+	, mWriteConnection(&mBaseConnection)
+	, mReadConnection(&mBaseConnection)
 	, mReadWriteConnection(mReadConnection, mWriteConnection)
 	, mSerializer(mWriteConnection)
 	, mDeserializer(mReadConnection)
-	, mReader(mSerializer)
 	, mWriter(mSerializer)
+	, mReader(mWriter)
 	, mReset(mReadWriteConnection)
 {
 	mRunning = true;
@@ -20,7 +20,7 @@ Client::Impl::Impl(Connection&& c)
 	mReadThread = std::thread([this](void) {
 		try
 		{
-			while(mRunning)
+			while(mRunning.load())
 			{
 				try
 				{
@@ -33,6 +33,9 @@ Client::Impl::Impl(Connection&& c)
 				catch(const types::ResetTriggeredException& e)
 				{
 					mReset.receive();
+				}
+				catch(const types::FailedPacketRead& e)
+				{
 				}
 			}
 		}
@@ -52,6 +55,9 @@ Client::Impl::Impl(Connection&& c)
 
 Client::Impl::~Impl()
 {
+	mRunning = false;
+	delete mBaseConnection;
+	mReadThread.join();
 }
 
 void Client::Impl::write(const buffer_t& data)

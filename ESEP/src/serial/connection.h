@@ -11,16 +11,15 @@ namespace esep
 	{
 		class Connection
 		{
-			private:
-				int fildes_;
 			public:
-				Connection(const std::string&);
-				Connection(Connection&&);
-				~Connection( );
-				void write(const byte_t *, size_t);
-				void read(byte_t *, size_t);
+				virtual ~Connection( ) { }
+				virtual void write(const byte_t *, size_t) = 0;
+				virtual void read(byte_t *, size_t) = 0;
+				virtual void open(const std::string&) = 0;
+				virtual void close( ) = 0;
 			private:
 				Connection(const Connection&) = delete;
+				Connection(Connection&&) = delete;
 				Connection& operator=(const Connection&) = delete;
 		};
 	}

@@ -1,6 +1,8 @@
 #ifndef ESEP_SERIAL_CLIENT_IMPL_H
 #define ESEP_SERIAL_CLIENT_IMPL_H
 
+#include <atomic>
+
 #include "serial/client.h"
 #include "serial/client/types.h"
 #include "serial/client/m_connection.h"
@@ -17,23 +19,23 @@ namespace esep
 		class Client::Impl
 		{
 			public:
-				Impl(Connection&&);
+				Impl(Connection&);
 				~Impl( );
 				void write(const types::buffer_t&);
 				types::buffer_t read( );
 
 			private:
-				Connection *mBaseConnection;
+				Connection& mBaseConnection;
 				modules::Out_Connection mWriteConnection;
 				modules::In_Connection mReadConnection;
 				modules::SeperatedConnection mReadWriteConnection;
 				modules::Serializer mSerializer;
 				modules::Deserializer mDeserializer;
-				modules::Reader mReader;
 				modules::Writer mWriter;
+				modules::Reader mReader;
 				modules::Resetter mReset;
 
-				bool mRunning;
+				std::atomic<bool> mRunning;
 				std::thread mWriterThread, mReaderThread;
 		};
 	}

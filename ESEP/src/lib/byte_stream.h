@@ -31,6 +31,27 @@ namespace esep
 
 			    typedef MemberWrapper<void, container_type> remove_fn;
 			};
+
+			template<typename I>
+			struct IterableWrapper
+			{
+				IterableWrapper(I i1, I i2) : i1(i1), i2(i2) { }
+				I i1, i2;
+			};
+
+			template<typename T>
+			auto insert_all(T&& o) -> IterableWrapper<decltype(std::begin(o))>
+			{
+				typedef decltype(std::begin(o)) iterator;
+
+				return IterableWrapper<iterator>(std::begin(o), std::end(o));
+			}
+
+			template<typename I>
+			IterableWrapper<I> insert_all(I&& i1, I&& i2)
+			{
+				return IterableWrapper<I>(i1, i2);
+			}
 		}
 
 		template<typename C = byte_stream::defaults::container_type>
@@ -44,12 +65,14 @@ namespace esep
 		    public:
 		        size_t size( ) const { return mSize; }
 		        bool empty( ) const { return mSize > 0; }
+		        void clear( ) { Base_ByteStream<C> bs; swap(bs); }
 		        iterator begin( ) { return mContainer.begin(); }
 		        iterator end( ) { return mContainer.end(); }
 		        const_iterator begin( ) const { return mContainer.cbegin(); }
 		        const_iterator end( ) const { return mContainer.cend(); }
 		        const_iterator cbegin( ) const { return mContainer.cbegin(); }
 		        const_iterator cend( ) const { return mContainer.cend(); }
+		        void swap(Base_ByteStream<C>& s) { std::swap(mContainer, s.mContainer); std::swap(mSize, s.mSize); }
 		    protected:
 		        container_type& getContainer( ) { return mContainer; }
 		        void increment( ) { ++mSize; }
@@ -135,6 +158,9 @@ namespace esep
 		    typedef typename In_ByteStream<C, G, R>::retrieve_fn retrieve_fn;
 		    typedef typename In_ByteStream<C, G, R>::remove_fn remove_fn;
 
+		    using Base_ByteStream<C>::cbegin;
+		    using Base_ByteStream<C>::size;
+
 		    public:
 		        InOut_ByteStream(
 		            insert_fn in = &container_type::push_back,
@@ -142,6 +168,19 @@ namespace esep
 		            remove_fn rem = &container_type::pop_front)
 		                : In_ByteStream<C, G, R>(get, rem)
 		                , Out_ByteStream<C, I>(in) { }
+		        InOut_ByteStream<C, I, G, R> section(size_t p1, size_t p2)
+				{
+		        	if(p1 > p2 || p2 > size())
+		        		MXT_THROW("Invalid section boundaries: [", p1, ", ", p2, ")!");
+
+		        	InOut_ByteStream<C, I, G, R> r;
+		        	auto i = cbegin();
+
+		        	while(p1) { ++i; --p1; --p2; }
+		        	while(p2) { r.insert(*i++); --p2; }
+
+		        	return r;
+				}
 		    private:
 		};
 
@@ -162,12 +201,14 @@ esep::lib::Out_ByteStream<C, I>& operator<<(esep::lib::Out_ByteStream<C, I>& os,
     return os;
 }
 
-template<typename C1, typename I1, typename C2, typename I2>
-esep::lib::Out_ByteStream<C1, I1>& operator<<(esep::lib::Out_ByteStream<C1, I1>& os, esep::lib::In_ByteStream<C2, I2>& is)
+template<typename T, typename C, typename I>
+esep::lib::Out_ByteStream<C, I>& operator<<(esep::lib::Out_ByteStream<C, I>& os, const lib::byte_stream::IterableWrapper<T>& w)
 {
-	while(!is.empty())
+	auto i = w.i1;
+
+	while(i != w.i2)
 	{
-		os.insert(is.remove());
+		os.insert(*i++);
 	}
 
 	return os;

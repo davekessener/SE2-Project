@@ -1,8 +1,10 @@
 #ifndef ESEP_SERIAL_CLIENT_MODULE_WRITE_H
 #define ESEP_SERIAL_CLIENT_MODULE_WRITE_H
 
+#include <mutex>
+
 #include "lib/utils.h"
-#include "lib/fsm.h"
+#include "lib/sync/container.h"
 
 #include "serial/client/types.h"
 #include "serial/client/m_serialize.h"
@@ -17,33 +19,19 @@ namespace esep
 		{
 			class Writer
 			{
-				typedef std::vector<packet::packet_ptr> packets_t;
-				typedef packets_t::const_iterator packet_iter;
-
-				struct sent_packet
-				{
-					packet_ptr packet;
-					bool ack;
-				};
-
-				enum class Event
-				{
-					PACKET_READY,
-					ACK_OK,
-					ACK_RETRANSMIT
-				};
+				typedef std::unique_lock<std::mutex> lock_t;
 
 				public:
-					Writer(Serializer& c) : mConnection(c) { }
-					void put(const types::buffer_t& o);
-					void acknowledge(const packet::Answer&);
+					Writer(Serializer&);
+					void put(const types::buffer_t&);
+					void acknowledge(types::id_t, packet::Type);
 					void reset( );
+					void send(packet::packet_ptr);
 				private:
-					Serializer& mConnection;
-					std::deque<types::buffer_t> mWriteBuffer;
-					packets_t mSendingBuffer;
-					packet_iter mCurrent;
-					lib::fsm::FSM<Event> mFSM;
+					struct Impl;
+
+					Impl *pImpl;
+					std::mutex mMutex;
 			};
 		}
 	}

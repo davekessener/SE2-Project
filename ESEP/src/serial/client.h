@@ -16,7 +16,7 @@ namespace esep
 			typedef std::vector<byte_t> buffer_t;
 
 			public:
-				Client(Connection&&);
+				Client(Connection&);
 				~Client( );
 				void write(const buffer_t&);
 				buffer_t read( );

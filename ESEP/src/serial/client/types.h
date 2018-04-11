@@ -26,6 +26,7 @@ namespace esep
 
 			struct BadPacketException : public std::exception { };
 			struct ResetTriggeredException : public std::exception { };
+			struct FailedPacketRead : public std::exception { };
 
 			struct PacketDataOverflowException : public std::runtime_error
 				{ PacketDataOverflowException(const std::string& s) : std::runtime_error(s) { } };

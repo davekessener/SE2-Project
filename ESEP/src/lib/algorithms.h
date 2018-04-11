@@ -5,20 +5,17 @@ namespace esep
 {
 	namespace lib
 	{
-		namespace byte_stream
+		template<typename T>
+		byte_t checksum(T&& o)
 		{
-			template<typename T>
-			byte_t checksum(T&& o)
+			byte_t v = 0;
+
+			for(const byte_t& e : o)
 			{
-				byte_t v = 0;
-
-				for(const byte_t& e : o)
-				{
-					v ^= e;
-				}
-
-				return v;
+				v ^= e;
 			}
+
+			return v;
 		}
 	}
 }

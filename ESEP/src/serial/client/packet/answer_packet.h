@@ -9,16 +9,51 @@ namespace esep
 	{
 		namespace packet
 		{
+			template<Type T>
 			class Answer : public Base
 			{
 				public:
-					Answer(Type t, types::id_t id) : mType(t), mID(id) { }
+					Answer(types::id_t id) : Base(id) { }
+					virtual Type getType( ) const { return T; }
 					virtual types::buffer_t serialize( );
 					static packet_ptr deserialize(modules::In_Connection&);
-				private:
-					Type mType;
-					types::id_t mID;
 			};
+
+			template<Type T>
+			types::buffer_t Answer<T>::serialize(void)
+			{
+				types::buffer_t b;
+
+				b << static_cast<uint16_t>(T) << getID();
+
+				byte_t checksum = lib::checksum(b);
+
+				b << checksum;
+
+				return b;
+			}
+
+			template<Type T>
+			packet_ptr Answer<T>::deserialize(modules::In_Connection& c)
+			{
+				types::buffer_t b;
+
+				b << static_cast<uint16_t>(T);
+
+				c.read(b, sizeof(types::id_t) + sizeof(byte_t));
+
+				if(lib::checksum(b) != 0)
+				{
+					throw types::FailedPacketRead();
+				}
+
+				uint16_t type;
+				id_t id;
+
+				b >> type >> id;
+
+				return packet_ptr(new Answer<T>(id));
+			}
 		}
 	}
 }

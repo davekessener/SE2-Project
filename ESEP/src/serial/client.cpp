@@ -3,8 +3,8 @@
 
 namespace esep { namespace serial {
 
-Client::Client(Connection&& c)
-	: pImpl(new Impl(std::move(c)))
+Client::Client(Connection& c)
+	: pImpl(new Impl(c))
 {
 }
 
@@ -24,10 +24,8 @@ void Client::write(const buffer_t& data)
 
 Client::buffer_t Client::read(void)
 {
-	buffer_t buf;
 	types::buffer_t v = pImpl->read();
-
-	while(v.size()) buf.push_back(v.remove());
+	buffer_t buf(v.cbegin(), v.cend());
 
 	return buf;
 }
