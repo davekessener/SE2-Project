@@ -1,9 +1,11 @@
 #ifndef SRC_HAL_ASYNC_CHANNEL_H
 #define SRC_HAL_ASYNC_CHANNEL_H
 
-namespace
+#include "lib/utils.h"
+
+namespace esep
 {
-	namespace
+	namespace hal
 	{
 		class AsyncChannel
 		{

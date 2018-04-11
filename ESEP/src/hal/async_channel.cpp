@@ -8,7 +8,7 @@ namespace esep { namespace hal {
 
 AsyncChannel::AsyncChannel(void)
 {
-	if((mChannelID = CreateChannel_r(0)) == -1)
+	if((mChannelID = ChannelCreate_r(0)) == -1)
 	{
 		MXT_THROW("Could not create channel");
 	}
