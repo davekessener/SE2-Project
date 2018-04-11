@@ -5,7 +5,7 @@
 #include "lib/singleton.h"
 #include "system.h"
 
-#include "lib/log/standard.h"
+#include "lib/log/threaded.h"
 
 #define MXT_LOG_IMPL(section,severity,msg) \
 	::esep::lib::Logger::instance().log( \
@@ -28,7 +28,7 @@ namespace esep
 {
 	namespace lib
 	{
-		typedef SingletonHolder<log::Standard> Logger;
+		typedef SingletonHolder<log::Threaded> Logger;
 	}
 }
 

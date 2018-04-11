@@ -48,13 +48,12 @@ namespace esep
 				public:
 					template<typename C>
 						Data(id_t, C&&, bool = false);
-					types::buffer_t getData( ) { return types::buffer_t(mData, mData + mLength); }
 					crc_t calculateCRC( ) const { CRC crcGen; return traits_t::calculateCRC(crcGen.encode(mData)); }
 					crc_t getCRC( ) const { return mCRC; }
 					virtual bool checkIntegrity( ) const { return mCRC == calculateCRC(); }
 					virtual bool isChained( ) const { return mChained; }
 					virtual types::buffer_t getData( ) const
-						{ types::buffer_t b; b << lib::byte_stream::insert_all(mData); return b; }
+						{ types::buffer_t b; b << lib::byte_stream::insert_all(mData, mData + mLength); return b; }
 					virtual Type getType( ) const { return T; }
 					virtual types::buffer_t serialize( );
 					static packet_ptr deserialize(modules::In_Connection&);

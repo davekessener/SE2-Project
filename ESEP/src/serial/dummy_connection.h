@@ -18,11 +18,11 @@ namespace esep
 
 			public:
 				DummyConnection( ) : mCounterpart(nullptr) { }
-				void connect(DummyConnection& c) { c.close(); mCounterpart = &c; c.mCounterpart = this; }
+				void connect(DummyConnection&);
 				void write(const byte_t *, size_t);
 				void read(byte_t *, size_t);
 				void open(const std::string&) { MXT_THROW("Cannot open a dummy-connection!"); }
-				void close( ) { mCounterpart = nullptr; mBuffer.clear(); }
+				void close( );
 				bool isOpen( ) const { return mCounterpart; }
 			private:
 				DummyConnection *mCounterpart;

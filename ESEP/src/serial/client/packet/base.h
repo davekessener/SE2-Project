@@ -24,6 +24,9 @@ namespace esep
 			class Base
 			{
 				public:
+				typedef types::id_t id_t;
+
+				public:
 					Base(id_t id) : mID(id) { }
 					virtual ~Base( ) { }
 					virtual types::buffer_t serialize( ) = 0;

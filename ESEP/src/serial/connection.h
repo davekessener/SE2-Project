@@ -2,6 +2,7 @@
 #define ESEP_SERIAL_CONNECTION_H
 
 #include <string>
+#include <stdexcept>
 
 #include "lib/utils.h"
 
@@ -11,6 +12,9 @@ namespace esep
 	{
 		class Connection
 		{
+			public:
+			struct ConnectionClosedException : public std::exception { };
+
 			public:
 				Connection( ) { }
 				virtual ~Connection( ) { }

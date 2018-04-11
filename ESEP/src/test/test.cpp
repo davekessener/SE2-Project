@@ -1,6 +1,9 @@
 #ifdef ESEP_TEST
 
 #include <iostream>
+#include <sstream>
+
+#include "lib/stream_intercept.h"
 
 #include "test/test.h"
 #include "test/unit/manager.h"
@@ -10,6 +13,7 @@
 #include "test/ut/fsm.h"
 #include "test/ut/byte_stream.h"
 #include "test/ut/dummy_connection.h"
+#include "test/ut/serial_client.h"
 
 namespace esep { namespace test {
 
@@ -21,12 +25,17 @@ void runUnitTests(std::ostream& os)
 		.addTest<unit::FSM>()
 		.addTest<unit::ByteStream>()
 		.addTest<unit::DummyConnection>()
+		.addTest<unit::SerialClient>()
 		.run(os);
 }
 
 void main(const std::vector<std::string>& args)
 {
-	runUnitTests(std::cout);
+	std::stringstream my_cout, unit_testresults;
+
+	runUnitTests(unit_testresults);
+
+	std::cout << "\n\n" << unit_testresults.str();
 }
 
 }}

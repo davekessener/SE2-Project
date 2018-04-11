@@ -40,16 +40,20 @@ Client::Impl::Impl(Connection& c)
 				}
 			}
 		}
-		catch(...)
+		catch(const Connection::ConnectionClosedException& e)
 		{
 			if(mRunning)
 			{
-				throw;
+				MXT_LOG("Serial connection was terminated by the other side.");
 			}
 			else
 			{
 				MXT_LOG("Serial connection was terminated.");
 			}
+		}
+		catch(const std::string& e)
+		{
+			MXT_LOG(lib::stringify("Caught a stray std::string: ", e));
 		}
 	});
 }

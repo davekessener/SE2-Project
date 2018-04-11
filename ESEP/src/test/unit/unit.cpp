@@ -30,6 +30,12 @@ void TestSuite::doTest(result_fn f)
 
 			f(Result::FAILURE);
 		}
+		catch(const std::string& e)
+		{
+			mErrors.push_back(p.first + ": '" + e + "' [std::string]");
+
+			f(Result::FAILURE);
+		}
 		catch(...)
 		{
 			mErrors.push_back(p.first + " [unknown exception]");

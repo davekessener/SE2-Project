@@ -1,5 +1,7 @@
 #include "serial/client/m_write.h"
 
+#include "lib/logger.h"
+
 namespace esep { namespace serial { namespace modules {
 
 class Writer::Impl
@@ -68,7 +70,9 @@ namespace
 	template<typename T>
 	packet::packet_ptr createPacket(byte_t id, const types::buffer_t& o, size_t i, bool chained)
 	{
-		return packet::packet_ptr(new T(id, o.section(i, i + T::SIZE), chained));
+#define MIN(a,b) (((a)<(b))?(a):(b))
+		return packet::packet_ptr(new T(id, o.section(i, MIN(i + T::SIZE, o.size())), chained));
+#undef MIN
 	}
 }
 

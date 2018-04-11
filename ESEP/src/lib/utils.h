@@ -31,7 +31,7 @@ namespace esep
 		{
 			std::stringstream ss;
 
-			ss << std::hex << std::setfill('0') << std::setw(B / 4) << v;
+			ss << std::hex << std::setfill('0') << std::setw(B / 4) << static_cast<uint64_t>(v);
 
 			return ss.str();
 		}

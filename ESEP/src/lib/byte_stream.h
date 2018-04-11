@@ -65,7 +65,7 @@ namespace esep
 
 		    public:
 		        size_t size( ) const { return mSize; }
-		        bool empty( ) const { return mSize > 0; }
+		        bool empty( ) const { return mSize == 0; }
 		        void clear( ) { Base_ByteStream<C> bs; swap(bs); }
 		        iterator begin( ) { return mContainer.begin(); }
 		        iterator end( ) { return mContainer.end(); }
@@ -172,7 +172,7 @@ namespace esep
 		        InOut_ByteStream<C, I, G, R> section(size_t p1, size_t p2) const
 				{
 		        	if(p1 > p2 || p2 > size())
-		        		MXT_THROW("Invalid section boundaries: [", p1, ", ", p2, ")!");
+		        		MXT_THROW("Invalid section boundaries (buffer size is ", size(), "): [", p1, ", ", p2, ")!");
 
 		        	InOut_ByteStream<C, I, G, R> r;
 		        	auto i = cbegin();

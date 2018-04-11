@@ -48,6 +48,22 @@ void DummyConnection::define(void)
 	{
 	};
 
+	UNIT_TEST("can close connection")
+	{
+		byte_t buf[] = { 0xFF, 0xFF, 0xFF };
+
+		std::thread worker([this](void) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(20));
+			mConnections[0]->close();
+		});
+
+		ASSERT_FAILURE(mConnections[0]->read(buf, sizeof(buf)), serial::Connection::ConnectionClosedException);
+		ASSERT_FALSE(mConnections[0]->isOpen());
+		ASSERT_FALSE(mConnections[1]->isOpen());
+
+		worker.join();
+	};
+
 	UNIT_TEST("can send some data")
 	{
 		send(mConnections[0], mConnections[1]);
