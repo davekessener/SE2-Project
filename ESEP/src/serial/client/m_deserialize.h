@@ -23,7 +23,7 @@ namespace esep
 				struct TypeComparator
 				{
 					inline uint numBits(uint16_t v) { uint n = 0; while(v) { if(v & 1) ++n; v >>= 1; } return n; }
-					bool operator()(Type t1, Type t2)
+					bool operator()(packet::Type t1, packet::Type t2)
 					{
 						return numBits(static_cast<uint16_t>(t1) ^ static_cast<uint16_t>(t2)) <= 1;
 					}
@@ -31,22 +31,22 @@ namespace esep
 
 				typedef packet::packet_ptr (*generator_type)(In_Connection&);
 
-				template<Type K, template <Type> class T>
-				using Entry = lib::Generator<Type, K, generator_type, &T<K>::deserialize>;
+				template<packet::Type K, generator_type F>
+				using Entry = lib::Generator<packet::Type, K, generator_type, F>;
 
-				template<Type K>
-				using DataPacket = Entry<K, packet::Data>;
+				template<packet::Type K>
+				using DataPacket = Entry<K, &packet::Data<K>::deserialize>;
 
-				template<Type K>
-				using AnswerPacket = Entry<K, packet::Answer>;
+				template<packet::Type K>
+				using AnswerPacket = Entry<K, &packet::Answer<K>::deserialize>;
 
 				typedef lib::Factory<tml::MakeTypeList<
-					DataPacket<Type::SDP>,
-					DataPacket<Type::MDP>,
-					DataPacket<Type::LDP>,
-					AnswerPacket<Type::ACK_OK>,
-					AnswerPacket<Type::ACK_ERR>,
-					lib::Generator<Type, Type::RESET, generator_type, &respondToReset>
+					DataPacket<packet::Type::SDP>,
+					DataPacket<packet::Type::MDP>,
+					DataPacket<packet::Type::LDP>,
+					AnswerPacket<packet::Type::AP_OK>,
+					AnswerPacket<packet::Type::AP_ERR>,
+					lib::Generator<packet::Type, packet::Type::RESET, generator_type, &respondToReset>
 				>, TypeComparator, types::BadPacketException> factory_t;
 
 				public:

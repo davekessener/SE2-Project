@@ -12,11 +12,13 @@ namespace esep
 		class Connection
 		{
 			public:
+				Connection( ) { }
 				virtual ~Connection( ) { }
 				virtual void write(const byte_t *, size_t) = 0;
 				virtual void read(byte_t *, size_t) = 0;
 				virtual void open(const std::string&) = 0;
 				virtual void close( ) = 0;
+				virtual bool isOpen( ) const = 0;
 			private:
 				Connection(const Connection&) = delete;
 				Connection(Connection&&) = delete;

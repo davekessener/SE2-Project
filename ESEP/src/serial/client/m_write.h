@@ -9,6 +9,8 @@
 #include "serial/client/types.h"
 #include "serial/client/m_serialize.h"
 
+#include "serial/client/packet/base.h"
+#include "serial/client/packet/data_packet.h"
 #include "serial/client/packet/answer_packet.h"
 
 namespace esep
@@ -23,6 +25,7 @@ namespace esep
 
 				public:
 					Writer(Serializer&);
+					~Writer( );
 					void put(const types::buffer_t&);
 					void acknowledge(types::id_t, packet::Type);
 					void reset( );

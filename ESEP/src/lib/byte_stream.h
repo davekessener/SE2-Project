@@ -168,7 +168,7 @@ namespace esep
 		            remove_fn rem = &container_type::pop_front)
 		                : In_ByteStream<C, G, R>(get, rem)
 		                , Out_ByteStream<C, I>(in) { }
-		        InOut_ByteStream<C, I, G, R> section(size_t p1, size_t p2)
+		        InOut_ByteStream<C, I, G, R> section(size_t p1, size_t p2) const
 				{
 		        	if(p1 > p2 || p2 > size())
 		        		MXT_THROW("Invalid section boundaries: [", p1, ", ", p2, ")!");
@@ -202,7 +202,7 @@ esep::lib::Out_ByteStream<C, I>& operator<<(esep::lib::Out_ByteStream<C, I>& os,
 }
 
 template<typename T, typename C, typename I>
-esep::lib::Out_ByteStream<C, I>& operator<<(esep::lib::Out_ByteStream<C, I>& os, const lib::byte_stream::IterableWrapper<T>& w)
+esep::lib::Out_ByteStream<C, I>& operator<<(esep::lib::Out_ByteStream<C, I>& os, const esep::lib::byte_stream::IterableWrapper<T>& w)
 {
 	auto i = w.i1;
 

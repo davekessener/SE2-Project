@@ -17,7 +17,7 @@ Client::Impl::Impl(Connection& c)
 {
 	mRunning = true;
 
-	mReadThread = std::thread([this](void) {
+	mReaderThread = std::thread([this](void) {
 		try
 		{
 			while(mRunning.load())
@@ -32,10 +32,11 @@ Client::Impl::Impl(Connection& c)
 				}
 				catch(const types::ResetTriggeredException& e)
 				{
-					mReset.receive();
+					mReset.respond();
 				}
 				catch(const types::FailedPacketRead& e)
 				{
+					mWriter.acknowledge(0, packet::Type::AP_ERR);
 				}
 			}
 		}
@@ -56,11 +57,11 @@ Client::Impl::Impl(Connection& c)
 Client::Impl::~Impl()
 {
 	mRunning = false;
-	delete mBaseConnection;
-	mReadThread.join();
+	mBaseConnection.close();
+	mReaderThread.join();
 }
 
-void Client::Impl::write(const buffer_t& data)
+void Client::Impl::write(const types::buffer_t& data)
 {
 	mWriter.put(data);
 }

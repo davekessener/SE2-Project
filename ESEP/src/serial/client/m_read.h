@@ -3,6 +3,8 @@
 
 #include <array>
 
+#include "lib/restricted_list.h"
+
 #include "serial/client/types.h"
 #include "serial/client/m_write.h"
 
@@ -19,7 +21,7 @@ namespace esep
 				static constexpr uint N = 10;
 
 				public:
-					Reader(Writer& c) : mConnection(c), mHistorySize(0) { }
+					Reader(Writer& c) : mConnection(c) { }
 					void process(packet::packet_ptr);
 					types::buffer_t get( ) { return mStorage.remove(); }
 				private:
@@ -27,9 +29,9 @@ namespace esep
 					bool recordPacket(packet::packet_ptr);
 				private:
 					Writer& mConnection;
+					lib::RestrictedList<packet::packet_ptr, N> mHistory;
 					types::storage_t mStorage;
 					types::buffer_t mChain;
-					lib::RestrictedList<packet::packet_ptr, N> mHistory;
 			};
 		}
 	}

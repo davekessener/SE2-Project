@@ -11,6 +11,7 @@
 #include "serial/client.h"
 #include "serial/connection.h"
 
+#include "lib/byte_stream.h"
 #include "lib/sync/container.h"
 
 namespace esep
@@ -21,7 +22,7 @@ namespace esep
 		{
 			typedef std::unique_lock<std::mutex> lock_t;
 			typedef uint8_t id_t;
-			typedef ByteStream buffer_t;
+			typedef lib::ByteStream buffer_t;
 			typedef sync::Container<buffer_t> storage_t;
 
 			struct BadPacketException : public std::exception { };

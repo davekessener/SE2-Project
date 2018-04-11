@@ -16,6 +16,7 @@ namespace esep
 				void read(byte_t *, size_t);
 				void open(const std::string&);
 				void close( );
+				bool isOpen( ) const { return fildes_ != -1; }
 			private:
 				int fildes_;
 		};

@@ -3,6 +3,7 @@
 
 #include "lib/utils.h"
 #include "lib/singleton.h"
+#include "system.h"
 
 #include "lib/log/standard.h"
 

@@ -1,11 +1,11 @@
 #include "serial/client/m_write.h"
 
-namespace esep { namespace serial { namespace module {
+namespace esep { namespace serial { namespace modules {
 
 class Writer::Impl
 {
 	public:
-		Impl(Serialize& c) : mConnection(c), mNextID(0) { }
+		Impl(Serializer& c) : mNextID(0), mConnection(c) { }
 		void put(const types::buffer_t&);
 		void acknowledge(types::id_t, packet::Type);
 		void reset( );
@@ -21,7 +21,7 @@ class Writer::Impl
 
 // # --------------------------------------------------------------------------------------------------
 
-Writer::Writer(Serialize& c)
+Writer::Writer(Serializer& c)
 	: pImpl(new Impl(c))
 {
 }
@@ -44,7 +44,7 @@ void Writer::acknowledge(types::id_t id, packet::Type t)
 {
 	lock_t lock(mMutex);
 
-	pImpl->achnowledge(id, t);
+	pImpl->acknowledge(id, t);
 }
 
 void Writer::reset( )
@@ -66,7 +66,7 @@ void Writer::send(packet::packet_ptr p)
 namespace
 {
 	template<typename T>
-	packet::packet_ptr createPacketHelper(byte_t id, const types::buffer_t& o, size_t i, bool chained)
+	packet::packet_ptr createPacket(byte_t id, const types::buffer_t& o, size_t i, bool chained)
 	{
 		return packet::packet_ptr(new T(id, o.section(i, i + T::SIZE), chained));
 	}
@@ -74,11 +74,10 @@ namespace
 
 void Writer::Impl::put(const types::buffer_t& o)
 {
-	typedef packet::Data<Type::SDP> sdp_t;
-	typedef packet::Data<Type::MDP> mdp_t;
-	typedef packet::Data<Type::LDP> ldp_t;
+	typedef packet::Data<packet::Type::SDP> sdp_t;
+	typedef packet::Data<packet::Type::MDP> mdp_t;
+	typedef packet::Data<packet::Type::LDP> ldp_t;
 
-	const byte_t *c = &*o.cbegin();
 	size_t i = 0, s = o.size();
 
 	if(!s) return;
@@ -107,14 +106,14 @@ void Writer::Impl::put(const types::buffer_t& o)
 
 void Writer::Impl::acknowledge(types::id_t id, packet::Type t)
 {
-	if(t == packet::Type::ACK_OK)
+	if(t == packet::Type::AP_OK)
 	{
 		if(!mSendingBuffer.empty() && id == mSendingBuffer.front()->getID())
 		{
 			processNext();
 		}
 	}
-	else if(t == packet::Type::ACK_ERR)
+	else if(t == packet::Type::AP_ERR)
 	{
 		if(!mSendingBuffer.empty())
 		{
@@ -123,7 +122,7 @@ void Writer::Impl::acknowledge(types::id_t id, packet::Type t)
 	}
 	else
 	{
-		throw MXT_THROW("Tried to pass a packet type (", id, ") that is not an AP");
+		MXT_THROW("Tried to pass a packet type (", id, ") that is not an AP");
 	}
 }
 

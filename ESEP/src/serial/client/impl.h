@@ -36,7 +36,7 @@ namespace esep
 				modules::Resetter mReset;
 
 				std::atomic<bool> mRunning;
-				std::thread mWriterThread, mReaderThread;
+				std::thread mReaderThread;
 		};
 	}
 }

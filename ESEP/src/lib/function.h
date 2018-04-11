@@ -20,6 +20,17 @@ namespace esep
 			typedef R return_type;
 			typedef C class_type;
 			typedef tml::MakeTypeList<A...> argument_types;
+			static constexpr bool IsMember = true;
+		};
+
+		template<typename R, typename ... A>
+		struct FunctionTraits<R(*)(A...)>
+		{
+			static const uint arg_count = sizeof...(A);
+			typedef R return_type;
+			typedef tml::Nil class_type;
+			typedef tml::MakeTypeList<A...> argument_types;
+			static constexpr bool IsMember = false;
 		};
 	}
 }

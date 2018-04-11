@@ -10,6 +10,7 @@
 
 #include "lib/utils.h"
 #include "lib/logger.h"
+#include "lib/crc.h"
 #include "lib/algorithms.h"
 
 namespace esep
@@ -21,6 +22,7 @@ namespace esep
 			class Base_Data : public Base
 			{
 				public:
+					Base_Data(id_t id) : Base(id) { }
 					virtual bool checkIntegrity( ) const = 0;
 					virtual types::buffer_t getData( ) const = 0;
 					virtual bool isChained( ) const = 0;
@@ -32,7 +34,7 @@ namespace esep
 			{
 				typedef Traits<T> traits_t;
 
-				using types::id_t;
+				typedef types::id_t id_t;
 
 				public:
 				typedef lib::crc::Generator<uint32_t> CRC;
@@ -47,7 +49,7 @@ namespace esep
 					template<typename C>
 						Data(id_t, C&&, bool = false);
 					types::buffer_t getData( ) { return types::buffer_t(mData, mData + mLength); }
-					crc_t calculateCRC( ) const { CRC crcGen; return traits::calculateCRC(crcGen.encode(mData)); }
+					crc_t calculateCRC( ) const { CRC crcGen; return traits_t::calculateCRC(crcGen.encode(mData)); }
 					crc_t getCRC( ) const { return mCRC; }
 					virtual bool checkIntegrity( ) const { return mCRC == calculateCRC(); }
 					virtual bool isChained( ) const { return mChained; }
@@ -57,7 +59,7 @@ namespace esep
 					virtual types::buffer_t serialize( );
 					static packet_ptr deserialize(modules::In_Connection&);
 				private:
-					Data(id_t, crc_t, const types::buffer_t&, length_t, bool);
+					Data(id_t, crc_t, const types::buffer_t&, length_t);
 				private:
 					byte_t mData[SIZE];
 					length_t mLength;
@@ -65,15 +67,15 @@ namespace esep
 					bool mChained;
 			};
 
-			template<Type T, typename CRC>
+			template<Type T>
 			template<typename C>
-			Data<T, CRC>::Data(id_t id, C&& buf, bool chained)
-				: Base(id)
+			Data<T>::Data(id_t id, C&& buf, bool chained)
+				: Base_Data(id)
 			{
 				if(buf.size() > SIZE || buf.empty() || (chained && buf.size() != SIZE))
-					MXT_THROW_E(PacketDataOverflowException,
-							lib::stringify("Tried to fill packet ", T, " with ", buf.size(),
-									" bytes of data!", (chained ? " (Chained)" : "")));
+					MXT_THROW_E(types::PacketDataOverflowException,
+							"Tried to fill packet ", static_cast<uint16_t>(T), " with ", buf.size(),
+									" bytes of data!", (chained ? " (Chained)" : ""));
 
 				mLength = buf.size();
 				mChained = chained;
@@ -85,19 +87,19 @@ namespace esep
 				mCRC = calculateCRC();
 			}
 
-			template<Type T, typename CRC>
-			Data<R, CRC>::Data(id_t id, crc_t crc, const types::buffer_t& buf, length_t l, bool chained)
-				: Base(id)
+			template<Type T>
+			Data<T>::Data(id_t id, crc_t crc, const types::buffer_t& buf, length_t l)
+				: Base_Data(id)
 			{
-				mLength = chained ? SIZE : l;
+				mChained = (l == 0);
+				mLength = mChained ? SIZE : l;
 				mCRC = crc;
-				mChained = chained;
 
 				std::copy(std::begin(buf), std::end(buf), mData);
 			}
 
-			template<Type T, typename CRC>
-			types::buffer_t Data<T, CRC>::serialize(void)
+			template<Type T>
+			types::buffer_t Data<T>::serialize(void)
 			{
 				types::buffer_t buf;
 
@@ -114,8 +116,8 @@ namespace esep
 				return buf;
 			}
 
-			template<Type T, typename CRC>
-			packet_ptr Data<T, CRC>::deserialize(modules::In_Connection& c)
+			template<Type T>
+			packet_ptr Data<T>::deserialize(modules::In_Connection& c)
 			{
 				CRC crcGen;
 
@@ -139,7 +141,7 @@ namespace esep
 
 				raw_header >> type >> id >> length >> crc >> checksum;
 
-				return packet_ptr(new Data<T, CRC>(id, crc, raw_data, length));
+				return packet_ptr(new Data<T>(id, crc, raw_data, length));
 			}
 		}
 	}

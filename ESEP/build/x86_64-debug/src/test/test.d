@@ -4,8 +4,5 @@ build/x86_64-debug/src/test/test.o: src/test/test.cpp src/test/test.h \
  src/lib/log/format.h src/lib/tml.h src/lib/tml/base.h \
  src/lib/tml/type_list.h src/lib/tml/apply.h src/lib/tml/get.h \
  src/lib/tml/index_of.h src/lib/tuple.h src/lib/function.h \
-<<<<<<< HEAD
- src/test/ut/crc32.h src/lib/crc.h
-=======
- src/test/ut/fsm.h src/lib/fsm.h src/test/ut/byte_stream.h
->>>>>>> refs/heads/development
+ src/test/ut/crc32.h src/lib/crc.h src/test/ut/fsm.h src/lib/fsm.h \
+ src/test/ut/byte_stream.h

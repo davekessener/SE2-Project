@@ -22,6 +22,7 @@ namespace esep
 				void read(byte_t *, size_t);
 				void open(const std::string&) { }
 				void close( ) { }
+				bool isOpen( ) const { return true; }
 			private:
 				read_fn mRead;
 				write_fn mWrite;

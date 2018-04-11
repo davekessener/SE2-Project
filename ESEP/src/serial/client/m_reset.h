@@ -13,7 +13,7 @@ namespace esep
 			class Resetter
 			{
 				public:
-					Resetter(InOut_Connection& c) : mConnection(d) { }
+					Resetter(InOut_Connection& c) : mConnection(c) { }
 					void send( );
 					void respond( );
 				private:

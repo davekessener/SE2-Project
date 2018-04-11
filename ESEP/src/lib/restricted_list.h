@@ -3,6 +3,8 @@
 
 #include <array>
 
+#include "lib/utils.h"
+
 namespace esep
 {
 	namespace lib
@@ -28,7 +30,7 @@ namespace esep
 			void insert(const value_type& e) { mContent[mIdx = (mIdx + 1) % N] = e; if(!mIdx) mFull = true; }
 			void clear( ) { mFull = false; mIdx = 0; }
 			private:
-				container_t mContent;
+				container_type mContent;
 				uint mIdx = 0;
 				bool mFull = false;
 		};

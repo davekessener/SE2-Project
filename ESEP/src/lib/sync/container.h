@@ -15,7 +15,7 @@ namespace esep
 		<
 			typename T,
 			typename C = std::deque<T>,
-			typename Access = lib::MemberWrapper<T, C>,
+			typename Access = lib::ConstMemberWrapper<const T&, C>,
 			typename Insert = lib::MemberWrapper<void, C, const T&>,
 			typename Remove = lib::MemberWrapper<void, C>
 		>

@@ -6,15 +6,17 @@ void Reader::process(packet::packet_ptr p)
 {
 	switch(p->getType())
 	{
-		case Type::SDP:
-		case Type::MDP:
-		case Type::LDP:
+		case packet::Type::SDP:
+		case packet::Type::MDP:
+		case packet::Type::LDP:
 			processDataPacket(p);
 			break;
-		case Type::ACK_OK:
-		case Type::ACK_ERR:
+		case packet::Type::AP_OK:
+		case packet::Type::AP_ERR:
 			mConnection.acknowledge(p->getID(), p->getType());
 			break;
+		default:
+			MXT_THROW("Invalid packet type processed (", static_cast<uint16_t>(p->getType()), "!");
 	}
 }
 
@@ -25,11 +27,11 @@ void Reader::processDataPacket(packet::packet_ptr ptr)
 
 	if(!p.checkIntegrity())
 	{
-		a.reset(new packet::Answer<Type::ACK_ERR>(p.getID()));
+		a.reset(new packet::Answer<packet::Type::AP_ERR>(p.getID()));
 	}
 	else
 	{
-		a.reset(new packet::Answer<Type::ACK_OK>(p.getID()));
+		a.reset(new packet::Answer<packet::Type::AP_OK>(p.getID()));
 
 		if(recordPacket(ptr))
 		{
@@ -57,7 +59,7 @@ bool Reader::recordPacket(packet::packet_ptr ptr)
 		}
 	}
 
-	mHistory->insert(ptr);
+	mHistory.insert(ptr);
 
 	return true;
 }

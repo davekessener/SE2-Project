@@ -55,7 +55,7 @@ namespace esep
 			{
 				public:
 					SeperatedConnection(In_Connection& in, Out_Connection& out)
-						: InOut_Connection(nullptr), mIn(in), mOut(out) { }
+						: Base_Connection(nullptr), InOut_Connection(nullptr), mIn(in), mOut(out) { }
 					virtual void write(const types::buffer_t& o) { mOut.write(o); }
 					virtual void read(types::buffer_t& b, size_t l) { mIn.read(b, l); }
 				private:
