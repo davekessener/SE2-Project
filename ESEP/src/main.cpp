@@ -1,23 +1,29 @@
 #include <iostream>
 
-#include "system.h"
-
 #ifdef ESEP_TEST
 #	include "test/test.h"
+#else
+#	include "system.h"
 #endif
 
 int main(int argc, char *argv[])
 try
 {
-#ifndef ESEP_TEST
-	esep::System::instance().run();
+	esep::lib::args_t args(argv, argv + argc);
+
+#ifdef ESEP_TEST
+	esep::test::main(args);
 #else
-	esep::test::main(std::vector<std::string>(argv, argv + argc));
+	esep::System::instance().run(args);
 #endif
 
 	return 0;
 }
+catch(const std::exception& e)
+{
+	std::cerr << "ERROR: Uncaught exception! " << e.what() << std::endl;
+}
 catch(const std::string& e)
 {
-	std::cerr << "ERROR: Uncaught exception!\n" << e << std::endl;
+	std::cerr << "ERROR: Uncaught string! " << e << std::endl;
 }

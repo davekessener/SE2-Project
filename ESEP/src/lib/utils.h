@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <string>
 #include <sstream>
+#include <vector>
 
 #define MXT_GETA1(a1,...) a1
 #define MXT_GETA2(a1,a2,...) a2
@@ -26,6 +27,8 @@ namespace esep
 {
 	namespace lib
 	{
+		typedef std::vector<std::string> args_t;
+
 		template<uint B, typename T>
 		std::string hex(const T& v)
 		{

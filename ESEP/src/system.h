@@ -34,17 +34,13 @@ namespace esep
 			public:
 				Impl( );
 				~Impl( );
-				void run( );
-				uint64_t elapsed( );
-				void sleep(uint);
-				void updateHAL(hal::HAL::Field f, uint32_t v) { mHAL->update(f, v); }
+				void run(const lib::args_t&);
 				template<typename T>
 					T& get( )
 						{ return mHALObjects.get<T>(); }
 			private:
-				hal::Buffer *mHAL;
+				hal::HAL *mHAL;
 				hal_t mHALObjects;
-				std::chrono::time_point<std::chrono::system_clock> mSystemStart;
 		};
 	}
 

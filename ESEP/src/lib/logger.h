@@ -3,13 +3,13 @@
 
 #include "lib/utils.h"
 #include "lib/singleton.h"
-#include "system.h"
+#include "lib/timer.h"
 
 #include "lib/log/threaded.h"
 
 #define MXT_LOG_IMPL(section,severity,msg) \
 	::esep::lib::Logger::instance().log( \
-	::esep::System::instance().elapsed(), \
+	::esep::lib::Timer::instance().elapsed(), \
 	std::this_thread::get_id(), \
 	section, \
 	severity, \

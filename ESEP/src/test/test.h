@@ -1,15 +1,13 @@
 #ifndef ESEP_TEST_H
 #define ESEP_TEST_H
 
-#include <vector>
+#include "lib/utils.h"
 
 namespace esep
 {
 	namespace test
 	{
-		typedef std::vector<std::string> args_t;
-
-		void main(const args_t&);
+		void main(const lib::args_t&);
 	}
 }
 

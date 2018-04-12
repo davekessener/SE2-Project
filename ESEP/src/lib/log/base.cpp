@@ -3,7 +3,7 @@
 
 #include "lib/log/base.h"
 
-#define MXT_DEFAULT_FORMAT "%8time% [%4severity% in %6section% (%24source%)] (%thread%)| %message%"
+#define MXT_DEFAULT_FORMAT "%80message% | %8time% (%thread%) [%4severity% in %6section% (%source%)]"
 
 namespace esep { namespace log {
 
@@ -93,7 +93,7 @@ void Base::log(uint time, tid_t tid, Section section, Severity severity, const s
 		}
 		else
 		{
-			ss << std::setw(p.second) << mFormatters.format(p.first, time, tid, section, severity, message, source);
+			ss << std::left << std::setw(p.second) << mFormatters.format(p.first, time, tid, section, severity, message, source);
 		}
 	}
 

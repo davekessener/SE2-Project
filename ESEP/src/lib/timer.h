@@ -18,8 +18,13 @@ namespace esep
 				typedef std::function<bool(void)> callback_t;
 
 				public:
+					Impl( );
 					void registerCallback(callback_t, uint, uint = 0);
+					uint64_t elapsed( );
+					void sleep(uint);
+					void reset( );
 				private:
+					std::chrono::time_point<std::chrono::system_clock> mSystemStart;
 			};
 		}
 

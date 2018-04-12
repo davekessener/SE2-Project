@@ -77,7 +77,7 @@ std::string runUnitTests(void)
 	return si.getBuffer();
 }
 
-void main(const std::vector<std::string>& args)
+void main(const lib::args_t& args)
 {
 	std::cout << runUnitTests() << std::endl;
 }

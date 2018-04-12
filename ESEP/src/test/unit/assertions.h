@@ -1,6 +1,8 @@
 #ifndef ESEP_TEST_UNIT_ASSERTIONS_H
 #define ESEP_TEST_UNIT_ASSERTIONS_H
 
+#include "lib/tml.h"
+
 #define UNIT_TEST(desc) \
 	mWriter.name = desc; \
 	mWriter = [&,this](void) -> void
@@ -58,7 +60,7 @@
 		try { \
 			e; \
 			success = false; \
-		} catch(t) { } \
+		} catch(const ::esep::tml::DoDecay<t>&) { } \
 		if(!success) \
 			MXT_THROW_E(std::logic_error, "Expected an excpetion of type " #t " in expression '" #e "' but got none."); \
 	} while(0)
