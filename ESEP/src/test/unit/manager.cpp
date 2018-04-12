@@ -8,47 +8,33 @@
 
 namespace esep { namespace test { namespace unit {
 
-void ManagerImpl::run(std::ostream& os)
+ManagerImpl::results_t ManagerImpl::run(void)
 {
-	auto printStatus = [&os](TestSuite::Result r) {
-		os << (r == TestSuite::Result::SUCCESS ? "." : "E");
-	};
+	results_t results;
 
-	auto onError = [&os](const TestSuite *s, const std::string& e) {
-		os << "\nSuite '" << s->name() << "' has encountered a critical error:\n" << e << "\n";
+	auto onError = [&results](const TestSuite *s, const std::string& e) {
+		results[s->name()].second = e;
 	};
-
-	os << "Running automatic unit test suites.\n";
 
 	for(TestSuite *s : mTests)
 	{
 		try
 		{
-			os << s->name() << ": ";
+			s->doTest();
 
-			s->doTest(printStatus);
-
-			os << "\n";
+			results[s->name()].first = s->results();
 		}
 		catch(const std::exception& e)
 		{
-			onError(s, lib::stringify(":\n", e.what(), "\n"));
+			onError(s, lib::stringify("std::exception(", e.what(), ")"));
 		}
 		catch(const std::string& e)
 		{
-			onError(s, lib::stringify(":\n", e, "\n"));
+			onError(s, lib::stringify("std::string(", e, ")"));
 		}
 		catch(...)
 		{
-			onError(s, lib::stringify(" of unknown type!\n"));
-		}
-	}
-
-	for(TestSuite *s : mTests)
-	{
-		for(const std::string& e : s->errors())
-		{
-			os << "[" << s->name() << "] " << e << "\n";
+			onError(s, "[unknown error]");
 		}
 	}
 
@@ -56,6 +42,8 @@ void ManagerImpl::run(std::ostream& os)
 	{
 		delete ts;
 	}
+
+	return results;
 }
 
 }}}

@@ -2,6 +2,7 @@
 #define ESEP_TEST_UNIT_MANAGER_H
 
 #include <ios>
+#include <map>
 
 #include "lib/singleton.h"
 #include "test/unit/unit.h"
@@ -14,10 +15,12 @@ namespace esep
 		{
 			class ManagerImpl
 			{
+				typedef std::map<std::string, std::pair<TestSuite::result_t, std::string>> results_t;
+
 				public:
 					template<typename T>
 						ManagerImpl& addTest( );
-					void run(std::ostream&);
+					results_t run( );
 				private:
 					std::vector<TestSuite *> mTests;
 			};

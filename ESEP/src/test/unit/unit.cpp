@@ -5,12 +5,14 @@
 
 #include "test/unit/unit.h"
 
+#include "lib/utils.h"
+
 namespace esep { namespace test { namespace unit {
 
-void TestSuite::doTest(result_fn f)
+void TestSuite::doTest(void)
 {
 	mTests.clear();
-	mErrors.clear();
+	mResults.clear();
 
 	define();
 
@@ -22,25 +24,19 @@ void TestSuite::doTest(result_fn f)
 		{
 			p.second();
 
-			f(Result::SUCCESS);
+			mResults.push_back(std::make_pair(Result::SUCCESS, ""));
 		}
 		catch(const std::exception& e)
 		{
-			mErrors.push_back(p.first + ": " + e.what());
-
-			f(Result::FAILURE);
+			mResults.push_back(std::make_pair(Result::FAILURE, lib::stringify(p.first, ": ", e.what())));
 		}
 		catch(const std::string& e)
 		{
-			mErrors.push_back(p.first + ": '" + e + "' [std::string]");
-
-			f(Result::FAILURE);
+			mResults.push_back(std::make_pair(Result::FAILURE, lib::stringify(p.first, ": '", e, "' [std::string]")));
 		}
 		catch(...)
 		{
-			mErrors.push_back(p.first + " [unknown exception]");
-
-			f(Result::FAILURE);
+			mResults.push_back(std::make_pair(Result::FAILURE, lib::stringify(p.first, " [unknown exception]")));
 		}
 
 		teardown();

@@ -17,29 +17,67 @@
 
 namespace esep { namespace test {
 
-void runUnitTests(std::ostream& os)
+std::string runUnitTests(void)
 {
-	unit::Manager::instance()
+	lib::StreamIntercept si(std::cout);
+
+	auto r = unit::Manager::instance()
 		.addTest<unit::LoggerFormatParser>()
 		.addTest<unit::CRC32>()
 		.addTest<unit::FSM>()
 		.addTest<unit::ByteStream>()
 		.addTest<unit::DummyConnection>()
 		.addTest<unit::SerialClient>()
-		.run(os);
+		.run();
+
+	std::cout << "\nRunning automatic unit test suites:\n";
+
+	for(const auto& t : r)
+	{
+		std::cout << t.first << ": ";
+
+		for(const auto& p : t.second.first)
+		{
+			if(p.first == unit::TestSuite::Result::SUCCESS)
+			{
+				std::cout << ".";
+			}
+			else
+			{
+				std::cout << "E";
+			}
+		}
+
+		std::cout << "\n";
+	}
+
+	std::cout << "\n";
+
+	for(const auto& t : r)
+	{
+		if(!t.second.second.empty())
+		{
+			std::cout << t.first << " has encountered a critical error: " << t.second.second << "!\n";
+		}
+	}
+
+	for(const auto& t : r)
+	{
+		for(const auto& p : t.second.first)
+		{
+			if(p.first == unit::TestSuite::Result::FAILURE)
+			{
+				std::cout << t.first << ": " << p.second << "\n";
+			}
+		}
+	}
+
+	return si.getBuffer();
 }
 
 void main(const std::vector<std::string>& args)
 {
-	std::stringstream my_cout, unit_testresults;
-
-	{
-		lib::StreamIntercept si(my_cout, std::cout);
-
-		runUnitTests(unit_testresults);
-	}
-
-	std::cout << my_cout.str() << "\n" << unit_testresults.str();
+	std::cout << runUnitTests() << std::endl;
 }
 
 }}
