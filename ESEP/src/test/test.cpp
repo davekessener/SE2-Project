@@ -14,6 +14,7 @@
 #include "test/ut/byte_stream.h"
 #include "test/ut/dummy_connection.h"
 #include "test/ut/serial_client.h"
+#include "test/ut/qnx_connections.h"
 
 namespace esep { namespace test {
 
@@ -28,6 +29,7 @@ std::string runUnitTests(void)
 		.addTest<unit::ByteStream>()
 		.addTest<unit::DummyConnection>()
 		.addTest<unit::SerialClient>()
+		.addTest<unit::QNXConnections>()
 		.run();
 
 	std::cout << "\nRunning automatic unit test suites:\n";

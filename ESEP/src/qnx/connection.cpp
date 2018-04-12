@@ -27,7 +27,7 @@ Connection::Connection(const Connection& c)
 
 Connection::~Connection(void)
 {
-	if(!--*mRef)
+	if(isConnected() && !--*mRef)
 	{
 		delete mRef;
 
@@ -52,10 +52,20 @@ void Connection::swap(Connection& c)
 
 void Connection::sendPulse(const pulse_t& p)
 {
+	if(!isConnected())
+		MXT_THROW("Cannot send when not connected!");
+
 	if(MsgSendPulse(mID, -1, p.code, p.value) == -1)
 	{
 		MXT_THROW("Failed to send pulse msg {code: ", (uint)p.code, ", value: ", p.value, "}");
 	}
+}
+
+void Connection::close(void)
+{
+	Connection t;
+
+	swap(t);
 }
 
 }}
