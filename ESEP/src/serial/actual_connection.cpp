@@ -43,7 +43,7 @@ void ActualConnection::read(byte_t* buffer, size_t size)
 			MXT_THROW("Connection to device is closed!");
 		}
 
-		return_value = readcond(this->fildes_, buffer+bytes_read, size-bytes_read, size-bytes_read, 0, 5); // timeout is specified with 1/10 of a second
+		return_value = readcond(fildes_, buffer + bytes_read, size - bytes_read, size - bytes_read, 0, 5); // timeout is specified with 1/10 of a second
 
 		if (return_value == -1)
 		{
@@ -81,7 +81,8 @@ void ActualConnection::open(const std::string& device)
 
 void ActualConnection::close(void)
 {
-	if(isOpen()) {
+	if(isOpen())
+	{
 		if (::close(this->fildes_) == -1)
 		{
 			MXT_THROW("Could not close device!");

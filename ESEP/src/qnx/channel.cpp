@@ -43,7 +43,10 @@ pulse_t Channel::receivePulse(void)
 
 void Channel::listenForInterrupts(Connection& c)
 {
-	ThreadCtl(_NTO_TCTL_IO, 0);
+	if(ThreadCtl(_NTO_TCTL_IO, 0) == -1)
+	{
+		MXT_THROW("Couldn't access HW!");
+	}
 
 	struct sigevent e;
 

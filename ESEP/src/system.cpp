@@ -30,6 +30,7 @@ Impl::~Impl(void)
 void Impl::run(const lib::args_t& args)
 {
 	typedef hal::Lights::Light Light;
+	typedef hal::LightBarriers::LightBarrier LightBarrier;
 
 	auto& timer(lib::Timer::instance());
 
@@ -37,6 +38,7 @@ void Impl::run(const lib::args_t& args)
 
 	hal::Lights& lights(get<hal::Lights>());
 	hal::Motor& motor(get<hal::Motor>());
+	hal::LightBarriers& lbs(get<hal::LightBarriers>());
 
 	MXT_LOG("Hello, World!");
 	MXT_LOG("Starting 'Aktorik-Test'!");
@@ -51,6 +53,7 @@ void Impl::run(const lib::args_t& args)
 		timer.sleep(500);
 
 		MXT_LOG(lib::stringify("Blinked for the ", (i + 1), "th time!"));
+//		MXT_LOG(lib::stringify("LB_Start is now ", lbs.isBroken(LightBarrier::LB_START)));
 	}
 
 	motor.stop();

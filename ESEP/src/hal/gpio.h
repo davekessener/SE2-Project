@@ -17,6 +17,7 @@ namespace esep
 				uint32_t read( );
 				void setBits(uint32_t);
 				void resetBits(uint32_t);
+				void configureInt( );
 			private:
 				const uint32_t mBaseAddr;
 

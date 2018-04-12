@@ -4,10 +4,6 @@ namespace esep { namespace hal {
 
 void Buffer::update(Field f, uint32_t v)
 {
-	static const auto EVENTS = {
-			Event::LB_START, Event::LB_END, Event::LB_HEIGHTSENSOR, Event::LB_RAMP, Event::LB_SWITCH,
-			Event::BTN_START, Event::BTN_STOP, Event::BTN_RESET, Event::BTN_ESTOP };
-
 	auto& r(mFields[static_cast<uint>(f)]);
 	auto c = r ^ v;
 
@@ -15,13 +11,13 @@ void Buffer::update(Field f, uint32_t v)
 
 	if(f == Field::GPIO_0)
 	{
-		for(const auto& e : EVENTS)
+		for(auto i1 = HAL::EVENTS, i2 = i1 + HAL::N_EVENTS ; i1 != i2 ; ++i1)
 		{
-			if(c & (1 << static_cast<uint>(e)))
+			if(c & (1 << static_cast<uint>(*i1)))
 			{
-				for(const auto& f : mSubscribers[e])
+				for(const auto& f : mSubscribers[*i1])
 				{
-					f(e);
+					f(*i1);
 				}
 			}
 		}
