@@ -1,11 +1,15 @@
 #include "hal/buffer.h"
 
+#include "lib/logger.h"
+
 namespace esep { namespace hal {
 
 void Buffer::update(Field f, uint32_t v)
 {
 	auto& r(mFields[static_cast<uint>(f)]);
 	auto c = r ^ v;
+
+//	MXT_LOG(lib::stringify("Updating buffer: old = ", lib::hex<32>(r), ", new = ", lib::hex<32>(v), " and diff = ", lib::hex<32>(c)));
 
 	r = v;
 

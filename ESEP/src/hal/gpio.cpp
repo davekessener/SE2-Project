@@ -5,6 +5,8 @@
 #include "hal/gpio.h"
 #include "hal/hal.h"
 
+#include "lib/logger.h"
+
 #define MXT_BASESIZE 0x010000
 #define MXT_OE_OFFSET 0x134
 
@@ -13,9 +15,15 @@
 #define MXT_READ	0x138 //Offset for register to read input bits
 #define MXT_WRITE	0x13C //Offset for register to write output bits directly
 
-#define	MXT_LEVELDETECT(n) 	(0x140 + (n * 4))
-#define	MXT_RISINGDETECT    0x148
-#define	MXT_FALLINGDETECT   0x14C
+#define	MXT_LEVELDETECT(n) 		(0x140 + (n * 4))
+#define	MXT_RISINGDETECT    	0x148
+#define	MXT_FALLINGDETECT	    0x14C
+#define	MXT_IRQSTATUS(n)  		(0x02C + (n * 4))
+#define	MXT_IRQSTATUS_SET(n)	(0x034 + (n * 4))
+#define	MXT_IRQSTATUS_CLR(n)	(0x03C + (n * 4))
+
+#define MXT_GPIO_INT_LINE_1 0x0
+#define MXT_GPIO_INT_LINE_2 0x1
 
 namespace esep { namespace hal {
 
@@ -81,6 +89,23 @@ void GPIO::configureInt(void)
 	*(int*)(mBaseAddr + MXT_FALLINGDETECT) |= pins;
 	*(int*)(mBaseAddr + MXT_LEVELDETECT(0)) &= ~pins;
 	*(int*)(mBaseAddr + MXT_LEVELDETECT(1)) &= ~pins;
+}
+
+void GPIO::clearIntFlags(void)
+{
+	out32(mBaseAddr + MXT_IRQSTATUS(MXT_GPIO_INT_LINE_2), 0xFFFFFFFF);
+}
+
+void GPIO::enableInt(void)
+{
+	static const uint32_t pins = calcPins();
+
+	out32(mBaseAddr + MXT_IRQSTATUS_SET(MXT_GPIO_INT_LINE_2), pins);
+}
+
+void GPIO::disableInt(void)
+{
+	out32(mBaseAddr + MXT_IRQSTATUS_CLR(MXT_GPIO_INT_LINE_2), 0xFFFFFFFF);
 }
 
 }}

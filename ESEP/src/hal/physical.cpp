@@ -49,7 +49,6 @@ Physical::Physical(void)
 			buf.add(new GPIO(GPIO_BASE_1));
 			buf.add(new GPIO(GPIO_BASE_2));
 
-			mGPIOs[static_cast<uint>(Field::GPIO_0)]->configureInt();
 			mGPIOs[static_cast<uint>(Field::GPIO_2)]->configure(GPIO_OE_FLAGS);
 
 			buf.finalize();
@@ -57,25 +56,33 @@ Physical::Physical(void)
 			qnx::Channel channel;
 			mConnection = channel.connect();
 
+
+			GPIO& gpio0(*mGPIOs[static_cast<uint>(Field::GPIO_0)]);
+
+			gpio0.disableInt();
+			gpio0.configureInt();
+			gpio0.clearIntFlags();
 			channel.listenForInterrupts(mConnection);
+			gpio0.enableInt();
+
+			onInt();
 
 			while(mRunning.load())
 			{
 				auto p = channel.receivePulse();
-
-				MXT_LOG(lib::stringify("Received pulse: ", (uint)p.code, ", ", lib::hex<32>(p.value)));
 
 				switch(p.code)
 				{
 				case static_cast<int8_t>(qnx::Code::SHUTDOWN):
 					break;
 				case static_cast<int8_t>(qnx::Code::GPIO):
-						onGPIO(MXT_GETBLOCK(p.value), MXT_GETF(p.value), MXT_GETPIN(p.value));
+					onGPIO(MXT_GETBLOCK(p.value), MXT_GETF(p.value), MXT_GETPIN(p.value));
 					break;
 				case static_cast<int8_t>(qnx::Code::INTERRUPT):
 					onInt();
 					break;
 				default:
+					MXT_LOG(lib::stringify("Received pulse: ", (uint)p.code, ", ", lib::hex<32>(p.value)));
 					break;
 				}
 			}
@@ -110,8 +117,8 @@ Physical::~Physical(void)
 
 void Physical::onInt(void)
 {
-	MXT_LOG("Received interrupt pulse!");
 	update(Field::GPIO_0, mGPIOs[0]->read());
+	mGPIOs[0]->clearIntFlags();
 }
 
 void Physical::onGPIO(uint b, uint f, uint p)

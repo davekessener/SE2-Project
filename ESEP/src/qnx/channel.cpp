@@ -38,6 +38,11 @@ pulse_t Channel::receivePulse(void)
 	r.code = pulse.code;
 	r.value = pulse.value.sival_int;
 
+	if(r.code == static_cast<int8_t>(Code::INTERRUPT))
+	{
+		InterruptUnmask(MXT_HWINT, -1);
+	}
+
 	return r;
 }
 

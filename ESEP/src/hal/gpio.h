@@ -18,6 +18,9 @@ namespace esep
 				void setBits(uint32_t);
 				void resetBits(uint32_t);
 				void configureInt( );
+				void enableInt( );
+				void disableInt( );
+				void clearIntFlags( );
 			private:
 				const uint32_t mBaseAddr;
 

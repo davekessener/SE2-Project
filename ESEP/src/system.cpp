@@ -1,3 +1,5 @@
+#include <atomic>
+
 #include "system.h"
 
 #include "hal/physical.h"
@@ -29,34 +31,61 @@ Impl::~Impl(void)
 
 void Impl::run(const lib::args_t& args)
 {
+	typedef hal::LightBarriers::LightBarrier LightBarrier;
 	typedef hal::Lights::Light Light;
-//	typedef hal::LightBarriers::LightBarrier LightBarrier;
+	typedef hal::Buttons::Button Button;
+	typedef hal::HAL::Event Event;
 
 	auto& timer(lib::Timer::instance());
 
 	timer.reset();
 
-	hal::Lights& lights(get<hal::Lights>());
 	hal::Motor& motor(get<hal::Motor>());
-//	hal::LightBarriers& lbs(get<hal::LightBarriers>());
+	hal::Lights& lights(get<hal::Lights>());
+	hal::LightBarriers& lbs(get<hal::LightBarriers>());
+	hal::Buttons& btns(get<hal::Buttons>());
+	std::atomic<bool> running;
+	uint c = 0;
+
+	running = true;
+
+	timer.sleep(100);
+
+	lights.turnOn(Light::GREEN);
+
+	mHAL->subscribeEvent(Event::BTN_START, [&](Event e) {
+		if(btns.isPressed(Button::START))
+		{
+			lights.turnOn(Light::RED);
+		}
+		else
+		{
+			lights.turnOff(Light::RED);
+		}
+
+		++c;
+	});
+
+	mHAL->subscribeEvent(Event::BTN_STOP, [&](Event e) {
+		running = false;
+	});
 
 	MXT_LOG("Hello, World!");
 	MXT_LOG("Starting 'Aktorik-Test'!");
 
-	motor.start();
-
-	for(uint i = 0 ; i < 10 ; ++i)
+	while(running.load())
 	{
-		lights.turnOn(Light::RED);
-		timer.sleep(500);
-		lights.turnOff(Light::RED);
-		timer.sleep(500);
-
-		MXT_LOG(lib::stringify("Blinked for the ", (i + 1), "th time!"));
-//		MXT_LOG(lib::stringify("LB_Start is now ", lbs.isBroken(LightBarrier::LB_START)));
+		timer.sleep(200);
 	}
 
+	lights.turnOff(Light::RED);
+	lights.turnOff(Light::GREEN);
+	lights.turnOff(Light::YELLOW);
+	motor.fast();
 	motor.stop();
+	motor.enable();
+
+	MXT_LOG(lib::stringify("Received ", c, " START events."));
 
 	MXT_LOG("Shutting down now, goodbye!");
 }
