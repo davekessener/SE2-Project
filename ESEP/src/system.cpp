@@ -17,6 +17,9 @@ Impl::Impl(void)
 		hal::MetalSensor(mHAL),
 		hal::Motor(mHAL))
 {
+#ifdef ESEP_TEST
+	MXT_THROW("Instantiated system in test build!");
+#endif
 }
 
 Impl::~Impl(void)

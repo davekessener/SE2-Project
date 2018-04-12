@@ -2,6 +2,8 @@
 
 #include "qnx/channel.h"
 
+#define MXT_HWINT 97
+
 namespace esep { namespace qnx {
 
 Channel::Channel(uint32_t f)
@@ -37,6 +39,20 @@ pulse_t Channel::receivePulse(void)
 	r.value = pulse.value.sival_int;
 
 	return r;
+}
+
+void Channel::listenForInterrupts(Connection& c)
+{
+	ThreadCtl(_NTO_TCTL_IO, 0);
+
+	struct sigevent e;
+
+	SIGEV_PULSE_INIT(&e, c.mID, SIGEV_PULSE_PRIO_INHERIT, static_cast<int8_t>(Code::INTERRUPT), 0);
+
+	if((mIntID = InterruptAttachEvent(MXT_HWINT, &e, 0)) == -1)
+	{
+		MXT_THROW("Failed to attach interrupt event!");
+	}
 }
 
 }}

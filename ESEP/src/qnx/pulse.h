@@ -9,8 +9,20 @@ namespace esep
 	{
 		struct pulse_t
 		{
-			uint8_t code;
+			int8_t code;
 			uint32_t value;
+
+			pulse_t( ) : code(0), value(0) { }
+			pulse_t(int8_t c, uint32_t v) : code(c), value(v) { }
+		};
+
+		static constexpr int INVALID_ID = -1;
+
+		enum class Code : int8_t
+		{
+			SHUTDOWN,
+			INTERRUPT,
+			GPIO
 		};
 
 		typedef int channel_id_t;

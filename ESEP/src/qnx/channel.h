@@ -16,8 +16,10 @@ namespace esep
 				~Channel( );
 				Connection connect( );
 				pulse_t receivePulse( );
+				void listenForInterrupts(Connection&);
 			private:
 				channel_id_t mID;
+				int mIntID = INVALID_ID;
 
 				Channel(const Channel&) = delete;
 				Channel& operator=(const Channel&) = delete;

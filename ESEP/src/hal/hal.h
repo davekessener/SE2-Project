@@ -26,11 +26,15 @@ namespace esep
 
 			enum class Event : uint
 			{
-				LB_START,
-				LB_END,
-				LB_HEIGHTSENSOR,
-				LB_RAMP,
-				LB_SWITCH
+				LB_START = 2,
+				LB_END = 20,
+				LB_HEIGHTSENSOR = 3,
+				LB_RAMP = 15,
+				LB_SWITCH = 5,
+				BTN_START = 22,
+				BTN_STOP = 23,
+				BTN_RESET = 26,
+				BTN_ESTOP = 27
 			};
 
 			typedef std::function<void(Event)> callback_t;
