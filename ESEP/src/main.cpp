@@ -21,11 +21,11 @@ try
 
 	return 0;
 }
-catch(const std::exception& e)
-{
-	std::cerr << "ERROR: Uncaught exception! " << e.what() << std::endl;
-}
 catch(const std::string& e)
 {
 	std::cerr << "ERROR: Uncaught string! " << e << std::endl;
+}
+catch(const std::exception& e)
+{
+	std::cerr << "ERROR: Uncaught exception! " << e.what() << std::endl;
 }

@@ -1,6 +1,6 @@
 #include "hal/buttons.h"
 
-#define MXT_BM_STOP (static_cast<uint8_t>(Button::STOP)|static_cast<uint8_t>(Button::ESTOP))
+#define MXT_BM_STOP (static_cast<uint32_t>(Button::STOP)|static_cast<uint32_t>(Button::ESTOP))
 
 namespace esep { namespace hal {
 

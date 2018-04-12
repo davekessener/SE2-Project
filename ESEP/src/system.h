@@ -14,6 +14,7 @@
 #include "hal/lights.h"
 #include "hal/metal_sensor.h"
 #include "hal/motor.h"
+#include "hal/switch.h"
 
 namespace esep
 {
@@ -25,6 +26,7 @@ namespace esep
 				hal::Buttons,
 				hal::HeightSensor,
 				hal::LEDs,
+				hal::Switch,
 				hal::LightBarriers,
 				hal::Lights,
 				hal::MetalSensor,

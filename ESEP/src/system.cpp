@@ -14,6 +14,7 @@ Impl::Impl(void)
 		hal::Buttons(mHAL),
 		hal::HeightSensor(mHAL),
 		hal::LEDs(mHAL),
+		hal::Switch(mHAL),
 		hal::LightBarriers(mHAL),
 		hal::Lights(mHAL),
 		hal::MetalSensor(mHAL),
@@ -35,6 +36,7 @@ void Impl::run(const lib::args_t& args)
 	typedef hal::Lights::Light Light;
 	typedef hal::Buttons::Button Button;
 	typedef hal::HAL::Event Event;
+	typedef hal::LEDs::LED LED;
 
 	auto& timer(lib::Timer::instance());
 
@@ -44,14 +46,21 @@ void Impl::run(const lib::args_t& args)
 	hal::Lights& lights(get<hal::Lights>());
 	hal::LightBarriers& lbs(get<hal::LightBarriers>());
 	hal::Buttons& btns(get<hal::Buttons>());
+	hal::LEDs& leds(get<hal::LEDs>());
+	hal::Switch& swtch(get<hal::Switch>());
 	std::atomic<bool> running;
-	uint c = 0;
 
 	running = true;
 
 	timer.sleep(100);
 
 	lights.turnOn(Light::GREEN);
+	motor.start();
+
+	leds.turnOn(LED::Q1);
+	leds.turnOn(LED::Q2);
+	leds.turnOn(LED::START);
+	leds.turnOff(LED::RESET);
 
 	mHAL->subscribeEvent(Event::BTN_START, [&](Event e) {
 		if(btns.isPressed(Button::START))
@@ -62,12 +71,38 @@ void Impl::run(const lib::args_t& args)
 		{
 			lights.turnOff(Light::RED);
 		}
+	});
 
-		++c;
+	mHAL->subscribeEvent(Event::LB_START, [&](Event e) {
+		if(lbs.isBroken(LightBarrier::LB_START))
+		{
+			motor.right();
+		}
+	});
+
+	mHAL->subscribeEvent(Event::LB_END, [&](Event e) {
+		if(lbs.isBroken(LightBarrier::LB_END))
+		{
+			motor.left();
+		}
 	});
 
 	mHAL->subscribeEvent(Event::BTN_STOP, [&](Event e) {
-		running = false;
+		if(btns.isPressed(Button::STOP))
+		{
+			running = false;
+		}
+	});
+
+	mHAL->subscribeEvent(Event::LB_SWITCH, [&](Event e) {
+		if(motor.isGoingRight())
+		{
+			swtch.open();
+		}
+		else
+		{
+			swtch.close();
+		}
 	});
 
 	MXT_LOG("Hello, World!");
@@ -78,14 +113,17 @@ void Impl::run(const lib::args_t& args)
 		timer.sleep(200);
 	}
 
+	leds.turnOff(LED::Q1);
+	leds.turnOff(LED::Q2);
+	leds.turnOff(LED::START);
+
+	swtch.close();
 	lights.turnOff(Light::RED);
 	lights.turnOff(Light::GREEN);
 	lights.turnOff(Light::YELLOW);
 	motor.fast();
 	motor.stop();
 	motor.enable();
-
-	MXT_LOG(lib::stringify("Received ", c, " START events."));
 
 	MXT_LOG("Shutting down now, goodbye!");
 }
