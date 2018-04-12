@@ -46,12 +46,16 @@ pulse_t Channel::receivePulse(void)
 	return r;
 }
 
-void Channel::listenForInterrupts(Connection& c)
+void Channel::listenForInterrupts(Connection& c, hal::GPIO& gpio)
 {
 	if(ThreadCtl(_NTO_TCTL_IO, 0) == -1)
 	{
 		MXT_THROW("Couldn't access HW!");
 	}
+
+	gpio.disableInterrupts();
+	gpio.makeEdgeSensitive();
+	gpio.clearInterruptFlags();
 
 	struct sigevent e;
 
@@ -61,6 +65,8 @@ void Channel::listenForInterrupts(Connection& c)
 	{
 		MXT_THROW("Failed to attach interrupt event!");
 	}
+
+	gpio.enableInterrupts();
 }
 
 }}

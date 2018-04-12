@@ -4,6 +4,7 @@
 #include "lib/utils.h"
 #include "qnx/pulse.h"
 #include "qnx/connection.h"
+#include "hal/gpio.h"
 
 namespace esep
 {
@@ -16,7 +17,7 @@ namespace esep
 				~Channel( );
 				Connection connect( );
 				pulse_t receivePulse( );
-				void listenForInterrupts(Connection&);
+				void listenForInterrupts(Connection&, hal::GPIO&);
 			private:
 				channel_id_t mID;
 				int mIntID = INVALID_ID;

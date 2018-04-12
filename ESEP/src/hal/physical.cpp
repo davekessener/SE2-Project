@@ -23,7 +23,6 @@
 
 namespace esep { namespace hal {
 
-const uint32_t GPIO_OE_FLAGS = 0xffffffc3;
 const uint32_t GPIO_BASE_0 = 0x44E07000; // PORT B
 const uint32_t GPIO_BASE_1 = 0x4804C000; // PORT A
 const uint32_t GPIO_BASE_2 = 0x481AC000; // PORT C
@@ -49,23 +48,16 @@ Physical::Physical(void)
 			buf.add(new GPIO(GPIO_BASE_1));
 			buf.add(new GPIO(GPIO_BASE_2));
 
-			mGPIOs[static_cast<uint>(Field::GPIO_2)]->configure(GPIO_OE_FLAGS);
+			mGPIOs[2]->configureForOutput();
 
 			buf.finalize();
 
 			qnx::Channel channel;
 			mConnection = channel.connect();
 
+			channel.listenForInterrupts(mConnection, *mGPIOs[0]);
 
-			GPIO& gpio0(*mGPIOs[static_cast<uint>(Field::GPIO_0)]);
-
-			gpio0.disableInt();
-			gpio0.configureInt();
-			gpio0.clearIntFlags();
-			channel.listenForInterrupts(mConnection);
-			gpio0.enableInt();
-
-			onInt();
+			updateSensors();
 
 			while(mRunning.load())
 			{
@@ -75,11 +67,26 @@ Physical::Physical(void)
 				{
 				case static_cast<int8_t>(qnx::Code::SHUTDOWN):
 					break;
-				case static_cast<int8_t>(qnx::Code::GPIO):
-					onGPIO(MXT_GETBLOCK(p.value), MXT_GETF(p.value), MXT_GETPIN(p.value));
+				case static_cast<int8_t>(qnx::Code::GPIO_1_OUT):
+					onGPIO(1, &GPIO::write, p.value);
+					break;
+				case static_cast<int8_t>(qnx::Code::GPIO_2_OUT):
+					onGPIO(2, &GPIO::write, p.value);
+					break;
+				case static_cast<int8_t>(qnx::Code::GPIO_1_SET):
+					onGPIO(1, &GPIO::setBits, p.value);
+					break;
+				case static_cast<int8_t>(qnx::Code::GPIO_2_SET):
+					onGPIO(2, &GPIO::setBits, p.value);
+					break;
+				case static_cast<int8_t>(qnx::Code::GPIO_1_RESET):
+					onGPIO(1, &GPIO::resetBits, p.value);
+					break;
+				case static_cast<int8_t>(qnx::Code::GPIO_2_RESET):
+					onGPIO(2, &GPIO::resetBits, p.value);
 					break;
 				case static_cast<int8_t>(qnx::Code::INTERRUPT):
-					onInt();
+					updateSensors();
 					break;
 				default:
 					MXT_LOG(lib::stringify("Received pulse: ", (uint)p.code, ", ", lib::hex<32>(p.value)));
@@ -115,52 +122,30 @@ Physical::~Physical(void)
 	mHALThread.join();
 }
 
-void Physical::onInt(void)
+void Physical::updateSensors(void)
 {
 	update(Field::GPIO_0, mGPIOs[0]->read());
-	mGPIOs[0]->clearIntFlags();
+	mGPIOs[0]->clearInterruptFlags();
 }
 
-void Physical::onGPIO(uint b, uint f, uint p)
+void Physical::onGPIO(uint b, gpio_fn f, uint32_t v)
 {
-	switch(f)
-	{
-	case MXT_OUT:
-		mGPIOs[b]->write(1 << p);
-		break;
-	case MXT_SET:
-		mGPIOs[b]->setBits(1 << p);
-		break;
-	case MXT_RESET:
-		mGPIOs[b]->resetBits(1 << p);
-		break;
-	}
-}
-
-void Physical::sendGPIOPulse(Field f, uint fn, uint v)
-{
-	for(uint i = 0 ; i < sizeof(v) * 8 ; ++i)
-	{
-		if(v & (1 << i))
-		{
-			mConnection.sendPulse(qnx::pulse_t(static_cast<int8_t>(qnx::Code::GPIO), MXT_ASS(f, fn, i)));
-		}
-	}
+	(mGPIOs[b]->*f)(v);
 }
 
 void Physical::out(Field f, uint32_t v)
 {
-	sendGPIOPulse(f, MXT_OUT, v);
+	mConnection.sendPulse(qnx::pulse_t(f == Field::GPIO_1 ? qnx::Code::GPIO_1_OUT : qnx::Code::GPIO_2_OUT, v));
 }
 
 void Physical::set(Field f, bitmask_t v)
 {
-	sendGPIOPulse(f, MXT_SET, v);
+	mConnection.sendPulse(qnx::pulse_t(f == Field::GPIO_1 ? qnx::Code::GPIO_1_SET : qnx::Code::GPIO_2_SET, v));
 }
 
 void Physical::reset(Field f, bitmask_t v)
 {
-	sendGPIOPulse(f, MXT_RESET, v);
+	mConnection.sendPulse(qnx::pulse_t(f == Field::GPIO_1 ? qnx::Code::GPIO_1_RESET : qnx::Code::GPIO_2_RESET, v));
 }
 
 }}

@@ -17,6 +17,8 @@ namespace esep
 	{
 		class Physical : public Buffer
 		{
+			typedef void (GPIO::*gpio_fn)(uint32_t);
+
 			public:
 			using HAL::Field;
 			using HAL::bitmask_t;
@@ -28,8 +30,8 @@ namespace esep
 				void set(Field, bitmask_t);
 				void reset(Field, bitmask_t);
 			private:
-				void onInt( );
-				void onGPIO(uint, uint, uint);
+				void updateSensors( );
+				void onGPIO(uint, gpio_fn, uint32_t);
 				void sendGPIOPulse(Field, uint, uint);
 
 			private:

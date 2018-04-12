@@ -9,6 +9,7 @@
 
 #define MXT_BASESIZE 0x010000
 #define MXT_OE_OFFSET 0x134
+#define MXT_OE_FLAGS 0xffffffc3
 
 #define MXT_SET		0x194 //Offset for register to set output bits
 #define MXT_RST		0x190 //Offset for register to clear output bits
@@ -40,6 +41,13 @@ namespace
 
 		return r;
 	}
+
+	const uint32_t bitmaskForAllSensors(void)
+	{
+		static uint32_t bm = calcPins();
+
+		return bm;
+	}
 }
 
 GPIO::GPIO(uint32_t a)
@@ -56,9 +64,9 @@ GPIO::~GPIO(void)
 	munmap_device_io(mBaseAddr, MXT_BASESIZE);
 }
 
-void GPIO::configure(uint32_t bm)
+void GPIO::configureForOutput(void)
 {
-	out32(mBaseAddr + MXT_OE_OFFSET, bm);
+	out32(mBaseAddr + MXT_OE_OFFSET, MXT_OE_FLAGS);
 }
 
 void GPIO::write(uint32_t v)
@@ -81,9 +89,9 @@ void GPIO::resetBits(uint32_t bm)
 	out32(mBaseAddr + MXT_RST, bm);
 }
 
-void GPIO::configureInt(void)
+void GPIO::makeEdgeSensitive(void)
 {
-	static const uint32_t pins = calcPins();
+	static const uint32_t pins = bitmaskForAllSensors();
 
 	*(int*)(mBaseAddr + MXT_RISINGDETECT) |= pins;
 	*(int*)(mBaseAddr + MXT_FALLINGDETECT) |= pins;
@@ -91,19 +99,19 @@ void GPIO::configureInt(void)
 	*(int*)(mBaseAddr + MXT_LEVELDETECT(1)) &= ~pins;
 }
 
-void GPIO::clearIntFlags(void)
+void GPIO::clearInterruptFlags(void)
 {
 	out32(mBaseAddr + MXT_IRQSTATUS(MXT_GPIO_INT_LINE_2), 0xFFFFFFFF);
 }
 
-void GPIO::enableInt(void)
+void GPIO::enableInterrupts(void)
 {
 	static const uint32_t pins = calcPins();
 
 	out32(mBaseAddr + MXT_IRQSTATUS_SET(MXT_GPIO_INT_LINE_2), pins);
 }
 
-void GPIO::disableInt(void)
+void GPIO::disableInterrupts(void)
 {
 	out32(mBaseAddr + MXT_IRQSTATUS_CLR(MXT_GPIO_INT_LINE_2), 0xFFFFFFFF);
 }
