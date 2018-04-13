@@ -132,7 +132,10 @@ void Writer::Impl::acknowledge(types::id_t id, packet::Type t)
 
 void Writer::Impl::reset( )
 {
-	// TODO
+	if(!mSendingBuffer.empty())
+	{
+		send(mSendingBuffer.front());
+	}
 }
 
 void Writer::Impl::send(packet::packet_ptr p)

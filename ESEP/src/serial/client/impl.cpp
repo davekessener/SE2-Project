@@ -28,15 +28,14 @@ Client::Impl::Impl(Connection& c)
 				}
 				catch(const types::BadPacketException& e)
 				{
-					mReset.send();
-				}
-				catch(const types::ResetTriggeredException& e)
-				{
-					mReset.respond();
+					mReset.handle();
+					mWriter.reset();
+					mReader.reset();
 				}
 				catch(const types::FailedPacketRead& e)
 				{
 					mWriter.acknowledge(0, packet::Type::AP_ERR);
+					mReader.reset();
 				}
 			}
 		}
@@ -50,6 +49,10 @@ Client::Impl::Impl(Connection& c)
 			{
 				MXT_LOG("Serial connection was terminated.");
 			}
+		}
+		catch(const std::exception& e)
+		{
+			MXT_LOG(lib::stringify("Caught a stray exception: ", e.what()));
 		}
 		catch(const std::string& e)
 		{

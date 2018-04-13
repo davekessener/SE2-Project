@@ -20,7 +20,7 @@ namespace esep { namespace test {
 
 std::string runUnitTests(void)
 {
-	lib::StreamIntercept si(std::cout);
+	std::stringstream ss;
 
 	auto r = unit::Manager::instance()
 		.addTest<unit::LoggerFormatParser>()
@@ -32,34 +32,34 @@ std::string runUnitTests(void)
 		.addTest<unit::QNXConnections>()
 		.run();
 
-	std::cout << "\nRunning automatic unit test suites:\n";
+	ss << "\nRunning automatic unit test suites:\n";
 
 	for(const auto& t : r)
 	{
-		std::cout << t.first << ": ";
+		ss << t.first << ": ";
 
 		for(const auto& p : t.second.first)
 		{
 			if(p.first == unit::TestSuite::Result::SUCCESS)
 			{
-				std::cout << ".";
+				ss << ".";
 			}
 			else
 			{
-				std::cout << "E";
+				ss << "E";
 			}
 		}
 
-		std::cout << "\n";
+		ss << "\n";
 	}
 
-	std::cout << "\n";
+	ss << "\n";
 
 	for(const auto& t : r)
 	{
 		if(!t.second.second.empty())
 		{
-			std::cout << t.first << " has encountered a critical error: " << t.second.second << "!\n";
+			ss << t.first << " has encountered a critical error: " << t.second.second << "!\n";
 		}
 	}
 
@@ -69,12 +69,12 @@ std::string runUnitTests(void)
 		{
 			if(p.first == unit::TestSuite::Result::FAILURE)
 			{
-				std::cout << t.first << ": " << p.second << "\n";
+				ss << t.first << ": " << p.second << "\n";
 			}
 		}
 	}
 
-	return si.getBuffer();
+	return ss.str();
 }
 
 void main(const lib::args_t& args)

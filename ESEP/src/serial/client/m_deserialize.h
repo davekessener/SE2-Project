@@ -18,8 +18,6 @@ namespace esep
 		{
 			class Deserializer
 			{
-				static packet::packet_ptr respondToReset(In_Connection&) { throw types::ResetTriggeredException(); }
-
 				struct TypeComparator
 				{
 					inline uint numBits(uint16_t v) { uint n = 0; while(v) { if(v & 1) ++n; v >>= 1; } return n; }
@@ -45,8 +43,7 @@ namespace esep
 					DataPacket<packet::Type::MDP>,
 					DataPacket<packet::Type::LDP>,
 					AnswerPacket<packet::Type::AP_OK>,
-					AnswerPacket<packet::Type::AP_ERR>,
-					lib::Generator<packet::Type, packet::Type::RESET, generator_type, &respondToReset>
+					AnswerPacket<packet::Type::AP_ERR>
 				>, TypeComparator, types::BadPacketException> factory_t;
 
 				public:

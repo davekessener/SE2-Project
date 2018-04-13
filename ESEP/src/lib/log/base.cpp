@@ -60,7 +60,7 @@ Base::Base(void)
 {
 	setFormat(MXT_DEFAULT_FORMAT);
 	setFormatter([](uint t)               -> std::string { return lib::stringify(t); });
-	setFormatter([](tid_t tid)            -> std::string { return "0"; });
+	setFormatter([](tid_t tid)            -> std::string { return lib::stringify(tid); });
 	setFormatter([](Section s)            -> std::string { return SECTIONS[static_cast<uint>(s)]; });
 	setFormatter([](Severity s)           -> std::string { return SEVERITIES[static_cast<uint>(s)]; });
 	setFormatter([](const Source& s)      -> std::string { return lib::stringify(s.file, ": ", s.line); });
