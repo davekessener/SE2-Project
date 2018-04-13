@@ -26,7 +26,6 @@ namespace esep
 			typedef sync::Container<buffer_t> storage_t;
 
 			struct BadPacketException : public std::exception { };
-			struct ResetTriggeredException : public std::exception { };
 			struct FailedPacketRead : public std::exception { };
 
 			struct PacketDataOverflowException : public std::runtime_error
