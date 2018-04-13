@@ -30,6 +30,9 @@ namespace esep
 				public:
 					Out_Connection(Connection *c) : Base_Connection(c) { }
 					virtual void write(const types::buffer_t&);
+					template<typename T>
+						void send(T&& o)
+							{ types::buffer_t b; b << o; write(b); }
 			};
 
 			class In_Connection : public virtual Base_Connection
@@ -40,7 +43,7 @@ namespace esep
 					types::buffer_t read(size_t s)
 						{ types::buffer_t o; read(o, s); return o; }
 					template<typename T>
-						T read( )
+						T receive( )
 							{ types::buffer_t o; T r; read(o, sizeof(T)); o >> r; return r; }
 			};
 

@@ -23,15 +23,14 @@ void Reader::process(packet::packet_ptr p)
 void Reader::processDataPacket(packet::packet_ptr ptr)
 {
 	packet::Base_Data& p(static_cast<packet::Base_Data&>(*ptr));
-	packet::packet_ptr a;
 
 	if(!p.checkIntegrity())
 	{
-		a.reset(new packet::Answer<packet::Type::AP_ERR>(p.getID()));
+		mLastAck.reset(new packet::Answer<packet::Type::AP_ERR>(p.getID()));
 	}
 	else
 	{
-		a.reset(new packet::Answer<packet::Type::AP_OK>(p.getID()));
+		mLastAck.reset(new packet::Answer<packet::Type::AP_OK>(p.getID()));
 
 		if(recordPacket(ptr))
 		{
@@ -46,7 +45,7 @@ void Reader::processDataPacket(packet::packet_ptr ptr)
 		}
 	}
 
-	mConnection.send(a);
+	mConnection.send(mLastAck);
 }
 
 bool Reader::recordPacket(packet::packet_ptr ptr)
@@ -62,6 +61,14 @@ bool Reader::recordPacket(packet::packet_ptr ptr)
 	mHistory.insert(ptr);
 
 	return true;
+}
+
+void Reader::reset(void)
+{
+	if(static_cast<bool>(mLastAck))
+	{
+		mConnection.send(mLastAck);
+	}
 }
 
 }}}

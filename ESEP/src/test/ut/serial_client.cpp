@@ -7,6 +7,36 @@
 
 namespace esep { namespace test { namespace unit {
 
+namespace
+{
+	class RNG
+	{
+		public:
+			template<size_t N>
+			RNG(const byte_t (&a)[N], uint c = 100)
+				: mSource(&a[0]), mSize(N), mChance(c), memory(0) { }
+			byte_t operator()(byte_t v, uint i)
+			{
+				memory += i;
+				memory = (memory << 2) ^ v ^ mSource[memory % mSize];
+
+				if(!(memory % mChance))
+				{
+					v = memory;
+				}
+
+				return v;
+			}
+		private:
+			const byte_t * const mSource;
+			const size_t mSize;
+			const uint mChance;
+			uint32_t memory;
+	};
+}
+
+
+
 SerialClient::SerialClient(void)
 	: TestSuite("Serial Client (BSP)")
 {
@@ -91,6 +121,74 @@ void SerialClient::define(void)
 		{
 			cmp.push_back(i * i);
 		}
+
+		mClients[0]->write(cmp);
+
+		auto r = mClients[1]->read();
+
+		ASSERT_EACH_EQUALS(r, cmp);
+	};
+
+	UNIT_TEST("does request retransmission on a simple error")
+	{
+		bool running = true;
+
+		mConnections[0]->setTransform([&running](byte_t v, uint i) {
+			if(running && i == 10)
+			{
+				v = ~v;
+				running = false;
+			}
+
+			return v;
+		});
+
+		std::string cmp("Hello, world!");
+
+		mClients[0]->write(serial::Client::buffer_t(cmp.cbegin(), cmp.cend()));
+
+		auto r = mClients[1]->read();
+
+		ASSERT_EACH_EQUALS(r, cmp);
+	};
+
+	UNIT_TEST("can handle a reset")
+	{
+		bool running = true;
+
+		mConnections[0]->setTransform([&running](byte_t v, uint i) {
+			if(running && i == 0)
+			{
+				v = 0xDA;
+				running = false;
+			}
+
+			return v;
+		});
+
+		std::string cmp("Hello, World!");
+
+		mClients[0]->write(serial::Client::buffer_t(cmp.cbegin(), cmp.cend()));
+
+		auto r = mClients[1]->read();
+
+		ASSERT_EACH_EQUALS(r, cmp);
+	};
+
+	UNIT_TEST("can handle an unreliable connection")
+	{
+		static const byte_t rand[] = { 17, 237, 3, 71, 93, 181, 182, 115, 76, 170 };
+		RNG unreliable[2] = {{rand, 500}, {rand, 500}};
+
+		std::vector<byte_t> cmp;
+
+		for(uint i = 0 ; i < 10000 ; ++i)
+		{
+			cmp.push_back(i * i);
+		}
+
+		mConnections[0]->setTransform(unreliable[0]);
+		mConnections[1]->setTransform(unreliable[1]);
 
 		mClients[0]->write(cmp);
 
