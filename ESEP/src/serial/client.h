@@ -14,9 +14,11 @@ namespace esep
 		{
 			public:
 			typedef std::vector<byte_t> buffer_t;
+			typedef buffer_t value_type;
+			typedef Connection::ConnectionClosedException ClosingException;
 
 			public:
-				Client(Connection&);
+				explicit Client(Connection&);
 				~Client( );
 				void write(const buffer_t&);
 				buffer_t read( );

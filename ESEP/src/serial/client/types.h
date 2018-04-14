@@ -25,11 +25,9 @@ namespace esep
 			typedef lib::ByteStream buffer_t;
 			typedef sync::Container<buffer_t> storage_t;
 
-			struct BadPacketException : public std::exception { };
-			struct FailedPacketRead : public std::exception { };
-
-			struct PacketDataOverflowException : public std::runtime_error
-				{ PacketDataOverflowException(const std::string& s) : std::runtime_error(s) { } };
+			MXT_DEFINE_E(BadPacketException);
+			MXT_DEFINE_E(FailedPacketException);
+			MXT_DEFINE_E(PacketDataOverflowException);
 		}
 	}
 }

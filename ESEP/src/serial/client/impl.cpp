@@ -32,7 +32,7 @@ Client::Impl::Impl(Connection& c)
 					mWriter.reset();
 					mReader.reset();
 				}
-				catch(const types::FailedPacketRead& e)
+				catch(const types::FailedPacketException& e)
 				{
 					mWriter.acknowledge(0, packet::Type::AP_ERR);
 					mReader.reset();
@@ -41,14 +41,6 @@ Client::Impl::Impl(Connection& c)
 		}
 		catch(const Connection::ConnectionClosedException& e)
 		{
-			if(mRunning)
-			{
-//				MXT_LOG("Serial connection was terminated by the other side.");
-			}
-			else
-			{
-//				MXT_LOG("Serial connection was terminated.");
-			}
 		}
 		catch(const std::exception& e)
 		{
@@ -75,7 +67,14 @@ void Client::Impl::write(const types::buffer_t& data)
 
 buffer_t Client::Impl::read(void)
 {
-	return mReader.get();
+	try
+	{
+		return mReader.get();
+	}
+	catch(const types::storage_t::InterruptedException& e)
+	{
+		MXT_THROW_EX(Client::ClosingException);
+	}
 }
 
 }}

@@ -16,6 +16,7 @@
 #include "test/ut/serial_client.h"
 #include "test/ut/qnx_connections.h"
 #include "test/ut/timer.h"
+#include "test/ut/watchdog.h"
 
 namespace esep { namespace test {
 
@@ -32,6 +33,7 @@ std::string runUnitTests(void)
 		.addTest<unit::SerialClient>()
 		.addTest<unit::QNXConnections>()
 		.addTest<unit::Timer>()
+		.addTest<unit::Watchdog>()
 		.run();
 
 	ss << "\nRunning automatic unit test suites:\n";

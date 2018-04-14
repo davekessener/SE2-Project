@@ -15,6 +15,7 @@ Impl::Impl(void)
 
 	mRunning = true;
 	mUpdating = false;
+	mNextID = 0;
 
 	mTimerThread = std::thread([this](void) {
 		try
@@ -59,6 +60,7 @@ Impl::Impl(void)
 Impl::~Impl(void)
 {
 	mRunning = false;
+
 	try
 	{
 		mConnection.sendPulse(static_cast<int8_t>(Code::SHUTDOWN));
@@ -67,6 +69,7 @@ Impl::~Impl(void)
 	{
 		MXT_LOG("Failed to send shutdown signal; may hang!");
 	};
+
 	mTimerThread.join();
 }
 
@@ -75,11 +78,30 @@ void Impl::reset(void)
 	mSystemStart = std::chrono::system_clock::now();
 }
 
-void Impl::registerCallback(callback_t f, uint o, uint p)
+Impl::id_t Impl::registerCallback(callback_t f, uint o, uint p)
 {
 	lock_t lock(mMutex);
 
-	mTimers.push_back(Timer(f, o, p));
+	id_t id = mNextID++;
+
+	mTimers.push_back(Timer(id, f, o, p));
+
+	return id;
+}
+
+void Impl::unregisterCallback(id_t id)
+{
+	lock_t lock(mMutex);
+
+	for(auto i1 = mTimers.begin(), i2 = mTimers.end() ; i1 != i2 ; ++i1)
+	{
+		if(i1->id == id)
+		{
+			mTimers.erase(i1);
+
+			break;
+		}
+	}
 }
 
 void Impl::sleep(uint ms)

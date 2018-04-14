@@ -13,7 +13,7 @@ namespace esep
 		class Connection
 		{
 			public:
-			struct ConnectionClosedException : public std::exception { };
+			MXT_DEFINE_E(ConnectionClosedException);
 
 			public:
 				Connection( ) { }

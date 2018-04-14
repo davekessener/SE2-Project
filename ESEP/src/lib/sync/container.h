@@ -3,9 +3,11 @@
 
 #include <deque>
 #include <mutex>
+#include <atomic>
 #include <condition_variable>
 
 #include "lib/member_wrapper.h"
+#include "lib/sync/auto_counter.h"
 
 namespace esep
 {
@@ -21,6 +23,8 @@ namespace esep
 		>
 		class Container
 		{
+			typedef AutoCounter<std::atomic<uint>> counter_t;
+
 			public:
 			typedef T value_type;
 			typedef C container_type;
@@ -29,12 +33,15 @@ namespace esep
 			typedef Remove remove_fn;
 			typedef std::unique_lock<std::mutex> lock_t;
 
+			MXT_DEFINE_E(InterruptedException);
+
 			public:
 				Container(
 					access_fn a = access_fn(&container_type::front),
 					insert_fn i = insert_fn(&container_type::push_back),
 					remove_fn r = remove_fn(&container_type::pop_front))
-				: mAccess(a), mInsert(i), mRemove(r), mSize(0) { }
+						: mAccess(a), mInsert(i), mRemove(r), mSize(0), mInterrupted(false), mReaders(0) { }
+				~Container( ) { mInterrupted = true; mCond.notify_all(); while(mReaders.load()); }
 				void insert(const value_type&);
 				value_type remove( );
 				size_t size( ) const { return mSize; }
@@ -48,6 +55,8 @@ namespace esep
 				std::mutex mMutex;
 				std::condition_variable mCond;
 				size_t mSize;
+				std::atomic<bool> mInterrupted;
+				std::atomic<uint> mReaders;
 		};
 
 		template<typename T, typename C, typename A, typename I, typename R>
@@ -66,11 +75,16 @@ namespace esep
 		template<typename T, typename C, typename A, typename I, typename R>
 		T Container<T, C, A, I, R>::remove(void)
 		{
+			counter_t count(mReaders);
+
 			lock_t lock(mMutex);
 
 			while(mContainer.empty())
 			{
-				mCond.wait(lock, [this](void) { return !mContainer.empty(); });
+				mCond.wait(lock);
+
+				if(mInterrupted.load())
+					MXT_THROW_EX(InterruptedException);
 			}
 
 			value_type o(mAccess(mContainer));

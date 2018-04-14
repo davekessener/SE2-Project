@@ -57,12 +57,12 @@ void DummyConnection::read(byte_t *p, size_t n)
 	while(n--)
 	{
 		if(!isOpen())
-			throw Connection::ConnectionClosedException();
+			MXT_THROW_EX(Connection::ConnectionClosedException);
 
 		byte_t v = mCounterpart->mBuffer.remove();
 
 		if(!isOpen())
-			throw Connection::ConnectionClosedException();
+			MXT_THROW_EX(Connection::ConnectionClosedException);
 
 		*p++ = v;
 	}

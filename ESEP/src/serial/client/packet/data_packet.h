@@ -129,7 +129,7 @@ namespace esep
 
 				if(lib::checksum(raw_header) != 0)
 				{
-					throw types::FailedPacketRead();
+					MXT_THROW_EX(types::FailedPacketException);
 				}
 
 				uint16_t type;

@@ -20,6 +20,7 @@ namespace esep
 			{
 				public:
 				typedef std::function<bool(void)> callback_t;
+				typedef uint32_t id_t;
 
 				struct TimerOverflowException : public std::exception { };
 
@@ -32,10 +33,12 @@ namespace esep
 
 				struct Timer
 				{
+					id_t id;
 					callback_t f;
 					uint next, period;
 
-					Timer(callback_t f, uint n, uint p) : f(f), next(n), period(p) { }
+					Timer(id_t id, callback_t f, uint n, uint p)
+						: id(id), f(f), next(n), period(p) { }
 				};
 
 				typedef std::unique_lock<std::mutex> lock_t;
@@ -43,7 +46,8 @@ namespace esep
 				public:
 					Impl( );
 					~Impl( );
-					void registerCallback(callback_t, uint, uint = 0);
+					id_t registerCallback(callback_t, uint, uint = 0);
+					void unregisterCallback(id_t);
 					uint64_t elapsed( );
 					void sleep(uint);
 					void reset( );
@@ -58,6 +62,7 @@ namespace esep
 					std::vector<Timer> mTimers;
 					std::mutex mMutex;
 					bool mUpdating;
+					id_t mNextID;
 			};
 		}
 
