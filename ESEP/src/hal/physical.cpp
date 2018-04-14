@@ -55,7 +55,7 @@ Physical::Physical(void)
 			qnx::Channel channel;
 			mConnection = channel.connect();
 
-			channel.listenForInterrupts(mConnection, *mGPIOs[0]);
+			channel.registerInterruptListener(mConnection, *mGPIOs[0], static_cast<int8_t>(Code::INTERRUPT));
 
 			updateSensors();
 
@@ -65,27 +65,27 @@ Physical::Physical(void)
 
 				switch(p.code)
 				{
-				case static_cast<int8_t>(qnx::Code::SHUTDOWN):
+				case static_cast<int8_t>(Code::SHUTDOWN):
 					break;
-				case static_cast<int8_t>(qnx::Code::GPIO_1_OUT):
+				case static_cast<int8_t>(Code::GPIO_1_OUT):
 					onGPIO(1, &GPIO::write, p.value);
 					break;
-				case static_cast<int8_t>(qnx::Code::GPIO_2_OUT):
+				case static_cast<int8_t>(Code::GPIO_2_OUT):
 					onGPIO(2, &GPIO::write, p.value);
 					break;
-				case static_cast<int8_t>(qnx::Code::GPIO_1_SET):
+				case static_cast<int8_t>(Code::GPIO_1_SET):
 					onGPIO(1, &GPIO::setBits, p.value);
 					break;
-				case static_cast<int8_t>(qnx::Code::GPIO_2_SET):
+				case static_cast<int8_t>(Code::GPIO_2_SET):
 					onGPIO(2, &GPIO::setBits, p.value);
 					break;
-				case static_cast<int8_t>(qnx::Code::GPIO_1_RESET):
+				case static_cast<int8_t>(Code::GPIO_1_RESET):
 					onGPIO(1, &GPIO::resetBits, p.value);
 					break;
-				case static_cast<int8_t>(qnx::Code::GPIO_2_RESET):
+				case static_cast<int8_t>(Code::GPIO_2_RESET):
 					onGPIO(2, &GPIO::resetBits, p.value);
 					break;
-				case static_cast<int8_t>(qnx::Code::INTERRUPT):
+				case static_cast<int8_t>(Code::INTERRUPT):
 					updateSensors();
 					break;
 				default:
@@ -113,12 +113,21 @@ Physical::Physical(void)
 		delete mGPIOs[1];
 		delete mGPIOs[2];
 	});
+
+	lib::Timer::instance().sleep(100);
 }
 
 Physical::~Physical(void)
 {
 	mRunning = false;
-	mConnection.sendPulse(qnx::Code::SHUTDOWN);
+	try
+	{
+		mConnection.sendPulse(static_cast<int8_t>(Code::SHUTDOWN));
+	}
+	catch(...)
+	{
+		MXT_LOG("Couldn't send shutdown signal; may hang!");
+	}
 	mHALThread.join();
 }
 
@@ -135,17 +144,17 @@ void Physical::onGPIO(uint b, gpio_fn f, uint32_t v)
 
 void Physical::out(Field f, uint32_t v)
 {
-	mConnection.sendPulse(qnx::pulse_t(f == Field::GPIO_1 ? qnx::Code::GPIO_1_OUT : qnx::Code::GPIO_2_OUT, v));
+	mConnection.sendPulse(qnx::pulse_t(static_cast<int8_t>(f == Field::GPIO_1 ? Code::GPIO_1_OUT : Code::GPIO_2_OUT), v));
 }
 
 void Physical::set(Field f, bitmask_t v)
 {
-	mConnection.sendPulse(qnx::pulse_t(f == Field::GPIO_1 ? qnx::Code::GPIO_1_SET : qnx::Code::GPIO_2_SET, v));
+	mConnection.sendPulse(qnx::pulse_t(static_cast<int8_t>(f == Field::GPIO_1 ? Code::GPIO_1_SET : Code::GPIO_2_SET), v));
 }
 
 void Physical::reset(Field f, bitmask_t v)
 {
-	mConnection.sendPulse(qnx::pulse_t(f == Field::GPIO_1 ? qnx::Code::GPIO_1_RESET : qnx::Code::GPIO_2_RESET, v));
+	mConnection.sendPulse(qnx::pulse_t(static_cast<int8_t>(f == Field::GPIO_1 ? Code::GPIO_1_RESET : Code::GPIO_2_RESET), v));
 }
 
 }}

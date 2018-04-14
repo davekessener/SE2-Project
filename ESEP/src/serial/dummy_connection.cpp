@@ -44,7 +44,7 @@ void DummyConnection::write(const byte_t * const p, const size_t n)
 		mBuffer.insert(e);
 	}
 
-	MXT_LOG(lib::stringify("Sent packet (", n, ") [",ss.str(), "]"));
+//	MXT_LOG(lib::stringify("Sent packet (", n, ") [",ss.str(), "]"));
 }
 
 void DummyConnection::read(byte_t *p, size_t n)
@@ -77,7 +77,7 @@ void DummyConnection::read(byte_t *p, size_t n)
 	if(l > MXT_N)
 		ss << " ...";
 
-	MXT_LOG(lib::stringify("Received packet (", l, ") [", ss.str(), "]"));
+//	MXT_LOG(lib::stringify("Received packet (", l, ") [", ss.str(), "]"));
 }
 
 void DummyConnection::close(void)

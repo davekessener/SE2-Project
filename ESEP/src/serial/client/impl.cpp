@@ -43,11 +43,11 @@ Client::Impl::Impl(Connection& c)
 		{
 			if(mRunning)
 			{
-				MXT_LOG("Serial connection was terminated by the other side.");
+//				MXT_LOG("Serial connection was terminated by the other side.");
 			}
 			else
 			{
-				MXT_LOG("Serial connection was terminated.");
+//				MXT_LOG("Serial connection was terminated.");
 			}
 		}
 		catch(const std::exception& e)

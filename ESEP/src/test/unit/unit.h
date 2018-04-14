@@ -6,6 +6,8 @@
 #include <vector>
 #include <stdexcept>
 
+#include "lib/utils.h"
+
 namespace esep
 {
 	namespace test
