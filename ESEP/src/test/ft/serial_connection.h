@@ -19,7 +19,7 @@ namespace esep
 					void run();
 				private:
 					serial::Client *mClient;
-					serial::ActualConnection *mConnection;
+					serial::Connection *mConnection;
 			};
 		}
 	}
