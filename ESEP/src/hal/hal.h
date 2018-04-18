@@ -40,7 +40,7 @@ namespace esep
 			static const Event EVENTS[];
 			static constexpr uint N_EVENTS = 9;
 
-			typedef std::function<void(Event, uint32_t)> callback_t;
+			typedef std::function<void(Event)> callback_t;
 
 			public:
 				virtual ~HAL( ) { }

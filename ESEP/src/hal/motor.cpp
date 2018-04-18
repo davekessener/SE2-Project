@@ -18,20 +18,6 @@ Motor::Motor(HAL *hal)
 
 Motor::~Motor(void)
 {
-	if(isRunning())
-	{
-		stop();
-	}
-
-	if(!isFast())
-	{
-		fast();
-	}
-
-	if(!isEnabled())
-	{
-		enable();
-	}
 }
 
 void Motor::start(void)

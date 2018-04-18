@@ -19,7 +19,7 @@ void Buffer::update(Field f, uint32_t v)
 		{
 			if(c & (1 << static_cast<uint>(*i1)))
 			{
-				mSubscriber(*i1, v);
+				mSubscriber(*i1);
 			}
 		}
 	}

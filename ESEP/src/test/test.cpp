@@ -8,6 +8,8 @@
 #include "test/test.h"
 #include "test/unit/manager.h"
 
+#include "test/ft/hal.h"
+
 #include "test/ut/logger_format_parser.h"
 #include "test/ut/crc32.h"
 #include "test/ut/fsm.h"
@@ -80,6 +82,12 @@ std::string runUnitTests(void)
 void main(const lib::args_t& args)
 {
 	std::cout << runUnitTests() << std::endl;
+
+	{
+		functional::HALTester hal_tester;
+
+		hal_tester.run();
+	}
 }
 
 }}
