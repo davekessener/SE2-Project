@@ -8,7 +8,7 @@
 namespace esep { namespace serial {
 
 ActualConnection::ActualConnection(const std::string& device)
-: fildes_(0)
+: fildes_(-1)
 {
 	open(device);
 }
