@@ -7,18 +7,6 @@ namespace esep
 {
 	namespace qnx
 	{
-		enum class Code : int8_t
-		{
-			SHUTDOWN,
-			INTERRUPT,
-			GPIO_1_OUT,
-			GPIO_1_SET,
-			GPIO_1_RESET,
-			GPIO_2_OUT,
-			GPIO_2_SET,
-			GPIO_2_RESET
-		};
-
 		struct pulse_t
 		{
 			int8_t code;
@@ -26,7 +14,6 @@ namespace esep
 
 			pulse_t( ) : code(0), value(0) { }
 			pulse_t(int8_t c, uint32_t v) : code(c), value(v) { }
-			pulse_t(Code c, uint32_t v) : code(static_cast<uint32_t>(c)), value(v) { }
 		};
 
 		static constexpr int INVALID_ID = -1;

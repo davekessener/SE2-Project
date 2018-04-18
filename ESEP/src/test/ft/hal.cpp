@@ -98,11 +98,11 @@ void HALTester::t_004(Event e)
 			get<hal::LEDs>().turnOn(LED::START);
 			get<hal::Lights>().turnOn(Light::GREEN);
 
-			lib::Timer::instance().registerCallback([this](void) -> bool {
+			runIn(3000, [this](void) -> bool {
 				get<hal::Lights>().turnOff(Light::GREEN);
 
 				return false;
-			}, 3000);
+			});
 		}
 		break;
 	default:

@@ -3,6 +3,7 @@
 
 #include "lib/utils.h"
 #include "lib/tuple.h"
+#include "lib/timer.h"
 
 #include "hal/hal.h"
 #include "hal/buttons.h"
@@ -64,6 +65,11 @@ namespace esep
 					T& get( )
 					{
 						return mHALInterfaces.get<T>();
+					}
+					template<typename F>
+					void runIn(uint t, F&& f)
+					{
+						mTimers.push_back(lib::Timer::instance().registerCallback(std::forward<F>(f), t));
 					}
 
 				private:
