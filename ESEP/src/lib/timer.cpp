@@ -12,7 +12,7 @@ Impl::Impl(void)
 
 	mRunning = true;
 	mUpdating = false;
-	mNextID = 0;
+	mNextID = INVALID_TIMER_ID + 1;
 
 	mTimerThread = std::thread([this](void) {
 		try
@@ -81,7 +81,7 @@ Impl::id_t Impl::registerCallback(callback_t f, uint o, uint p)
 
 	id_t id = mNextID++;
 
-	mTimers.push_back(Timer(id, f, o, p));
+	mTimers.emplace(std::make_pair(id, Timer(id, f, o ? o : 1, p)));
 
 	return id;
 }
@@ -90,14 +90,11 @@ void Impl::unregisterCallback(id_t id)
 {
 	lock_t lock(mMutex);
 
-	for(auto i1 = mTimers.begin(), i2 = mTimers.end() ; i1 != i2 ; ++i1)
-	{
-		if(i1->id == id)
-		{
-			mTimers.erase(i1);
+	auto i = mTimers.find(id);
 
-			break;
-		}
+	if(i != mTimers.end())
+	{
+		mTimers.erase(i);
 	}
 }
 
@@ -108,13 +105,15 @@ uint64_t Impl::elapsed(void)
 
 void Impl::update(void)
 {
-	lock_t lock(mMutex);
+	auto timer_copy(mTimers);
+
+	std::vector<id_t> timer_to_delete;
 
 	mUpdating = true;
 
-	for(auto i1 = std::begin(mTimers), i2 = std::end(mTimers) ; i1 != i2 ; )
+	for(auto& i : timer_copy)
 	{
-		auto& t(*i1);
+		auto& t(i.second);
 
 		if(!t.next--)
 		{
@@ -124,12 +123,33 @@ void Impl::update(void)
 			}
 			else
 			{
-				i1 = mTimers.erase(i1);
+				timer_to_delete.push_back(t.id);
 			}
 		}
-		else
+	}
+
+	{
+		lock_t lock(mMutex);
+
+		for(const auto& id : timer_to_delete)
 		{
-			++i1;
+			auto i = mTimers.find(id);
+
+			if(i != mTimers.end())
+			{
+				mTimers.erase(i);
+			}
+		}
+
+		for(auto& p : timer_copy)
+		{
+			auto& t(p.second);
+			auto i = mTimers.find(t.id);
+
+			if(i != mTimers.end())
+			{
+				i->second = t;
+			}
 		}
 	}
 

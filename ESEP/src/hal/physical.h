@@ -17,6 +17,18 @@ namespace esep
 	{
 		class Physical : public Buffer
 		{
+			enum class Code : int8_t
+			{
+				SHUTDOWN,
+				INTERRUPT,
+				GPIO_1_OUT,
+				GPIO_1_SET,
+				GPIO_1_RESET,
+				GPIO_2_OUT,
+				GPIO_2_SET,
+				GPIO_2_RESET
+			};
+
 			typedef void (GPIO::*gpio_fn)(uint32_t);
 
 			public:

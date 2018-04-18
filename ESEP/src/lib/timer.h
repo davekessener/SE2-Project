@@ -7,6 +7,7 @@
 #include <mutex>
 #include <chrono>
 #include <stdexcept>
+#include <map>
 
 #include "lib/utils.h"
 #include "lib/singleton.h"
@@ -25,6 +26,8 @@ namespace esep
 				typedef uint32_t id_t;
 
 				struct TimerOverflowException : public std::exception { };
+
+				static constexpr id_t INVALID_TIMER_ID = 0;
 
 				private:
 				enum class Code : int8_t
@@ -61,7 +64,7 @@ namespace esep
 					qnx::Connection mConnection;
 					std::thread mTimerThread;
 					std::atomic<bool> mRunning;
-					std::vector<Timer> mTimers;
+					std::map<id_t, Timer> mTimers;
 					std::mutex mMutex;
 					bool mUpdating;
 					id_t mNextID;

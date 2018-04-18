@@ -43,8 +43,10 @@ namespace esep
 
 				struct Cleaner
 				{
-					Cleaner(tuple_t& t) : hal(t) { }
+					typedef std::function<void(void)> f_t;
+					Cleaner(f_t f, tuple_t& t) : f(f), hal(t) { }
 					~Cleaner( );
+					f_t f;
 					tuple_t& hal;
 				};
 
@@ -67,10 +69,11 @@ namespace esep
 						return mHALInterfaces.get<T>();
 					}
 					template<typename F>
-					void runIn(uint t, F&& f)
+					void runIn(uint t, F&& f, uint p = 0)
 					{
-						mTimers.push_back(lib::Timer::instance().registerCallback(std::forward<F>(f), t));
+						mTimers.push_back(lib::Timer::instance().registerCallback(std::forward<F>(f), t, p));
 					}
+					void clearTimers( );
 
 				private:
 					std::vector<test_fn> mTests;

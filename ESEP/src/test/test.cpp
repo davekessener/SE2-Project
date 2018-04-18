@@ -29,8 +29,8 @@ std::string runUnitTests(void)
 		.addTest<unit::CRC32>()
 		.addTest<unit::FSM>()
 		.addTest<unit::ByteStream>()
-		.addTest<unit::DummyConnection>()
-		.addTest<unit::SerialClient>()
+//		.addTest<unit::DummyConnection>()
+//		.addTest<unit::SerialClient>()
 		.addTest<unit::QNXConnections>()
 		.run();
 

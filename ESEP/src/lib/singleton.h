@@ -11,6 +11,9 @@ namespace esep
 		class SingletonHolder
 		{
 			public:
+			typedef T Class;
+
+			public:
 				static T& instance( )
 					{ static T inst; return inst; }
 			private:
