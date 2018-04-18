@@ -114,7 +114,7 @@ Physical::Physical(void)
 		delete mGPIOs[2];
 	});
 
-	lib::Timer::instance().sleep(100);
+	lib::Timer::Class::sleep(100);
 }
 
 Physical::~Physical(void)

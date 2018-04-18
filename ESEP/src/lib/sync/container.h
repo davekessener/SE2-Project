@@ -9,6 +9,8 @@
 #include "lib/member_wrapper.h"
 #include "lib/sync/auto_counter.h"
 
+#include "lib/logger.h"
+
 namespace esep
 {
 	namespace sync
@@ -41,11 +43,11 @@ namespace esep
 					insert_fn i = insert_fn(&container_type::push_back),
 					remove_fn r = remove_fn(&container_type::pop_front))
 						: mAccess(a), mInsert(i), mRemove(r), mSize(0), mInterrupted(false), mReaders(0) { }
-				~Container( ) { mInterrupted = true; mCond.notify_all(); while(mReaders.load()); }
+				~Container( ) { mInterrupted = true; while(mReaders.load()) mCond.notify_all(); }
 				void insert(const value_type&);
 				value_type remove( );
 				size_t size( ) const { return mSize; }
-				bool empty( ) const { return mSize; }
+				bool empty( ) const { return !mSize; }
 				void clear( ) { lock_t lock(mMutex); while(mSize) { --mSize; mRemove(mContainer); } }
 			private:
 				container_type mContainer;
@@ -64,6 +66,9 @@ namespace esep
 		{
 			{
 				lock_t lock(mMutex);
+
+				if(mInterrupted.load())
+					MXT_THROW_EX(InterruptedException);
 
 				mInsert(mContainer, o);
 				++mSize;

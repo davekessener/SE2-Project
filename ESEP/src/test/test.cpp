@@ -17,6 +17,7 @@
 #include "test/ut/qnx_connections.h"
 #include "test/ut/timer.h"
 #include "test/ut/watchdog.h"
+#include "test/ut/sync_container.h"
 
 namespace esep { namespace test {
 
@@ -30,10 +31,11 @@ std::string runUnitTests(void)
 		.addTest<unit::FSM>()
 		.addTest<unit::ByteStream>()
 		.addTest<unit::DummyConnection>()
-		.addTest<unit::SerialClient>()
 		.addTest<unit::QNXConnections>()
 		.addTest<unit::Timer>()
-		.addTest<unit::Watchdog>()
+		.addTest<unit::SyncContainer>()
+		.addTest<unit::SerialClient>()
+//		.addTest<unit::Watchdog>()
 		.run();
 
 	ss << "\nRunning automatic unit test suites:\n";
@@ -84,6 +86,8 @@ std::string runUnitTests(void)
 void main(const lib::args_t& args)
 {
 	std::cout << runUnitTests() << std::endl;
+
+	std::cout << "Goodbye." << std::endl;
 }
 
 }}

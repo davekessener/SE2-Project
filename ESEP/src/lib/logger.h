@@ -24,6 +24,16 @@
 
 #define MXT_LOG(...) MXT_LOG_WHICH(__VA_ARGS__)(__VA_ARGS__)
 
+#define MXT_CATCH_STRAY \
+	catch(const std::exception& e) \
+	{ \
+		MXT_LOG(lib::stringify("Caught a stray exception: ", e.what())); \
+	} \
+	catch(const std::string& e) \
+	{ \
+		MXT_LOG(lib::stringify("Caught a stray string: ", e)); \
+	}
+
 namespace esep
 {
 	namespace lib

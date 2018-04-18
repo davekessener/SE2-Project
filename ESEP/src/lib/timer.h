@@ -5,9 +5,11 @@
 #include <thread>
 #include <atomic>
 #include <mutex>
+#include <chrono>
 
 #include "lib/utils.h"
 #include "lib/singleton.h"
+#include "lib/thread.h"
 #include "qnx/channel.h"
 
 namespace esep
@@ -22,7 +24,7 @@ namespace esep
 				typedef std::function<bool(void)> callback_t;
 				typedef uint32_t id_t;
 
-				struct TimerOverflowException : public std::exception { };
+				MXT_DEFINE_E(TimerOverflowException);
 
 				private:
 				enum class Code : int8_t
@@ -49,7 +51,7 @@ namespace esep
 					id_t registerCallback(callback_t, uint, uint = 0);
 					void unregisterCallback(id_t);
 					uint64_t elapsed( );
-					void sleep(uint);
+					static void sleep(uint t) { std::this_thread::sleep_for(std::chrono::milliseconds(t)); }
 					void reset( );
 				private:
 					void update( );
@@ -57,7 +59,7 @@ namespace esep
 				private:
 					std::chrono::time_point<std::chrono::system_clock> mSystemStart;
 					qnx::Connection mConnection;
-					std::thread mTimerThread;
+					lib::Thread mTimerThread;
 					std::atomic<bool> mRunning;
 					std::vector<Timer> mTimers;
 					std::mutex mMutex;

@@ -4,9 +4,8 @@
 #include "test/unit/unit.h"
 
 #include "lib/utils.h"
-#include "lib/watchdog.h"
 #include "serial/client.h"
-#include "serial/connection.h"
+#include "serial/watchdog.h"
 #include "serial/dummy_connection.h"
 
 namespace esep
@@ -17,16 +16,14 @@ namespace esep
 		{
 			class Watchdog : public TestSuite
 			{
-				typedef lib::Watchdog<serial::Client> wd_t;
-
 				public:
 					Watchdog( );
 					void setup( );
 					void teardown( );
 					void define( );
 				private:
+					serial::Client *mWatchdog[2];
 					serial::DummyConnection *mConnections[2];
-					wd_t *mWatchdog[2];
 			};
 		}
 	}

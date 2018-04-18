@@ -26,8 +26,8 @@ void DummyConnection::setup(void)
 
 void DummyConnection::teardown(void)
 {
-	delete mConnections[0];
-	delete mConnections[1];
+	delete mConnections[0]; mConnections[0] = nullptr;
+	delete mConnections[1]; mConnections[1] = nullptr;
 }
 
 void DummyConnection::define(void)
@@ -52,7 +52,7 @@ void DummyConnection::define(void)
 	{
 		byte_t buf[] = { 0xFF, 0xFF, 0xFF };
 
-		std::thread worker([this](void) {
+		lib::Thread worker([this](void) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(20));
 			mConnections[0]->close();
 		});
@@ -60,8 +60,6 @@ void DummyConnection::define(void)
 		ASSERT_FAILURE(mConnections[0]->read(buf, sizeof(buf)), serial::Connection::ConnectionClosedException);
 		ASSERT_FALSE(mConnections[0]->isOpen());
 		ASSERT_FALSE(mConnections[1]->isOpen());
-
-		worker.join();
 	};
 
 	UNIT_TEST("can send some data")
@@ -76,21 +74,34 @@ void DummyConnection::define(void)
 		const size_t n = cmp.size();
 		std::vector<byte_t> target(n);
 
-		std::thread reader([&target, this, n](void) {
-			mConnections[0]->read(&target[0], n);
-		});
+		{
+			lib::Thread reader([&target, this, n](void) {
+				mConnections[0]->read(&target[0], n);
+			});
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-		mConnections[1]->write(reinterpret_cast<const byte_t *>(&cmp[0]), n - 5);
+			mConnections[1]->write(reinterpret_cast<const byte_t *>(&cmp[0]), n - 5);
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-		mConnections[1]->write(reinterpret_cast<const byte_t *>(&cmp[0]) + n - 5, 5);
-
-		reader.join();
+			mConnections[1]->write(reinterpret_cast<const byte_t *>(&cmp[0]) + n - 5, 5);
+		}
 
 		ASSERT_EACH_EQUALS(target, cmp);
+	};
+
+	UNIT_TEST("throws exception during read if closed in another thread")
+	{
+		lib::Thread t([this](void) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+			delete mConnections[0]; mConnections[0] = nullptr;
+		});
+
+		byte_t buf[10];
+
+		ASSERT_FAILURE(mConnections[0]->read(buf, sizeof(buf)), serial::Connection::ConnectionClosedException);
 	};
 }
 

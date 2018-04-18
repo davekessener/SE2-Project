@@ -1,6 +1,3 @@
-#include <chrono>
-#include <thread>
-
 #include "lib/timer.h"
 
 #include "lib/logger.h"
@@ -17,7 +14,7 @@ Impl::Impl(void)
 	mUpdating = false;
 	mNextID = 0;
 
-	mTimerThread = std::thread([this](void) {
+	mTimerThread.construct([this](void) {
 		try
 		{
 			qnx::Channel channel;
@@ -37,7 +34,7 @@ Impl::Impl(void)
 				case static_cast<int8_t>(Code::EXPIRED):
 					if(mUpdating)
 					{
-						throw TimerOverflowException();
+						MXT_THROW_EX(TimerOverflowException);
 					}
 					update();
 					break;
@@ -69,8 +66,6 @@ Impl::~Impl(void)
 	{
 		MXT_LOG("Failed to send shutdown signal; may hang!");
 	};
-
-	mTimerThread.join();
 }
 
 void Impl::reset(void)
@@ -102,11 +97,6 @@ void Impl::unregisterCallback(id_t id)
 			break;
 		}
 	}
-}
-
-void Impl::sleep(uint ms)
-{
-	std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
 
 uint64_t Impl::elapsed(void)
