@@ -13,24 +13,16 @@ void Buffer::update(Field f, uint32_t v)
 
 	r = v;
 
-	if(f == Field::GPIO_0)
+	if(f == Field::GPIO_0 && static_cast<bool>(mSubscriber))
 	{
 		for(auto i1 = HAL::EVENTS, i2 = i1 + HAL::N_EVENTS ; i1 != i2 ; ++i1)
 		{
 			if(c & (1 << static_cast<uint>(*i1)))
 			{
-				for(const auto& f : mSubscribers[*i1])
-				{
-					f(*i1);
-				}
+				mSubscriber(*i1, v);
 			}
 		}
 	}
-}
-
-void Buffer::subscribeEvent(Event e, callback_t f)
-{
-	mSubscribers[e].push_back(f);
 }
 
 }}

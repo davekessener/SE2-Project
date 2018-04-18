@@ -40,13 +40,13 @@ namespace esep
 			static const Event EVENTS[];
 			static constexpr uint N_EVENTS = 9;
 
-			typedef std::function<void(Event)> callback_t;
+			typedef std::function<void(Event, uint32_t)> callback_t;
 
 			public:
 				virtual ~HAL( ) { }
 				virtual uint32_t in(Field) = 0;
 				virtual void out(Field, uint32_t) = 0;
-				virtual void subscribeEvent(Event, callback_t) = 0;
+				virtual void setCallback(callback_t) = 0;
 				virtual void set(Field, bitmask_t) = 0;
 				virtual void reset(Field, bitmask_t) = 0;
 			private:
