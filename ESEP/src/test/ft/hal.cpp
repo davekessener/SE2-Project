@@ -34,22 +34,33 @@ HALTester::HALTester(void)
 		hal::Motor(mHAL))
 {
 	mTests.push_back(&HALTester::t_004);
-	mTests.push_back(&HALTester::t_005);
-	mTests.push_back(&HALTester::t_006);
-	mTests.push_back(&HALTester::t_007);
-	mTests.push_back(&HALTester::t_008);
-	mTests.push_back(&HALTester::t_009);
-	mTests.push_back(&HALTester::t_010);
-	mTests.push_back(&HALTester::t_011);
+//	mTests.push_back(&HALTester::t_005);
+//	mTests.push_back(&HALTester::t_006);
+//	mTests.push_back(&HALTester::t_007);
+//	mTests.push_back(&HALTester::t_008);
+//	mTests.push_back(&HALTester::t_009);
+//	mTests.push_back(&HALTester::t_010);
+//	mTests.push_back(&HALTester::t_011);
 }
 
 HALTester::~HALTester(void)
 {
+	for(const auto& id : mTimers)
+	{
+		lib::Timer::instance().unregisterTimer(id);
+	}
+
 	delete mHAL;
 }
 
 void HALTester::run(void)
 {
+	auto no_handler = [](Event e) { };
+	std::string line;
+
+	std::cout << "Starting interactive HAL test.\n"
+			  << "===========================================================================================\n";
+
 	for(uint i = 0 ; i < mTests.size() ; ++i)
 	{
 		Cleaner cleanup(mHALInterfaces);
@@ -58,24 +69,45 @@ void HALTester::run(void)
 		std::cout << "Running test T-" << std::setw(3) << std::setfill('0') << (i + 4) << "\n"
 				  << "Press ENTER to begin ...";
 
-		std::cin.ignore();
-		std::cin.get();
+		std::getline(std::cin, line);
 
 		mHAL->setCallback([this, f](Event e) { (this->*f)(e); });
 
 		std::cout << "[running] ... (press ENTER to stop)";
 
-		std::cin.ignore();
-		std::cin.get();
+		std::getline(std::cin, line);
 
-		std::cout << "\n=== END OF TEST ===========================================================================\n";
+		mHAL->setCallback(no_handler);
+
+		std::cout << "\n--- END OF TEST ---------------------------------------------------------------------------\n\n";
 	}
+
+	std::cout << "===========================================================================================\n"
+			  << "Shutting down interactive HAL test." << std::endl;
 }
 
 // # -----------------------------------------------------------------------------
 
 void HALTester::t_004(Event e)
 {
+	switch(e)
+	{
+	case Event::BTN_START:
+		if(get<hal::Buttons>().isPressed(Button::START))
+		{
+			get<hal::LEDs>().turnOn(LED::START);
+			get<hal::Lights>().turnOn(Light::GREEN);
+
+			lib::Timer::instance().registerCallback([this](void) -> bool {
+				get<hal::Lights>().turnOff(Light::GREEN);
+
+				return false;
+			}, 3000);
+		}
+		break;
+	default:
+		break;
+	}
 }
 
 void HALTester::t_005(Event e)

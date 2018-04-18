@@ -61,13 +61,14 @@ namespace esep
 					void t_010(Event);
 					void t_011(Event);
 					template<typename T>
-					void get( )
+					T& get( )
 					{
 						return mHALInterfaces.get<T>();
 					}
 
 				private:
 					std::vector<test_fn> mTests;
+					std::vector<lib::Timer::Class::id_t> mTimers;
 					hal::HAL *mHAL;
 					tuple_t mHALInterfaces;
 			};
