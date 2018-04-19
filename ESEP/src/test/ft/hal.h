@@ -48,6 +48,7 @@ namespace esep
 					void t_011(Event);
 					void clearTimers( );
 					void resetHAL( );
+					void runTest(uint);
 
 					template<typename F>
 					void runIn(uint t, F&& f)
@@ -56,7 +57,8 @@ namespace esep
 					}
 
 				private:
-					std::vector<test_fn> mTests;
+					std::vector<std::pair<std::string, test_fn>> mTests;
+					bool mRunning;
 					std::vector<timer_id_t> mTimers;
 					hal::HAL *mHAL;
 					hal::Buttons BUTTONS;

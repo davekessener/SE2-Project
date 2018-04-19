@@ -19,14 +19,15 @@ HALTester::HALTester(void)
 , METAL_SENSOR(mHAL)
 , MOTOR(mHAL)
 {
-	mTests.push_back(&HALTester::t_004);
-	mTests.push_back(&HALTester::t_005);
-	mTests.push_back(&HALTester::t_006);
-	mTests.push_back(&HALTester::t_007);
-	mTests.push_back(&HALTester::t_008);
-	mTests.push_back(&HALTester::t_009);
-	mTests.push_back(&HALTester::t_010);
-	mTests.push_back(&HALTester::t_011);
+	mRunning = false;
+	mTests.push_back(std::make_pair("T-004", &HALTester::t_004));
+	mTests.push_back(std::make_pair("T-005", &HALTester::t_005));
+	mTests.push_back(std::make_pair("T-006", &HALTester::t_006));
+	mTests.push_back(std::make_pair("T-007", &HALTester::t_007));
+	mTests.push_back(std::make_pair("T-008", &HALTester::t_008));
+	mTests.push_back(std::make_pair("T-009", &HALTester::t_009));
+	mTests.push_back(std::make_pair("T-010", &HALTester::t_010));
+	mTests.push_back(std::make_pair("T-011", &HALTester::t_011));
 }
 
 HALTester::~HALTester(void)
@@ -36,7 +37,6 @@ HALTester::~HALTester(void)
 
 void HALTester::run(void)
 {
-	auto no_handler = [](Event e) { };
 	std::string line;
 
 	resetHAL();
@@ -44,29 +44,63 @@ void HALTester::run(void)
 	std::cout << "Starting interactive HAL test.\n"
 			  << "===========================================================================================\n";
 
-	for(uint i = 0 ; i < mTests.size() ; ++i)
+	mRunning = true;
+
+	while(mRunning)
 	{
-		lib::Deferred cleanup([this](void) { resetHAL(); clearTimers(); });
-		test_fn f = mTests[i];
+		std::cout << "There are " << mTests.size() << " tests loaded.\n";
 
-		std::cout << "Running test T-" << std::setw(3) << std::setfill('0') << (i + 4) << "\n"
-				  << "Press ENTER to begin ...";
+		for(uint i = 0 ; i < mTests.size() ; ++i)
+		{
+			std::cout << (i + 1) << ": " << mTests[i].first << "\n";
+		}
 
-		std::getline(std::cin, line);
-
-		mHAL->setCallback([this, f](Event e) { (this->*f)(e); });
-
-		std::cout << "[running] ... (press ENTER to stop)";
+		std::cout << "[Enter 'q' to quit]\n"
+				  << "Please enter test to run (or * for all): ";
 
 		std::getline(std::cin, line);
 
-		mHAL->setCallback(no_handler);
-
-		std::cout << "\n--- END OF TEST ---------------------------------------------------------------------------\n\n";
+		if(line.empty()) continue;
+		else if(line[0] >= '0' && line[0] <= '9')
+		{
+			runTest(line[0] - '0' - 1);
+		}
+		else switch(line[0])
+		{
+		case 'q':
+			mRunning = false;
+			break;
+		case '*':
+			for(uint i = 0 ; i < mTests.size() ; ++i)
+			{
+				runTest(i);
+			}
+			break;
+		}
 	}
 
 	std::cout << "===========================================================================================\n"
 			  << "Shutting down interactive HAL test." << std::endl;
+}
+
+void HALTester::runTest(uint i)
+{
+	std::string line;
+	lib::Deferred cleanup([this](void) { resetHAL(); clearTimers(); });
+	auto no_handler = [](Event e) { };
+	test_fn f = mTests[i].second;
+
+	std::cout << "Running test T-" << std::setw(3) << std::setfill('0') << (i + 4) << "\n";
+
+	mHAL->setCallback([this, f](Event e) { (this->*f)(e); });
+
+	std::cout << "[running] ... (press ENTER to stop)";
+
+	std::getline(std::cin, line);
+
+	mHAL->setCallback(no_handler);
+
+	std::cout << "\n--- END OF TEST ---------------------------------------------------------------------------\n\n";
 }
 
 // # -----------------------------------------------------------------------------
@@ -314,6 +348,13 @@ void HALTester::t_011(Event e)
 		else
 		{
 			unregisterTimer();
+		}
+		break;
+	case Event::BTN_RESET:
+		if(BUTTONS.isPressed(Button::RESET))
+		{
+			LIGHTS.turnOff(Light::YELLOW);
+			LEDS.turnOff(LED::RESET);
 		}
 		break;
 	default:
