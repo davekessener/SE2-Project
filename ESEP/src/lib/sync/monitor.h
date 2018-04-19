@@ -1,7 +1,7 @@
 #ifndef ESEP_LIB_SYNC_MONITOR_H
 #define ESEP_LIB_SYNC_MONITOR_H
 
-#include <mutex>
+#include "lib/thread.h"
 
 #include "lib/function.h"
 

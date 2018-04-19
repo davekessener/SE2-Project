@@ -2,9 +2,9 @@
 #define ESEP_LIB_SYNC_CONTAINER_H
 
 #include <deque>
-#include <mutex>
+#include "lib/thread.h"
 #include <atomic>
-#include <condition_variable>
+#include "lib/thread.h"
 
 #include "lib/member_wrapper.h"
 #include "lib/sync/auto_counter.h"

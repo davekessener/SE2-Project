@@ -2,12 +2,12 @@
 #define ESEP_LOG_BASE_H
 
 #include <string>
-#include <thread>
 #include <map>
 #include <vector>
 
 #include "lib/utils.h"
 #include "lib/log/format.h"
+#include "lib/thread.h"
 
 namespace esep
 {

@@ -1,4 +1,8 @@
+#include <iostream>
+
 #include "lib/thread.h"
+
+#include "lib/utils.h"
 
 namespace esep { namespace lib {
 
@@ -29,6 +33,11 @@ Thread& Thread::operator=(Thread&& t)
 	mThread = std::move(t.mThread);
 
 	return *this;
+}
+
+void Thread::logCreation(void)
+{
+	std::cout << lib::stringify("Just spawned a new thread with ID ", mThread.get_id()) << std::endl;
 }
 
 }}

@@ -1,3 +1,5 @@
+#ifndef NO_QNX
+
 #include "lib/timer.h"
 
 #include "lib/logger.h"
@@ -43,14 +45,7 @@ Impl::Impl(void)
 				}
 			}
 		}
-		catch(const std::string& e)
-		{
-			MXT_LOG(lib::stringify("Caught a stray string: ", e));
-		}
-		catch(const std::exception& e)
-		{
-			MXT_LOG(lib::stringify("Caught a stray exeception: ", e.what()));
-		}
+		MXT_CATCH_STRAY
 	});
 }
 
@@ -135,3 +130,104 @@ void Impl::update(void)
 }
 
 }}}
+
+#else
+
+namespace esep { namespace lib { namespace timer {
+
+Impl::Impl(void)
+{
+	reset();
+
+	mRunning = true;
+	mUpdating = false;
+	mNextID = 0;
+
+	mTimerThread.construct([this](void) {
+		try
+		{
+			while(mRunning)
+			{
+				sleep(1);
+
+				update();
+			}
+		}
+		MXT_CATCH_STRAY
+	});
+}
+
+Impl::~Impl(void)
+{
+	mRunning = false;
+}
+
+void Impl::reset(void)
+{
+	mSystemStart = std::chrono::system_clock::now();
+}
+
+Impl::id_t Impl::registerCallback(callback_t f, uint o, uint p)
+{
+	lock_t lock(mMutex);
+
+	id_t id = mNextID++;
+
+	mTimers.push_back(Timer(id, f, o, p));
+
+	return id;
+}
+
+void Impl::unregisterCallback(id_t id)
+{
+	lock_t lock(mMutex);
+
+	for(auto i1 = mTimers.begin(), i2 = mTimers.end() ; i1 != i2 ; ++i1)
+	{
+		if(i1->id == id)
+		{
+			mTimers.erase(i1);
+
+			break;
+		}
+	}
+}
+
+uint64_t Impl::elapsed(void)
+{
+	return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - mSystemStart).count();
+}
+
+void Impl::update(void)
+{
+	lock_t lock(mMutex);
+
+	mUpdating = true;
+
+	for(auto i1 = std::begin(mTimers), i2 = std::end(mTimers) ; i1 != i2 ; )
+	{
+		auto& t(*i1);
+
+		if(!t.next--)
+		{
+			if(t.f() && t.period)
+			{
+				t.next = t.period;
+			}
+			else
+			{
+				i1 = mTimers.erase(i1);
+			}
+		}
+		else
+		{
+			++i1;
+		}
+	}
+
+	mUpdating = false;
+}
+
+}}}
+
+#endif

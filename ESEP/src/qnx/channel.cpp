@@ -1,3 +1,5 @@
+#ifndef NO_QNX
+
 #include <sys/neutrino.h>
 
 #include "qnx/channel.h"
@@ -88,3 +90,41 @@ void Channel::registerTimerListener(Connection& c, int8_t code, uint64_t period)
 }
 
 }}
+
+#else
+
+namespace esep { namespace qnx {
+
+Channel::Channel(uint32_t f)
+	: mID(0)
+{
+	MXT_THROW("Shouldn't call this!");
+}
+
+Channel::~Channel(void)
+{
+}
+
+Connection Channel::connect(void)
+{
+	MXT_THROW("Shouldn't call this!");
+}
+
+pulse_t Channel::receivePulse(void)
+{
+	MXT_THROW("Shouldn't call this!");
+}
+
+void Channel::registerInterruptListener(Connection& c, hal::GPIO& gpio, int8_t code)
+{
+	MXT_THROW("Shouldn't call this!");
+}
+
+void Channel::registerTimerListener(Connection& c, int8_t code, uint64_t period)
+{
+	MXT_THROW("Shouldn't call this!");
+}
+
+}}
+
+#endif

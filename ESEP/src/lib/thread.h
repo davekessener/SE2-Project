@@ -1,7 +1,16 @@
 #ifndef ESEP_LIB_THREAD_H
 #define ESEP_LIB_THREAD_H
 
-#include <thread>
+#ifndef NO_QNX
+#	include <thread>
+#	include <mutex>
+#	include <condition_variable>
+#else
+#	include <mingw.thread.h>
+#	include <mingw.mutex.h>
+#	include <mingw.condition_variable.h>
+#endif
+
 #include <utility>
 
 namespace esep
@@ -14,13 +23,16 @@ namespace esep
 				Thread( );
 				template<typename F, typename ... A>
 					Thread(F&& f, A&& ... a)
-						: mThread(f, std::forward<A>(a)...) { }
+						: mThread(f, std::forward<A>(a)...) { logCreation(); }
 				Thread(Thread&&);
 				~Thread( );
 				Thread& operator=(Thread&&);
 				template<typename F, typename ... A>
 					void construct(F&& f, A&& ... a)
-						{ *this = Thread(std::forward<F>(f), std::forward<A>(a)...); }
+						{ *this = Thread(std::forward<F>(f), std::forward<A>(a)...); logCreation(); }
+			private:
+				void logCreation( );
+
 			private:
 				std::thread mThread;
 

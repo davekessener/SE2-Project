@@ -1,6 +1,5 @@
 #ifdef ESEP_TEST
 
-#include <thread>
 #include <chrono>
 #include <vector>
 

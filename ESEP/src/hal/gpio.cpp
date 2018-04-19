@@ -1,4 +1,4 @@
-#ifndef ESEP_TEST
+#ifndef NO_QNX
 
 #include <sys/neutrino.h>
 #include <hw/inout.h>
@@ -129,6 +129,7 @@ namespace esep { namespace hal {
 GPIO::GPIO(uint32_t)
 	: mBaseAddr(0)
 {
+	MXT_THROW("Shouldn't call this!");
 }
 
 GPIO::~GPIO(void)

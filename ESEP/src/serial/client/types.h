@@ -1,9 +1,8 @@
 #ifndef ESEP_SERIAL_CLIENT_BASE_H
 #define ESEP_SERIAL_CLIENT_BASE_H
 
-#include <thread>
-#include <mutex>
-#include <condition_variable>
+#include "lib/thread.h"
+#include "lib/thread.h"
 #include <vector>
 #include <deque>
 #include <stdexcept>

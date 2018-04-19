@@ -26,14 +26,14 @@ std::string runUnitTests(void)
 	std::stringstream ss;
 
 	auto r = unit::Manager::instance()
-		.addTest<unit::LoggerFormatParser>()
 		.addTest<unit::CRC32>()
+		.addTest<unit::LoggerFormatParser>()
 		.addTest<unit::FSM>()
 		.addTest<unit::ByteStream>()
-		.addTest<unit::DummyConnection>()
 		.addTest<unit::QNXConnections>()
-		.addTest<unit::Timer>()
-		.addTest<unit::SyncContainer>()
+//		.addTest<unit::Timer>()
+//		.addTest<unit::DummyConnection>()
+//		.addTest<unit::SyncContainer>()
 		.addTest<unit::SerialClient>()
 //		.addTest<unit::Watchdog>()
 		.run();

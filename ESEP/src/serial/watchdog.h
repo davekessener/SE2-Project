@@ -37,7 +37,7 @@ namespace esep
 				lib::Timer::Class::id_t mTimerID;
 				uint64_t mLastRead, mLastWrite;
 				uint mTimeout;
-				std::thread mReaderThread;
+				lib::Thread mReaderThread;
 				sync::Container<Client::buffer_t> mReadBuf;
 				std::atomic<bool> mTimedOut, mRunning;
 		};

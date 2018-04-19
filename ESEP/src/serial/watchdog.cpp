@@ -29,7 +29,7 @@ Watchdog::Watchdog(client_ptr c, uint t)
 
 //	mTimerID = lib::Timer::instance().registerCallback(timer, mTimeout / 2, mTimeout / 2);
 
-//	mReaderThread = std::thread([this](void) {
+//	mReaderThread.construct([this](void) {
 //		try
 //		{
 //			while(mRunning.load())
