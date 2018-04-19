@@ -79,15 +79,18 @@ std::string runUnitTests(void)
 	return ss.str();
 }
 
+void runHALTest(void)
+{
+	functional::HALTester hal_tester;
+
+	hal_tester.run();
+}
+
 void main(const lib::args_t& args)
 {
 	std::cout << runUnitTests() << std::endl;
 
-	{
-		functional::HALTester hal_tester;
-
-		hal_tester.run();
-	}
+	runHALTest();
 }
 
 }}

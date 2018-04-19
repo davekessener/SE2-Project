@@ -240,7 +240,11 @@ void HALTester::t_009(Event e)
 		}
 		else
 		{
-			SWITCH.close();
+			runIn(1000, [this](void) -> bool {
+				SWITCH.close();
+
+				return false;
+			});
 		}
 		break;
 	case Event::LB_END:
