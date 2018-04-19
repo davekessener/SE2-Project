@@ -40,24 +40,24 @@ void DummyConnection::write(const byte_t * const p, const size_t n)
 
 	for(uint i = 0 ; i < n ; ++i)
 	{
-		b[i] = mTransform(p[i], i);
+		b.at(i) = mTransform(p[i], i);
 	}
 
-//	std::stringstream ss;
-//
-//	for(int i = 0, l = MXT_MIN(MXT_N, n) ; i < l ; ++i)
-//	{
-//		ss << lib::hex<8>(b[i]); if(i + 1 != l) ss << " ";
-//	}
-//
-//	if(n > MXT_N) ss << " ...";
+	std::stringstream ss;
+
+	for(int i = 0, l = MXT_MIN(MXT_N, n) ; i < l ; ++i)
+	{
+		ss << lib::hex<8>(b[i]); if(i + 1 != l) ss << " ";
+	}
+
+	if(n > MXT_N) ss << " ...";
 
 	for(const auto& e : b)
 	{
 		mBuffer->insert(e);
 	}
 
-//	MXT_LOG(lib::stringify("Sent packet (", n, ") [",ss.str(), "]"));
+	MXT_LOG(lib::stringify("Sent packet (", n, ") [",ss.str(), "]"));
 }
 
 void DummyConnection::read(byte_t *p, size_t n)
@@ -65,8 +65,8 @@ void DummyConnection::read(byte_t *p, size_t n)
 	if(!isOpen())
 		MXT_THROW_EX(Connection::ConnectionClosedException);
 
-//	auto l = n;
-//	auto o = p;
+	auto l = n;
+	auto o = p;
 
 	try
 	{
@@ -74,7 +74,7 @@ void DummyConnection::read(byte_t *p, size_t n)
 		{
 			byte_t v = mCounterpart->mBuffer->remove();
 
-			*p++ = v;
+			*(p++) = v;
 		}
 	}
 	catch(const buffer_t::InterruptedException& e)
@@ -82,17 +82,17 @@ void DummyConnection::read(byte_t *p, size_t n)
 		MXT_THROW_EX(Connection::ConnectionClosedException);
 	}
 
-//	std::stringstream ss;
-//
-//	for(uint i = 0, ll = MXT_MIN(MXT_N, l) ; i < ll ; ++i)
-//	{
-//		ss << lib::hex<8>(o[i]); if(i + 1 != ll) ss << " ";
-//	}
-//
-//	if(l > MXT_N)
-//		ss << " ...";
+	std::stringstream ss;
 
-//	MXT_LOG(lib::stringify("Received packet (", l, ") [", ss.str(), "]"));
+	for(uint i = 0, ll = MXT_MIN(MXT_N, l) ; i < ll ; ++i)
+	{
+		ss << lib::hex<8>(o[i]); if(i + 1 != ll) ss << " ";
+	}
+
+	if(l > MXT_N)
+		ss << " ...";
+
+	MXT_LOG(lib::stringify("Received packet (", l, ") [", ss.str(), "]"));
 }
 
 void DummyConnection::close(void)

@@ -19,9 +19,9 @@ namespace esep
 				struct TestWriter
 				{
 					TestWriter(TestSuite *ts) : ts(ts) { }
-					template<typename T>
-						void operator=(T&& f)
-							{ ts->addTest(name, f); }
+					template<typename F>
+						void operator=(F&& f)
+							{ ts->addTest(name, std::forward<F>(f)); }
 					TestSuite * const ts;
 					std::string name;
 				};

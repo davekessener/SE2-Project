@@ -24,6 +24,18 @@ namespace esep
 			typedef T1 Key;
 			typedef T2 Value;
 		};
+
+		template<int I>
+		struct Int2Type
+		{
+			static constexpr int Value = I;
+		};
+
+		template<typename T>
+		struct Type2Type
+		{
+			typedef T Type;
+		};
 	}
 }
 

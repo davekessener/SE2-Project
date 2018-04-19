@@ -17,27 +17,29 @@ Thread::Thread(Thread&& t)
 
 Thread::~Thread(void)
 {
-	if(mThread.joinable())
-	{
-		mThread.join();
-	}
+	join();
 }
 
 Thread& Thread::operator=(Thread&& t)
 {
-	if(mThread.joinable())
-	{
-		mThread.join();
-	}
+	join();
 
 	mThread = std::move(t.mThread);
 
 	return *this;
 }
 
+void Thread::join(void)
+{
+	if(mThread.joinable())
+	{
+		mThread.join();
+	}
+}
+
 void Thread::logCreation(void)
 {
-	std::cout << lib::stringify("Just spawned a new thread with ID ", mThread.get_id()) << std::endl;
+//	std::cout << lib::stringify("Just spawned a new thread with ID ", mThread.get_id()) << std::endl;
 }
 
 }}

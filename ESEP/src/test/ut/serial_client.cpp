@@ -70,11 +70,6 @@ void SerialClient::define(void)
 {
 	UNIT_TEST("can create a client object")
 	{
-		for(uint i = 10000 ; i-- ;)
-		{
-			teardown();
-			setup();
-		}
 	};
 
 //	UNIT_TEST("can send some data")

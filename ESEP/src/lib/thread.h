@@ -30,6 +30,7 @@ namespace esep
 				template<typename F, typename ... A>
 					void construct(F&& f, A&& ... a)
 						{ *this = Thread(std::forward<F>(f), std::forward<A>(a)...); logCreation(); }
+				void join( );
 			private:
 				void logCreation( );
 

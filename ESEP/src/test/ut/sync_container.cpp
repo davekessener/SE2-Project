@@ -88,6 +88,8 @@ void SyncContainer::define(void)
 
 		ASSERT_FAILURE(c->remove(), container_t::InterruptedException);
 
+		t.join();
+
 		ASSERT_FALSE(c);
 	};
 }
