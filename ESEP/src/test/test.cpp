@@ -4,9 +4,14 @@
 #include <sstream>
 
 #include "lib/stream_intercept.h"
+#include "lib/logger.h"
 
 #include "test/test.h"
 #include "test/unit/manager.h"
+
+#include "test/ft/serial_connection.h"
+#include "test/ft/basic_serial.h"
+#include "test/ft/test_serial_connection.h"
 
 #include "test/ut/logger_format_parser.h"
 #include "test/ut/crc32.h"
@@ -77,9 +82,18 @@ std::string runUnitTests(void)
 	return ss.str();
 }
 
+void testSerial(void)
+{
+	functional::SerialConnection test;
+
+	test.run();
+}
+
 void main(const lib::args_t& args)
 {
-	std::cout << runUnitTests() << std::endl;
+//	std::cout << runUnitTests() << std::endl;
+
+	testSerial();
 }
 
 }}

@@ -12,8 +12,9 @@ namespace esep
 	{
 		class ActualConnection : public Connection
 		{
-			private:
-				int fildes_;
+			public:
+			static constexpr int INVALID_FD = -1;
+
 			public:
 				ActualConnection(const std::string&);
 				virtual ~ActualConnection( );
@@ -22,6 +23,10 @@ namespace esep
 				virtual void open(const std::string&);
 				virtual void close( );
 				virtual bool isOpen( ) const;
+
+			private:
+				int mFD;
+
 			private:
 				ActualConnection(const ActualConnection&) = delete;
 				ActualConnection& operator=(const ActualConnection&) = delete;

@@ -1,5 +1,3 @@
-#ifndef ESEP_TEST
-
 #include <sys/neutrino.h>
 #include <hw/inout.h>
 #include <sys/mman.h>
@@ -119,58 +117,3 @@ void GPIO::disableInterrupts(void)
 }
 
 }}
-
-#else
-
-#include "hal/gpio.h"
-
-namespace esep { namespace hal {
-
-GPIO::GPIO(uint32_t)
-	: mBaseAddr(0)
-{
-}
-
-GPIO::~GPIO(void)
-{
-}
-
-void GPIO::configureForOutput(void)
-{
-}
-
-void GPIO::write(uint32_t v)
-{
-}
-
-uint32_t GPIO::read( )
-{
-	return 0;
-}
-
-void GPIO::setBits(uint32_t bm)
-{
-}
-
-void GPIO::resetBits(uint32_t bm)
-{
-}
-
-void GPIO::makeEdgeSensitive(void)
-{
-}
-
-void GPIO::clearInterruptFlags(void)
-{
-}
-
-void GPIO::enableInterrupts(void)
-{
-}
-
-void GPIO::disableInterrupts(void)
-{
-}
-
-}}
-#endif
