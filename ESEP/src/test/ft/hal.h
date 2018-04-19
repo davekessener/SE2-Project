@@ -2,7 +2,6 @@
 #define ESEP_TEST_FT_HAL_H
 
 #include "lib/utils.h"
-#include "lib/tuple.h"
 #include "lib/timer.h"
 
 #include "hal/hal.h"
@@ -24,31 +23,15 @@ namespace esep
 			class HALTester
 			{
 				typedef void (HALTester::*test_fn)(hal::HAL::Event);
+				typedef lib::Timer::Class::id_t timer_id_t;
+
 				typedef hal::Buttons::Button Button;
 				typedef hal::LEDs::LED LED;
 				typedef hal::LightBarriers::LightBarrier LightBarrier;
 				typedef hal::Lights::Light Light;
 				typedef hal::HAL::Event Event;
 
-				typedef lib::Tuple<tml::MakeTypeList<
-					hal::Buttons,
-					hal::HeightSensor,
-					hal::LEDs,
-					hal::Switch,
-					hal::LightBarriers,
-					hal::Lights,
-					hal::MetalSensor,
-					hal::Motor
-				>> tuple_t;
-
-				struct Cleaner
-				{
-					typedef std::function<void(void)> f_t;
-					Cleaner(f_t f, tuple_t& t) : f(f), hal(t) { }
-					~Cleaner( );
-					f_t f;
-					tuple_t& hal;
-				};
+				static constexpr timer_id_t INVALID_TIMER_ID = lib::Timer::Class::INVALID_TIMER_ID;
 
 				public:
 					HALTester( );
@@ -63,23 +46,27 @@ namespace esep
 					void t_009(Event);
 					void t_010(Event);
 					void t_011(Event);
-					template<typename T>
-					T& get( )
-					{
-						return mHALInterfaces.get<T>();
-					}
-					template<typename F>
-					void runIn(uint t, F&& f, uint p = 0)
-					{
-						mTimers.push_back(lib::Timer::instance().registerCallback(std::forward<F>(f), t, p));
-					}
 					void clearTimers( );
+					void resetHAL( );
+
+					template<typename F>
+					void runIn(uint t, F&& f)
+					{
+						mTimers.push_back(lib::Timer::instance().registerCallback(std::forward<F>(f), t));
+					}
 
 				private:
 					std::vector<test_fn> mTests;
-					std::vector<lib::Timer::Class::id_t> mTimers;
+					std::vector<timer_id_t> mTimers;
 					hal::HAL *mHAL;
-					tuple_t mHALInterfaces;
+					hal::Buttons BUTTONS;
+					hal::HeightSensor HEIGHT_SENSOR;
+					hal::LEDs LEDS;
+					hal::Switch SWITCH;
+					hal::LightBarriers LIGHT_BARRIERS;
+					hal::Lights LIGHTS;
+					hal::MetalSensor METAL_SENSOR;
+					hal::Motor MOTOR;
 			};
 		}
 	}

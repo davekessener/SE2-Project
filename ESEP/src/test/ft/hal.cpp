@@ -2,50 +2,31 @@
 
 #include "test/ft/hal.h"
 
+#include "lib/deferred.h"
+
 #include "hal/physical.h"
 
 namespace esep { namespace test { namespace functional {
 
-HALTester::Cleaner::~Cleaner(void)
-{
-	f();
-
-	hal.get<hal::Switch>().close();
-	hal.get<hal::Motor>().right();
-	hal.get<hal::Motor>().fast();
-	hal.get<hal::Motor>().enable();
-	hal.get<hal::Motor>().stop();
-	hal.get<hal::LEDs>().turnOff(hal::LEDs::LED::START);
-	hal.get<hal::LEDs>().turnOff(hal::LEDs::LED::RESET);
-	hal.get<hal::LEDs>().turnOff(hal::LEDs::LED::Q1);
-	hal.get<hal::LEDs>().turnOff(hal::LEDs::LED::Q2);
-	hal.get<hal::Lights>().turnOff(hal::Lights::Light::RED);
-	hal.get<hal::Lights>().turnOff(hal::Lights::Light::YELLOW);
-	hal.get<hal::Lights>().turnOff(hal::Lights::Light::GREEN);
-}
-
 HALTester::HALTester(void)
 	: mHAL(new hal::Physical)
-	, mHALInterfaces(
-		hal::Buttons(mHAL),
-		hal::HeightSensor(mHAL),
-		hal::LEDs(mHAL),
-		hal::Switch(mHAL),
-		hal::LightBarriers(mHAL),
-		hal::Lights(mHAL),
-		hal::MetalSensor(mHAL),
-		hal::Motor(mHAL))
+, BUTTONS(mHAL)
+, HEIGHT_SENSOR(mHAL)
+, LEDS(mHAL)
+, SWITCH(mHAL)
+, LIGHT_BARRIERS(mHAL)
+, LIGHTS(mHAL)
+, METAL_SENSOR(mHAL)
+, MOTOR(mHAL)
 {
+	mTests.push_back(&HALTester::t_004);
+	mTests.push_back(&HALTester::t_005);
+	mTests.push_back(&HALTester::t_006);
+	mTests.push_back(&HALTester::t_007);
+	mTests.push_back(&HALTester::t_008);
+	mTests.push_back(&HALTester::t_009);
+	mTests.push_back(&HALTester::t_010);
 	mTests.push_back(&HALTester::t_011);
-
-//	mTests.push_back(&HALTester::t_004);
-//	mTests.push_back(&HALTester::t_005);
-//	mTests.push_back(&HALTester::t_006);
-//	mTests.push_back(&HALTester::t_007);
-//	mTests.push_back(&HALTester::t_008);
-//	mTests.push_back(&HALTester::t_009);
-//	mTests.push_back(&HALTester::t_010);
-//	mTests.push_back(&HALTester::t_011);
 }
 
 HALTester::~HALTester(void)
@@ -58,12 +39,14 @@ void HALTester::run(void)
 	auto no_handler = [](Event e) { };
 	std::string line;
 
+	resetHAL();
+
 	std::cout << "Starting interactive HAL test.\n"
 			  << "===========================================================================================\n";
 
 	for(uint i = 0 ; i < mTests.size() ; ++i)
 	{
-		Cleaner cleanup([this](void) { clearTimers(); }, mHALInterfaces);
+		lib::Deferred cleanup([this](void) { resetHAL(); clearTimers(); });
 		test_fn f = mTests[i];
 
 		std::cout << "Running test T-" << std::setw(3) << std::setfill('0') << (i + 4) << "\n"
@@ -88,18 +71,46 @@ void HALTester::run(void)
 
 // # -----------------------------------------------------------------------------
 
+void HALTester::clearTimers(void)
+{
+	for(const auto& id : mTimers)
+	{
+		lib::Timer::instance().unregisterCallback(id);
+	}
+
+	mTimers.clear();
+}
+
+void HALTester::resetHAL(void)
+{
+	SWITCH.close();
+	MOTOR.right();
+	MOTOR.fast();
+	MOTOR.enable();
+	MOTOR.stop();
+	LEDS.turnOff(LED::START);
+	LEDS.turnOff(LED::RESET);
+	LEDS.turnOff(LED::Q1);
+	LEDS.turnOff(LED::Q2);
+	LIGHTS.turnOff(Light::RED);
+	LIGHTS.turnOff(Light::YELLOW);
+	LIGHTS.turnOff(Light::GREEN);
+}
+
+// # -----------------------------------------------------------------------------
+
 void HALTester::t_004(Event e)
 {
 	switch(e)
 	{
 	case Event::BTN_START:
-		if(get<hal::Buttons>().isPressed(Button::START))
+		if(BUTTONS.isPressed(Button::START))
 		{
-			get<hal::LEDs>().turnOn(LED::START);
-			get<hal::Lights>().turnOn(Light::GREEN);
+			LEDS.turnOn(LED::START);
+			LIGHTS.turnOn(Light::GREEN);
 
 			runIn(3000, [this](void) -> bool {
-				get<hal::Lights>().turnOff(Light::GREEN);
+				LIGHTS.turnOff(Light::GREEN);
 
 				return false;
 			});
@@ -115,12 +126,12 @@ void HALTester::t_005(Event e)
 	switch(e)
 	{
 	case Event::BTN_STOP:
-		if(get<hal::Buttons>().isPressed(Button::STOP))
+		if(BUTTONS.isPressed(Button::STOP))
 		{
-			get<hal::Lights>().turnOn(Light::RED);
+			LIGHTS.turnOn(Light::RED);
 
 			runIn(3000, [this](void) -> bool {
-				get<hal::Lights>().turnOff(Light::RED);
+				LIGHTS.turnOff(Light::RED);
 
 				return false;
 			});
@@ -136,13 +147,13 @@ void HALTester::t_006(Event e)
 	switch(e)
 	{
 	case Event::LB_START:
-		if(get<hal::LightBarriers>().isBroken(LightBarrier::LB_START))
+		if(LIGHT_BARRIERS.isBroken(LightBarrier::LB_START))
 		{
-			get<hal::Motor>().start();
+			MOTOR.start();
 		}
 		else
 		{
-			get<hal::Motor>().stop();
+			MOTOR.stop();
 		}
 		break;
 	default:
@@ -155,14 +166,14 @@ void HALTester::t_007(Event e)
 	switch(e)
 	{
 	case Event::LB_END:
-		if(get<hal::LightBarriers>().isBroken(LightBarrier::LB_END))
+		if(LIGHT_BARRIERS.isBroken(LightBarrier::LB_END))
 		{
-			get<hal::Motor>().left();
-			get<hal::Motor>().start();
+			MOTOR.left();
+			MOTOR.start();
 		}
 		else
 		{
-			get<hal::Motor>().stop();
+			MOTOR.stop();
 		}
 		break;
 	default:
@@ -183,29 +194,29 @@ void HALTester::t_008(Event e)
 	switch(e)
 	{
 	case Event::LB_START:
-		if(get<hal::LightBarriers>().isBroken(LightBarrier::LB_START))
+		if(LIGHT_BARRIERS.isBroken(LightBarrier::LB_START))
 		{
 			switch(state)
 			{
 			case State::START:
-				get<hal::Motor>().start();
+				MOTOR.start();
 				state = State::STOP;
 				break;
 			case State::STOP:
-				get<hal::Motor>().right();
-				get<hal::Motor>().fast();
-				get<hal::Motor>().stop();
+				MOTOR.right();
+				MOTOR.fast();
+				MOTOR.stop();
 				state = State::START;
 				break;
 			}
 		}
 		break;
 	case Event::LB_SWITCH:
-		if(get<hal::MetalSensor>().isMetal())
+		if(METAL_SENSOR.isMetal())
 		{
-			get<hal::Motor>().slow();
+			MOTOR.slow();
 		}
-		get<hal::Motor>().left();
+		MOTOR.left();
 		break;
 	default:
 		break;
@@ -217,25 +228,25 @@ void HALTester::t_009(Event e)
 	switch(e)
 	{
 	case Event::LB_HEIGHTSENSOR:
-		if(get<hal::LightBarriers>().isBroken(LightBarrier::LB_HEIGHTSENSOR))
+		if(LIGHT_BARRIERS.isBroken(LightBarrier::LB_HEIGHTSENSOR))
 		{
-			get<hal::Motor>().start();
+			MOTOR.start();
 		}
 		break;
 	case Event::LB_SWITCH:
-		if(get<hal::LightBarriers>().isBroken(LightBarrier::LB_SWITCH))
+		if(LIGHT_BARRIERS.isBroken(LightBarrier::LB_SWITCH))
 		{
-			get<hal::Switch>().open();
+			SWITCH.open();
 		}
 		else
 		{
-			get<hal::Switch>().close();
+			SWITCH.close();
 		}
 		break;
 	case Event::LB_END:
-		if(get<hal::LightBarriers>().isBroken(LightBarrier::LB_END))
+		if(LIGHT_BARRIERS.isBroken(LightBarrier::LB_END))
 		{
-			get<hal::Motor>().stop();
+			MOTOR.stop();
 		}
 		break;
 	default:
@@ -248,13 +259,13 @@ void HALTester::t_010(Event e)
 	switch(e)
 	{
 	case Event::BTN_ESTOP:
-		if(get<hal::Buttons>().isPressed(Button::ESTOP))
+		if(BUTTONS.isPressed(Button::ESTOP))
 		{
-			get<hal::Lights>().flash(Light::RED, 500);
+			LIGHTS.flash(Light::RED, 500);
 		}
 		else
 		{
-			get<hal::Lights>().turnOff(Light::RED);
+			LIGHTS.turnOff(Light::RED);
 		}
 		break;
 	default:
@@ -264,33 +275,34 @@ void HALTester::t_010(Event e)
 
 void HALTester::t_011(Event e)
 {
-	static lib::Timer::Class::id_t timer = lib::Timer::Class::INVALID_TIMER_ID;
-	auto& timer_r(timer);
+	static timer_id_t timer = INVALID_TIMER_ID;
+	auto& timer_r(timer); // To stop the compiler complaining; please disregard
 
 	auto unregisterTimer = [&timer_r](void) {
-		if(timer_r != lib::Timer::Class::INVALID_TIMER_ID)
+		if(timer_r != INVALID_TIMER_ID)
 		{
 			lib::Timer::instance().unregisterCallback(timer_r);
+			timer_r = INVALID_TIMER_ID;
 		}
 	};
 
 	switch(e)
 	{
 	case Event::LB_START:
-		if(get<hal::LightBarriers>().isBroken(LightBarrier::LB_START))
+		if(LIGHT_BARRIERS.isBroken(LightBarrier::LB_START))
 		{
-			get<hal::Motor>().start();
+			MOTOR.start();
 		}
 		break;
 	case Event::LB_RAMP:
-		if(get<hal::LightBarriers>().isBroken(LightBarrier::LB_RAMP))
+		if(LIGHT_BARRIERS.isBroken(LightBarrier::LB_RAMP))
 		{
 			unregisterTimer();
 
 			mTimers.push_back(timer = lib::Timer::instance().registerCallback([this](void) -> bool {
-				get<hal::Motor>().stop();
-				get<hal::LEDs>().turnOn(LED::RESET);
-				get<hal::Lights>().flash(Light::YELLOW, 1000);
+				MOTOR.stop();
+				LEDS.turnOn(LED::RESET);
+				LIGHTS.flash(Light::YELLOW, 1000);
 
 				return false;
 			}, 500));
@@ -303,16 +315,6 @@ void HALTester::t_011(Event e)
 	default:
 		break;
 	}
-}
-
-void HALTester::clearTimers(void)
-{
-	for(const auto& id : mTimers)
-	{
-		lib::Timer::instance().unregisterCallback(id);
-	}
-
-	mTimers.clear();
 }
 
 }}}
