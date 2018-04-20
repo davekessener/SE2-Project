@@ -1,10 +1,10 @@
 #ifndef ESEP_HAL_PHYSICAL_H
 #define ESEP_HAL_PHYSICAL_H
 
-#include <thread>
 #include <atomic>
 
 #include "lib/utils.h"
+#include "lib/thread.h"
 #include "hal/buffer.h"
 #include "hal/gpio.h"
 #include "qnx/connection.h"
@@ -48,7 +48,7 @@ namespace esep
 
 			private:
 				GPIO *mGPIOs[MXT_NGPIOS];
-				std::thread mHALThread;
+				lib::Thread mHALThread;
 				std::atomic<bool> mRunning;
 				qnx::Connection mConnection;
 		};

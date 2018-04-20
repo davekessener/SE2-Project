@@ -16,6 +16,8 @@ ManagerImpl::results_t ManagerImpl::run(void)
 		results[s->name()].second = e;
 	};
 
+	std::cout << "Running unit test suites: " << std::flush;
+
 	for(TestSuite *s : mTests)
 	{
 		try
@@ -37,6 +39,8 @@ ManagerImpl::results_t ManagerImpl::run(void)
 			onError(s, "[unknown error]");
 		}
 	}
+
+	std::cout << "\n" << std::flush;
 
 	for(TestSuite *ts : mTests)
 	{

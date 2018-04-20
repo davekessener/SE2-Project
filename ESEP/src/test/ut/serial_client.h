@@ -4,7 +4,7 @@
 #include "lib/utils.h"
 #include "serial/connection.h"
 #include "serial/client.h"
-#include "serial/dummy_connection.h"
+#include "serial/utils/dummy_connection.h"
 
 #include "test/unit/unit.h"
 

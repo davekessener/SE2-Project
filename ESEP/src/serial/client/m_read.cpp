@@ -63,6 +63,11 @@ bool Reader::recordPacket(packet::packet_ptr ptr)
 	return true;
 }
 
+types::buffer_t Reader::get(void)
+{
+	return mStorage.remove();
+}
+
 void Reader::reset(void)
 {
 	if(static_cast<bool>(mLastAck))

@@ -57,6 +57,7 @@ namespace
 Base::Base(void)
 	: mThreshold(static_cast<uint>(Severity::WARNING))
 	, mPolicy(EchoPolicy::EXCLUDE)
+	, mEcho(&std::cout)
 {
 	setFormat(MXT_DEFAULT_FORMAT);
 	setFormatter([](uint t)               -> std::string { return lib::stringify(t); });
@@ -83,13 +84,16 @@ void Base::log(uint time, tid_t tid, Section section, Severity severity, const s
 
 	std::stringstream ss;
 
-	auto i = mLiterals.cbegin();
+	auto i1 = mLiterals.cbegin(), i2 = mLiterals.cend();
 
 	for(const auto& p : mFormat)
 	{
 		if(p.first == -1)
 		{
-			ss << *i++;
+			if(i1 == i2)
+				MXT_THROW("Malformed logger format string!");
+
+			ss << *i1++;
 		}
 		else
 		{
@@ -111,7 +115,7 @@ void Base::log(uint time, tid_t tid, Section section, Severity severity, const s
 
 void Base::doEcho(const std::string& msg)
 {
-	std::cout << msg << std::endl;
+	(*mEcho) << msg << std::endl;
 }
 
 // # ====================================================================================================

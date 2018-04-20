@@ -21,13 +21,36 @@ namespace esep
 		{
 			class Impl
 			{
-				public:
-				typedef std::function<bool(void)> callback_t;
+				private:
 				typedef uint32_t id_t;
+
+				public:
+				typedef std::function<void(void)> callback_t;
 
 				struct TimerOverflowException : public std::exception { };
 
 				static constexpr id_t INVALID_TIMER_ID = 0;
+
+				class TimerManager
+				{
+					public:
+						TimerManager( ) : mID(INVALID_TIMER_ID) { }
+						TimerManager(TimerManager&&);
+						~TimerManager( );
+						TimerManager& operator=(TimerManager&&);
+						void swap(TimerManager&) noexcept;
+					private:
+						TimerManager(id_t id) : mID(id) { }
+
+					private:
+						id_t mID;
+
+					private:
+						TimerManager(const TimerManager&) = delete;
+						TimerManager& operator=(const TimerManager&) = delete;
+
+						friend class Impl;
+				};
 
 				private:
 				enum class Code : int8_t
@@ -51,8 +74,8 @@ namespace esep
 				public:
 					Impl( );
 					~Impl( );
-					id_t registerCallback(callback_t, uint, uint = 0);
-					void unregisterCallback(id_t);
+					TimerManager registerCallback(callback_t, uint, uint = 0);
+					void unregisterCallback(const TimerManager&);
 					uint64_t elapsed( );
 					static void sleep(uint t) { std::this_thread::sleep_for(std::chrono::milliseconds(t)); }
 					void reset( );
@@ -63,10 +86,9 @@ namespace esep
 					std::chrono::time_point<std::chrono::system_clock> mSystemStart;
 					qnx::Connection mConnection;
 					std::thread mTimerThread;
-					std::atomic<bool> mRunning;
+					std::atomic<bool> mRunning, mUpdating;
 					std::map<id_t, Timer> mTimers;
 					std::mutex mMutex;
-					bool mUpdating;
 					id_t mNextID;
 			};
 		}

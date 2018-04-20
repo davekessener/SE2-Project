@@ -2,10 +2,13 @@
 #define ESEP_SERIAL_DUMMY_CONNECTION_H
 
 #include <functional>
+#include <memory>
+#include <atomic>
 
 #include "serial/connection.h"
 
 #include "lib/sync/container.h"
+#include "lib/logger.h"
 
 namespace esep
 {
@@ -18,7 +21,8 @@ namespace esep
 			typedef std::function<byte_t(byte_t, uint)> transform_fn;
 
 			public:
-				DummyConnection( ) : mCounterpart(nullptr), mTransform([](byte_t v, uint) { return v; }) { }
+				DummyConnection( );
+				~DummyConnection( );
 				void connect(DummyConnection&);
 				void write(const byte_t *, size_t);
 				void read(byte_t *, size_t);
@@ -26,10 +30,14 @@ namespace esep
 				void close( );
 				bool isOpen( ) const { return mCounterpart; }
 				void setTransform(transform_fn f) { mTransform = f; }
+				uint getSentPackets( ) const { return mSentPackets; }
+				void kill( ) { mDead = true; }
 			private:
 				DummyConnection *mCounterpart;
-				buffer_t mBuffer;
+				std::unique_ptr<buffer_t> mBuffer;
 				transform_fn mTransform;
+				uint mSentPackets;
+				std::atomic<bool> mDead;
 		};
 	}
 }

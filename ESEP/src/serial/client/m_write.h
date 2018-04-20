@@ -1,7 +1,7 @@
 #ifndef ESEP_SERIAL_CLIENT_MODULE_WRITE_H
 #define ESEP_SERIAL_CLIENT_MODULE_WRITE_H
 
-#include <mutex>
+#include "lib/thread.h"
 
 #include "lib/utils.h"
 #include "lib/sync/container.h"

@@ -23,7 +23,7 @@ namespace esep
 				public:
 					Reader(Writer& c) : mConnection(c) { }
 					void process(packet::packet_ptr);
-					types::buffer_t get( ) { return mStorage.remove(); }
+					types::buffer_t get( );
 					void reset( );
 				private:
 					void processDataPacket(packet::packet_ptr);

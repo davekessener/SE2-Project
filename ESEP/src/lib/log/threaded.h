@@ -1,7 +1,7 @@
 #ifndef ESEP_LOG_THREADED_H
 #define ESEP_LOG_THREADED_H
 
-#include <mutex>
+#include "lib/thread.h"
 
 #include "lib/log/base.h"
 

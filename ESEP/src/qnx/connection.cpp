@@ -1,3 +1,5 @@
+#ifndef NO_QNX
+
 #include <sys/neutrino.h>
 
 #include "qnx/connection.h"
@@ -69,3 +71,45 @@ void Connection::close(void)
 }
 
 }}
+
+#else
+
+namespace esep { namespace qnx {
+
+Connection::Connection(channel_id_t id)
+{
+	MXT_THROW("Shouldn't call this!");
+}
+
+Connection::Connection(const Connection& c)
+{
+	MXT_THROW("Shouldn't call this!");
+}
+
+Connection::~Connection(void)
+{
+}
+
+Connection& Connection::operator=(const Connection& c)
+{
+	MXT_THROW("Shouldn't call this!");
+}
+
+void Connection::swap(Connection& c)
+{
+	MXT_THROW("Shouldn't call this!");
+}
+
+void Connection::sendPulse(const pulse_t& p)
+{
+	MXT_THROW("Shouldn't call this!");
+}
+
+void Connection::close(void)
+{
+	MXT_THROW("Shouldn't call this!");
+}
+
+}}
+
+#endif

@@ -2,12 +2,12 @@
 #define ESEP_LOG_BASE_H
 
 #include <string>
-#include <thread>
 #include <map>
 #include <vector>
 
 #include "lib/utils.h"
 #include "lib/log/format.h"
+#include "lib/thread.h"
 
 namespace esep
 {
@@ -70,6 +70,7 @@ namespace esep
 				void addFilter(EchoPolicy ep, Filter f, Section s) { mFilters[s] |= static_cast<uint>(f); }
 				void clearFilters( ) { mFilters.clear(); }
 				void setPolicy(EchoPolicy ep) { mPolicy = ep; }
+				std::ostream *setEcho(std::ostream *os) { std::swap(os, mEcho); return os; }
 				template<typename T>
 					void setFormatter(T&& f)
 						{ mFormatters.set(f); }
@@ -83,6 +84,7 @@ namespace esep
 				formatters_t mFormatters;
 				std::vector<std::string> mLiterals;
 				std::vector<std::pair<int, uint>> mFormat;
+				std::ostream *mEcho;
 		};
 	}
 }

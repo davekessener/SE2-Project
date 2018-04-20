@@ -2,10 +2,11 @@
 #define ESEP_TEST_UNIT_ASSERTIONS_H
 
 #include "lib/tml.h"
+#include "lib/container_wrapper.h"
 
 #define UNIT_TEST(desc) \
 	mWriter.name = desc; \
-	mWriter = [&,this](void) -> void
+	mWriter = [this](void) -> void
 
 
 #define ASSERT_EQUALS(a,b) \
@@ -16,6 +17,14 @@
 			MXT_THROW_E(std::logic_error, "Expected ", vb, " [" #b "] but got ", va, " [" #a"] instead!"); \
 		} } while(0)
 
+#define ASSERT_APPROX_EQUALS(a,b) \
+	do { \
+		auto va = (a); \
+		auto vb = (b); \
+		auto d = (va > vb) ? va - vb : vb - va; \
+		if(d > 1) { \
+			MXT_THROW_E(std::logic_error, "Expected ", vb, " [" #b "] to be approx. equal to ", va, " [" #a "]!"); \
+		} } while(0)
 
 #define ASSERT_TRUE(e) \
 	do { \
@@ -30,13 +39,12 @@
 
 #define ASSERT_EACH_EQUALS(a,b) \
 	do { \
-		auto i1 = std::begin(a), i2 = std::end(a); \
-		auto j1 = std::begin(b), j2 = std::end(b); \
-		size_t l1 = 0, l2 = 0; \
-		for(auto i = i1 ; i != i2 ; ++i) ++l1; \
-		for(auto j = j1 ; j != j2 ; ++j) ++l2; \
-		if(l1 != l2) \
-			MXT_THROW_E(std::logic_error, "Container have different sizes: ", l1, " and ", l2, "!"); \
+		auto aobj(lib::wrap_container(a)); \
+		auto bobj(lib::wrap_container(b)); \
+		auto i1 = std::begin(aobj), i2 = std::end(aobj); \
+		auto j1 = std::begin(bobj); \
+		if(aobj.size() != bobj.size()) \
+			MXT_THROW_E(std::logic_error, "Container have different sizes: ", aobj.size(), " and ", bobj.size(), "!"); \
 		for(size_t i = 0 ; i1 != i2 ; ++i1, ++j1, ++i) { \
 			if(*i1 != *j1) \
 				MXT_THROW_E(std::logic_error, "Elements @", i, " differ: Expected ", *j1, " but got ", *i1, " instead!"); \

@@ -8,6 +8,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <stdexcept>
 
 #define MXT_GETA1(a1,...) a1
 #define MXT_GETA2(a1,a2,...) a2
@@ -19,6 +20,20 @@
 
 #define MXT_THROW(...) throw MXT_THROW_STR(__VA_ARGS__)
 #define MXT_THROW_E(klass,...) throw klass(MXT_THROW_STR(__VA_ARGS__))
+#define MXT_THROW_EX(klass) throw klass(::esep::lib::stringify(__FILE__ ": ", __LINE__))
+
+#define MXT_DEFINE_E(name) \
+	struct name : public std::runtime_error \
+	{ \
+		name( ) \
+			: std::runtime_error( \
+					::esep::lib::stringify(#name " [", __FILE__, ": ", __LINE__, "]")) \
+				{ } \
+		name(const std::string& s) \
+			: std::runtime_error( \
+					::esep::lib::stringify("[" #name "] ", s)) \
+			    { } \
+	}
 
 typedef unsigned uint;
 typedef uint8_t byte_t;

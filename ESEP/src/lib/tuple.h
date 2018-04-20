@@ -37,12 +37,12 @@ namespace esep
 				TupleImpl( ) { }
 				template<typename ... TT>
 					TupleImpl(H&& o, TT&& ... a)
-						: TupleImpl<T, I + 1>(a...)
+						: TupleImpl<T, I + 1>(std::forward<TT>(a)...)
 						, ObjectHolder<H, I>(o)
 					{ }
 				template<typename ... TT>
 					TupleImpl(const H& o, TT&& ... a)
-						: TupleImpl<T, I + 1>(a...)
+						: TupleImpl<T, I + 1>(std::forward<TT>(a)...)
 						, ObjectHolder<H, I>(o)
 					{ }
 			};
@@ -60,7 +60,7 @@ namespace esep
 
 		    template<typename ... TT>
 		        Tuple(TT&& ... a)
-		            : tuple::TupleImpl<L, 0>(a...)
+		            : tuple::TupleImpl<L, 0>(std::forward<TT>(a)...)
 		                { }
 
 		    template<typename T>
@@ -75,8 +75,11 @@ namespace esep
 		template<typename ... T>
 		Tuple<tml::DoApply<tml::MakeTypeList<T...>, tml::Decay>> make_tuple(T&& ... a)
 		{
-		    return Tuple<tml::DoApply<tml::MakeTypeList<T...>, tml::Decay>>(a...);
+		    return Tuple<tml::DoApply<tml::MakeTypeList<T...>, tml::Decay>>(std::forward<T>(a)...);
 		}
+
+		template<typename ... T>
+		using MakeTuple = Tuple<tml::MakeTypeList<T...>>;
 	}
 }
 

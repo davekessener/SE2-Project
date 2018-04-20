@@ -1,11 +1,12 @@
-#ifndef ESEP_TEST_UNIT_DUMMYCONNECTION_H
-#define ESEP_TEST_UNIT_DUMMYCONNECTION_H
-
-#include <deque>
-
-#include "serial/utils/dummy_connection.h"
+#ifndef ESEP_TEST_UNIT_WATCHDOG_H
+#define ESEP_TEST_UNIT_WATCHDOG_H
 
 #include "test/unit/unit.h"
+
+#include "lib/utils.h"
+#include "serial/client.h"
+#include "serial/watchdog.h"
+#include "serial/utils/dummy_connection.h"
 
 namespace esep
 {
@@ -13,14 +14,15 @@ namespace esep
 	{
 		namespace unit
 		{
-			class DummyConnection : public TestSuite
+			class Watchdog : public TestSuite
 			{
 				public:
-					DummyConnection( );
+					Watchdog( );
 					void setup( );
 					void teardown( );
 					void define( );
 				private:
+					serial::Client *mWatchdog[2];
 					serial::DummyConnection *mConnections[2];
 			};
 		}

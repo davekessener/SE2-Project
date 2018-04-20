@@ -3,17 +3,17 @@
 
 namespace esep { namespace serial {
 
-Client::Client(Connection& c)
-	: pImpl(new Impl(c))
+BSPClient::BSPClient(connection_ptr c)
+	: pImpl(new Impl(std::move(c)))
 {
 }
 
-Client::~Client(void)
+BSPClient::~BSPClient(void)
 {
-	delete pImpl;
+	delete pImpl; pImpl = nullptr;
 }
 
-void Client::write(const buffer_t& data)
+void BSPClient::write(const buffer_t& data)
 {
 	types::buffer_t buf;
 
@@ -22,7 +22,7 @@ void Client::write(const buffer_t& data)
 	pImpl->write(buf);
 }
 
-Client::buffer_t Client::read(void)
+Client::buffer_t BSPClient::read(void)
 {
 	types::buffer_t v = pImpl->read();
 	buffer_t buf(v.cbegin(), v.cend());
