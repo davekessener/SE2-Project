@@ -1,5 +1,3 @@
-#ifndef NO_QNX
-
 #include "lib/timer.h"
 
 #include "lib/logger.h"
@@ -8,15 +6,43 @@
 
 namespace esep { namespace lib { namespace timer {
 
+Impl::TimerManager::TimerManager(TimerManager&& tm)
+	: mID(INVALID_TIMER_ID)
+{
+	swap(tm);
+}
+
+Impl::TimerManager::~TimerManager(void)
+{
+	lib::Timer::instance().unregisterCallback(*this);
+}
+
+Impl::TimerManager& Impl::TimerManager::operator=(TimerManager&& tm)
+{
+	TimerManager t(INVALID_TIMER_ID);
+
+	tm.swap(t);
+	t.swap(*this);
+
+	return *this;
+}
+
+void Impl::TimerManager::swap(TimerManager& tm) noexcept
+{
+	std::swap(mID, tm.mID);
+}
+
+// # --------------------------------------------------------------------------
+
 Impl::Impl(void)
 {
 	reset();
 
 	mRunning = true;
 	mUpdating = false;
-	mNextID = 0;
+	mNextID = INVALID_TIMER_ID + 1;
 
-	mTimerThread.construct([this](void) {
+	mTimerThread = std::thread([this](void) {
 		try
 		{
 			qnx::Channel channel;
@@ -34,9 +60,9 @@ Impl::Impl(void)
 				case static_cast<int8_t>(Code::SHUTDOWN):
 					break;
 				case static_cast<int8_t>(Code::EXPIRED):
-					if(mUpdating)
+					if(mUpdating.load())
 					{
-						MXT_THROW_EX(TimerOverflowException);
+						throw TimerOverflowException();
 					}
 					update();
 					break;
@@ -45,7 +71,14 @@ Impl::Impl(void)
 				}
 			}
 		}
-		MXT_CATCH_STRAY
+		catch(const std::string& e)
+		{
+			MXT_LOG(lib::stringify("Caught a stray string: ", e));
+		}
+		catch(const std::exception& e)
+		{
+			MXT_LOG(lib::stringify("Caught a stray exeception: ", e.what()));
+		}
 	});
 }
 
@@ -61,6 +94,8 @@ Impl::~Impl(void)
 	{
 		MXT_LOG("Failed to send shutdown signal; may hang!");
 	};
+
+	mTimerThread.join();
 }
 
 void Impl::reset(void)
@@ -68,29 +103,33 @@ void Impl::reset(void)
 	mSystemStart = std::chrono::system_clock::now();
 }
 
-Impl::id_t Impl::registerCallback(callback_t f, uint o, uint p)
+Impl::TimerManager Impl::registerCallback(callback_t f, uint o, uint p)
 {
 	lock_t lock(mMutex);
 
 	id_t id = mNextID++;
 
-	mTimers.push_back(Timer(id, f, o, p));
+	mTimers.emplace(std::make_pair(id, Timer(id, f, o, p)));
 
-	return id;
+	return TimerManager(id);
 }
 
-void Impl::unregisterCallback(id_t id)
+void Impl::unregisterCallback(const TimerManager& tm)
 {
-	lock_t lock(mMutex);
-
-	for(auto i1 = mTimers.begin(), i2 = mTimers.end() ; i1 != i2 ; ++i1)
 	{
-		if(i1->id == id)
-		{
-			mTimers.erase(i1);
+		lock_t lock(mMutex);
 
-			break;
+		auto i = mTimers.find(tm.mID);
+
+		if(i != mTimers.end())
+		{
+			mTimers.erase(i);
 		}
+	}
+
+	while(mUpdating.load())
+	{
+		std::this_thread::sleep_for(std::chrono::microseconds(50));
 	}
 }
 
@@ -101,28 +140,72 @@ uint64_t Impl::elapsed(void)
 
 void Impl::update(void)
 {
-	lock_t lock(mMutex);
-
 	mUpdating = true;
 
-	for(auto i1 = std::begin(mTimers), i2 = std::end(mTimers) ; i1 != i2 ; )
+	auto timer_copy(mTimers);
+
+	std::vector<id_t> timer_to_delete;
+
+	for(auto& i : timer_copy)
 	{
-		auto& t(*i1);
+		auto& t(i.second);
 
 		if(!t.next--)
 		{
-			if(t.f() && t.period)
+			bool should_delete = true;
+
+			try
 			{
-				t.next = t.period;
+				t.f();
+
+				should_delete = false;
+			}
+			catch(const std::exception& e)
+			{
+				MXT_LOG(stringify("Caught an exception from timer: ", e.what()));
+			}
+			catch(const std::string& e)
+			{
+				MXT_LOG(stringify("Caught a string from timer: ", e));
+			}
+			catch(...)
+			{
+				MXT_LOG(stringify("Caught an unknown exception from timer!"));
+			}
+
+			if(should_delete || !t.period)
+			{
+				timer_to_delete.push_back(t.id);
 			}
 			else
 			{
-				i1 = mTimers.erase(i1);
+				t.next = t.period;
 			}
 		}
-		else
+	}
+
+	{
+		lock_t lock(mMutex);
+
+		for(const auto& id : timer_to_delete)
 		{
-			++i1;
+			auto i = mTimers.find(id);
+
+			if(i != mTimers.end())
+			{
+				mTimers.erase(i);
+			}
+		}
+
+		for(auto& p : timer_copy)
+		{
+			auto& t(p.second);
+			auto i = mTimers.find(t.id);
+
+			if(i != mTimers.end())
+			{
+				i->second = t;
+			}
 		}
 	}
 
@@ -130,104 +213,3 @@ void Impl::update(void)
 }
 
 }}}
-
-#else
-
-namespace esep { namespace lib { namespace timer {
-
-Impl::Impl(void)
-{
-	reset();
-
-	mRunning = true;
-	mUpdating = false;
-	mNextID = 0;
-
-	mTimerThread.construct([this](void) {
-		try
-		{
-			while(mRunning)
-			{
-				sleep(1);
-
-				update();
-			}
-		}
-		MXT_CATCH_STRAY
-	});
-}
-
-Impl::~Impl(void)
-{
-	mRunning = false;
-}
-
-void Impl::reset(void)
-{
-	mSystemStart = std::chrono::system_clock::now();
-}
-
-Impl::id_t Impl::registerCallback(callback_t f, uint o, uint p)
-{
-	lock_t lock(mMutex);
-
-	id_t id = mNextID++;
-
-	mTimers.push_back(Timer(id, f, o, p));
-
-	return id;
-}
-
-void Impl::unregisterCallback(id_t id)
-{
-	lock_t lock(mMutex);
-
-	for(auto i1 = mTimers.begin(), i2 = mTimers.end() ; i1 != i2 ; ++i1)
-	{
-		if(i1->id == id)
-		{
-			mTimers.erase(i1);
-
-			break;
-		}
-	}
-}
-
-uint64_t Impl::elapsed(void)
-{
-	return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - mSystemStart).count();
-}
-
-void Impl::update(void)
-{
-	lock_t lock(mMutex);
-
-	mUpdating = true;
-
-	for(auto i1 = std::begin(mTimers), i2 = std::end(mTimers) ; i1 != i2 ; )
-	{
-		auto& t(*i1);
-
-		if(!t.next--)
-		{
-			if(t.f() && t.period)
-			{
-				t.next = t.period;
-			}
-			else
-			{
-				i1 = mTimers.erase(i1);
-			}
-		}
-		else
-		{
-			++i1;
-		}
-	}
-
-	mUpdating = false;
-}
-
-}}}
-
-#endif
