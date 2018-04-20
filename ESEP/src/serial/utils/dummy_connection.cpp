@@ -1,4 +1,4 @@
-#include "serial/dummy_connection.h"
+#include "serial/utils/dummy_connection.h"
 
 #include "lib/logger.h"
 
@@ -17,6 +17,7 @@ DummyConnection::DummyConnection(void)
 	, mTransform([](byte_t v, uint) { return v; })
 	, mSentPackets(0)
 {
+	mDead = false;
 }
 
 DummyConnection::~DummyConnection(void)
@@ -39,6 +40,9 @@ void DummyConnection::write(const byte_t * const p, const size_t n)
 		MXT_THROW_EX(Connection::ConnectionClosedException);
 
 	++mSentPackets;
+
+	if(mDead.load())
+		return;
 
 #ifndef LOG_DUMMY
 	for(uint i = 0 ; i < n ; ++i)

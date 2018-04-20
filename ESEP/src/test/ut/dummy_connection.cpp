@@ -6,8 +6,6 @@
 #include "test/ut/dummy_connection.h"
 #include "test/unit/assertions.h"
 
-#include "serial/dummy_connection.h"
-
 namespace esep { namespace test { namespace unit {
 
 namespace

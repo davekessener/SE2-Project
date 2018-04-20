@@ -6,7 +6,7 @@
 #include "lib/utils.h"
 #include "serial/client.h"
 #include "serial/watchdog.h"
-#include "serial/dummy_connection.h"
+#include "serial/utils/dummy_connection.h"
 
 namespace esep
 {

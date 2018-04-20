@@ -10,7 +10,6 @@
 
 #include "serial/connection.h"
 #include "serial/bsp_client.h"
-#include "serial/dummy_connection.h"
 
 #define MXT_TIMEOUT 50
 
@@ -89,6 +88,28 @@ void Watchdog::define(void)
 		lib::Timer::instance().sleep(5);
 
 		ASSERT_EACH_EQUALS(r2, cmp);
+	};
+
+	UNIT_TEST("can detect a dead line")
+	{
+		std::string cmp("Hello, World!");
+		serial::Client::buffer_t buf(cmp.cbegin(), cmp.cend());
+
+		mWatchdog[0]->write(buf);
+
+		lib::Timer::instance().sleep(5);
+
+		ASSERT_EACH_EQUALS(mWatchdog[1]->read(), buf);
+
+		lib::Timer::instance().sleep(5);
+
+		mConnections[0]->kill();
+		mConnections[1]->kill();
+
+		lib::Timer::instance().sleep(MXT_TIMEOUT * 2);
+
+		ASSERT_FAILURE(mWatchdog[0]->read(), serial::Client::TimeoutException);
+		ASSERT_FAILURE(mWatchdog[1]->read(), serial::Client::TimeoutException);
 	};
 }
 

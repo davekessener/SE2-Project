@@ -15,6 +15,8 @@ namespace esep
 			public:
 			typedef std::vector<byte_t> buffer_t;
 
+			struct TimeoutException : public std::exception { };
+
 			public:
 				virtual ~Client( ) { }
 				virtual void write(const buffer_t&) = 0;

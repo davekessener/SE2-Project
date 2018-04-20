@@ -31,11 +31,13 @@ namespace esep
 				bool isOpen( ) const { return mCounterpart; }
 				void setTransform(transform_fn f) { mTransform = f; }
 				uint getSentPackets( ) const { return mSentPackets; }
+				void kill( ) { mDead = true; }
 			private:
 				DummyConnection *mCounterpart;
 				std::unique_ptr<buffer_t> mBuffer;
 				transform_fn mTransform;
 				uint mSentPackets;
+				std::atomic<bool> mDead;
 		};
 	}
 }

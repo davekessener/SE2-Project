@@ -3,7 +3,7 @@
 
 #include <deque>
 
-#include "serial/dummy_connection.h"
+#include "serial/utils/dummy_connection.h"
 
 #include "test/unit/unit.h"
 

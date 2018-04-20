@@ -43,12 +43,14 @@ namespace esep
 					insert_fn i = insert_fn(&container_type::push_back),
 					remove_fn r = remove_fn(&container_type::pop_front))
 						: mAccess(a), mInsert(i), mRemove(r), mSize(0), mInterrupted(false), mReaders(0) { }
-				~Container( ) { mInterrupted = true; while(mReaders.load()) mCond.notify_all(); }
+				~Container( ) { interrupt(true); }
 				void insert(const value_type&);
 				value_type remove( );
 				size_t size( ) const { return mSize; }
 				bool empty( ) const { return !mSize; }
 				void clear( ) { lock_t lock(mMutex); while(mSize) { --mSize; mRemove(mContainer); } }
+				void interrupt(bool final = false)
+					{ mInterrupted = true; while(mReaders.load()) mCond.notify_all(); mInterrupted = final; }
 			private:
 				container_type mContainer;
 				access_fn mAccess;

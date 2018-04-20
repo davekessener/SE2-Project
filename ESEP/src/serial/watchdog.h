@@ -26,9 +26,8 @@ namespace esep
 			public:
 				Watchdog(client_ptr, uint);
 				virtual ~Watchdog( );
-				virtual void write(const Client::buffer_t& o)
-					{ auto b(o); b.insert(b.begin(), static_cast<byte_t>(Packet::DATA)); sendPacket(b); }
-				virtual Client::buffer_t read( ) { return mReadBuf.remove(); }
+				virtual void write(const Client::buffer_t&);
+				virtual Client::buffer_t read( );
 			private:
 				void sendPacket(const Client::buffer_t&);
 

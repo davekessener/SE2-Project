@@ -13,8 +13,7 @@ Watchdog::Watchdog(client_ptr c, uint t)
 	mRunning = true;
 
 	auto timer = [this](void) {
-		if(mRunning.load())
-		try
+		if(mRunning.load()) try
 		{
 			auto e = lib::Timer::instance().elapsed();
 
@@ -25,6 +24,12 @@ Watchdog::Watchdog(client_ptr c, uint t)
 				b.push_back(static_cast<byte_t>(Packet::WATCHDOG));
 
 				sendPacket(b);
+			}
+
+			if(e - mLastRead > mTimeout)
+			{
+				mTimedOut = true;
+				mReadBuf.interrupt();
 			}
 		}
 		catch(const Connection::ConnectionClosedException& e)
@@ -74,6 +79,37 @@ void Watchdog::sendPacket(const Client::buffer_t& b)
 	mClient->write(b);
 
 	mLastWrite = lib::Timer::instance().elapsed();
+}
+
+void Watchdog::write(const Client::buffer_t& o)
+{
+	if(mTimedOut.load())
+	{
+		throw Client::TimeoutException();
+	}
+
+	auto b(o);
+
+	b.insert(b.begin(), static_cast<byte_t>(Packet::DATA));
+
+	sendPacket(b);
+}
+
+Client::buffer_t Watchdog::read(void)
+{
+	if(mTimedOut.load())
+	{
+		throw Client::TimeoutException();
+	}
+
+	try
+	{
+		return mReadBuf.remove();
+	}
+	catch(const decltype(mReadBuf)::InterruptedException& e)
+	{
+		throw Client::TimeoutException();
+	}
 }
 
 }}
