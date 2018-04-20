@@ -13,6 +13,8 @@
 #include "test/ft/basic_serial.h"
 #include "test/ft/test_serial_connection.h"
 
+#include "test/ft/hal.h"
+
 #include "test/ut/logger_format_parser.h"
 #include "test/ut/crc32.h"
 #include "test/ut/fsm.h"
@@ -89,11 +91,19 @@ void testSerial(void)
 	test.run();
 }
 
+void testHAL(void)
+{
+	functional::HALTester hal_tester;
+
+	hal_tester.run();
+}
+
 void main(const lib::args_t& args)
 {
-//	std::cout << runUnitTests() << std::endl;
+	std::cout << runUnitTests() << std::endl;
 
 	testSerial();
+	testHAL();
 }
 
 }}

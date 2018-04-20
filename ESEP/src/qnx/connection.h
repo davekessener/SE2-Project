@@ -16,7 +16,7 @@ namespace esep
 				Connection& operator=(const Connection& c);
 				void swap(Connection&);
 				void sendPulse(const pulse_t&);
-				void sendPulse(Code c) { pulse_t p; p.code = static_cast<int8_t>(c); p.value = 0; sendPulse(p); }
+				void sendPulse(int8_t c, uint32_t v = 0) { sendPulse(pulse_t(c, v)); }
 				bool isConnected( ) const { return mID != INVALID_ID; }
 				void close( );
 			private:

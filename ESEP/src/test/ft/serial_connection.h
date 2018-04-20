@@ -1,5 +1,5 @@
-#ifndef SRC_TEST_FT_SERIAL_CONNECTION_H_
-#define SRC_TEST_FT_SERIAL_CONNECTION_H_
+#ifndef ESEP_TEST_FT_SERIALCONNECTION_H
+#define ESEP_TEST_FT_SERIALCONNECTION_H
 
 #include "serial/connection.h"
 #include "serial/client.h"

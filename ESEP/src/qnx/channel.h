@@ -17,10 +17,12 @@ namespace esep
 				~Channel( );
 				Connection connect( );
 				pulse_t receivePulse( );
-				void listenForInterrupts(Connection&, hal::GPIO&);
+				void registerInterruptListener(Connection&, hal::GPIO&, int8_t);
+				void registerTimerListener(Connection&, int8_t, uint64_t);
 			private:
 				channel_id_t mID;
 				int mIntID = INVALID_ID;
+				int8_t mIntCode = -1;
 
 				Channel(const Channel&) = delete;
 				Channel& operator=(const Channel&) = delete;

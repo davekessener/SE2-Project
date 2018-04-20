@@ -3,12 +3,48 @@
 
 #include "hal/hal.h"
 
+#include "lib/timer.h"
+
 namespace esep
 {
 	namespace hal
 	{
 		class Lights
 		{
+			private:
+			enum class State
+			{
+				ON,
+				OFF,
+				FLASHING_ON,
+				FLASHING_OFF
+			};
+
+			class SingleLight
+			{
+				public:
+					SingleLight(HAL *hal, uint32_t l)
+						: mHAL(hal)
+						, mLight(l)
+						, mState(State::OFF)
+						, mTimer(lib::Timer::Class::INVALID_TIMER_ID)
+							{ }
+					~SingleLight( ) { removeTimer(); }
+					void turnOn( );
+					void turnOff( );
+					void flash(uint);
+				private:
+					void removeTimer( );
+					void doTurnOn( );
+					void doTurnOff( );
+
+				private:
+					HAL * const mHAL;
+					uint32_t mLight;
+					State mState;
+					lib::Timer::Class::id_t mTimer;
+			};
+
 			public:
 			enum class Light : uint32_t
 			{
@@ -19,11 +55,13 @@ namespace esep
 
 			public:
 				Lights(HAL *);
+				~Lights( );
 				void turnOn(Light);
 				void turnOff(Light);
 				void flash(Light, uint);
+
 			private:
-				HAL * const mHAL;
+				std::map<Light, SingleLight> mLights;
 		};
 	}
 }
