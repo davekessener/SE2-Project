@@ -1,6 +1,5 @@
 #include "test/ut/timer.h"
 
-#include "lib/timer.h"
 #include "lib/logger.h"
 
 #include "test/unit/assertions.h"
@@ -10,38 +9,65 @@ namespace esep { namespace test { namespace unit {
 Timer::Timer(void)
 	: TestSuite("Timer")
 {
+	mTimer = &lib::Timer::instance();
+	mCounter = 0;
+	mIncrementer = [this](void) { ++mCounter; };
+}
+
+void Timer::setup(void)
+{
+	mCounter = 0;
 }
 
 void Timer::define(void)
 {
-	UNIT_TEST("call timer periodically")
+	UNIT_TEST("automatic timer deletion works")
 	{
-		auto& timer(lib::Timer::instance());
+		{
+			auto t = mTimer->registerCallback(mIncrementer, 0, 10);
 
-		uint c = 1;
+			mTimer->sleep(55);
+		}
 
-		auto diff = [](uint a, uint b) { return (a > b) ? a - b : b - a; };
+		auto c = mCounter;
 
-		auto cb = [&c](void) -> bool {
-			if(!c)
-			{
-				return false;
-			}
-			else
-			{
-				++c;
+		mTimer->sleep(25);
 
-				return true;
-			}
-		};
+		ASSERT_APPROX_EQUALS(mCounter, 5u);
+		ASSERT_EQUALS(mCounter, c);
+	};
 
-		timer.registerCallback(cb, 0, 10);
+	UNIT_TEST("calls timer once")
+	{
+		auto t = mTimer->registerCallback(mIncrementer, 0, 0);
 
-		timer.sleep(105);
+		mTimer->sleep(50);
 
-		ASSERT_TRUE(diff(c, 11) <= 1);
+		ASSERT_EQUALS(mCounter, 1u);
+	};
 
-		c = 0;
+	UNIT_TEST("calls timer periodically")
+	{
+		auto t = mTimer->registerCallback(mIncrementer, 0, 10);
+
+		mTimer->sleep(105);
+
+		ASSERT_APPROX_EQUALS(mCounter, 10u);
+	};
+
+	UNIT_TEST("can unregister timer")
+	{
+		auto t = mTimer->registerCallback(mIncrementer, 0, 10);
+
+		mTimer->sleep(55);
+		mTimer->unregisterCallback(t);
+
+		auto c = mCounter;
+
+		mTimer->sleep(50);
+
+		ASSERT_APPROX_EQUALS(mCounter, 5u);
+		ASSERT_EQUALS(mCounter, c);
 	};
 }
 
