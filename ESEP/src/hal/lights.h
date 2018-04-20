@@ -27,7 +27,6 @@ namespace esep
 						: mHAL(hal)
 						, mLight(l)
 						, mState(State::OFF)
-						, mTimer(lib::Timer::Class::INVALID_TIMER_ID)
 							{ }
 					~SingleLight( ) { removeTimer(); }
 					void turnOn( );
@@ -42,7 +41,7 @@ namespace esep
 					HAL * const mHAL;
 					uint32_t mLight;
 					State mState;
-					lib::Timer::Class::id_t mTimer;
+					lib::Timer::Class::TimerManager mTimer;
 			};
 
 			public:
@@ -61,7 +60,7 @@ namespace esep
 				void flash(Light, uint);
 
 			private:
-				std::map<Light, SingleLight> mLights;
+				std::map<Light, SingleLight *> mLights;
 		};
 	}
 }

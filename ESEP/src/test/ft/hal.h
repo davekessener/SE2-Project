@@ -23,15 +23,13 @@ namespace esep
 			class HALTester
 			{
 				typedef void (HALTester::*test_fn)(hal::HAL::Event);
-				typedef lib::Timer::Class::id_t timer_id_t;
+				typedef lib::Timer::Class::TimerManager timer_t;
 
 				typedef hal::Buttons::Button Button;
 				typedef hal::LEDs::LED LED;
 				typedef hal::LightBarriers::LightBarrier LightBarrier;
 				typedef hal::Lights::Light Light;
 				typedef hal::HAL::Event Event;
-
-				static constexpr timer_id_t INVALID_TIMER_ID = lib::Timer::Class::INVALID_TIMER_ID;
 
 				public:
 					HALTester( );
@@ -53,13 +51,13 @@ namespace esep
 					template<typename F>
 					void runIn(uint t, F&& f)
 					{
-						mTimers.push_back(lib::Timer::instance().registerCallback(std::forward<F>(f), t));
+						mTimers.emplace_back(lib::Timer::instance().registerCallback(std::forward<F>(f), t));
 					}
 
 				private:
 					std::vector<std::pair<std::string, test_fn>> mTests;
 					bool mRunning;
-					std::vector<timer_id_t> mTimers;
+					std::vector<timer_t> mTimers;
 					hal::HAL *mHAL;
 					hal::Buttons BUTTONS;
 					hal::HeightSensor HEIGHT_SENSOR;

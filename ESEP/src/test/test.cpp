@@ -1,3 +1,4 @@
+
 #ifdef ESEP_TEST
 
 #include <iostream>
@@ -9,10 +10,7 @@
 #include "test/test.h"
 #include "test/unit/manager.h"
 
-#include "test/ft/serial_connection.h"
-#include "test/ft/basic_serial.h"
-#include "test/ft/test_serial_connection.h"
-
+#include "test/ft/serial_connection_test.h"
 #include "test/ft/hal.h"
 
 #include "test/ut/logger_format_parser.h"
@@ -48,6 +46,9 @@ void runUnitTests(void)
 		.run();
 
 	uint w = 0;
+	bool success = true;
+
+	std::cout << std::endl;
 
 	for(const auto& t : r)
 	{
@@ -77,6 +78,7 @@ void runUnitTests(void)
 		if(!t.second.second.empty())
 		{
 			std::cout << t.first << " has encountered a critical error: " << t.second.second << "!\n";
+			success = false;
 		}
 	}
 
@@ -87,8 +89,14 @@ void runUnitTests(void)
 			if(p.first == unit::TestSuite::Result::FAILURE)
 			{
 				std::cout << "[ERR] " << t.first << ": " << p.second << "\n";
+				success = false;
 			}
 		}
+	}
+
+	if(success)
+	{
+		std::cout << "\nSUCCESS!\n";
 	}
 
 	lib::Logger::instance().setEcho(os);
@@ -98,9 +106,9 @@ void runUnitTests(void)
 
 void runSerialTest(void)
 {
-	functional::SerialConnection test;
+	functional::SerialConnectionTest serial_tester;
 
-	test.run();
+	serial_tester.run();
 }
 
 void runHALTest(void)
@@ -114,8 +122,8 @@ void main(const lib::args_t& args)
 {
 	runUnitTests();
 
-	runSerialTest();
-	runHALTest();
+//	runSerialTest();
+//	runHALTest();
 
 	std::cout << "\nGoodbye." << std::endl;
 }

@@ -107,11 +107,6 @@ void HALTester::runTest(uint i)
 
 void HALTester::clearTimers(void)
 {
-	for(const auto& id : mTimers)
-	{
-		lib::Timer::instance().unregisterCallback(id);
-	}
-
 	mTimers.clear();
 }
 
@@ -313,17 +308,6 @@ void HALTester::t_010(Event e)
 
 void HALTester::t_011(Event e)
 {
-	static timer_id_t timer = INVALID_TIMER_ID;
-	auto& timer_r(timer); // To stop the compiler complaining; please disregard
-
-	auto unregisterTimer = [&timer_r](void) {
-		if(timer_r != INVALID_TIMER_ID)
-		{
-			lib::Timer::instance().unregisterCallback(timer_r);
-			timer_r = INVALID_TIMER_ID;
-		}
-	};
-
 	switch(e)
 	{
 	case Event::LB_START:
@@ -333,21 +317,17 @@ void HALTester::t_011(Event e)
 		}
 		break;
 	case Event::LB_RAMP:
+		clearTimers();
+
 		if(LIGHT_BARRIERS.isBroken(LightBarrier::LB_RAMP))
 		{
-			unregisterTimer();
-
-			mTimers.push_back(timer = lib::Timer::instance().registerCallback([this](void) -> bool {
+			mTimers.emplace_back(lib::Timer::instance().registerCallback([this](void) -> bool {
 				MOTOR.stop();
 				LEDS.turnOn(LED::RESET);
 				LIGHTS.flash(Light::YELLOW, 1000);
 
 				return false;
 			}, 500));
-		}
-		else
-		{
-			unregisterTimer();
 		}
 		break;
 	case Event::BTN_RESET:
