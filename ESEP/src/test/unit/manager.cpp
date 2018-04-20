@@ -8,7 +8,7 @@
 
 namespace esep { namespace test { namespace unit {
 
-ManagerImpl::results_t ManagerImpl::run(void)
+Manager::results_t Manager::run(void)
 {
 	results_t results;
 

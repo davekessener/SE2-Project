@@ -1,6 +1,7 @@
-#include <test/ft/serial_connection_test.h>
 #include <iostream>
 #include <vector>
+
+#include "test/ft/serial/connection.h"
 
 #include "hal/hal.h"
 #include "hal/physical.h"

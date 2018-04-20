@@ -22,9 +22,10 @@ namespace esep
 			class Writer
 			{
 				typedef std::unique_lock<std::mutex> lock_t;
+				typedef lib::Timer::Class::TimerManager timer_t;
 
 				public:
-					Writer(Serializer&);
+					Writer(Serializer&, uint);
 					~Writer( );
 					void put(const types::buffer_t&);
 					void acknowledge(types::id_t, packet::Type);

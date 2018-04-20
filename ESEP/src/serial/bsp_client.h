@@ -11,13 +11,18 @@ namespace esep
 	{
 		class BSPClient : public Client
 		{
+			private:
 			typedef std::unique_ptr<Connection> connection_ptr;
 
 			public:
-				explicit BSPClient(connection_ptr);
+			static constexpr uint DEFAULT_TIMEOUT = 10;
+
+			public:
+				explicit BSPClient(connection_ptr, uint = DEFAULT_TIMEOUT);
 				~BSPClient( );
 				virtual void write(const buffer_t&);
 				virtual buffer_t read( );
+				size_t size( ) const;
 			private:
 				struct Impl;
 

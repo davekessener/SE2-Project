@@ -1,5 +1,3 @@
-#ifndef NO_QNX
-
 #include <cstring>
 #include <cerrno>
 
@@ -31,7 +29,7 @@ const uint32_t GPIO_BASE_2 = 0x481AC000; // PORT C
 
 Physical::Physical(void)
 {
-	mRunning = true;
+	mRunning = false;
 	mGPIOs[0] = nullptr;
 	mGPIOs[1] = nullptr;
 	mGPIOs[2] = nullptr;
@@ -61,6 +59,7 @@ Physical::Physical(void)
 
 			updateSensors();
 
+			mRunning = true;
 			while(mRunning.load())
 			{
 				auto p = channel.receivePulse();
@@ -116,7 +115,7 @@ Physical::Physical(void)
 		delete mGPIOs[2];
 	});
 
-	lib::Timer::Class::sleep(100);
+	lib::Timer::instance().sleep(100);
 }
 
 Physical::~Physical(void)
@@ -157,48 +156,6 @@ void Physical::reset(Field f, bitmask_t v)
 {
 	mConnection.sendPulse(qnx::pulse_t(static_cast<int8_t>(f == Field::GPIO_1 ? Code::GPIO_1_RESET : Code::GPIO_2_RESET), v));
 }
-
-#else
-
-namespace esep { namespace hal {
-
-Physical::Physical(void)
-{
-	MXT_THROW("Shouldn't call this!");
-}
-
-Physical::~Physical(void)
-{
-}
-
-void Physical::updateSensors(void)
-{
-	MXT_THROW("Shouldn't call this!");
-}
-
-void Physical::onGPIO(uint b, gpio_fn f, uint32_t v)
-{
-	MXT_THROW("Shouldn't call this!");
-}
-
-void Physical::out(Field f, uint32_t v)
-{
-	MXT_THROW("Shouldn't call this!");
-}
-
-void Physical::set(Field f, bitmask_t v)
-{
-	MXT_THROW("Shouldn't call this!");
-}
-
-void Physical::reset(Field f, bitmask_t v)
-{
-	MXT_THROW("Shouldn't call this!");
-}
-
-}}
-
-#endif
 
 }}
 

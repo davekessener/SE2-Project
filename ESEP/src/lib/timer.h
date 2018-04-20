@@ -39,6 +39,7 @@ namespace esep
 						~TimerManager( );
 						TimerManager& operator=(TimerManager&&);
 						void swap(TimerManager&) noexcept;
+						void reset( ) { TimerManager tm; swap(tm); }
 					private:
 						TimerManager(id_t id) : mID(id) { }
 

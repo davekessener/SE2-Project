@@ -25,6 +25,7 @@ namespace esep
 					void process(packet::packet_ptr);
 					types::buffer_t get( );
 					void reset( );
+					size_t size( ) const { return mStorage.size(); }
 				private:
 					void processDataPacket(packet::packet_ptr);
 					bool recordPacket(packet::packet_ptr);

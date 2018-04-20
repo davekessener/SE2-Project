@@ -1,7 +1,12 @@
 #include <fcntl.h>
-#include <serial/actual_connection.h>
 #include <termios.h>
+
 #include <iostream>
+#include <sstream>
+
+#include "serial/actual_connection.h"
+
+#include "lib/logger.h"
 
 #define BAUDRATE	19200 // Speed of connection in bits/s
 
@@ -22,13 +27,22 @@ void ActualConnection::write(const byte_t* b, size_t l)
 {
 	if(!isOpen())
 	{
-		MXT_THROW("Connection to device is closed!");
+		throw Connection::ConnectionClosedException();
 	}
 
     if(::write(mFD, b, l) != (ssize_t) l)
     {
     	MXT_THROW("An error occured writing to device!");
     }
+
+//    std::stringstream ss;
+//
+//    for(uint i = 0 ; i < l ; ++i)
+//    {
+//    	ss << lib::hex<8>(b[i]); if(i < l - 1) ss << " ";
+//    }
+//
+//    MXT_LOG(lib::stringify("Wrote ", l, " bytes: [", ss.str(), "]!"));
 }
 
 void ActualConnection::read(byte_t* b, size_t size)

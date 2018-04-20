@@ -60,7 +60,7 @@ namespace esep
 				void flash(Light, uint);
 
 			private:
-				std::map<Light, SingleLight *> mLights;
+				std::map<Light, std::shared_ptr<SingleLight>> mLights;
 		};
 	}
 }

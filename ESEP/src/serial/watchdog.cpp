@@ -8,16 +8,17 @@ Watchdog::Watchdog(client_ptr c, uint t)
 	: mClient(std::move(c))
 	, mTimeout(t)
 {
-	mLastRead = mLastWrite = lib::Timer::instance().elapsed();
+	mLastRead = mLastWrite = 0;
 	mTimedOut = false;
 	mRunning = true;
+	mIsActive = false;
 
-	auto timer = [this](void) {
+	auto cb = [this](void) {
 		if(mRunning.load()) try
 		{
 			auto e = lib::Timer::instance().elapsed();
 
-			if(e - mLastWrite > mTimeout / 2)
+			if(!mIsActive.load() || e - mLastWrite.load() > mTimeout / 2)
 			{
 				Client::buffer_t b;
 
@@ -26,7 +27,7 @@ Watchdog::Watchdog(client_ptr c, uint t)
 				sendPacket(b);
 			}
 
-			if(e - mLastRead > mTimeout)
+			if(mIsActive.load() && e - mLastRead.load() > mTimeout)
 			{
 				mTimedOut = true;
 				mReadBuf.interrupt();
@@ -34,10 +35,10 @@ Watchdog::Watchdog(client_ptr c, uint t)
 		}
 		catch(const Connection::ConnectionClosedException& e)
 		{
+			mTimedOut = true;
+			mReadBuf.interrupt();
 		}
 	};
-
-	mTimer = lib::Timer::instance().registerCallback(timer, mTimeout / 2, mTimeout / 2);
 
 	mReaderThread.construct([this](void) {
 		try
@@ -47,6 +48,7 @@ Watchdog::Watchdog(client_ptr c, uint t)
 				auto b = mClient->read();
 
 				mLastRead = lib::Timer::instance().elapsed();
+				mIsActive = true;
 
 				if(!b.empty() && b.front() == static_cast<byte_t>(Packet::DATA))
 				{
@@ -58,9 +60,12 @@ Watchdog::Watchdog(client_ptr c, uint t)
 		}
 		catch(const Connection::ConnectionClosedException& e)
 		{
+			mTimedOut = true;
 		}
 		MXT_CATCH_STRAY
 	});
+
+	mTimer = lib::Timer::instance().registerCallback(cb, 1, mTimeout / 4);
 }
 
 Watchdog::~Watchdog(void)
@@ -76,16 +81,16 @@ Watchdog::~Watchdog(void)
 
 void Watchdog::sendPacket(const Client::buffer_t& b)
 {
-	mClient->write(b);
-
 	mLastWrite = lib::Timer::instance().elapsed();
+
+	mClient->write(b);
 }
 
 void Watchdog::write(const Client::buffer_t& o)
 {
 	if(mTimedOut.load())
 	{
-		throw Client::TimeoutException();
+		throw Connection::ConnectionClosedException();
 	}
 
 	auto b(o);
@@ -99,7 +104,7 @@ Client::buffer_t Watchdog::read(void)
 {
 	if(mTimedOut.load())
 	{
-		throw Client::TimeoutException();
+		throw Connection::ConnectionClosedException();
 	}
 
 	try
@@ -108,7 +113,7 @@ Client::buffer_t Watchdog::read(void)
 	}
 	catch(const decltype(mReadBuf)::InterruptedException& e)
 	{
-		throw Client::TimeoutException();
+		throw Connection::ConnectionClosedException();
 	}
 }
 

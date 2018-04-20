@@ -3,8 +3,8 @@
 
 namespace esep { namespace serial {
 
-BSPClient::BSPClient(connection_ptr c)
-	: pImpl(new Impl(std::move(c)))
+BSPClient::BSPClient(connection_ptr c, uint t)
+	: pImpl(new Impl(std::move(c), t))
 {
 }
 
@@ -28,6 +28,11 @@ Client::buffer_t BSPClient::read(void)
 	buffer_t buf(v.cbegin(), v.cend());
 
 	return buf;
+}
+
+size_t BSPClient::size(void) const
+{
+	return pImpl->size();
 }
 
 }}

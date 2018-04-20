@@ -7,7 +7,7 @@ namespace esep { namespace serial { namespace modules {
 class Writer::Impl
 {
 	public:
-		Impl(Serializer& c) : mNextID(0), mConnection(c) { }
+		Impl(Serializer& c, uint t) : mNextID(0), mTimeout(t), mConnection(c) { }
 		void put(const types::buffer_t&);
 		void acknowledge(types::id_t, packet::Type);
 		void reset( );
@@ -15,16 +15,19 @@ class Writer::Impl
 	private:
 		void processNext( );
 		void enqueue(packet::packet_ptr);
+		void sendAndCheck(packet::packet_ptr);
 	private:
 		byte_t mNextID;
+		const uint mTimeout;
 		Serializer& mConnection;
 		std::deque<packet::packet_ptr> mSendingBuffer;
+		timer_t mTimer;
 };
 
 // # --------------------------------------------------------------------------------------------------
 
-Writer::Writer(Serializer& c)
-	: pImpl(new Impl(c))
+Writer::Writer(Serializer& c, uint t)
+	: pImpl(new Impl(c, t))
 {
 }
 
@@ -110,6 +113,8 @@ void Writer::Impl::put(const types::buffer_t& o)
 
 void Writer::Impl::acknowledge(types::id_t id, packet::Type t)
 {
+	mTimer.reset();
+
 	if(t == packet::Type::AP_OK)
 	{
 		if(!mSendingBuffer.empty() && id == mSendingBuffer.front()->getID())
@@ -121,7 +126,7 @@ void Writer::Impl::acknowledge(types::id_t id, packet::Type t)
 	{
 		if(!mSendingBuffer.empty())
 		{
-			send(mSendingBuffer.front());
+			sendAndCheck(mSendingBuffer.front());
 		}
 	}
 	else
@@ -134,7 +139,7 @@ void Writer::Impl::reset( )
 {
 	if(!mSendingBuffer.empty())
 	{
-		send(mSendingBuffer.front());
+		sendAndCheck(mSendingBuffer.front());
 	}
 }
 
@@ -149,7 +154,7 @@ void Writer::Impl::processNext(void)
 
 	if(!mSendingBuffer.empty())
 	{
-		send(mSendingBuffer.front());
+		sendAndCheck(mSendingBuffer.front());
 	}
 }
 
@@ -157,10 +162,25 @@ void Writer::Impl::enqueue(packet::packet_ptr p)
 {
 	if(mSendingBuffer.empty())
 	{
-		send(p);
+		sendAndCheck(p);
 	}
 
 	mSendingBuffer.push_back(p);
+}
+
+void Writer::Impl::sendAndCheck(packet::packet_ptr p)
+{
+	send(p);
+
+	mTimer = lib::Timer::instance().registerCallback([this](void) {
+		try
+		{
+			acknowledge(0, packet::Type::AP_ERR);
+		}
+		catch(const Connection::ConnectionClosedException& e)
+		{
+		}
+	}, mTimeout);
 }
 
 }}}

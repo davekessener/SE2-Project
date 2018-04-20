@@ -13,22 +13,20 @@ namespace esep
 	{
 		namespace unit
 		{
-			class ManagerImpl
+			class Manager
 			{
 				typedef std::map<std::string, std::pair<TestSuite::result_t, std::string>> results_t;
 
 				public:
 					template<typename T>
-						ManagerImpl& addTest( );
+						Manager& addTest( );
 					results_t run( );
 				private:
 					std::vector<TestSuite *> mTests;
 			};
 
-			typedef lib::SingletonHolder<ManagerImpl> Manager;
-
 			template<typename T>
-			ManagerImpl& ManagerImpl::addTest(void)
+			Manager& Manager::addTest(void)
 			{
 				mTests.push_back(new T);
 

@@ -120,20 +120,13 @@ Impl::TimerManager Impl::registerCallback(callback_t f, uint o, uint p)
 
 void Impl::unregisterCallback(const TimerManager& tm)
 {
+	lock_t lock(mMutex);
+
+	auto i = mTimers.find(tm.mID);
+
+	if(i != mTimers.end())
 	{
-		lock_t lock(mMutex);
-
-		auto i = mTimers.find(tm.mID);
-
-		if(i != mTimers.end())
-		{
-			mTimers.erase(i);
-		}
-	}
-
-	while(mUpdating.load())
-	{
-		std::this_thread::sleep_for(std::chrono::microseconds(50));
+		mTimers.erase(i);
 	}
 }
 
@@ -156,34 +149,45 @@ void Impl::update(void)
 
 		if(!t.next--)
 		{
-			bool should_delete = true;
+			bool should_exec = false;
 
-			try
 			{
-				t.f();
+				lock_t lock(mMutex);
 
-				should_delete = false;
-			}
-			catch(const std::exception& e)
-			{
-				MXT_LOG(stringify("Caught an exception from timer: ", e.what()));
-			}
-			catch(const std::string& e)
-			{
-				MXT_LOG(stringify("Caught a string from timer: ", e));
-			}
-			catch(...)
-			{
-				MXT_LOG(stringify("Caught an unknown exception from timer!"));
+				should_exec = (mTimers.count(t.id) != 0);
 			}
 
-			if(should_delete || !t.period)
+			if(should_exec)
 			{
-				timer_to_delete.push_back(t.id);
-			}
-			else
-			{
-				t.next = t.period;
+				bool should_delete = true;
+
+				try
+				{
+					t.f();
+
+					should_delete = false;
+				}
+				catch(const std::exception& e)
+				{
+					MXT_LOG(stringify("Caught an exception in timer: ", e.what()));
+				}
+				catch(const std::string& e)
+				{
+					MXT_LOG(stringify("Caught a string in timer: ", e));
+				}
+				catch(...)
+				{
+					MXT_LOG(stringify("Caught an unknown exception in timer!"));
+				}
+
+				if(should_delete || !t.period)
+				{
+					timer_to_delete.push_back(t.id);
+				}
+				else
+				{
+					t.next = t.period;
+				}
 			}
 		}
 	}

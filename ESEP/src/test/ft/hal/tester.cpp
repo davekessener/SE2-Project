@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "test/ft/hal.h"
+#include "test/ft/hal/tester.h"
 
 #include "lib/deferred.h"
 

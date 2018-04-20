@@ -15,6 +15,7 @@ namespace esep
 	{
 		class Watchdog : public Client
 		{
+			private:
 			typedef std::unique_ptr<Client> client_ptr;
 
 			enum class Packet : uint8_t
@@ -24,7 +25,10 @@ namespace esep
 			};
 
 			public:
-				Watchdog(client_ptr, uint);
+			static constexpr uint DEFAULT_TIMEOUT = 100;
+
+			public:
+				Watchdog(client_ptr, uint = DEFAULT_TIMEOUT);
 				virtual ~Watchdog( );
 				virtual void write(const Client::buffer_t&);
 				virtual Client::buffer_t read( );
@@ -34,11 +38,11 @@ namespace esep
 			private:
 				client_ptr mClient;
 				lib::Timer::Class::TimerManager mTimer;
-				uint64_t mLastRead, mLastWrite;
+				std::atomic<uint64_t> mLastRead, mLastWrite;
 				uint mTimeout;
 				lib::Thread mReaderThread;
 				sync::Container<Client::buffer_t> mReadBuf;
-				std::atomic<bool> mTimedOut, mRunning;
+				std::atomic<bool> mTimedOut, mRunning, mIsActive;
 		};
 	}
 }

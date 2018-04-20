@@ -21,10 +21,11 @@ namespace esep
 		class BSPClient::Impl
 		{
 			public:
-				Impl(BSPClient::connection_ptr);
+				Impl(BSPClient::connection_ptr, uint);
 				~Impl( );
 				void write(const types::buffer_t&);
 				types::buffer_t read( );
+				size_t size( ) const { return mReader.size(); }
 
 			private:
 				BSPClient::connection_ptr mBaseConnection;

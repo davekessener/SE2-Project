@@ -23,7 +23,7 @@
 		auto vb = (b); \
 		auto d = (va > vb) ? va - vb : vb - va; \
 		if(d > 1) { \
-			MXT_THROW_E(std::logic_error, "Expected ", vb, " [" #b "] to be approx. equal to ", va, " [" #a "]!"); \
+			MXT_THROW_E(std::logic_error, "Expected '" #a "' (", va, ") to be approx. equal to ", vb, " [" #b "]!"); \
 		} } while(0)
 
 #define ASSERT_TRUE(e) \

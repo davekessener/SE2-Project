@@ -7,7 +7,7 @@ namespace esep { namespace hal {
 Lights::Lights(HAL *hal)
 {
 	auto createLight = [this, hal](Light l) {
-		mLights.emplace(std::make_pair(l, new SingleLight(hal, static_cast<uint32_t>(l))));
+		mLights[l].reset(new SingleLight(hal, static_cast<uint32_t>(l)));
 	};
 
 	createLight(Light::RED);
@@ -17,10 +17,6 @@ Lights::Lights(HAL *hal)
 
 Lights::~Lights(void)
 {
-	for(auto& p : mLights)
-	{
-		delete p.second;
-	}
 }
 
 void Lights::turnOn(Light l)
@@ -69,7 +65,9 @@ void Lights::SingleLight::flash(uint p)
 void Lights::SingleLight::turnOn(void)
 {
 	removeTimer();
+
 	mState = State::ON;
+
 	doTurnOn();
 }
 
@@ -92,9 +90,7 @@ void Lights::SingleLight::doTurnOff(void)
 
 void Lights::SingleLight::removeTimer(void)
 {
-	lib::Timer::Class::TimerManager t;
-
-	mTimer.swap(t);
+	mTimer.reset();
 }
 
 }}

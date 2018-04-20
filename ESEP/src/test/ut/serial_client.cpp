@@ -8,6 +8,8 @@
 
 #include "lib/logger.h"
 
+#define MXT_TIMEOUT 10
+
 namespace esep { namespace test { namespace unit {
 
 namespace
@@ -54,8 +56,8 @@ void SerialClient::setup(void)
 
 	mConnections[0]->connect(*mConnections[1]);
 
-	mClients[0] = new serial::BSPClient(connection_ptr(mConnections[0]));
-	mClients[1] = new serial::BSPClient(connection_ptr(mConnections[1]));
+	mClients[0] = new serial::BSPClient(connection_ptr(mConnections[0]), MXT_TIMEOUT);
+	mClients[1] = new serial::BSPClient(connection_ptr(mConnections[1]), MXT_TIMEOUT);
 }
 
 void SerialClient::teardown(void)
@@ -94,6 +96,18 @@ void SerialClient::define(void)
 		lib::Timer::instance().sleep(5);
 
 		ASSERT_EACH_EQUALS(r2, cmp);
+	};
+
+	UNIT_TEST("does not retransmit packets unecessarily")
+	{
+		std::string cmp("Hello, World!");
+		serial::Client::buffer_t buf(cmp.cbegin(), cmp.cend());
+
+		mClients[0]->write(buf);
+
+		lib::Timer::instance().sleep(MXT_TIMEOUT * 3);
+
+		ASSERT_EQUALS(mConnections[0]->getSentPackets(), 1u);
 	};
 
 	UNIT_TEST("can send large amounts of data")
@@ -198,6 +212,22 @@ void SerialClient::define(void)
 		auto r = mClients[1]->read();
 
 		ASSERT_EACH_EQUALS(r, cmp);
+	};
+
+	UNIT_TEST("keeps sending packets if no confimation")
+	{
+		mConnections[0]->kill();
+
+		ASSERT_EQUALS(mConnections[0]->getSentPackets(), 0u);
+
+		serial::Client::buffer_t b;
+		b.push_back(42);
+
+		mClients[0]->write(b);
+
+		lib::Timer::instance().sleep(MXT_TIMEOUT * 10 + MXT_TIMEOUT / 2);
+
+		ASSERT_APPROX_EQUALS(mConnections[0]->getSentPackets(), 10u);
 	};
 }
 

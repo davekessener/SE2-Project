@@ -10,7 +10,7 @@
 #include "test/test.h"
 #include "test/unit/manager.h"
 
-#include "test/ft/serial_connection_test.h"
+#include "test/ft/serial.h"
 #include "test/ft/hal.h"
 
 #include "test/ut/logger_format_parser.h"
@@ -26,13 +26,13 @@
 
 namespace esep { namespace test {
 
-void runUnitTests(void)
+void runUnitTests(bool verbose = false)
 {
 	std::stringstream logger;
 
 	auto *os = lib::Logger::instance().setEcho(&logger);
 
-	auto r = unit::Manager::instance()
+	auto r = unit::Manager()
 		.addTest<unit::CRC32>()
 		.addTest<unit::LoggerFormatParser>()
 		.addTest<unit::FSM>()
@@ -69,8 +69,16 @@ void runUnitTests(void)
 
 		uint p = succ * 100 / total;
 
-		std::cout << std::setw(w) << t.first << ": " << std::setw(3) << p << "% [" << std::setw(2) << succ << " / "
-				  << std::setw(2) << total << "] tests successful\n";
+		if(verbose)
+		{
+			std::cout << std::setw(w) << t.first << ": " << std::setw(3) << p << "% [" << std::setw(2) << succ << " / "
+					  << std::setw(2) << total << "] tests successful\n";
+		}
+	}
+
+	if(verbose)
+	{
+		std::cout << "\n";
 	}
 
 	for(const auto& t : r)
@@ -96,34 +104,20 @@ void runUnitTests(void)
 
 	if(success)
 	{
-		std::cout << "\nSUCCESS!\n";
+		std::cout << "SUCCESS!\n";
 	}
 
 	lib::Logger::instance().setEcho(os);
 
-	std::cout << "\n" << logger.str() << std::flush;
-}
-
-void runSerialTest(void)
-{
-	functional::SerialConnectionTest serial_tester;
-
-	serial_tester.run();
-}
-
-void runHALTest(void)
-{
-	functional::HALTester hal_tester;
-
-	hal_tester.run();
+	std::cout << logger.str() << std::endl;
 }
 
 void main(const lib::args_t& args)
 {
-	runUnitTests();
+	runUnitTests(true);
 
-//	runSerialTest();
-//	runHALTest();
+//	functional::testSerialConnection();
+//	functional::testHAL();
 
 	std::cout << "\nGoodbye." << std::endl;
 }

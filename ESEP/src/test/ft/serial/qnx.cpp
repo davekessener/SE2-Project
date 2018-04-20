@@ -2,7 +2,7 @@
 #include <termios.h>
 #include <iostream>
 
-#include "test/ft/basic_serial.h"
+#include "test/ft/serial/qnx.h"
 
 #include "lib/utils.h"
 #include "lib/timer.h"

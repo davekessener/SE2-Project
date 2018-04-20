@@ -6,14 +6,14 @@ namespace esep { namespace serial {
 
 using namespace types;
 
-BSPClient::Impl::Impl(BSPClient::connection_ptr c)
+BSPClient::Impl::Impl(BSPClient::connection_ptr c, uint t)
 	: mBaseConnection(std::move(c))
 	, mWriteConnection(mBaseConnection.get())
 	, mReadConnection(mBaseConnection.get())
 	, mReadWriteConnection(mReadConnection, mWriteConnection)
 	, mSerializer(mWriteConnection)
 	, mDeserializer(mReadConnection)
-	, mWriter(mSerializer)
+	, mWriter(mSerializer, t)
 	, mReader(mWriter)
 	, mReset(mReadWriteConnection)
 {

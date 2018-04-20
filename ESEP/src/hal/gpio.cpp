@@ -106,7 +106,7 @@ void GPIO::clearInterruptFlags(void)
 
 void GPIO::enableInterrupts(void)
 {
-	static const uint32_t pins = calcPins();
+	static const uint32_t pins = bitmaskForAllSensors();
 
 	out32(mBaseAddr + MXT_IRQSTATUS_SET(MXT_GPIO_INT_LINE_2), pins);
 }

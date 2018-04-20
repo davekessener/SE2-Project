@@ -34,6 +34,13 @@
 		MXT_LOG(lib::stringify("Caught a stray string: ", e)); \
 	}
 
+#define MXT_CATCH_ALL_STRAY \
+	MXT_CATCH_STRAY \
+	catch(...) \
+	{ \
+		MXT_LOG("Caught an unknown exception!"); \
+	}
+
 namespace esep
 {
 	namespace lib

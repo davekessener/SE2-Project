@@ -18,7 +18,7 @@ namespace esep
 			{
 				public:
 					ObjectHolder( ) { }
-					ObjectHolder(T&& o) : mObject(o) { }
+					ObjectHolder(T&& o) : mObject(std::move(o)) { }
 					ObjectHolder(const T& o) : mObject(o) { }
 					T& get( ) { return mObject; }
 					const T& get( ) const { return mObject; }
@@ -38,7 +38,7 @@ namespace esep
 				template<typename ... TT>
 					TupleImpl(H&& o, TT&& ... a)
 						: TupleImpl<T, I + 1>(std::forward<TT>(a)...)
-						, ObjectHolder<H, I>(o)
+						, ObjectHolder<H, I>(std::move(o))
 					{ }
 				template<typename ... TT>
 					TupleImpl(const H& o, TT&& ... a)

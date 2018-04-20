@@ -61,7 +61,6 @@ void Watchdog::define(void)
 		lib::Timer::instance().sleep(10 * (MXT_TIMEOUT / 2));
 
 		r = lib::Timer::instance().elapsed() - r;
-		r -= MXT_TIMEOUT / 4;
 
 		ASSERT_APPROX_EQUALS(mConnections[0]->getSentPackets() / 2, r / (MXT_TIMEOUT / 2));
 	};
@@ -108,8 +107,8 @@ void Watchdog::define(void)
 
 		lib::Timer::instance().sleep(MXT_TIMEOUT * 2);
 
-		ASSERT_FAILURE(mWatchdog[0]->read(), serial::Client::TimeoutException);
-		ASSERT_FAILURE(mWatchdog[1]->read(), serial::Client::TimeoutException);
+		ASSERT_FAILURE(mWatchdog[0]->read(), serial::Connection::ConnectionClosedException);
+		ASSERT_FAILURE(mWatchdog[1]->read(), serial::Connection::ConnectionClosedException);
 	};
 }
 
