@@ -17,6 +17,14 @@
 			MXT_THROW_E(std::logic_error, "Expected ", vb, " [" #b "] but got ", va, " [" #a"] instead!"); \
 		} } while(0)
 
+#define ASSERT_APPROX_EQUALS(a,b) \
+	do { \
+		auto va = (a); \
+		auto vb = (b); \
+		auto d = (va > vb) ? va - vb : vb - va; \
+		if(d > 1) { \
+			MXT_THROW_E(std::logic_error, "Expected ", vb, " [" #b "] to be approx. equal to ", va, " [" #a "]!"); \
+		} } while(0)
 
 #define ASSERT_TRUE(e) \
 	do { \

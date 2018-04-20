@@ -12,14 +12,9 @@
 #include "serial/bsp_client.h"
 #include "serial/dummy_connection.h"
 
-#define MXT_TIMEOUT 10
+#define MXT_TIMEOUT 50
 
 namespace esep { namespace test { namespace unit {
-
-namespace
-{
-	inline uint diff(uint a, uint b) { return a > b ? a - b : b - a; }
-}
 
 Watchdog::Watchdog(void)
 	: TestSuite("Watchdog")
@@ -38,26 +33,18 @@ void Watchdog::setup(void)
 
 	mConnections[0]->connect(*mConnections[1]);
 
-//	mWatchdog[0] = new serial::BSPClient(connection_ptr(mConnections[0]));
-//	mWatchdog[1] = new serial::BSPClient(connection_ptr(mConnections[1]));
-
 	client_ptr c0(new serial::BSPClient(connection_ptr(mConnections[0])));
 	client_ptr c1(new serial::BSPClient(connection_ptr(mConnections[1])));
 
 	mWatchdog[0] = new serial::Watchdog(std::move(c0), MXT_TIMEOUT);
 	mWatchdog[1] = new serial::Watchdog(std::move(c1), MXT_TIMEOUT);
 
-	lib::Timer::Class::sleep(100);
-	MXT_LOG("Done setting up");
-
 }
 
 void Watchdog::teardown(void)
 {
-	MXT_LOG("deleting watchdogs");
 	delete mWatchdog[0];
 	delete mWatchdog[1];
-	MXT_LOG("done");
 //	delete mConnections[0];
 //	delete mConnections[1];
 }
@@ -66,20 +53,42 @@ void Watchdog::define(void)
 {
 	UNIT_TEST("can setup a watchdog")
 	{
-//		auto r = lib::Timer::instance().elapsed();
+	};
 
+	UNIT_TEST("sends packets")
+	{
+		auto r = lib::Timer::instance().elapsed();
 
-//		MXT_LOG(lib::stringify("Has sent ", mConnections[0]->getSentPackets()));
+		lib::Timer::instance().sleep(10 * (MXT_TIMEOUT / 2));
 
-//		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		r = lib::Timer::instance().elapsed() - r;
+		r -= MXT_TIMEOUT / 4;
 
-		lib::Timer::Class::sleep(100);
+		ASSERT_APPROX_EQUALS(mConnections[0]->getSentPackets() / 2, r / (MXT_TIMEOUT / 2));
+	};
 
-//		lib::Timer::Class::sleep(MXT_TIMEOUT / 2 * 10);
+	UNIT_TEST("can communicate")
+	{
+		std::string cmp("Hello, World!");
+		serial::Client::buffer_t buf(cmp.cbegin(), cmp.cend());
 
-//		r = lib::Timer::instance().elapsed() - r;
-//
-//		ASSERT_TRUE(diff(mConnections[0]->getSentPackets(), r / (MXT_TIMEOUT / 2)) <= 1);
+		mWatchdog[0]->write(buf);
+
+		lib::Timer::instance().sleep(5);
+
+		auto r1 = mWatchdog[1]->read();
+
+		lib::Timer::instance().sleep(5);
+
+		mWatchdog[1]->write(r1);
+
+		lib::Timer::instance().sleep(5);
+
+		auto r2 = mWatchdog[0]->read();
+
+		lib::Timer::instance().sleep(5);
+
+		ASSERT_EACH_EQUALS(r2, cmp);
 	};
 }
 

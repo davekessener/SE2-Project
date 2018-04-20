@@ -2,8 +2,12 @@
 
 #include "lib/logger.h"
 
-#define MXT_N 16
-#define MXT_MIN(a,b) (((a)<(b))?(a):(b))
+// #define LOG_DUMMY
+
+#ifdef LOG_DUMMY
+#	define MXT_N 16
+#	define MXT_MIN(a,b) (((a)<(b))?(a):(b))
+#endif
 
 namespace esep { namespace serial {
 
@@ -36,6 +40,12 @@ void DummyConnection::write(const byte_t * const p, const size_t n)
 
 	++mSentPackets;
 
+#ifndef LOG_DUMMY
+	for(uint i = 0 ; i < n ; ++i)
+	{
+		mBuffer->insert(mTransform(p[i], i));
+	}
+#else
 	std::vector<byte_t> b(n);
 
 	for(uint i = 0 ; i < n ; ++i)
@@ -58,6 +68,7 @@ void DummyConnection::write(const byte_t * const p, const size_t n)
 	}
 
 	MXT_LOG(lib::stringify("Sent packet (", n, ") [",ss.str(), "]"));
+#endif
 }
 
 void DummyConnection::read(byte_t *p, size_t n)
@@ -65,16 +76,19 @@ void DummyConnection::read(byte_t *p, size_t n)
 	if(!isOpen())
 		MXT_THROW_EX(Connection::ConnectionClosedException);
 
+#ifdef LOG_DUMMY
 	auto l = n;
 	auto o = p;
+#endif
 
 	try
 	{
 		while(n--)
 		{
-			byte_t v = mCounterpart->mBuffer->remove();
+			if(!isOpen())
+				MXT_THROW_EX(Connection::ConnectionClosedException);
 
-			*(p++) = v;
+			*(p++) = mCounterpart->mBuffer->remove();
 		}
 	}
 	catch(const buffer_t::InterruptedException& e)
@@ -82,6 +96,7 @@ void DummyConnection::read(byte_t *p, size_t n)
 		MXT_THROW_EX(Connection::ConnectionClosedException);
 	}
 
+#ifdef LOG_DUMMY
 	std::stringstream ss;
 
 	for(uint i = 0, ll = MXT_MIN(MXT_N, l) ; i < ll ; ++i)
@@ -93,6 +108,7 @@ void DummyConnection::read(byte_t *p, size_t n)
 		ss << " ...";
 
 	MXT_LOG(lib::stringify("Received packet (", l, ") [", ss.str(), "]"));
+#endif
 }
 
 void DummyConnection::close(void)

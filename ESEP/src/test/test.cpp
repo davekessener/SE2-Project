@@ -21,9 +21,11 @@
 
 namespace esep { namespace test {
 
-std::string runUnitTests(void)
+void runUnitTests(void)
 {
-	std::stringstream ss;
+	std::stringstream logger;
+
+	auto *os = lib::Logger::instance().setEcho(&logger);
 
 	auto r = unit::Manager::instance()
 		.addTest<unit::CRC32>()
@@ -31,41 +33,43 @@ std::string runUnitTests(void)
 		.addTest<unit::FSM>()
 		.addTest<unit::ByteStream>()
 		.addTest<unit::QNXConnections>()
+		.addTest<unit::SyncContainer>()
 		.addTest<unit::Timer>()
 		.addTest<unit::DummyConnection>()
-		.addTest<unit::SyncContainer>()
-//		.addTest<unit::SerialClient>()
-//		.addTest<unit::Watchdog>()
+		.addTest<unit::SerialClient>()
+		.addTest<unit::Watchdog>()
 		.run();
 
-	ss << "\nRunning automatic unit test suites:\n";
+	uint w = 0;
 
 	for(const auto& t : r)
 	{
-		ss << t.first << ": ";
+		if(t.first.size() > w) w = t.first.size();
+	}
+
+	for(const auto& t : r)
+	{
+		uint succ = 0, total = t.second.first.size();
 
 		for(const auto& p : t.second.first)
 		{
 			if(p.first == unit::TestSuite::Result::SUCCESS)
 			{
-				ss << ".";
-			}
-			else
-			{
-				ss << "E";
+				++succ;
 			}
 		}
 
-		ss << "\n";
-	}
+		uint p = succ * 100 / total;
 
-	ss << "\n";
+		std::cout << std::setw(w) << t.first << ": " << std::setw(3) << p << "% [" << std::setw(2) << succ << " / "
+				  << std::setw(2) << total << "] tests successful\n";
+	}
 
 	for(const auto& t : r)
 	{
 		if(!t.second.second.empty())
 		{
-			ss << t.first << " has encountered a critical error: " << t.second.second << "!\n";
+			std::cout << t.first << " has encountered a critical error: " << t.second.second << "!\n";
 		}
 	}
 
@@ -75,19 +79,21 @@ std::string runUnitTests(void)
 		{
 			if(p.first == unit::TestSuite::Result::FAILURE)
 			{
-				ss << t.first << ": " << p.second << "\n";
+				std::cout << "[ERR] " << t.first << ": " << p.second << "\n";
 			}
 		}
 	}
 
-	return ss.str();
+	lib::Logger::instance().setEcho(os);
+
+	std::cout << "\n" << logger.str() << std::flush;
 }
 
 void main(const lib::args_t& args)
 {
-	std::cout << runUnitTests() << std::endl;
+	runUnitTests();
 
-	std::cout << "Goodbye." << std::endl;
+	std::cout << "\nGoodbye." << std::endl;
 }
 
 }}

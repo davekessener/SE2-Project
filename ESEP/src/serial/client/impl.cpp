@@ -39,10 +39,10 @@ BSPClient::Impl::Impl(BSPClient::connection_ptr c)
 					mWriter.acknowledge(0, packet::Type::AP_ERR);
 					mReader.reset();
 				}
-				catch(const types::storage_t::InterruptedException& e)
-				{
-				}
 			}
+		}
+		catch(const types::storage_t::InterruptedException& e)
+		{
 		}
 		catch(const Connection::ConnectionClosedException& e)
 		{

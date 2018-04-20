@@ -6,59 +6,67 @@ namespace esep { namespace serial {
 
 Watchdog::Watchdog(client_ptr c, uint t)
 	: mClient(std::move(c))
-//	, mTimeout(t)
+	, mTimeout(t)
 {
 	mLastRead = mLastWrite = lib::Timer::instance().elapsed();
 	mTimedOut = false;
 	mRunning = true;
 
-	auto timer = [this](void) -> bool {
-		auto e = lib::Timer::instance().elapsed();
-
-		if(e - mLastWrite > mTimeout / 2)
+	auto timer = [this](void) {
+		if(mRunning.load())
+		try
 		{
-			Client::buffer_t b;
+			auto e = lib::Timer::instance().elapsed();
 
-			b.push_back(static_cast<byte_t>(Packet::WATCHDOG));
+			if(e - mLastWrite > mTimeout / 2)
+			{
+				Client::buffer_t b;
 
-			sendPacket(b);
+				b.push_back(static_cast<byte_t>(Packet::WATCHDOG));
+
+				sendPacket(b);
+			}
 		}
-
-		return mRunning.load();
+		catch(const Connection::ConnectionClosedException& e)
+		{
+		}
 	};
 
-//	mTimerID = lib::Timer::instance().registerCallback(timer, mTimeout / 2, mTimeout / 2);
+	mTimer = lib::Timer::instance().registerCallback(timer, mTimeout / 2, mTimeout / 2);
 
-//	mReaderThread.construct([this](void) {
-//		try
-//		{
-//			while(mRunning.load())
-//			{
-//				auto b = mClient->read();
-//
-//				mLastRead = lib::Timer::instance().elapsed();
-//
-//				if(!b.empty() && b.front() == static_cast<byte_t>(Packet::DATA))
-//				{
-//					b.erase(b.begin());
-//
-//					mReadBuf.insert(b);
-//				}
-//			}
-//		}
-//		MXT_CATCH_STRAY
-//	});
+	mReaderThread.construct([this](void) {
+		try
+		{
+			while(mRunning.load())
+			{
+				auto b = mClient->read();
+
+				mLastRead = lib::Timer::instance().elapsed();
+
+				if(!b.empty() && b.front() == static_cast<byte_t>(Packet::DATA))
+				{
+					b.erase(b.begin());
+
+					mReadBuf.insert(b);
+				}
+			}
+		}
+		catch(const Connection::ConnectionClosedException& e)
+		{
+		}
+		MXT_CATCH_STRAY
+	});
 }
 
 Watchdog::~Watchdog(void)
 {
-//	mRunning.store(false);
+	mRunning = false;
 
-//	lib::Timer::instance().unregisterCallback(mTimerID);
+	lib::Timer::instance().unregisterCallback(mTimer);
 
-//	mClient.reset();
+	mClient.reset();
 
-//	mReaderThread.join();
+	mReaderThread.join();
 }
 
 void Watchdog::sendPacket(const Client::buffer_t& b)

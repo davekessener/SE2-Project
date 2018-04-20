@@ -57,6 +57,7 @@ namespace
 Base::Base(void)
 	: mThreshold(static_cast<uint>(Severity::WARNING))
 	, mPolicy(EchoPolicy::EXCLUDE)
+	, mEcho(&std::cout)
 {
 	setFormat(MXT_DEFAULT_FORMAT);
 	setFormatter([](uint t)               -> std::string { return lib::stringify(t); });
@@ -114,7 +115,7 @@ void Base::log(uint time, tid_t tid, Section section, Severity severity, const s
 
 void Base::doEcho(const std::string& msg)
 {
-	std::cout << msg << std::endl;
+	(*mEcho) << msg << std::endl;
 }
 
 // # ====================================================================================================

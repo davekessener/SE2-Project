@@ -34,7 +34,7 @@ namespace esep
 
 			private:
 				client_ptr mClient;
-				lib::Timer::Class::id_t mTimerID;
+				lib::Timer::Class::TimerManager mTimer;
 				uint64_t mLastRead, mLastWrite;
 				uint mTimeout;
 				lib::Thread mReaderThread;

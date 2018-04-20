@@ -83,10 +83,7 @@ void DummyConnection::define(void)
 		const size_t n = cmp.size();
 		std::vector<byte_t> target(n);
 
-		byte_t *p1 = (byte_t *) cmp.c_str();
-		byte_t *p2 = (byte_t *) &target.front();
-		int some_var = 0;
-		size_t l1, l2;
+		const byte_t *p = (const byte_t *) cmp.c_str();
 
 		{
 			lib::Thread reader([&target, this, n](void) {
@@ -99,32 +96,14 @@ void DummyConnection::define(void)
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-			mConnections[1]->write(p1, n - 5);
+			mConnections[1]->write(p, n - 5);
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-			mConnections[1]->write(p1 + n - 5, 5);
+			mConnections[1]->write(p + n - 5, 5);
 		}
 
-		do {
-			auto& aobj(target);
-			auto& bobj(cmp);
-			MXT_LOG(lib::stringify("Size of cmp is ", bobj.size()));
-//			auto aobj(lib::wrap_container(target));
-//			auto bobj(lib::wrap_container(cmp));
-			auto i1 = std::begin(aobj), i2 = std::end(aobj);
-			auto j1 = std::begin(bobj);
-			if((l1 = aobj.size()) != (l2 = bobj.size()))
-				MXT_THROW_E(std::logic_error, "Container have different sizes: ", aobj.size(), " and ", bobj.size(), "!");
-			for(size_t i = 0 ; i1 != i2 ; ++i1, ++j1, ++i) {
-				if(*i1 != *j1)
-					MXT_THROW_E(std::logic_error, "Elements @", i, " differ: Expected ", *j1, " but got ", *i1, " instead!");
-			} } while(0);
-
-		some_var = 1;
-
-//		ASSERT_EQUALS(target.size(), cmp.size());
-//		ASSERT_EACH_EQUALS(target, cmp);
+		ASSERT_EACH_EQUALS(target, cmp);
 	};
 
 	UNIT_TEST("throws exception during read if closed in another thread")
