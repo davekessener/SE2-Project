@@ -12,7 +12,9 @@
 
 namespace esep { namespace hal {
 
-
+/**
+ * Base addresses of the GPIO blocks
+ */
 constexpr uint32_t GPIO_BASE_0 = 0x44E07000; // Sensors
 constexpr uint32_t GPIO_BASE_1 = 0x4804C000; // Actors /wo LEDs
 constexpr uint32_t GPIO_BASE_2 = 0x481AC000; // LEDs
@@ -40,6 +42,7 @@ Physical::Physical(void)
 			qnx::Channel channel;
 
 			mConnection = channel.connect();
+			// Send a Code::INTERRUPT pulse msg when an interrupt in GPIO Block 0 occurs
 			channel.registerInterruptListener(mConnection, *mGPIOs[0], static_cast<int8_t>(Code::INTERRUPT));
 
 			updateSensors();
@@ -94,6 +97,8 @@ Physical::Physical(void)
 		mThreadAlive = false;
 	});
 
+	// Wait until the thread has either reached it's main loop
+	// or died and quit.
 	while(mThreadAlive.load() && !mRunning.load())
 	{
 		lib::Timer::instance().sleep(1);
@@ -103,6 +108,7 @@ Physical::Physical(void)
 Physical::~Physical(void)
 {
 	mRunning = false;
+
 	try
 	{
 		mConnection.sendPulse(static_cast<int8_t>(Code::SHUTDOWN));
@@ -121,7 +127,7 @@ void Physical::updateSensors(void)
 
 void Physical::onGPIO(uint b, gpio_fn f, uint32_t v)
 {
-	((mGPIOs[b].get())->*f)(v);
+	((mGPIOs[b].get())->*f)(v); // calls the GPIO member function 'f' on GPIO object #b
 }
 
 void Physical::out(Field f, uint32_t v)

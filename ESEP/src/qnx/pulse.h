@@ -14,6 +14,8 @@ namespace esep
 
 			pulse_t( ) : code(0), value(0) { }
 			pulse_t(int8_t c, uint32_t v) : code(c), value(v) { }
+			template<typename C, typename V>
+				pulse_t(C&& c, V&& v) : code(static_cast<int8_t>(c)), value(static_cast<uint32_t>(v)) { }
 		};
 
 		static constexpr int INVALID_ID = -1;

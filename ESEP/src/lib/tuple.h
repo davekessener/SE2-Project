@@ -8,6 +8,28 @@ namespace esep
 {
 	namespace lib
 	{
+		/**
+		 * Tuple template
+		 *
+		 * Stores a variable amount of object of different types.
+		 *
+		 * Example:
+		 * 		// objects of type my_tuple_t hold two ints, a double and a string
+		 * 		typedef lib::MakeTuple<int, double, std::string, int> my_tuple_t;
+		 *
+		 * 		my_tuple_t tuple_object; // uses default constructor for its elements
+		 * 		my_tuple_t other_tuple(7, 3.141, "Sample Text", 42); // constructs tuple by invoking the copy-constructor for its elements
+		 *
+		 * 		// members of a tuple can be accessed by both its type as well as its position
+		 * 		// within the defining list of types.
+		 * 		// if a tuple has multiple members with the same type they can only be accessed
+		 * 		// with their index
+		 * 		tuple_object.get<double>() = 2.76; // tuple_object's double member now holds 2.76
+		 * 		other_tuple.get<0>() *= 2; // other_tuple's first int member now holds 14
+		 *
+		 * 		std::cout << other_tuple.get<2>() << std::endl; // prints 'Sample Text' to cout
+		 */
+
 		namespace tuple
 		{
 			using tml::TypeList;

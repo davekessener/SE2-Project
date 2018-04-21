@@ -17,6 +17,11 @@ namespace esep
 {
 	namespace lib
 	{
+		/**
+		 * Wrapper for std::thread
+		 *
+		 * Provides automatic join() call in destructor.
+		 */
 		class Thread
 		{
 			public:

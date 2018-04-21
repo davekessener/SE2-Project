@@ -50,15 +50,19 @@ namespace esep
 			};
 			static constexpr size_t N_EVENTS = sizeof(EVENTS) / sizeof(Event);
 
+			/**
+			 * Type of the event handler used by the HAL class to
+			 * react to Events send by the sensors
+			 */
 			typedef std::function<void(Event)> callback_t;
 
 			public:
 				virtual ~HAL( ) { }
 				virtual uint32_t in(Field) = 0;
 				virtual void out(Field, uint32_t) = 0;
-				virtual void setCallback(callback_t) = 0;
 				virtual void set(Field, bitmask_t) = 0;
 				virtual void reset(Field, bitmask_t) = 0;
+				virtual void setCallback(callback_t) = 0;
 			private:
 		};
 	}

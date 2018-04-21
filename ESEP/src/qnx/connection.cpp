@@ -44,7 +44,7 @@ Connection& Connection::operator=(const Connection& c)
 	return *this;
 }
 
-void Connection::swap(Connection& c)
+void Connection::swap(Connection& c) noexcept
 {
 	std::swap(mID, c.mID);
 	std::swap(mRef, c.mRef);

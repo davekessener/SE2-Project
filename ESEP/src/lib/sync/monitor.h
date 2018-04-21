@@ -9,6 +9,13 @@ namespace esep
 {
 	namespace sync
 	{
+		/**
+		 * Synchronizes access to an object.
+		 *
+		 * The held object can be accessed by passing a functor
+		 * to the monitors operator() that accepts a reference
+		 * to the held object as parameter.
+		 */
 		template<typename T>
 		class Monitor
 		{
@@ -19,7 +26,7 @@ namespace esep
 					explicit Monitor(TT&& o) : mObject(o) { }
 				Monitor( ) { }
 				template<typename F>
-					auto operator()(F&&) -> typename lib::FunctionTraits<F>::return_type;
+					typename lib::FunctionTraits<F>::return_type operator()(F&&);
 			private:
 				T mObject;
 				std::mutex mMutex;
@@ -27,7 +34,7 @@ namespace esep
 
 		template<typename T>
 		template<typename F>
-		auto Monitor<T>::operator()(F&& f) -> typename lib::FunctionTraits<F>::return_type
+		typename lib::FunctionTraits<F>::return_type Monitor<T>::operator()(F&& f)
 		{
 			lock_t lock(mMutex);
 

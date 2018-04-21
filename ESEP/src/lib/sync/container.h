@@ -15,6 +15,23 @@ namespace esep
 {
 	namespace sync
 	{
+		/**
+		 * Thread-safe container for objects of type T.
+		 *
+		 * Can be instantiated with a custom:
+		 * - container type C (defaults to std::deque<T>)
+		 * - Access functor (defaults to wrapper of C::front)
+		 * - Insert functor (defaults to wrapper of C::push_back)
+		 * - Remove functor (defaults to wrapper of C::pop_front)
+		 *
+		 * The remove() method blocks and suspends the calling thread
+		 * until an object to be removed is inserted into the Container.
+		 *
+		 * While a thread is blocked in remove() another thread may
+		 * interrupt it by either calling the interrupt() method or
+		 * destroying the Container object. In that case the receive()
+		 * call is terminated by throwing an InterruptedException.
+		 */
 		template
 		<
 			typename T,

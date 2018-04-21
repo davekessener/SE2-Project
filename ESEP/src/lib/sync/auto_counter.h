@@ -5,6 +5,11 @@ namespace esep
 {
 	namespace sync
 	{
+		/**
+		 * Automatic counter utility.
+		 * Increments an object in constructor and
+		 * decrements it in a destructor
+		 */
 		template<typename T>
 		class AutoCounter
 		{

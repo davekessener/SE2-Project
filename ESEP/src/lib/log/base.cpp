@@ -29,9 +29,9 @@ const char * const FORMAT_ARGS[] = {
 	"source"
 };
 
-constexpr uint N_SECTIONS = sizeof(SECTIONS) / sizeof(*SECTIONS);
-constexpr uint N_SEVERITIES = sizeof(SEVERITIES) / sizeof(*SEVERITIES);
-constexpr uint N_FORMATS = sizeof(FORMAT_ARGS) / sizeof(*FORMAT_ARGS);
+constexpr uint N_SECTIONS   = sizeof(SECTIONS)    / sizeof(*SECTIONS);
+constexpr uint N_SEVERITIES = sizeof(SEVERITIES)  / sizeof(*SEVERITIES);
+constexpr uint N_FORMATS    = sizeof(FORMAT_ARGS) / sizeof(*FORMAT_ARGS);
 
 // # ============================================================================================
 

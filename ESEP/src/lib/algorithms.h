@@ -5,6 +5,10 @@ namespace esep
 {
 	namespace lib
 	{
+		/**
+		 * Calculates simple XOR checksum of
+		 * passed iterable object of type T
+		 */
 		template<typename T>
 		byte_t checksum(T&& o)
 		{

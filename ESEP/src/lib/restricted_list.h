@@ -9,6 +9,12 @@ namespace esep
 {
 	namespace lib
 	{
+		/**
+		 * Wrapper for an std::array.
+		 *
+		 * Allows for insertion into a full container
+		 * by overwriting the oldest entry.
+		 */
 		template<typename T, size_t N>
 		class RestrictedList
 		{

@@ -18,6 +18,12 @@ namespace esep
 	{
 		class Physical : public Buffer
 		{
+			private:
+			/**
+			 * Codes that the Physical object can receive
+			 * in pulse messages.
+			 * For internal use only
+			 */
 			enum class Code : int8_t
 			{
 				SHUTDOWN,
