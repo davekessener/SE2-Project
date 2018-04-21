@@ -139,9 +139,14 @@ void Impl::update(void)
 {
 	mUpdating = true;
 
-	auto timer_copy(mTimers);
-
+	decltype(mTimers) timer_copy;
 	std::vector<id_t> timer_to_delete;
+
+	{
+		lock_t lock(mMutex);
+
+		timer_copy = mTimers;
+	}
 
 	for(auto& i : timer_copy)
 	{
