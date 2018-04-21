@@ -4,10 +4,6 @@
 
 #define MXT_1MS_IN_NS 1000000l
 
-#include "lib/logger.h"
-
-#define MXT_1MS_IN_NS 1000000l
-
 namespace esep { namespace lib { namespace timer {
 
 Impl::TimerManager::TimerManager(TimerManager&& tm)
@@ -46,7 +42,7 @@ Impl::Impl(void)
 	mUpdating = false;
 	mNextID = INVALID_TIMER_ID + 1;
 
-	mTimerThread = std::thread([this](void) {
+	mTimerThread.construct([this](void) {
 		try
 		{
 			qnx::Channel channel;
@@ -55,7 +51,7 @@ Impl::Impl(void)
 
 			channel.registerTimerListener(mConnection, static_cast<int8_t>(Code::EXPIRED), MXT_1MS_IN_NS);
 
-			while(mRunning)
+			while(mRunning.load())
 			{
 				qnx::pulse_t p = channel.receivePulse();
 
@@ -63,26 +59,21 @@ Impl::Impl(void)
 				{
 				case static_cast<int8_t>(Code::SHUTDOWN):
 					break;
+
 				case static_cast<int8_t>(Code::EXPIRED):
 					if(mUpdating.load())
 					{
-						throw TimerOverflowException();
+						MXT_THROW_EX(TimerOverflowException);
 					}
 					update();
 					break;
+
 				default:
-					MXT_LOG(lib::stringify("Received unknown pulse msg {", (int)p.code, ", ", lib::hex<32>(p.value), " (", p.value, ")}"));
+					MXT_LOG(stringify("Received unknown pulse msg {", hex<8>(p.code), ", ", hex<32>(p.value), " (", p.value, ")}"));
 				}
 			}
 		}
-		catch(const std::string& e)
-		{
-			MXT_LOG(lib::stringify("Caught a stray string: ", e));
-		}
-		catch(const std::exception& e)
-		{
-			MXT_LOG(lib::stringify("Caught a stray exeception: ", e.what()));
-		}
+		MXT_CATCH_ALL_STRAY
 	});
 }
 
@@ -98,13 +89,6 @@ Impl::~Impl(void)
 	{
 		MXT_LOG("Failed to send shutdown signal; may hang!");
 	};
-
-	mTimerThread.join();
-}
-
-void Impl::reset(void)
-{
-	mSystemStart = std::chrono::system_clock::now();
 }
 
 Impl::TimerManager Impl::registerCallback(callback_t f, uint o, uint p)

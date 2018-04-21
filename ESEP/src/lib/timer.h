@@ -2,7 +2,6 @@
 #define ESEP_LIB_TIMER_H
 
 #include <functional>
-#include <thread>
 #include <atomic>
 #include <mutex>
 #include <chrono>
@@ -11,6 +10,7 @@
 
 #include "lib/utils.h"
 #include "lib/singleton.h"
+#include "lib/thread.h"
 #include "qnx/channel.h"
 
 namespace esep
@@ -23,13 +23,15 @@ namespace esep
 			{
 				private:
 				typedef uint32_t id_t;
+				typedef std::unique_lock<std::mutex> lock_t;
+
+				static constexpr id_t INVALID_TIMER_ID = 0;
+
 
 				public:
 				typedef std::function<void(void)> callback_t;
 
-				struct TimerOverflowException : public std::exception { };
-
-				static constexpr id_t INVALID_TIMER_ID = 0;
+				MXT_DEFINE_E(TimerOverflowException);
 
 				class TimerManager
 				{
@@ -53,6 +55,7 @@ namespace esep
 						friend class Impl;
 				};
 
+
 				private:
 				enum class Code : int8_t
 				{
@@ -70,7 +73,6 @@ namespace esep
 						: id(id), f(f), next(n), period(p) { }
 				};
 
-				typedef std::unique_lock<std::mutex> lock_t;
 
 				public:
 					Impl( );
@@ -79,14 +81,14 @@ namespace esep
 					void unregisterCallback(const TimerManager&);
 					uint64_t elapsed( );
 					static void sleep(uint t) { std::this_thread::sleep_for(std::chrono::milliseconds(t)); }
-					void reset( );
+					void reset( ) { mSystemStart = std::chrono::system_clock::now(); }
 				private:
 					void update( );
 
 				private:
 					std::chrono::time_point<std::chrono::system_clock> mSystemStart;
 					qnx::Connection mConnection;
-					std::thread mTimerThread;
+					lib::Thread mTimerThread;
 					std::atomic<bool> mRunning, mUpdating;
 					std::map<id_t, Timer> mTimers;
 					std::mutex mMutex;
