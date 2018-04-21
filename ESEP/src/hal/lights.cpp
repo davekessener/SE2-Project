@@ -42,32 +42,29 @@ void Lights::SingleLight::flash(uint p)
 
 	doTurnOn();
 	mState = State::FLASHING_ON;
-	mTimer = lib::Timer::instance().registerCallback([this](void) -> bool {
+	mTimer = lib::Timer::instance().registerCallback([this](void) {
 		switch(mState)
 		{
 		case State::FLASHING_ON:
 			doTurnOff();
 			mState = State::FLASHING_OFF;
 			break;
+
 		case State::FLASHING_OFF:
 			doTurnOn();
 			mState = State::FLASHING_ON;
 			break;
-		default:
-			MXT_LOG("This should not happen!");
-			return false;
-		}
 
-		return true;
+		default:
+			break;
+		}
 	}, p / 2, p / 2);
 }
 
 void Lights::SingleLight::turnOn(void)
 {
 	removeTimer();
-
 	mState = State::ON;
-
 	doTurnOn();
 }
 

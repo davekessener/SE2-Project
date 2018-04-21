@@ -37,8 +37,18 @@ namespace esep
 				BTN_ESTOP = 27
 			};
 
-			static const Event EVENTS[];
-			static constexpr uint N_EVENTS = 9;
+			static constexpr Event EVENTS[] = {
+				Event::LB_START,
+				Event::LB_END,
+				Event::LB_HEIGHTSENSOR,
+				Event::LB_RAMP,
+				Event::LB_SWITCH,
+				Event::BTN_START,
+				Event::BTN_STOP,
+				Event::BTN_RESET,
+				Event::BTN_ESTOP
+			};
+			static constexpr size_t N_EVENTS = sizeof(EVENTS) / sizeof(Event);
 
 			typedef std::function<void(Event)> callback_t;
 

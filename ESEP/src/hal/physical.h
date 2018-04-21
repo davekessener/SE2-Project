@@ -2,6 +2,7 @@
 #define ESEP_HAL_PHYSICAL_H
 
 #include <atomic>
+#include <memory>
 
 #include "lib/utils.h"
 #include "lib/thread.h"
@@ -47,9 +48,9 @@ namespace esep
 				void sendGPIOPulse(Field, uint, uint);
 
 			private:
-				GPIO *mGPIOs[MXT_NGPIOS];
+				std::unique_ptr<GPIO> mGPIOs[MXT_NGPIOS];
 				lib::Thread mHALThread;
-				std::atomic<bool> mRunning;
+				std::atomic<bool> mRunning, mThreadAlive;
 				qnx::Connection mConnection;
 		};
 	}

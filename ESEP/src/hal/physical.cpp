@@ -6,55 +6,40 @@
 #include <sys/mman.h>
 
 #include "hal/physical.h"
-#include "lib/array_constructor.h"
 #include "lib/logger.h"
 #include "qnx/pulse.h"
 #include "qnx/channel.h"
 
-#define MXT_OUT 0
-#define MXT_SET 1
-#define MXT_RESET 2
-
-#define MXT_ASS(f,fn,i) ((static_cast<uint>(f) << 24) | ((fn) << 16) | (i))
-
-#define MXT_GETBLOCK(v) (((v)>>24)&0xff)
-#define MXT_GETF(v) (((v)>>16)&0xff)
-#define MXT_GETPIN(v) ((v)&0xffff)
-
 namespace esep { namespace hal {
 
-const uint32_t GPIO_BASE_0 = 0x44E07000; // PORT B
-const uint32_t GPIO_BASE_1 = 0x4804C000; // PORT A
-const uint32_t GPIO_BASE_2 = 0x481AC000; // PORT C
+
+constexpr uint32_t GPIO_BASE_0 = 0x44E07000; // Sensors
+constexpr uint32_t GPIO_BASE_1 = 0x4804C000; // Actors /wo LEDs
+constexpr uint32_t GPIO_BASE_2 = 0x481AC000; // LEDs
+
 
 Physical::Physical(void)
 {
 	mRunning = false;
-	mGPIOs[0] = nullptr;
-	mGPIOs[1] = nullptr;
-	mGPIOs[2] = nullptr;
+	mThreadAlive = true;
 
 	mHALThread.construct([this](void) {
 		try
 		{
-			lib::ArrayConstructor<GPIO> buf(mGPIOs);
-
 			if(ThreadCtl(_NTO_TCTL_IO_PRIV, 0) == -1)
 			{
-				throw lib::stringify("Error in ThreadCtl!");
+				MXT_THROW("Failed to aquire HW rights via ThreadCtl!");
 			}
 
-			buf.add(new GPIO(GPIO_BASE_0));
-			buf.add(new GPIO(GPIO_BASE_1));
-			buf.add(new GPIO(GPIO_BASE_2));
+			mGPIOs[0].reset(new GPIO(GPIO_BASE_0));
+			mGPIOs[1].reset(new GPIO(GPIO_BASE_1));
+			mGPIOs[2].reset(new GPIO(GPIO_BASE_2));
 
 			mGPIOs[2]->configureForOutput();
 
-			buf.finalize();
-
 			qnx::Channel channel;
-			mConnection = channel.connect();
 
+			mConnection = channel.connect();
 			channel.registerInterruptListener(mConnection, *mGPIOs[0], static_cast<int8_t>(Code::INTERRUPT));
 
 			updateSensors();
@@ -68,54 +53,51 @@ Physical::Physical(void)
 				{
 				case static_cast<int8_t>(Code::SHUTDOWN):
 					break;
+
 				case static_cast<int8_t>(Code::GPIO_1_OUT):
 					onGPIO(1, &GPIO::write, p.value);
 					break;
+
 				case static_cast<int8_t>(Code::GPIO_2_OUT):
 					onGPIO(2, &GPIO::write, p.value);
 					break;
+
 				case static_cast<int8_t>(Code::GPIO_1_SET):
 					onGPIO(1, &GPIO::setBits, p.value);
 					break;
+
 				case static_cast<int8_t>(Code::GPIO_2_SET):
 					onGPIO(2, &GPIO::setBits, p.value);
 					break;
+
 				case static_cast<int8_t>(Code::GPIO_1_RESET):
 					onGPIO(1, &GPIO::resetBits, p.value);
 					break;
+
 				case static_cast<int8_t>(Code::GPIO_2_RESET):
 					onGPIO(2, &GPIO::resetBits, p.value);
 					break;
+
 				case static_cast<int8_t>(Code::INTERRUPT):
 					updateSensors();
 					break;
+
 				default:
-					MXT_LOG(lib::stringify("Received pulse: ", (uint)p.code, ", ", lib::hex<32>(p.value)));
+					MXT_LOG(lib::stringify("Received pulse {", lib::hex<8>(p.code), ", ", lib::hex<32>(p.value), "}"));
 					break;
 				}
 			}
+		}
+		MXT_CATCH_ALL_STRAY
 
-			mConnection.close();
-		}
-		catch(const std::string& e)
-		{
-			MXT_LOG(lib::stringify("Could not initialize HAL: ", e));
-		}
-		catch(const std::exception& e)
-		{
-			MXT_LOG(lib::stringify("Could not initialize HAL: ", e.what()));
-		}
-		catch(...)
-		{
-			MXT_LOG("Could not initialize HAL: [unknown error]");
-		}
-
-		delete mGPIOs[0];
-		delete mGPIOs[1];
-		delete mGPIOs[2];
+		mConnection.close();
+		mThreadAlive = false;
 	});
 
-	lib::Timer::instance().sleep(100);
+	while(mThreadAlive.load() && !mRunning.load())
+	{
+		lib::Timer::instance().sleep(1);
+	}
 }
 
 Physical::~Physical(void)
@@ -139,21 +121,30 @@ void Physical::updateSensors(void)
 
 void Physical::onGPIO(uint b, gpio_fn f, uint32_t v)
 {
-	(mGPIOs[b]->*f)(v);
+	((mGPIOs[b].get())->*f)(v);
 }
 
 void Physical::out(Field f, uint32_t v)
 {
+	if(f != Field::GPIO_1 && f != Field::GPIO_2)
+		MXT_THROW(lib::stringify("Tried to write ", lib::hex<32>(v), " to ", static_cast<uint>(f), "!"));
+
 	mConnection.sendPulse(qnx::pulse_t(static_cast<int8_t>(f == Field::GPIO_1 ? Code::GPIO_1_OUT : Code::GPIO_2_OUT), v));
 }
 
 void Physical::set(Field f, bitmask_t v)
 {
+	if(f != Field::GPIO_1 && f != Field::GPIO_2)
+		MXT_THROW(lib::stringify("Tried to set bits ", lib::hex<32>(v), " to ", static_cast<uint>(f), "!"));
+
 	mConnection.sendPulse(qnx::pulse_t(static_cast<int8_t>(f == Field::GPIO_1 ? Code::GPIO_1_SET : Code::GPIO_2_SET), v));
 }
 
 void Physical::reset(Field f, bitmask_t v)
 {
+	if(f != Field::GPIO_1 && f != Field::GPIO_2)
+		MXT_THROW(lib::stringify("Tried to reset bits ", lib::hex<32>(v), " to ", static_cast<uint>(f), "!"));
+
 	mConnection.sendPulse(qnx::pulse_t(static_cast<int8_t>(f == Field::GPIO_1 ? Code::GPIO_1_RESET : Code::GPIO_2_RESET), v));
 }
 

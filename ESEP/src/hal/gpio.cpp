@@ -7,6 +7,7 @@
 
 #include "lib/logger.h"
 
+
 #define MXT_BASESIZE 0x010000
 #define MXT_OE_OFFSET 0x134
 #define MXT_OE_FLAGS 0xffffffc3
@@ -16,15 +17,17 @@
 #define MXT_READ	0x138 //Offset for register to read input bits
 #define MXT_WRITE	0x13C //Offset for register to write output bits directly
 
+#define	MXT_RISINGDETECT    	 0x148
+#define	MXT_FALLINGDETECT	     0x14C
+
 #define	MXT_LEVELDETECT(n) 		(0x140 + (n * 4))
-#define	MXT_RISINGDETECT    	0x148
-#define	MXT_FALLINGDETECT	    0x14C
 #define	MXT_IRQSTATUS(n)  		(0x02C + (n * 4))
 #define	MXT_IRQSTATUS_SET(n)	(0x034 + (n * 4))
 #define	MXT_IRQSTATUS_CLR(n)	(0x03C + (n * 4))
 
 #define MXT_GPIO_INT_LINE_1 0x0
 #define MXT_GPIO_INT_LINE_2 0x1
+
 
 namespace esep { namespace hal {
 
@@ -55,7 +58,7 @@ GPIO::GPIO(uint32_t a)
 {
 	if(mBaseAddr == MAP_DEVICE_FAILED)
 	{
-		throw lib::stringify("Failed to map @$", lib::hex<32>(a), "!");
+		MXT_THROW("Failed to map GPIO @$", lib::hex<32>(a), "!");
 	}
 }
 
@@ -93,10 +96,10 @@ void GPIO::makeEdgeSensitive(void)
 {
 	static const uint32_t pins = bitmaskForAllSensors();
 
-	*(int*)(mBaseAddr + MXT_RISINGDETECT) |= pins;
-	*(int*)(mBaseAddr + MXT_FALLINGDETECT) |= pins;
-	*(int*)(mBaseAddr + MXT_LEVELDETECT(0)) &= ~pins;
-	*(int*)(mBaseAddr + MXT_LEVELDETECT(1)) &= ~pins;
+	*reinterpret_cast<int *>(mBaseAddr + MXT_RISINGDETECT)   |=  pins;
+	*reinterpret_cast<int *>(mBaseAddr + MXT_FALLINGDETECT)  |=  pins;
+	*reinterpret_cast<int *>(mBaseAddr + MXT_LEVELDETECT(0)) &= ~pins;
+	*reinterpret_cast<int *>(mBaseAddr + MXT_LEVELDETECT(1)) &= ~pins;
 }
 
 void GPIO::clearInterruptFlags(void)
