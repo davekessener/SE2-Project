@@ -73,7 +73,7 @@ void SerialConnectionTest::run()
 			}
 		}
 	}
-	catch(const serial::Connection::ConnectionClosedException& e)
+	catch(const ConnectionClosedException& e)
 	{
 		std::cout << "\nConnection was terminated!" << std::endl;
 	}

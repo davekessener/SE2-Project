@@ -7,6 +7,8 @@
 #include "serial/bsp_client.h"
 #include "serial/watchdog.h"
 
+#include "lib/logger.h"
+
 #define MXT_SERIAL_DEVICE "/dev/ser4"
 
 namespace esep { namespace test { namespace functional {
@@ -50,7 +52,7 @@ void testWatchdog(void)
 				std::cout << "Read message: '" << str(p) << "'!" << std::endl;
 			}
 		}
-		catch(const serial::Connection::ConnectionClosedException& e)
+		catch(const ConnectionClosedException& e)
 		{
 			std::cout << "Connection was closed.\nPress [ENTER] to quit!" << std::endl;
 			mRunning = false;

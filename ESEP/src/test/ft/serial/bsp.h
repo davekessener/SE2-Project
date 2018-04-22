@@ -18,6 +18,7 @@ namespace esep
 				typedef std::unique_ptr<serial::Connection> connection_ptr;
 				typedef std::unique_ptr<serial::Client> client_ptr;
 				typedef serial::Client::buffer_t buffer_t;
+				typedef serial::Connection::ConnectionClosedException ConnectionClosedException;
 
 				public:
 					SerialConnectionTest();
