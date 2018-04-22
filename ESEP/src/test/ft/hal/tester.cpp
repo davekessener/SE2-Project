@@ -90,7 +90,7 @@ void HALTester::runTest(uint i)
 	auto no_handler = [](Event e) { };
 	test_fn f = mTests[i].second;
 
-	std::cout << "Running test T-" << std::setw(3) << std::setfill('0') << (i + 4) << "\n";
+	std::cout << "Running test " << mTests[i].first << "\n";
 
 	mHAL->setCallback([this, f](Event e) { (this->*f)(e); });
 
@@ -145,6 +145,7 @@ void HALTester::t_004(Event e)
 			});
 		}
 		break;
+
 	default:
 		break;
 	}
@@ -166,6 +167,7 @@ void HALTester::t_005(Event e)
 			});
 		}
 		break;
+
 	default:
 		break;
 	}
@@ -185,6 +187,7 @@ void HALTester::t_006(Event e)
 			MOTOR.stop();
 		}
 		break;
+
 	default:
 		break;
 	}
@@ -205,6 +208,7 @@ void HALTester::t_007(Event e)
 			MOTOR.stop();
 		}
 		break;
+
 	default:
 		break;
 	}
@@ -240,6 +244,7 @@ void HALTester::t_008(Event e)
 			}
 		}
 		break;
+
 	case Event::LB_SWITCH:
 		if(METAL_SENSOR.isMetal())
 		{
@@ -247,6 +252,7 @@ void HALTester::t_008(Event e)
 		}
 		MOTOR.left();
 		break;
+
 	default:
 		break;
 	}
@@ -262,6 +268,7 @@ void HALTester::t_009(Event e)
 			MOTOR.start();
 		}
 		break;
+
 	case Event::LB_SWITCH:
 		if(LIGHT_BARRIERS.isBroken(LightBarrier::LB_SWITCH))
 		{
@@ -269,19 +276,19 @@ void HALTester::t_009(Event e)
 		}
 		else
 		{
-			runIn(1000, [this](void) -> bool {
+			runIn(1000, [this](void) {
 				SWITCH.close();
-
-				return false;
 			});
 		}
 		break;
+
 	case Event::LB_END:
 		if(LIGHT_BARRIERS.isBroken(LightBarrier::LB_END))
 		{
 			MOTOR.stop();
 		}
 		break;
+
 	default:
 		break;
 	}
@@ -301,6 +308,7 @@ void HALTester::t_010(Event e)
 			LIGHTS.turnOff(Light::RED);
 		}
 		break;
+
 	default:
 		break;
 	}
@@ -316,20 +324,20 @@ void HALTester::t_011(Event e)
 			MOTOR.start();
 		}
 		break;
+
 	case Event::LB_RAMP:
 		clearTimers();
 
 		if(LIGHT_BARRIERS.isBroken(LightBarrier::LB_RAMP))
 		{
-			mTimers.emplace_back(lib::Timer::instance().registerCallback([this](void) -> bool {
+			runIn(500, [this](void) {
 				MOTOR.stop();
 				LEDS.turnOn(LED::RESET);
 				LIGHTS.flash(Light::YELLOW, 1000);
-
-				return false;
-			}, 500));
+			});
 		}
 		break;
+
 	case Event::BTN_RESET:
 		if(BUTTONS.isPressed(Button::RESET))
 		{
@@ -337,6 +345,7 @@ void HALTester::t_011(Event e)
 			LEDS.turnOff(LED::RESET);
 		}
 		break;
+
 	default:
 		break;
 	}
