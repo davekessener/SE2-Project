@@ -32,8 +32,11 @@ namespace esep
 				virtual ~Watchdog( );
 				virtual void write(const Client::buffer_t&);
 				virtual Client::buffer_t read( );
+				virtual bool connected( ) const { return mIsActive.load(); }
 			private:
 				void sendPacket(const Client::buffer_t&);
+				void sendWatchdog( )
+					{ Client::buffer_t b; b.push_back(static_cast<byte_t>(Packet::WATCHDOG)); sendPacket(b); }
 
 			private:
 				client_ptr mClient;

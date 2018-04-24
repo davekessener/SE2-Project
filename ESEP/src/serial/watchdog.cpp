@@ -18,16 +18,12 @@ Watchdog::Watchdog(client_ptr c, uint t)
 		{
 			auto e = lib::Timer::instance().elapsed();
 
-			if(!mIsActive.load() || e - mLastWrite.load() > mTimeout / 2)
+			if(e - mLastWrite.load() > mTimeout / 2)
 			{
-				Client::buffer_t b;
-
-				b.push_back(static_cast<byte_t>(Packet::WATCHDOG));
-
-				sendPacket(b);
+				sendWatchdog();
 			}
 
-			if(mIsActive.load() && e - mLastRead.load() > mTimeout)
+			if(e - mLastRead.load() > mTimeout)
 			{
 				mTimedOut = true;
 				mReadBuf.interrupt();
@@ -40,15 +36,23 @@ Watchdog::Watchdog(client_ptr c, uint t)
 		}
 	};
 
-	mReaderThread.construct([this](void) {
+	mReaderThread.construct([this, cb](void) {
 		try
 		{
+			sendWatchdog();
+
 			while(mRunning.load())
 			{
 				auto b = mClient->read();
 
 				mLastRead = lib::Timer::instance().elapsed();
-				mIsActive = true;
+
+				if(!mIsActive.load())
+				{
+					mIsActive = true;
+
+					mTimer = lib::Timer::instance().registerCallback(cb, 1, mTimeout / 4);
+				}
 
 				if(!b.empty() && b.front() == static_cast<byte_t>(Packet::DATA))
 				{
@@ -64,8 +68,6 @@ Watchdog::Watchdog(client_ptr c, uint t)
 		}
 		MXT_CATCH_STRAY
 	});
-
-	mTimer = lib::Timer::instance().registerCallback(cb, 1, mTimeout / 4);
 }
 
 Watchdog::~Watchdog(void)

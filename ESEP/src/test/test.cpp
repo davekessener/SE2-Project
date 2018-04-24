@@ -26,7 +26,7 @@
 
 namespace esep { namespace test {
 
-void runUnitTests(bool verbose = false)
+bool runUnitTests(bool verbose = false)
 {
 	std::stringstream logger;
 
@@ -110,14 +110,17 @@ void runUnitTests(bool verbose = false)
 	lib::Logger::instance().setEcho(os);
 
 	std::cout << logger.str() << std::endl;
+
+	return success;
 }
 
 void main(const lib::args_t& args)
 {
-	runUnitTests(true);
-
-//	functional::testSerialConnection();
-//	functional::testHAL();
+	if(runUnitTests(true))
+	{
+//		functional::testSerialConnection();
+//		functional::testHAL();
+	}
 
 	std::cout << "\nGoodbye." << std::endl;
 }

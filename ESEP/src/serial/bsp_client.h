@@ -15,13 +15,14 @@ namespace esep
 			typedef std::unique_ptr<Connection> connection_ptr;
 
 			public:
-			static constexpr uint DEFAULT_TIMEOUT = 10;
+			static constexpr uint DEFAULT_TIMEOUT = 50;
 
 			public:
 				explicit BSPClient(connection_ptr, uint = DEFAULT_TIMEOUT);
 				~BSPClient( );
 				virtual void write(const buffer_t&);
 				virtual buffer_t read( );
+				virtual bool connected( ) const { return true; }
 				size_t size( ) const;
 			private:
 				struct Impl;

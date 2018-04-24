@@ -19,6 +19,7 @@ namespace esep
 				virtual ~Client( ) { }
 				virtual void write(const buffer_t&) = 0;
 				virtual buffer_t read( ) = 0;
+				virtual bool connected( ) const = 0;
 			private:
 		};
 	}

@@ -41,22 +41,22 @@ void HALTester::run(void)
 
 	resetHAL();
 
-	std::cout << "Starting interactive HAL test.\n"
-			  << "===========================================================================================\n";
+	std::cout << "# === HAL TEST ===============================================================================\n";
 
 	mRunning = true;
 
 	while(mRunning)
 	{
-		std::cout << "There are " << mTests.size() << " tests loaded.\n";
+		std::cout << "There are " << mTests.size() << " tests loaded.\n"
+				  << "ID | Name\n---+-------\n";
 
 		for(uint i = 0 ; i < mTests.size() ; ++i)
 		{
-			std::cout << (i + 1) << ": " << mTests[i].first << "\n";
+			std::cout << std::setw(2) << (i + 1) << " | " << mTests[i].first << "\n";
 		}
 
 		std::cout << "[Enter 'q' to quit]\n"
-				  << "Please enter test to run (or * for all): ";
+				  << "Please enter test ID (or * for all): ";
 
 		std::getline(std::cin, line);
 
@@ -79,8 +79,7 @@ void HALTester::run(void)
 		}
 	}
 
-	std::cout << "===========================================================================================\n"
-			  << "Shutting down interactive HAL test." << std::endl;
+	std::cout << "# ============================================================================================" << std::endl;
 }
 
 void HALTester::runTest(uint i)
