@@ -26,8 +26,6 @@ HALTester::HALTester(void)
 	mTests.push_back(std::make_pair("T-007", &HALTester::t_007));
 	mTests.push_back(std::make_pair("T-008", &HALTester::t_008));
 	mTests.push_back(std::make_pair("T-009", &HALTester::t_009));
-	mTests.push_back(std::make_pair("T-010", &HALTester::t_010));
-	mTests.push_back(std::make_pair("T-011", &HALTester::t_011));
 }
 
 HALTester::~HALTester(void)
@@ -131,54 +129,10 @@ void HALTester::t_004(Event e)
 {
 	switch(e)
 	{
-	case Event::BTN_START:
-		if(BUTTONS.isPressed(Button::START))
-		{
-			LEDS.turnOn(LED::START);
-			LIGHTS.turnOn(Light::GREEN);
-
-			runIn(3000, [this](void) -> bool {
-				LIGHTS.turnOff(Light::GREEN);
-
-				return false;
-			});
-		}
-		break;
-
-	default:
-		break;
-	}
-}
-
-void HALTester::t_005(Event e)
-{
-	switch(e)
-	{
-	case Event::BTN_STOP:
-		if(BUTTONS.isPressed(Button::STOP))
-		{
-			LIGHTS.turnOn(Light::RED);
-
-			runIn(3000, [this](void) -> bool {
-				LIGHTS.turnOff(Light::RED);
-
-				return false;
-			});
-		}
-		break;
-
-	default:
-		break;
-	}
-}
-
-void HALTester::t_006(Event e)
-{
-	switch(e)
-	{
 	case Event::LB_START:
 		if(LIGHT_BARRIERS.isBroken(LightBarrier::LB_START))
 		{
+			MOTOR.right();
 			MOTOR.start();
 		}
 		else
@@ -187,15 +141,6 @@ void HALTester::t_006(Event e)
 		}
 		break;
 
-	default:
-		break;
-	}
-}
-
-void HALTester::t_007(Event e)
-{
-	switch(e)
-	{
 	case Event::LB_END:
 		if(LIGHT_BARRIERS.isBroken(LightBarrier::LB_END))
 		{
@@ -213,7 +158,7 @@ void HALTester::t_007(Event e)
 	}
 }
 
-void HALTester::t_008(Event e)
+void HALTester::t_005(Event e)
 {
 	enum class State
 	{
@@ -231,12 +176,12 @@ void HALTester::t_008(Event e)
 			switch(state)
 			{
 			case State::START:
+				MOTOR.right();
+				MOTOR.fast();
 				MOTOR.start();
 				state = State::STOP;
 				break;
 			case State::STOP:
-				MOTOR.right();
-				MOTOR.fast();
 				MOTOR.stop();
 				state = State::START;
 				break;
@@ -245,11 +190,15 @@ void HALTester::t_008(Event e)
 		break;
 
 	case Event::LB_SWITCH:
-		if(METAL_SENSOR.isMetal())
+		if(LIGHT_BARRIERS.isBroken(LightBarrier::LB_SWITCH))
 		{
-			MOTOR.slow();
+			if(METAL_SENSOR.isMetal())
+			{
+				MOTOR.slow();
+			}
+
+			MOTOR.left();
 		}
-		MOTOR.left();
 		break;
 
 	default:
@@ -257,7 +206,7 @@ void HALTester::t_008(Event e)
 	}
 }
 
-void HALTester::t_009(Event e)
+void HALTester::t_006(Event e)
 {
 	switch(e)
 	{
@@ -293,7 +242,7 @@ void HALTester::t_009(Event e)
 	}
 }
 
-void HALTester::t_010(Event e)
+void HALTester::t_007(Event e)
 {
 	switch(e)
 	{
@@ -313,13 +262,14 @@ void HALTester::t_010(Event e)
 	}
 }
 
-void HALTester::t_011(Event e)
+void HALTester::t_008(Event e)
 {
 	switch(e)
 	{
 	case Event::LB_START:
 		if(LIGHT_BARRIERS.isBroken(LightBarrier::LB_START))
 		{
+			MOTOR.right();
 			MOTOR.start();
 		}
 		break;
@@ -330,7 +280,7 @@ void HALTester::t_011(Event e)
 		if(LIGHT_BARRIERS.isBroken(LightBarrier::LB_RAMP))
 		{
 			runIn(500, [this](void) {
-				MOTOR.stop();
+				MOTOR.disable();
 				LEDS.turnOn(LED::RESET);
 				LIGHTS.flash(Light::YELLOW, 1000);
 			});
@@ -342,6 +292,61 @@ void HALTester::t_011(Event e)
 		{
 			LIGHTS.turnOff(Light::YELLOW);
 			LEDS.turnOff(LED::RESET);
+			MOTOR.stop();
+			MOTOR.enable();
+		}
+		break;
+
+	default:
+		break;
+	}
+}
+
+void HALTester::t_009(Event e)
+{
+	switch(e)
+	{
+	case Event::BTN_START:
+		if(BUTTONS.isPressed(Button::START))
+		{
+			LEDS.turnOn(LED::RESET);
+		}
+		else
+		{
+			LEDS.turnOff(LED::RESET);
+		}
+		break;
+
+	case Event::BTN_STOP:
+		if(BUTTONS.isPressed(Button::STOP))
+		{
+			LEDS.turnOn(LED::START);
+		}
+		else
+		{
+			LEDS.turnOff(LED::START);
+		}
+		break;
+
+	case Event::BTN_RESET:
+		if(BUTTONS.isPressed(Button::RESET))
+		{
+			LEDS.turnOn(LED::Q1);
+		}
+		else
+		{
+			LEDS.turnOff(LED::Q1);
+		}
+		break;
+
+	case Event::BTN_ESTOP:
+		if(BUTTONS.isPressed(Button::ESTOP))
+		{
+			LEDS.turnOn(LED::Q2);
+		}
+		else
+		{
+			LEDS.turnOff(LED::Q2);
 		}
 		break;
 

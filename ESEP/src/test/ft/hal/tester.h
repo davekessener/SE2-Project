@@ -43,8 +43,6 @@ namespace esep
 					void t_007(Event);
 					void t_008(Event);
 					void t_009(Event);
-					void t_010(Event);
-					void t_011(Event);
 					void clearTimers( );
 					void resetHAL( );
 					void runTest(uint);
