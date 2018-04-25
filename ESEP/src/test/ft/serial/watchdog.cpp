@@ -32,8 +32,8 @@ void testWatchdog(void)
 		lib::Thread readThread; // Read thread has to be constructed BEFORE the client, so it gets destroyed LAST
 
 		connection_ptr con(new serial::ActualConnection(MXT_SERIAL_DEVICE));
-		client_ptr     bsp(new serial::BSPClient(std::move(con)));
-		client_ptr  client(new serial::Watchdog(std::move(bsp)));
+		client_ptr     bsp(new serial::BSPClient(std::move(con), 50));
+		client_ptr  client(new serial::Watchdog(std::move(bsp), 100));
 
 		std::atomic<bool> mRunning;
 

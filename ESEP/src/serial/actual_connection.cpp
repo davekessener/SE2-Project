@@ -8,7 +8,7 @@
 
 #include "lib/logger.h"
 
-#define BAUDRATE	19200 // Speed of connection in bits/s
+#define BAUDRATE	64*19200 // Speed of connection in bits/s
 
 namespace esep { namespace serial {
 
