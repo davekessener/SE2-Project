@@ -16,20 +16,6 @@ namespace esep
 	namespace communication
 	{
 
-		enum class Message : int8_t
-		{
-			START_CONFIG,
-			START_RUN
-		};
-
-		enum class Location : int8_t
-		{
-			BASE_M,
-			BASE_S,
-			MASTER,
-			BASE
-		};
-
 		class Packet
 		{
 			public :
@@ -41,6 +27,29 @@ namespace esep
 				Message message();
 				void serialize(ByteStream &);
 				static void deserialize();
+
+				enum class Message : int8_t
+						{
+							START_CONFIG,
+							START_RUN,
+							IDLE,
+							RESUME,
+							SUSPEND,
+							KEEP_NExt,
+							ANALYSE,
+							CONFIG_DONE,
+							SERIAL_ERROR,
+							ITEM_APPEARED,
+							ITEM_DISAPPEARED
+						};
+
+				enum class Location : int8_t
+						{
+							BASE_M,
+							BASE_S,
+							MASTER,
+							BASE
+						};
 
 			private :
 				Message mMessage;

@@ -8,7 +8,22 @@
 #ifndef SRC_DATA_DATA_POINT_H_
 #define SRC_DATA_DATA_POINT_H_
 
+namespace esep
+{
+	namespace data
+	{
+		class Datapoint
+		{
+		   public:
+			Datapoint();
+			virtual ~Datapoint();
 
+			void serialize(Bytestream&);
+			static void deserialize();
+
+		};
+	}
+}
 
 
 

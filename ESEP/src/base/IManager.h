@@ -1,8 +1,7 @@
 /*
  * IManager.h
  *
- *  Created on: 26.04.2018
- *      Author: ace991
+
  */
 
 #ifndef SRC_BASE_IMANAGER_H_
@@ -14,6 +13,11 @@ namespace esep
 	{
 		class IManager : public IRecipient
 		{
+			public:
+			   IManager();
+			   virtual ~IManager();
+			   void enter();
+			   void leave();
 
 		};
 }

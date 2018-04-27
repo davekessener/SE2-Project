@@ -14,11 +14,12 @@ namespace esep
 	{
 		class IRecipient
 		{
-			public :
+			public:
 				IRecipient();
 				virtual ~IRecipient();
 
-				virtual void accept(Message);
+				virtual void accept(std::shared_ptr<Packet>) = 0;
+
 
 		};
 }
