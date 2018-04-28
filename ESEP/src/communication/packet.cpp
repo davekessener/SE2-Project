@@ -6,5 +6,7 @@
  */
 
 
-
+//addDatapoint(data::Datapoint* h)
+//std::shared_ptr<data::Datapoint> b(*h);
+//mDatapoints.pushback(b);
 

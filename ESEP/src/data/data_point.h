@@ -18,8 +18,7 @@ namespace esep
 			Datapoint();
 			virtual ~Datapoint();
 
-			void serialize(Bytestream&);
-			static void deserialize();
+			virtual void serialize(Bytestream&);
 
 		};
 	}

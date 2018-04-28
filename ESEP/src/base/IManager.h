@@ -16,8 +16,8 @@ namespace esep
 			public:
 			   IManager();
 			   virtual ~IManager();
-			   void enter();
-			   void leave();
+			   virtual void enter();
+			   virtual void leave();
 
 		};
 }

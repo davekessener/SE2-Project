@@ -8,6 +8,10 @@
 #ifndef SRC_DATA_DATA_MANAGER_H_
 #define SRC_DATA_DATA_MANAGER_H_
 
+#include <memory>
+
+#include "lib/byte_stream.h"
+#include "data/data_point.h"
 namespace esep
 {
 	namespace data
@@ -15,6 +19,10 @@ namespace esep
 		class Datamanager
 		{
 			public:
+
+				Datamanager();
+				virtual ~Datamanager();
+				static std::shared_ptr<DataPoint> deserialize(lib::ByteStream&);
 
 			private:
 

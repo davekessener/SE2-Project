@@ -8,6 +8,8 @@
 #ifndef SRC_COMMUNICATION_IRECIPIENT_H_
 #define SRC_COMMUNICATION_IRECIPIENT_H_
 
+#include <memory>
+
 namespace esep
 {
 	namespace communication
