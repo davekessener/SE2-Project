@@ -16,12 +16,12 @@ namespace esep
 {
 	namespace data
 	{
-		class Datamanager
+		class DataManager
 		{
 			public:
 
-				Datamanager();
-				virtual ~Datamanager();
+				DataManager();
+				~DataManager();
 				static std::shared_ptr<DataPoint> deserialize(lib::ByteStream&);
 
 			private:

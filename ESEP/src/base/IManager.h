@@ -7,6 +7,8 @@
 #ifndef SRC_BASE_IMANAGER_H_
 #define SRC_BASE_IMANAGER_H_
 
+#include "communication/IRecipient.h"
+
 namespace esep
 {
 	namespace base
@@ -15,11 +17,16 @@ namespace esep
 		{
 			public:
 			   IManager();
-			   virtual ~IManager();
+			   virtual ~IManager()
+			   {
+				   delete this;
+			   }
 			   virtual void enter();
 			   virtual void leave();
+			   virtual void handle(hal::HAL::Event);
 
 		};
+
 }
 }
 

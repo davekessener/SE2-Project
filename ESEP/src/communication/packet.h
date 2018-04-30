@@ -51,19 +51,21 @@ namespace esep
 				Packet(Location src, Location trg, Message msg);
 				virtual ~Packet();
 
+
 				Location target();
 				Location source();
 				Message message();
-				void addDatapoint(data::Datapoint*);
+				//void addDataPoint(data::DataPoint*);
+				void addDataPoint(std::shared_ptr<data::DataPoint>);
 				void serialize(lib::ByteStream&);
-				static std::shared_ptr<Packet> deserialize(lib::ByteBuffer&);
+				static std::shared_ptr<Packet> deserialize(lib::ByteStream&);
 
 
 			private :
 				Message mMessage;
 				Location mTarget;
 				Location mSource;
-				std::vector<std::shared_ptr<data::Datapoint>> mDatapoints;
+				std::vector<std::shared_ptr<data::DataPoint>> mDataPoints;
 
 		};
 }

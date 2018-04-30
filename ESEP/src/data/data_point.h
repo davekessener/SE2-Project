@@ -8,17 +8,23 @@
 #ifndef SRC_DATA_DATA_POINT_H_
 #define SRC_DATA_DATA_POINT_H_
 
+#include "lib/byte_stream.h"
+
 namespace esep
 {
 	namespace data
 	{
-		class Datapoint
+		class DataPoint
 		{
 		   public:
-			Datapoint();
-			virtual ~Datapoint();
 
-			virtual void serialize(Bytestream&);
+			DataPoint();
+			virtual ~DataPoint()
+			{
+				delete this;
+			}
+
+			virtual void serialize(lib::ByteStream&) = 0;
 
 		};
 	}
