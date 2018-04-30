@@ -2,6 +2,11 @@
 #ifndef SRC_BASE_CONFIG_OBJECT_H_
 #define SRC_BASE_CONFIG_OBJECT_H_
 
+#include <string>
+#include <stdexcept>
+
+#include "lib/utils.h"
+
 namespace esep
 {
 	namespace base
@@ -11,6 +16,7 @@ namespace esep
 		{
 			public:
 				static constexpr float TOLERANCE = 0.05; // Tolerance for all sensor values
+				MXT_DEFINE_E(CurruptDataException);
 
 			public:
 				ConfigObject(const std::string& path = "/src/system.conf");
@@ -33,6 +39,7 @@ namespace esep
 				void setBackwardFactor(float);
 
 			private:
+				const std::string& mPath;
 				uint16_t mHeightSensor;
 				uint32_t mStartToHs;
 				uint32_t mHsToSwitch;

@@ -16,7 +16,7 @@ namespace esep
 				~ConfigManager();
 
 			private:
-				void run();
+				void run(hal::HAL::Event);
 
 			private:
 				ConfigObject *mConfig;
