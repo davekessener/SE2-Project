@@ -5,8 +5,8 @@
  *      Author: ace991
  */
 
-#ifndef SRC_DATA_DATA_POINT_H_
-#define SRC_DATA_DATA_POINT_H_
+#ifndef SRC_DATA_DATA_POINT_H
+#define SRC_DATA_DATA_POINT_H
 
 #include "lib/byte_stream.h"
 
@@ -19,10 +19,7 @@ namespace esep
 		   public:
 
 			DataPoint();
-			virtual ~DataPoint()
-			{
-				delete this;
-			}
+			virtual ~DataPoint(){}
 
 			virtual void serialize(lib::ByteStream&) = 0;
 
@@ -32,4 +29,4 @@ namespace esep
 
 
 
-#endif /* SRC_DATA_DATA_POINT_H_ */
+#endif /* SRC_DATA_DATA_POINT_H */

@@ -11,6 +11,7 @@
 //mDatapoints.pushback(b);
 
 #include "communication/packet.h"
+#include "data/data_manager.h"
 
 namespace esep { namespace communication {
 
@@ -29,26 +30,35 @@ Packet::~Packet()
 
 void Packet::serialize(lib::ByteStream& bs)
 {
-	bs << mMessage << mSource << mTarget;
+	bs << mMessage;
+	bs << mSource;
+	bs << mTarget;
 
 	for(auto &datp : mDataPoints)
 	{
-		datp.get()->serialize(bs);
+		datp->serialize(bs);
 	}
 }
 
  std::shared_ptr<Packet> Packet::deserialize(lib::ByteStream& bs)
 {
+	 Location sourc;
+	 Location targe;
+	 Message messag;
 
-//	bs >> sourc >>  >> targe >> messag;
-//	Packet pak = new Packet();
-//
-//	for(auto &datp : bs)
-//	{
-//
-//	}
+	 // cast?
+	 bs >> messag;
+	 bs >> sourc;
+	 bs >> targe;
 
-	 return nullptr;
+	 std::shared_ptr<Packet> pakptr(new Packet(sourc, targe, messag));
+
+	while(!bs.empty())
+	{
+		// wo ist hier der Fehler?
+		//pakptr->addDataPoint(data::DataManager::deserialize(bs));
+	}
+	return pakptr;
 
 }
 

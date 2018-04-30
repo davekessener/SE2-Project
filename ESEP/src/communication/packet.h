@@ -5,8 +5,8 @@
  *      Author: ace991
  */
 
-#ifndef SRC_COMMUNICATION_PACKET_H_
-#define SRC_COMMUNICATION_PACKET_H_
+#ifndef SRC_COMMUNICATION_PACKET_H
+#define SRC_COMMUNICATION_PACKET_H
 
 #include <memory>
 

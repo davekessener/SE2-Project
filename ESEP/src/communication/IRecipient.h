@@ -5,8 +5,8 @@
  *      Author: ace991
  */
 
-#ifndef SRC_COMMUNICATION_IRECIPIENT_H_
-#define SRC_COMMUNICATION_IRECIPIENT_H_
+#ifndef SRC_COMMUNICATION_IRECIPIENT_H
+#define SRC_COMMUNICATION_IRECIPIENT_H
 
 #include <memory>
 #include "data/packet.h"

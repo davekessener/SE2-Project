@@ -4,8 +4,8 @@
 
  */
 
-#ifndef SRC_BASE_IMANAGER_H_
-#define SRC_BASE_IMANAGER_H_
+#ifndef SRC_BASE_IMANAGER_H
+#define SRC_BASE_IMANAGER_H
 
 #include "communication/IRecipient.h"
 
@@ -17,13 +17,15 @@ namespace esep
 		{
 			public:
 			   IManager();
+			   //Ich moechte eigentlich das ein Error auftritt, wenn der Funktion nicht vom erbenden implementiert wird. So wird er ja nicht gezwungen diese zu implementieren
 			   virtual ~IManager()
-			   {
-				   delete this;
-			   }
-			   virtual void enter();
-			   virtual void leave();
-			   virtual void handle(hal::HAL::Event);
+			   {};
+			   virtual void enter()
+			   {};
+			   virtual void leave()
+			   {};
+			   virtual void handle(hal::HAL::Event)
+			   {};
 
 		};
 

@@ -5,8 +5,8 @@
  *      Author: ace991
  */
 
-#ifndef SRC_DATA_DATA_MANAGER_H_
-#define SRC_DATA_DATA_MANAGER_H_
+#ifndef SRC_DATA_DATA_MANAGER_H
+#define SRC_DATA_DATA_MANAGER_H
 
 #include <memory>
 
