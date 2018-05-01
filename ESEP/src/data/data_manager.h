@@ -9,6 +9,7 @@
 #define SRC_DATA_DATA_MANAGER_H
 
 #include <memory>
+#include "communication/packet.h"
 
 #include "lib/byte_stream.h"
 #include "data/data_point.h"
@@ -20,7 +21,11 @@ namespace esep
 		{
 			public:
 
-				static std::shared_ptr<DataPoint> deserialize(lib::ByteStream&);
+				static std::shared_ptr<DataPoint> deserialize(lib::ByteStream&)
+				{
+					throw communication::Packet::NotImplException();
+					return nullptr;
+				};
 
 			private:
 

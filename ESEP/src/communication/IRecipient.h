@@ -9,6 +9,7 @@
 #define SRC_COMMUNICATION_IRECIPIENT_H
 
 #include <memory>
+
 #include "communication/packet.h"
 namespace esep
 {
