@@ -24,6 +24,8 @@ namespace esep
 		{
 
 			public:
+			MXT_DEFINE_E(NotImplException);
+
 			enum class Message : int8_t
 									{
 										START_CONFIG,
@@ -49,7 +51,7 @@ namespace esep
 
 			public :
 				Packet(Location src, Location trg, Message msg);
-				virtual ~Packet();
+
 
 
 				Location target();

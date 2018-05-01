@@ -20,8 +20,6 @@ namespace esep
 		{
 			public:
 
-				DataManager();
-				~DataManager();
 				static std::shared_ptr<DataPoint> deserialize(lib::ByteStream&);
 
 			private:

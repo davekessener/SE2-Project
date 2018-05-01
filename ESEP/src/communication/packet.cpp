@@ -6,9 +6,7 @@
  */
 
 
-//addDatapoint(data::Datapoint* h)
-//std::shared_ptr<data::Datapoint> b(*h);
-//mDatapoints.pushback(b);
+
 
 #include "communication/packet.h"
 #include "data/data_manager.h"
@@ -22,17 +20,11 @@ Packet::Packet(Location src, Location trg, Message msg)
 	mMessage = msg;
 }
 
-Packet::~Packet()
-{
-	delete this;
-}
-
 
 void Packet::serialize(lib::ByteStream& bs)
 {
-	bs << mMessage;
-	bs << mSource;
-	bs << mTarget;
+	bs << mMessage << mSource << mTarget;
+
 
 	for(auto &datp : mDataPoints)
 	{
@@ -40,26 +32,32 @@ void Packet::serialize(lib::ByteStream& bs)
 	}
 }
 
- std::shared_ptr<Packet> Packet::deserialize(lib::ByteStream& bs)
+std::shared_ptr<Packet> Packet::deserialize(lib::ByteStream& bs)
 {
 	 Location sourc;
 	 Location targe;
 	 Message messag;
 
 	 // cast?
-	 bs >> messag;
-	 bs >> sourc;
-	 bs >> targe;
+	 bs >> messag >> sourc >> targe;
 
 	 std::shared_ptr<Packet> pakptr(new Packet(sourc, targe, messag));
 
 	while(!bs.empty())
 	{
 		// wo ist hier der Fehler?
-		//pakptr->addDataPoint(data::DataManager::deserialize(bs));
+		pakptr->addDataPoint(data::DataManager::deserialize(bs));
 	}
 	return pakptr;
 
+}
+
+void Packet::addDataPoint(std::shared_ptr<data::DataPoint>)
+{
+	//addDatapoint(data::Datapoint* h)
+	//std::shared_ptr<data::Datapoint> b(*h);
+	//mDatapoints.pushback(b);
+	throw Packet::NotImplException("TODO Implementation DataPoint");
 }
 
 }

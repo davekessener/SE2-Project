@@ -13,11 +13,10 @@ namespace esep
 {
 	namespace base
 	{
-		class IManager : public IRecipient
+		class IManager : public communication::IRecipient
 		{
 			public:
 			   IManager();
-			   //Ich moechte eigentlich das ein Error auftritt, wenn der Funktion nicht vom erbenden implementiert wird. So wird er ja nicht gezwungen diese zu implementieren
 			   virtual ~IManager()
 			   {};
 			   virtual void enter()
