@@ -9,6 +9,7 @@ namespace esep { namespace base {
 
 ConfigObject::ConfigObject(const std::string& path)
 	: mPath(path)
+	, mValid(false)
 	, mHeightSensor(0)
 	, mStartToHs(0)
 	, mHsToSwitch(0)
@@ -31,7 +32,7 @@ ConfigObject::ConfigObject(const std::string& path)
 
 		if(fileData.size() != 6)
 		{
-			throw ConfigObject::CurruptDataException();
+			MXT_THROW_EX(ConfigObject::InvalidDataException);
 		}
 		else
 		{
@@ -46,64 +47,102 @@ ConfigObject::ConfigObject(const std::string& path)
 			mStartToHs = std::stoi(fileData.back());
 			fileData.pop_back();
 			mHeightSensor = (uint16_t) std::stoi(fileData.back());
+			mValid = true;
 		}
 	}
 }
 
-ConfigObject::~ConfigObject(void)
-{
-	// continue...
-}
-
 void ConfigObject::save()
 {
+	if(!isValid())
+	{
+		MXT_THROW_EX(InvalidObjectException);
+	}
+
 	std::ofstream confFile;
 	confFile.open(mPath);
 
-	// continue...
+	std::stringstream outputstream;
+
+	if(confFile.is_open())
+	{
+		outputstream << std::to_string(mHeightSensor) << std::endl
+						<< std::to_string(mStartToHs) << std::endl
+						<< std::to_string(mHsToSwitch) << std::endl
+						<< std::to_string(mSwitchToEnd) << std::endl
+						<< std::to_string(mSlowFactor) << std::endl
+						<< std::to_string(mBackwardFactor);
+		const char *output = outputstream.str().c_str();
+		confFile.write(output, outputstream.str().size());
+	}
+	else
+	{
+		MXT_THROW_EX(CouldNotOpenFileException);
+	}
 }
 
 bool ConfigObject::isValid()
 {
-	return mHeightSensor > 0
+	return mValid || (mValid =
+			(mHeightSensor > 0
 			&& mStartToHs > 0
 			&& mHsToSwitch > 0
 			&& mSwitchToEnd > 0
 			&& mSlowFactor > 0
-			&& mBackwardFactor > 0;
+			&& mBackwardFactor > 0));
 }
 
 void ConfigObject::setHeightSensor(uint16_t val)
 {
+	if(val == 0)
+	{
+		MXT_THROW_EX(ConfigObject::InvalidDataException);
+	}
 	mHeightSensor = val;
 }
 
 void ConfigObject::setStartToHs(uint32_t val)
 {
+	if(val == 0)
+	{
+		MXT_THROW_EX(ConfigObject::InvalidDataException);
+	}
 	mStartToHs = val;
 }
 
 void ConfigObject::setHsToSwitch(uint32_t val)
 {
+	if(val == 0)
+	{
+		MXT_THROW_EX(ConfigObject::InvalidDataException);
+	}
 	mHsToSwitch = val;
 }
 
 void ConfigObject::setSwitchToEnd(uint32_t val)
 {
+	if(val == 0)
+	{
+		MXT_THROW_EX(ConfigObject::InvalidDataException);
+	}
 	mSwitchToEnd = val;
 }
 
 void ConfigObject::setSlowFactor(float val)
 {
-	if(val > 1)
+	if(val > 1 || val == 0)
 	{
-		throw ConfigObject::CurruptDataException();
+		MXT_THROW_EX(ConfigObject::InvalidDataException);
 	}
 	mSlowFactor = val;
 }
 
 void ConfigObject::setBackwardFactor(float val)
 {
+	if(val == 0)
+	{
+		MXT_THROW_EX(ConfigObject::InvalidDataException);
+	}
 	mBackwardFactor = val;
 }
 
@@ -111,7 +150,7 @@ uint16_t ConfigObject::heightSensor(void)
 {
 	if(!isValid())
 	{
-		throw ConfigObject::CurruptDataException();
+		MXT_THROW_EX(ConfigObject::InvalidObjectException);
 	}
 	return mHeightSensor;
 }
@@ -120,7 +159,7 @@ uint32_t ConfigObject::startToHs(void)
 {
 	if(!isValid())
 	{
-		throw ConfigObject::CurruptDataException();
+		MXT_THROW_EX(ConfigObject::InvalidObjectException);
 	}
 	return mStartToHs;
 }
@@ -129,7 +168,7 @@ uint32_t ConfigObject::hsToSwitch(void)
 {
 	if(!isValid())
 	{
-		throw ConfigObject::CurruptDataException();
+		MXT_THROW_EX(ConfigObject::InvalidObjectException);
 	}
 	return mHsToSwitch;
 }
@@ -138,7 +177,7 @@ uint32_t ConfigObject::switchToEnd(void)
 {
 	if(!isValid())
 	{
-		throw ConfigObject::CurruptDataException();
+		MXT_THROW_EX(ConfigObject::InvalidObjectException);
 	}
 	return mSwitchToEnd;
 }
@@ -147,7 +186,7 @@ float ConfigObject::slowFactor(void)
 {
 	if(!isValid())
 	{
-		throw ConfigObject::CurruptDataException();
+		MXT_THROW_EX(ConfigObject::InvalidObjectException);
 	}
 	return mSlowFactor;
 }
@@ -156,7 +195,7 @@ float ConfigObject::backwardFactor(void)
 {
 	if(!isValid())
 	{
-		throw ConfigObject::CurruptDataException();
+		MXT_THROW_EX(ConfigObject::InvalidObjectException);
 	}
 	return mBackwardFactor;
 }

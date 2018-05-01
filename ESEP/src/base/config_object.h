@@ -16,11 +16,13 @@ namespace esep
 		{
 			public:
 				static constexpr float TOLERANCE = 0.05; // Tolerance for all sensor values
-				MXT_DEFINE_E(CurruptDataException);
+				MXT_DEFINE_E(InvalidObjectException);
+				MXT_DEFINE_E(CouldNotOpenFileException);
+				MXT_DEFINE_E(InvalidDataException);
 
 			public:
 				ConfigObject(const std::string& path = "/src/system.conf");
-				~ConfigObject();
+				~ConfigObject() {};
 				void save();
 				bool isValid();
 
@@ -39,7 +41,8 @@ namespace esep
 				void setBackwardFactor(float);
 
 			private:
-				const std::string& mPath;
+				const std::string mPath;
+				bool mValid;
 				uint16_t mHeightSensor;
 				uint32_t mStartToHs;
 				uint32_t mHsToSwitch;
