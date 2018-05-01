@@ -5,6 +5,11 @@
 
 #include "base/IManager.h"
 #include "communication/IRecipient.h"
+#include "run_manager_dummy.h"
+#include "config_manager.h"
+#include "error_manager_dummy.h"
+#include "config_object.h"
+
 
 namespace esep
 {
@@ -13,18 +18,20 @@ namespace esep
 		class Handler : public communication::IRecipient
 		{
 			public:
-				Handler(std::shared_ptr<communication::IRecipient> CommunicationModul); //requires the IRecipient of the higher comm. layer
+				Handler(communication::IRecipient* CommunicationModul); //requires the IRecipient of the higher comm. layer
 				~Handler();
-				void accept(std::shared_ptr<Packet>);
 				void operator()(hal::HAL::Event); //for event listening registration
+				void accept(std::shared_ptr<communication::Packet>);
+
 
 			private:
-				std::shared_ptr<communication::IRecipient> mCommunicationModul;
-				communication::IRecipient mRunManager;
-				communication::IRecipient mConfigManager;
-				communication::IRecipient mErrorHandler;
-				IManager mCurrentManager;
+				communication::IRecipient* mCommunicationModul;
 				ConfigObject mConfigData;
+				ConfigManager* mConfigManager;
+				RunManagerDummy* mRunManager;
+				ErrorManagerDummy* mErrorHandler;
+				IManager* mCurrentManager;
+
 
 		};
 	}

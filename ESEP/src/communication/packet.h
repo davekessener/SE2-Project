@@ -31,7 +31,7 @@ namespace esep
 										IDLE,
 										RESUME,
 										SUSPEND,
-										KEEP_NExt,
+										KEEP_NEXT,
 										ANALYSE,
 										CONFIG_DONE,
 										SERIAL_ERROR,

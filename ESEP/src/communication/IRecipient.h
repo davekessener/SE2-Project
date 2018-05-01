@@ -9,7 +9,7 @@
 #define SRC_COMMUNICATION_IRECIPIENT_H_
 
 #include <memory>
-#include "data/packet.h"
+#include "communication/packet.h"
 namespace esep
 {
 	namespace communication
@@ -17,11 +17,7 @@ namespace esep
 		class IRecipient
 		{
 			public:
-				IRecipient();
-				virtual ~IRecipient()
-				{
-					delete this();
-				}
+				virtual ~IRecipient(){};
 
 				virtual void accept(std::shared_ptr<Packet>) = 0;
 

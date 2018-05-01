@@ -4,6 +4,12 @@
 
 #include "communication/IRecipient.h"
 #include "base/config_object.h"
+#include "hal/hal.h"
+#include "hal/height_sensor.h"
+#include "hal/switch.h"
+#include "hal/light_barriers.h"
+#include "hal/lights.h"
+#include "hal/motor.h"
 
 namespace esep
 {

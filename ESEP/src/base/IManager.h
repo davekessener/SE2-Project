@@ -8,19 +8,16 @@
 #define SRC_BASE_IMANAGER_H_
 
 #include "communication/IRecipient.h"
+#include "hal/hal.h"
 
 namespace esep
 {
 	namespace base
 	{
-		class IManager : public IRecipient
+		class IManager : public communication::IRecipient
 		{
 			public:
-			   IManager();
-			   virtual ~IManager()
-			   {
-				   delete this;
-			   }
+			   virtual ~IManager(){}
 			   virtual void enter();
 			   virtual void leave();
 			   virtual void handle(hal::HAL::Event);
