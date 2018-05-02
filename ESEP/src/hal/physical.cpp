@@ -121,8 +121,12 @@ Physical::~Physical(void)
 
 void Physical::updateSensors(void)
 {
-	update(Field::GPIO_0, mGPIOs[0]->read());
-	mGPIOs[0]->clearInterruptFlags();
+	try
+	{
+		update(Field::GPIO_0, mGPIOs[0]->read());
+		mGPIOs[0]->clearInterruptFlags();
+	}
+	MXT_CATCH_ALL_STRAY
 }
 
 void Physical::onGPIO(uint b, gpio_fn f, uint32_t v)

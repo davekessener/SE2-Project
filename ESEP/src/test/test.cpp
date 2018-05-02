@@ -118,7 +118,7 @@ void main(const lib::args_t& args)
 {
 	if(runUnitTests(true))
 	{
-		functional::testSerialConnection();
+//		functional::testSerialConnection();
 //		functional::testHAL();
 	}
 

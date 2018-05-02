@@ -6,6 +6,9 @@
 #include "lib/logger.h"
 #include "lib/timer.h"
 
+#include "base/dummy_master.h"
+#include "base/handler.h"
+
 namespace esep { namespace system {
 
 Impl::Impl(void)
@@ -37,46 +40,15 @@ void Impl::run(const lib::args_t& args)
 {
 	lib::Timer::instance().reset();
 
-	typedef hal::HAL::Event Event;
+	base::DummyMaster master;
+	base::Handler handler(&master);
 
-	std::atomic<bool> running;
+	mHAL->setCallback([&handler](hal::HAL::Event e) { handler.handle(e); });
 
-	running = true;
-
-	MXT_LOG("Running ESEP Project in release mode!");
-
-	get<hal::Lights>().turnOn(hal::Lights::Light::RED);
-
-	mHAL->setCallback([this, &running](Event e) {
-		switch(e)
-		{
-		case Event::LB_START:
-			if(get<hal::LightBarriers>().isBroken(hal::LightBarriers::LightBarrier::LB_START))
-			{
-				get<hal::Lights>().turnOn(hal::Lights::Light::GREEN);
-			}
-			else
-			{
-				get<hal::Lights>().turnOff(hal::Lights::Light::GREEN);
-			}
-			break;
-		case Event::BTN_STOP:
-			running = false;
-			break;
-		default:
-			MXT_LOG("Received an event.");
-			break;
-		}
-	});
-
-	while(running.load())
+	while(master.running())
 	{
-		lib::Timer::instance().sleep(100);
+		lib::Timer::instance().sleep(10);
 	}
-
-	MXT_LOG("Goodbye!");
-
-	get<hal::Lights>().turnOff(hal::Lights::Light::RED);
 }
 
 }}

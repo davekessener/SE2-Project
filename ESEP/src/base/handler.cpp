@@ -4,23 +4,13 @@ namespace esep { namespace base {
 
 Handler::Handler(communication::IRecipient* communicationModule)
 	: mCommunicationModul(communicationModule)
-, mConfigData()
-, mConfigManager(nullptr)
-, mRunManager(nullptr)
-, mErrorHandler(nullptr)
-, mCurrentManager(nullptr)
 {
-	mConfigManager = new ConfigManager(this, mConfigData);
-	mRunManager = new RunManagerDummy(this, mConfigData);
-	mErrorHandler = new ErrorManagerDummy(this);
-	mCurrentManager = mRunManager;
+	mConfigManager.reset(new ConfigManager(this, &mConfigData));
+
+	mCurrentManager = mConfigManager.get();
+//	mCurrentManager = mDefaultManager.get();
 
 	//todo thread
-}
-
-Handler::~Handler()
-{
-
 }
 
 void Handler::accept(std::shared_ptr<communication::Packet> packet)
@@ -28,23 +18,41 @@ void Handler::accept(std::shared_ptr<communication::Packet> packet)
 	if(packet->target() == communication::Packet::Location::MASTER)
 	{
 		mCommunicationModul->accept(packet);
-	} else {
+	}
+	else
+	{
 		switch(packet->message())
 		{
 			case(communication::Packet::Message::START_CONFIG):
-					mCurrentManager->leave();
-					mCurrentManager = mConfigManager;
-					mCurrentManager->enter();
-			break;
+				switchManager(mConfigManager.get());
+				break;
+
 			case(communication::Packet::Message::START_RUN):
-					mCurrentManager->leave();
-					mCurrentManager = mRunManager;
-					mCurrentManager->enter();
-			break;
+				switchManager(mRunManager.get());
+				break;
+
+			// TODO Error and DefaultManager
+
 			default:
 				mCurrentManager->accept(packet);
+				break;
 		}
 	}
+}
+
+void Handler::switchManager(IManager *m)
+{
+	if(mCurrentManager != m)
+	{
+		mCurrentManager->leave();
+		mCurrentManager = m;
+		mCurrentManager->enter();
+	}
+}
+
+void Handler::handle(hal::HAL::Event e)
+{
+	mCurrentManager->handle(e);
 }
 
 }}

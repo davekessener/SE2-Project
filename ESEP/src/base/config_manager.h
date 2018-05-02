@@ -27,12 +27,8 @@ namespace esep
 				void accept(std::shared_ptr<communication::Packet>) override;
 
 			private:
-				void run(hal::HAL::Event);
-
-			private:
 				communication::IRecipient * const mBaseHandler;
 				ConfigObject * const mConfig;
-				bool mRunning;
 				hal::HeightSensor& HEIGHT_SENSOR;
 				hal::Switch& SWITCH;
 				hal::LightBarriers& LIGHT_BARRIERS;

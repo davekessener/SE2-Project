@@ -63,6 +63,8 @@ namespace esep
 				const Location mSource;
 				std::vector<std::shared_ptr<data::DataPoint>> mDataPoints;
 		};
+
+		typedef std::shared_ptr<Packet> Packet_ptr;
 	}
 }
 
