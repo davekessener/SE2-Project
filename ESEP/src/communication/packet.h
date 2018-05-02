@@ -27,46 +27,45 @@ namespace esep
 			MXT_DEFINE_E(NotImplException);
 
 			enum class Message : int8_t
-									{
-										START_CONFIG,
-										START_RUN,
-										IDLE,
-										RESUME,
-										SUSPEND,
-										KEEP_NExt,
-										ANALYSE,
-										CONFIG_DONE,
-										SERIAL_ERROR,
-										ITEM_APPEARED,
-										ITEM_DISAPPEARED
-									};
+			{
+				START_CONFIG,
+				START_RUN,
+				IDLE,
+				RESUME,
+				SUSPEND,
+				KEEP_NEXT,
+				ANALYSE,
+				CONFIG_DONE,
+				SERIAL_ERROR,
+				ITEM_APPEARED,
+				ITEM_DISAPPEARED
+			};
 
 			enum class Location : int8_t
-									{
-										BASE_M,
-										BASE_S,
-										MASTER,
-										BASE
-									};
+			{
+				BASE_M,
+				BASE_S,
+				MASTER,
+				BASE
+			};
 
 			public :
 				Packet(Location src, Location trg, Message msg);
 
+				Location target() const { return mTarget; }
+				Location source() const { return mSource; }
+				Message message() const { return mMessage; }
 
-
-				Location target();
-				Location source();
-				Message message();
-				//void addDataPoint(data::DataPoint*);
 				void addDataPoint(std::shared_ptr<data::DataPoint>);
 				void serialize(lib::ByteStream&);
+
 				static std::shared_ptr<Packet> deserialize(lib::ByteStream&);
 
 
 			private :
-				Message mMessage;
-				Location mTarget;
-				Location mSource;
+				const Message mMessage;
+				const Location mTarget;
+				const Location mSource;
 				std::vector<std::shared_ptr<data::DataPoint>> mDataPoints;
 
 		};

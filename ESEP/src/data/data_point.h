@@ -19,10 +19,9 @@ namespace esep
 		   public:
 
 			DataPoint();
-			virtual ~DataPoint(){}
+			virtual ~DataPoint() {}
 
 			virtual void serialize(lib::ByteStream&) = 0;
-
 		};
 	}
 }

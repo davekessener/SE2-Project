@@ -13,6 +13,7 @@
 
 #include "lib/byte_stream.h"
 #include "data/data_point.h"
+
 namespace esep
 {
 	namespace data
@@ -20,21 +21,13 @@ namespace esep
 		class DataManager
 		{
 			public:
-
 				static std::shared_ptr<DataPoint> deserialize(lib::ByteStream&)
 				{
-					throw communication::Packet::NotImplException();
-					return nullptr;
+					MXT_THROW_EX(communication::Packet::NotImplException);
 				};
-
-			private:
-
 		};
 
 	}
 }
-
-
-
 
 #endif /* SRC_DATA_DATA_MANAGER_H_ */

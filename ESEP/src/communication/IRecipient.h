@@ -11,6 +11,7 @@
 #include <memory>
 
 #include "communication/packet.h"
+
 namespace esep
 {
 	namespace communication
@@ -22,8 +23,6 @@ namespace esep
 				virtual ~IRecipient(){}
 
 				virtual void accept(std::shared_ptr<Packet>) = 0;
-
-
 		};
 }
 }
