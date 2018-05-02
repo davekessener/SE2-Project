@@ -19,12 +19,9 @@ namespace esep
 		{
 			public:
 				virtual ~IRecipient() { }
-
 				virtual void accept(std::shared_ptr<Packet>) = 0;
 		};
+	}
 }
-}
-
-
 
 #endif /* SRC_COMMUNICATION_IRECIPIENT_H_ */

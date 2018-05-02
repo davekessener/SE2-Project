@@ -13,16 +13,12 @@
 #include "lib/byte_stream.h"
 #include "data/data_point.h"
 
-
-
 namespace esep
 {
 	namespace communication
 	{
-
 		class Packet
 		{
-
 			public:
 			MXT_DEFINE_E(NotImplException);
 
@@ -61,16 +57,13 @@ namespace esep
 
 				static std::shared_ptr<Packet> deserialize(lib::ByteStream&);
 
-
 			private :
 				const Message mMessage;
 				const Location mTarget;
 				const Location mSource;
 				std::vector<std::shared_ptr<data::DataPoint>> mDataPoints;
-
 		};
+	}
 }
-}
-
 
 #endif /* SRC_COMMUNICATION_PACKET_H_ */

@@ -1,4 +1,3 @@
-
 #ifndef SRC_BASE_CONFIG_MANAGER_H_
 #define SRC_BASE_CONFIG_MANAGER_H_
 
