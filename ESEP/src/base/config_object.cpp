@@ -5,6 +5,8 @@
 
 #include "base/config_object.h"
 
+#define MXT_NO_OF_VALUES 5
+
 namespace esep { namespace base {
 
 ConfigObject::ConfigObject(const std::string& path)
@@ -15,7 +17,6 @@ ConfigObject::ConfigObject(const std::string& path)
 	, mHsToSwitch(0)
 	, mSwitchToEnd(0)
 	, mSlowFactor(0)
-	, mBackwardFactor(0)
 {
 	std::ifstream confFile;
 	confFile.open(mPath);
@@ -30,14 +31,12 @@ ConfigObject::ConfigObject(const std::string& path)
 			fileData.push_back(line);
 		}
 
-		if(fileData.size() != 6)
+		if(fileData.size() != MXT_NO_OF_VALUES)
 		{
 			MXT_THROW_EX(ConfigObject::InvalidDataException);
 		}
 		else
 		{
-			mBackwardFactor = std::stof(fileData.back());
-			fileData.pop_back();
 			mSlowFactor = std::stof(fileData.back());
 			fileData.pop_back();
 			mSwitchToEnd = std::stoi(fileData.back());
@@ -59,17 +58,15 @@ void ConfigObject::save()
 		MXT_THROW_EX(InvalidObjectException);
 	}
 
-	std::ofstream confFile;
-	confFile.open(mPath);
+	std::ofstream confFile(mPath);
 
 	if(confFile.is_open())
 	{
-		confFile << std::to_string(mHeightSensor) << std::endl
-						<< std::to_string(mStartToHs) << std::endl
-						<< std::to_string(mHsToSwitch) << std::endl
-						<< std::to_string(mSwitchToEnd) << std::endl
-						<< std::to_string(mSlowFactor) << std::endl
-						<< std::to_string(mBackwardFactor);
+		confFile << mHeightSensor << "\n"
+				 << mStartToHs    << "\n"
+				 << mHsToSwitch   << "\n"
+				 << mSwitchToEnd  << "\n"
+				 << mSlowFactor;
 	}
 	else
 	{
@@ -84,8 +81,7 @@ bool ConfigObject::isValid()
 			&& mStartToHs > 0
 			&& mHsToSwitch > 0
 			&& mSwitchToEnd > 0
-			&& mSlowFactor > 0
-			&& mBackwardFactor > 0));
+			&& mSlowFactor > 0));
 }
 
 void ConfigObject::setHeightSensor(uint16_t val)
@@ -133,15 +129,6 @@ void ConfigObject::setSlowFactor(float val)
 	mSlowFactor = val;
 }
 
-void ConfigObject::setBackwardFactor(float val)
-{
-	if(val == 0)
-	{
-		MXT_THROW_EX(ConfigObject::InvalidDataException);
-	}
-	mBackwardFactor = val;
-}
-
 uint16_t ConfigObject::heightSensor(void)
 {
 	if(!isValid())
@@ -185,15 +172,6 @@ float ConfigObject::slowFactor(void)
 		MXT_THROW_EX(ConfigObject::InvalidObjectException);
 	}
 	return mSlowFactor;
-}
-
-float ConfigObject::backwardFactor(void)
-{
-	if(!isValid())
-	{
-		MXT_THROW_EX(ConfigObject::InvalidObjectException);
-	}
-	return mBackwardFactor;
 }
 
 }}

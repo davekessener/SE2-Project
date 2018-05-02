@@ -22,7 +22,6 @@ namespace esep
 		{
 			public:
 				ConfigManager(communication::IRecipient *, ConfigObject *);
-				~ConfigManager() { };
 				void enter() override;
 				void leave() override;
 				void handle(hal::HAL::Event) override;
@@ -32,8 +31,8 @@ namespace esep
 				void run(hal::HAL::Event);
 
 			private:
-				communication::IRecipient *mBaseHandler;
-				ConfigObject *mConfig;
+				communication::IRecipient * const mBaseHandler;
+				ConfigObject * const mConfig;
 				bool mRunning;
 				hal::HeightSensor& HEIGHT_SENSOR;
 				hal::Switch& SWITCH;
@@ -49,7 +48,6 @@ namespace esep
 				uint32_t mHsToSwitch;
 				uint32_t mSwitchToEnd;
 				float mSlowFactor;
-				float mBackwardFactor;
 		};
 }
 }

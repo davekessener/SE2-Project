@@ -28,14 +28,13 @@ ConfigManager::ConfigManager(communication::IRecipient *baseHandler, ConfigObjec
 	, mHsToSwitch(0)
 	, mSwitchToEnd(0)
 	, mSlowFactor(0)
-	, mBackwardFactor(0)
 {
 
 }
 
 void ConfigManager::enter()
 {
-	mRunning= true;
+	mRunning = true;
 }
 
 void ConfigManager::leave()
@@ -59,13 +58,18 @@ void ConfigManager::accept(std::shared_ptr<communication::Packet> packet)
 
 void ConfigManager::run(hal::HAL::Event event)
 {
+	typedef hal::HAL::Event Event;
+	typedef hal::LightBarriers::LightBarrier LightBarrier;
+	typedef communication::Packet::Location Location;
+	typedef communication::Packet::Message Message;
+
 	std::chrono::milliseconds msTime;
 	uint32_t actualTime;
 
 	switch (mStep)
 	{
 	case 0 :
-		if(event == hal::HAL::Event::LB_START && LIGHT_BARRIERS.isBroken(hal::LightBarriers::LightBarrier::LB_START))
+		if(event == Event::LB_START && LIGHT_BARRIERS.isBroken(LightBarrier::LB_START))
 		{
 			MOTOR.right();
 			MOTOR.start();
@@ -148,8 +152,7 @@ void ConfigManager::run(hal::HAL::Event event)
 			MOTOR.stop();
 			SWITCH.close();
 			mSwitchToEnd = actualTime - mTimestamp;
-			mSlowFactor = mStartToHsSlow / mStartToHs;
-			mBackwardFactor = mStartToHsBackward / mStartToHs;
+			mSlowFactor = mStartToHsSlow / (float) mStartToHs;
 
 			// Save to object
 			mConfig->setHeightSensor(mHeightSensor);
@@ -157,15 +160,16 @@ void ConfigManager::run(hal::HAL::Event event)
 			mConfig->setHsToSwitch(mHsToSwitch);
 			mConfig->setSwitchToEnd(mSwitchToEnd);
 			mConfig->setSlowFactor(mSlowFactor);
-			mConfig->setBackwardFactor(mBackwardFactor);
 			mConfig->save();
 
 			// send message
-			auto msg = std::make_shared<communication::Packet>(communication::Packet::Location::BASE, communication::Packet::Location::BASE, communication::Packet::Message::CONFIG_DONE);
+			auto msg = std::make_shared<communication::Packet>(Location::BASE, Location::MASTER, Message::CONFIG_DONE);
 			mBaseHandler->accept(msg);
 		};
 	break;
-	default: ;
+
+	default:
+		break;
 	}
 }
 

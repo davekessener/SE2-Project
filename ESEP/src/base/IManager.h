@@ -12,18 +12,12 @@ namespace esep
 		class IManager : public communication::IRecipient
 		{
 			public:
-			   IManager();
-			   virtual ~IManager()
-			   {};
-			   virtual void enter()
-			   {};
-			   virtual void leave()
-			   {};
-			   virtual void handle(hal::HAL::Event)
-			   {};
+			   virtual ~IManager() {};
+			   virtual void enter() {};
+			   virtual void leave() {};
+			   virtual void handle(hal::HAL::Event) {};
 		};
-
-}
+	}
 }
 
 #endif

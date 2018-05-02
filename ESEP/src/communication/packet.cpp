@@ -14,9 +14,9 @@
 namespace esep { namespace communication {
 
 Packet::Packet(Location src, Location trg, Message msg)
-	: mSource(src)
+	: mMessage(msg)
 	, mTarget(trg)
-	, mMessage(msg)
+	, mSource(src)
 {
 }
 
@@ -50,7 +50,7 @@ std::shared_ptr<Packet> Packet::deserialize(lib::ByteStream& bs)
 
 void Packet::addDataPoint(std::shared_ptr<data::DataPoint> p)
 {
-	mDatapoints.pushback(p);
+	mDataPoints.push_back(p);
 }
 
 }}
