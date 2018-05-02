@@ -62,18 +62,14 @@ void ConfigObject::save()
 	std::ofstream confFile;
 	confFile.open(mPath);
 
-	std::stringstream outputstream;
-
 	if(confFile.is_open())
 	{
-		outputstream << std::to_string(mHeightSensor) << std::endl
+		confFile << std::to_string(mHeightSensor) << std::endl
 						<< std::to_string(mStartToHs) << std::endl
 						<< std::to_string(mHsToSwitch) << std::endl
 						<< std::to_string(mSwitchToEnd) << std::endl
 						<< std::to_string(mSlowFactor) << std::endl
 						<< std::to_string(mBackwardFactor);
-		const char *output = outputstream.str().c_str();
-		confFile.write(output, outputstream.str().size());
 	}
 	else
 	{

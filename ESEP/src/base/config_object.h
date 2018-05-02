@@ -22,7 +22,6 @@ namespace esep
 
 			public:
 				ConfigObject(const std::string& path = "/src/system.conf");
-				~ConfigObject() {};
 				void save();
 				bool isValid();
 

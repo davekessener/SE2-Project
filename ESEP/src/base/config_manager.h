@@ -23,10 +23,10 @@ namespace esep
 			public:
 				ConfigManager(communication::IRecipient *, ConfigObject *);
 				~ConfigManager() { };
-				void enter();
-				void leave();
-				void handle(hal::HAL::Event);
-				void accept(std::shared_ptr<communication::Packet>);
+				void enter() override;
+				void leave() override;
+				void handle(hal::HAL::Event) override;
+				void accept(std::shared_ptr<communication::Packet>) override;
 
 			private:
 				void run(hal::HAL::Event);
@@ -44,6 +44,8 @@ namespace esep
 				time_t mTimestamp;
 				uint16_t mHeightSensor;
 				uint32_t mStartToHs;
+				uint32_t mStartToHsBackward;
+				uint32_t mStartToHsSlow;
 				uint32_t mHsToSwitch;
 				uint32_t mSwitchToEnd;
 				float mSlowFactor;
