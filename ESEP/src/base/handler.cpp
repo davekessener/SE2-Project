@@ -20,31 +20,31 @@ Handler::Handler(communication::IRecipient* communicationModule)
 		qnx::Channel channel;
 		mConnection = channel.connect();
 
-		while(mRunning)
+		while(mRunning.load())
 		{
 			qnx::pulse_t pulse = channel.receivePulse(); //wait for pulse message
 			//Look for the Code
-			HandlerThreadCtrl threadCtrl = static_cast<HandlerThreadCtrl>(pulse.code);
+			int8_t MessageCode = pulse.code;
 
 			//It can be a command to switch the Manager
-			if(threadCtrl == HandlerThreadCtrl::SWITCH_MANAGER)
+			if(MessageCode == static_cast<int8_t>(MessageType::SWITCH_MANAGER))
 			{
-				Message msg = static_cast<Message>(pulse.value);
+				uint32_t msg = pulse.value;
 				switch(msg)
 				{
-					case(Message::START_RUN):
+					case(static_cast<uin32_t>(Message::START_RUN)):
 							switchManager(mRunManager.get());
 						break;
 
-					case(Message::START_CONFIG):
+					case(static_cast<uin32_t>(Message::START_CONFIG)):
 							switchManager(mConfigManager.get());
 						break;
 
-					case(Message::IDLE):
+					case(static_cast<uin32_t>(Message::IDLE)):
 							switchManager(mDefaultManager.get());
 						break;
 
-					case(Message::SERIAL_ERROR):
+					case(static_cast<uin32_t>(Message::SERIAL_ERROR)):
 							switchManager(mErrorManager.get());
 						break;
 
@@ -56,7 +56,7 @@ Handler::Handler(communication::IRecipient* communicationModule)
 				}
 			}
 			// It can be a command to forward a Hal Event
-			else if (threadCtrl == HandlerThreadCtrl::HAL_EVENT)
+			else if (MessageCode == static_cast<int8_t>(MessageType::HAL_EVENT))
 			{
 				hal::HAL::Event event = static_cast<hal::HAL::Event>(pulse.value);
 				mCurrentManager->handle(event);
@@ -76,7 +76,7 @@ Handler::~Handler()
 {
 	try
 	{
-		mConnection.sendPulse(static_cast<int8_t>(HandlerThreadCtrl::STOP_RUNNING));
+		mConnection.sendPulse(static_cast<int8_t>(MessageType::STOP_RUNNING));
 	}
 	catch(...)
 	{
@@ -96,7 +96,7 @@ void Handler::accept(std::shared_ptr<communication::Packet> packet)
 		switch(msg)
 		{
 			case(Message::START_RUN): case(Message::START_CONFIG): case(Message::IDLE): case(Message::SERIAL_ERROR):
-				mConnection.sendPulse(static_cast<int8_t>(HandlerThreadCtrl::SWITCH_MANAGER), static_cast<int8_t>(msg));
+				mConnection.sendPulse(static_cast<int8_t>(MessageType::SWITCH_MANAGER), static_cast<int8_t>(msg));
 				break;
 
 			default:
@@ -118,7 +118,7 @@ void Handler::switchManager(IManager *m)
 
 void Handler::handle(hal::HAL::Event e)
 {
-	mConnection.sendPulse(static_cast<int8_t>(HandlerThreadCtrl::HAL_EVENT), static_cast<uint32_t>(e));
+	mConnection.sendPulse(static_cast<int8_t>(MessageType::HAL_EVENT), static_cast<uint32_t>(e));
 }
 
 }}

@@ -18,7 +18,7 @@ namespace esep
 		class Handler : public communication::IRecipient
 		{
 			private:
-			enum class HandlerThreadCtrl : int8_t
+			enum class MessageType : int8_t
 			{
 				STOP_RUNNING,
 				HAL_EVENT,
