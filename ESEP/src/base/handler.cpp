@@ -23,11 +23,11 @@ void Handler::accept(std::shared_ptr<communication::Packet> packet)
 	{
 		switch(packet->message())
 		{
-			case(communication::Packet::Message::START_CONFIG):
+			case(communication::Packet::Message::SELECT_CONFIG):
 				switchManager(mConfigManager.get());
 				break;
 
-			case(communication::Packet::Message::START_RUN):
+			case(communication::Packet::Message::SELECT_RUN):
 				switchManager(mRunManager.get());
 				break;
 
