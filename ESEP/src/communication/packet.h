@@ -24,17 +24,17 @@ namespace esep
 
 			enum class Message : int8_t
 			{
-				START_CONFIG,
-				START_RUN,
+				SELECT_CONFIG,
+				SELECT_RUN,
 				IDLE,
-				RESUME,
-				SUSPEND,
-				KEEP_NEXT,
-				ANALYSE,
+				RESUME, // start motor (Master -> Base)
+				SUSPEND, // stop motor (Master -> Base)
+				KEEP_NEXT, // open switch (Master -> Base)
+				ANALYSE, // analyse item at switch (Base -> Master)
 				CONFIG_DONE,
-				SERIAL_ERROR,
-				ITEM_APPEARED,
-				ITEM_DISAPPEARED
+				CONFIG_FAILED,
+				ITEM_APPEARED, // (Base -> Master)
+				ITEM_DISAPPEARED // (Base -> Master)
 			};
 
 			enum class Location : int8_t
