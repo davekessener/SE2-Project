@@ -23,14 +23,11 @@ Handler::Handler(communication::IRecipient* communicationModule)
 		while(mRunning.load())
 		{
 			qnx::pulse_t pulse = channel.receivePulse(); //wait for pulse message
-			//Look for the Code
-			int8_t MessageCode = pulse.code;
 
-			//It can be a command to switch the Manager
-			if(MessageCode == static_cast<int8_t>(MessageType::SWITCH_MANAGER))
+			//the code can be a command to switch the Manager
+			if(pulse.code == static_cast<int8_t>(MessageType::SWITCH_MANAGER))
 			{
-				uint32_t msg = pulse.value;
-				switch(msg)
+				switch(pulse.value)
 				{
 					case(static_cast<uin32_t>(Message::START_RUN)):
 							switchManager(mRunManager.get());
@@ -56,7 +53,7 @@ Handler::Handler(communication::IRecipient* communicationModule)
 				}
 			}
 			// It can be a command to forward a Hal Event
-			else if (MessageCode == static_cast<int8_t>(MessageType::HAL_EVENT))
+			else if (pulse.code == static_cast<int8_t>(MessageType::HAL_EVENT))
 			{
 				hal::HAL::Event event = static_cast<hal::HAL::Event>(pulse.value);
 				mCurrentManager->handle(event);
