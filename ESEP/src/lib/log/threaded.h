@@ -19,7 +19,7 @@ namespace esep
 				virtual void doWrite(const std::string&);
 				virtual void doEcho(const std::string&);
 			private:
-				std::shared_ptr<std::ostream> mOut;
+				std::unique_ptr<std::ostream> mOut;
 				std::mutex mMutex;
 		};
 	}

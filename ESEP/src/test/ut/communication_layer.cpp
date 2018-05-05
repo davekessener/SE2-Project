@@ -70,6 +70,8 @@ void CommunicationLayer::define(void)
 
 		wait();
 
+		lib::Timer::instance().sleep(10);
+
 		ASSERT_EQUALS(mMaster->packets.size(), 0u);
 		ASSERT_EQUALS(mBaseM->packets.size(),  1u);
 		ASSERT_EQUALS(mBaseS->packets.size(),  0u);
@@ -83,6 +85,8 @@ void CommunicationLayer::define(void)
 		mMasterCom->accept(packet(Location::BASE, Location::MASTER, Message::RESUME));
 
 		wait();
+
+		lib::Timer::instance().sleep(10);
 
 		ASSERT_EQUALS(mMaster->packets.size(), 1u);
 		ASSERT_EQUALS(mBaseM->packets.size(),  0u);
@@ -100,6 +104,8 @@ void CommunicationLayer::define(void)
 
 		wait();
 
+		lib::Timer::instance().sleep(10);
+
 		ASSERT_EQUALS(mMaster->packets.size(), 1u);
 		ASSERT_EQUALS(mBaseM->packets.size(),  0u);
 		ASSERT_EQUALS(mBaseS->packets.size(),  0u);
@@ -112,9 +118,9 @@ void CommunicationLayer::define(void)
 	{
 		mMasterCom->accept(packet(Location::MASTER, Location::BASE, Message::KEEP_NEXT));
 
-		lib::Timer::instance().sleep(10);
-
 		wait();
+
+		lib::Timer::instance().sleep(10);
 
 		ASSERT_EQUALS(mMaster->packets.size(), 0u);
 		ASSERT_EQUALS(mBaseM->packets.size(),  1u);
@@ -134,6 +140,8 @@ void CommunicationLayer::define(void)
 		mMasterCom->accept(packet(Location::BASE, Location::MASTER, Message::RESUME));
 
 		wait();
+
+		lib::Timer::instance().sleep(10);
 
 		mConnections[0]->kill();
 

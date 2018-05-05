@@ -7,7 +7,7 @@ namespace esep
 {
 	namespace test
 	{
-		void main(const lib::args_t&);
+		bool main(const lib::args_t&);
 	}
 }
 

@@ -39,7 +39,6 @@ Impl::Impl(void)
 	reset();
 
 	mRunning = true;
-	mUpdating = false;
 	mNextID = INVALID_TIMER_ID + 1;
 
 	mTimerThread.construct([this](void) {
@@ -58,13 +57,10 @@ Impl::Impl(void)
 				switch(p.code)
 				{
 				case static_cast<int8_t>(Code::SHUTDOWN):
+					mRunning = false;
 					break;
 
 				case static_cast<int8_t>(Code::EXPIRED):
-					if(mUpdating.load())
-					{
-						MXT_THROW_EX(TimerOverflowException);
-					}
 					update();
 					break;
 
@@ -121,8 +117,6 @@ uint64_t Impl::elapsed(void)
 
 void Impl::update(void)
 {
-	mUpdating = true;
-
 	decltype(mTimers) timer_copy;
 	std::vector<id_t> timer_to_delete;
 
@@ -205,8 +199,6 @@ void Impl::update(void)
 			}
 		}
 	}
-
-	mUpdating = false;
 }
 
 }}}
