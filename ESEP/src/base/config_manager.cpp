@@ -224,7 +224,7 @@ void ConfigManager::handle(hal::HAL::Event event)
 				mConfig->setSlowFactor(mSlowFactor);
 				mConfig->setTimeTolerance(mTimeTolerance);
 				mConfig->save();
-			} catch (ConfigObject::InvalidDataException &e) {
+			} catch (ConfigObject::InvalidDataException const& e) {
 				msg = std::make_shared<communication::Packet>(Location::BASE, Location::MASTER, Message::CONFIG_FAILED);
 			}
 
