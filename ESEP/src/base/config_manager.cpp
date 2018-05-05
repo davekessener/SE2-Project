@@ -8,8 +8,8 @@
 
 namespace esep { namespace base {
 
-ConfigManager::ConfigManager(communication::IRecipient *baseHandler, ConfigObject *config)
-	: mBaseHandler(baseHandler)
+ConfigManager::ConfigManager(communication::IRecipient *handler, ConfigObject *config)
+	: mHandler(handler)
 	, mConfig(config)
 	, HEIGHT_SENSOR(System::instance().get<hal::HeightSensor>())
 	, SWITCH(System::instance().get<hal::Switch>())
@@ -214,7 +214,8 @@ void ConfigManager::handle(hal::HAL::Event event)
 			mSlowFactor = mStartToEnd / (float) mStartToEndSlow;
 			mTimeTolerance = 1 - ((mStartToEnd / (float) mStartToEndLong) + (mStartToEnd / (float) mStartToEndLong) * ConfigObject::TOLERANCE);
 
-			// Save config
+			// Save config and send message to handler
+			auto msg = std::make_shared<communication::Packet>(Location::BASE, Location::MASTER, Message::CONFIG_DONE);
 			try {
 				mConfig->setHeightSensor(1); // TODO measure HEIGHTSENSOR
 				mConfig->setStartToHs(mStartToHs);
@@ -223,14 +224,11 @@ void ConfigManager::handle(hal::HAL::Event event)
 				mConfig->setSlowFactor(mSlowFactor);
 				mConfig->setTimeTolerance(mTimeTolerance);
 				mConfig->save();
-			} catch (...) {
-				auto msg = std::make_shared<communication::Packet>(Location::BASE, Location::MASTER, Message::CONFIG_FAILED);
-				mBaseHandler->accept(msg);
-				return;
+			} catch (ConfigObject::InvalidDataException &e) {
+				msg = std::make_shared<communication::Packet>(Location::BASE, Location::MASTER, Message::CONFIG_FAILED);
 			}
 
-			auto msg = std::make_shared<communication::Packet>(Location::BASE, Location::MASTER, Message::CONFIG_DONE);
-			mBaseHandler->accept(msg);
+			mHandler->accept(msg);
 
 			mState = State::STATE_15;
 		};

@@ -42,7 +42,7 @@ namespace esep
 				void accept(std::shared_ptr<communication::Packet>) override;
 
 			private:
-				communication::IRecipient * const mBaseHandler;
+				communication::IRecipient * const mHandler;
 				ConfigObject * const mConfig;
 				hal::HeightSensor& HEIGHT_SENSOR;
 				hal::Switch& SWITCH;

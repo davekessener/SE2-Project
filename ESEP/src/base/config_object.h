@@ -25,12 +25,12 @@ namespace esep
 				void save();
 				bool isValid();
 
-				uint16_t heightSensor();	// Average height value [int value]
-				uint32_t startToHs();		// Time between LB_Start and LB_HeightSensor [ms]
-				uint32_t hsToSwitch();		// Time between LB_HeightSensor and LB_Switch [ms]
-				uint32_t switchToEnd();		// Time between LB_Switch and LB_End [ms]
-				float slowFactor();			// Slow speed factor
-				float timeTolerance();		// Tolerance factor for time measuring [%]
+				uint16_t heightSensor();
+				uint32_t startToHs();
+				uint32_t hsToSwitch();
+				uint32_t switchToEnd();
+				float slowFactor();
+				float timeTolerance();
 
 				void setHeightSensor(uint16_t);
 				void setStartToHs(uint32_t);
@@ -42,12 +42,12 @@ namespace esep
 			private:
 				const std::string mPath;
 				bool mValid;
-				uint16_t mHeightSensor;
-				uint32_t mStartToHs;
-				uint32_t mHsToSwitch;
-				uint32_t mSwitchToEnd;
-				float mSlowFactor;
-				float mTimeTolerance;
+				uint16_t mHeightSensor;		// Average height value [int value]
+				uint32_t mStartToHs;		// Time between LB_Start and LB_HeightSensor [ms]
+				uint32_t mHsToSwitch;		// Time between LB_HeightSensor and LB_Switch [ms]
+				uint32_t mSwitchToEnd;		// Time between LB_Switch and LB_End [ms]
+				float mSlowFactor;			// Slow speed factor [%]
+				float mTimeTolerance;		// TimeTolerance depending on ITEM going either the short or the long way [%]
 		};
 
 }
