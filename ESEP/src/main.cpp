@@ -6,6 +6,7 @@
 #	include "system.h"
 #endif
 
+#include "lib/utils.h"
 #include "lib/tuple.h"
 
 int main(int argc, char *argv[])

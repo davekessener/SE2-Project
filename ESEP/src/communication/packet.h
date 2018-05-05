@@ -34,7 +34,8 @@ namespace esep
 				CONFIG_DONE,
 				CONFIG_FAILED,
 				ITEM_APPEARED, // (Base -> Master)
-				ITEM_DISAPPEARED // (Base -> Master)
+				ITEM_DISAPPEARED, // (Base -> Master)
+				ERROR_SERIAL
 			};
 
 			enum class Location : int8_t
@@ -52,15 +53,19 @@ namespace esep
 				Location source() const { return mSource; }
 				Message message() const { return mMessage; }
 
+				void target(Location v) { mTarget = v; }
+				void source(Location v) { mSource = v; }
+				void message(Message v) { mMessage = v; }
+
 				void addDataPoint(std::shared_ptr<data::DataPoint>);
 				void serialize(lib::ByteStream&);
 
 				static std::shared_ptr<Packet> deserialize(lib::ByteStream&);
 
 			private :
-				const Message mMessage;
-				const Location mTarget;
-				const Location mSource;
+				Message mMessage;
+				Location mTarget;
+				Location mSource;
 				std::vector<std::shared_ptr<data::DataPoint>> mDataPoints;
 		};
 

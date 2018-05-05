@@ -19,7 +19,7 @@ namespace esep
 			template<typename T1, typename T2>
 			struct IfImpl<false, T1, T2>
 			{
-				typedef typename T1::Type Type;
+				typedef typename T2::Type Type;
 			};
 
 			template<bool C, typename T>

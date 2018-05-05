@@ -62,12 +62,21 @@ Watchdog::Watchdog(client_ptr c, uint t)
 				}
 			}
 		}
+		catch(const container_t::InterruptedException& e)
+		{
+			mTimedOut = true;
+		}
 		catch(const Connection::ConnectionClosedException& e)
 		{
 			mTimedOut = true;
 		}
 		MXT_CATCH_STRAY
 	});
+
+	while(mLastWrite.load() == 0)
+	{
+		lib::Timer::instance().sleep(1);
+	}
 }
 
 Watchdog::~Watchdog(void)

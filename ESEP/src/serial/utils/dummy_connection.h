@@ -4,6 +4,7 @@
 #include <functional>
 #include <memory>
 #include <atomic>
+#include <mutex>
 
 #include "serial/connection.h"
 
@@ -16,6 +17,8 @@ namespace esep
 	{
 		class DummyConnection : public Connection
 		{
+			typedef std::unique_lock<std::mutex> lock_t;
+
 			public:
 			typedef sync::Container<byte_t> buffer_t;
 			typedef std::function<byte_t(byte_t, uint)> transform_fn;
@@ -28,16 +31,17 @@ namespace esep
 				void read(byte_t *, size_t);
 				void open(const std::string&) { MXT_THROW("Cannot open a dummy-connection!"); }
 				void close( );
-				bool isOpen( ) const { return mCounterpart; }
+				bool isOpen( ) const { return mConnected.load(); }
 				void setTransform(transform_fn f) { mTransform = f; }
 				uint getSentPackets( ) const { return mSentPackets; }
 				void kill( ) { mDead = true; }
 			private:
 				DummyConnection *mCounterpart;
-				std::unique_ptr<buffer_t> mBuffer;
+				buffer_t mBuffer;
 				transform_fn mTransform;
 				uint mSentPackets;
-				std::atomic<bool> mDead;
+				std::atomic<bool> mDead, mConnected;
+				std::mutex mMutex;
 		};
 	}
 }
