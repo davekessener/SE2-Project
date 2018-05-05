@@ -36,6 +36,47 @@ namespace esep
 		{
 			typedef T Type;
 		};
+
+		template<typename ... T>
+		struct Void
+		{
+			typedef void Type;
+		};
+
+		template<typename ... T>
+		using ToVoid = typename Void<T...>::Type;
+
+		// # -------------------------------------------------------------------------
+
+		template<typename B>
+		struct Not
+		{
+			static constexpr bool Value = !B::Value;
+		};
+
+		template<typename ... B>
+		struct And
+		{
+			static constexpr bool Value = true;
+		};
+
+		template<typename B, typename ... A>
+		struct And<B, A...>
+		{
+			static constexpr bool Value = B::Value && And<A...>::Value;
+		};
+
+		template<typename ... B>
+		struct Or
+		{
+			static constexpr bool Value = false;
+		};
+
+		template<typename B, typename ... A>
+		struct Or<B, A...>
+		{
+			static constexpr bool Value = B::Value || Or<A...>::Value;
+		};
 	}
 }
 

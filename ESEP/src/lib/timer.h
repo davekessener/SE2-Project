@@ -124,7 +124,7 @@ namespace esep
 					std::chrono::time_point<std::chrono::system_clock> mSystemStart;
 					qnx::Connection mConnection;
 					lib::Thread mTimerThread;
-					std::atomic<bool> mRunning, mUpdating;
+					std::atomic<bool> mRunning;
 					std::map<id_t, Timer> mTimers;
 					std::mutex mMutex;
 					id_t mNextID;

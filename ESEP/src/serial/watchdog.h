@@ -17,6 +17,7 @@ namespace esep
 		{
 			private:
 			typedef std::unique_ptr<Client> client_ptr;
+			typedef sync::Container<Client::buffer_t> container_t;
 
 			enum class Packet : uint8_t
 			{
@@ -44,7 +45,7 @@ namespace esep
 				std::atomic<uint64_t> mLastRead, mLastWrite;
 				uint mTimeout;
 				lib::Thread mReaderThread;
-				sync::Container<Client::buffer_t> mReadBuf;
+				container_t mReadBuf;
 				std::atomic<bool> mTimedOut, mRunning, mIsActive;
 		};
 	}

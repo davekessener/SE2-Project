@@ -8,5 +8,6 @@
 #include "lib/tml/if.h"
 #include "lib/tml/index_of.h"
 #include "lib/tml/ref_detect.h"
+#include "lib/tml/traits.h"
 
 #endif
