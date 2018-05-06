@@ -24,7 +24,7 @@ namespace esep
 			class HALTester
 			{
 				typedef void (HALTester::*test_fn)(hal::HAL::Event);
-				typedef lib::Timer::Class::TimerManager timer_t;
+				typedef timer::Manager timer_t;
 
 				typedef hal::Buttons::Button Button;
 				typedef hal::LEDs::LED LED;

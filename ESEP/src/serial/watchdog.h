@@ -41,7 +41,7 @@ namespace esep
 
 			private:
 				client_ptr mClient;
-				lib::Timer::Class::TimerManager mTimer;
+				timer::Manager mTimer;
 				std::atomic<uint64_t> mLastRead, mLastWrite;
 				uint mTimeout;
 				lib::Thread mReaderThread;

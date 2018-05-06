@@ -1,41 +1,14 @@
 #include <pthread.h>
 
-#include "lib/timer.h"
+#include "lib/timer/impl.h"
 
+#include "lib/utils.h"
 #include "lib/logger.h"
 
 #define MXT_1MS_IN_NS 1000000l
 #define MXT_TOLERANCE 10 // max of 10ms delay is acceptable
 
-namespace esep { namespace lib { namespace timer {
-
-Impl::TimerManager::TimerManager(TimerManager&& tm)
-	: mID(INVALID_TIMER_ID)
-{
-	swap(tm);
-}
-
-Impl::TimerManager::~TimerManager(void)
-{
-	lib::Timer::instance().unregisterCallback(*this);
-}
-
-Impl::TimerManager& Impl::TimerManager::operator=(TimerManager&& tm)
-{
-	TimerManager t(INVALID_TIMER_ID);
-
-	tm.swap(t);
-	t.swap(*this);
-
-	return *this;
-}
-
-void Impl::TimerManager::swap(TimerManager& tm) noexcept
-{
-	std::swap(mID, tm.mID);
-}
-
-// # --------------------------------------------------------------------------
+namespace esep { namespace timer {
 
 namespace
 {
@@ -77,7 +50,7 @@ Impl::Impl(void)
 					break;
 
 				default:
-					MXT_LOG(stringify("Received unknown pulse msg {", hex<8>(p.code), ", ", hex<32>(p.value), " (", p.value, ")}"));
+					MXT_LOG(lib::stringify("Received unknown pulse msg {", lib::hex<8>(p.code), ", ", lib::hex<32>(p.value), " (", p.value, ")}"));
 				}
 
 				if(mRunning.load())
@@ -119,7 +92,7 @@ Impl::~Impl(void)
 	};
 }
 
-Impl::TimerManager Impl::registerCallback(callback_t f, uint o, uint p)
+Manager Impl::registerCallback(callback_t f, uint o, uint p)
 {
 	lock_t lock(mMutex);
 
@@ -127,10 +100,10 @@ Impl::TimerManager Impl::registerCallback(callback_t f, uint o, uint p)
 
 	mTimers.emplace(std::make_pair(id, Timer(id, f, o, p)));
 
-	return TimerManager(id);
+	return Manager(id);
 }
 
-void Impl::unregisterCallback(const TimerManager& tm)
+void Impl::unregisterCallback(const Manager& tm)
 {
 	lock_t lock(mMutex);
 
@@ -145,6 +118,12 @@ void Impl::unregisterCallback(const TimerManager& tm)
 uint64_t Impl::elapsed(void)
 {
 	return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - mSystemStart).count();
+}
+
+void Impl::reset(void)
+{
+	mSystemStart = std::chrono::system_clock::now();
+	mCounter = 0;
 }
 
 void Impl::update(void)
@@ -174,15 +153,15 @@ void Impl::update(void)
 			}
 			catch(const std::exception& e)
 			{
-				MXT_LOG(stringify("Caught an exception in timer: ", e.what()));
+				MXT_LOG(lib::stringify("Caught an exception in timer: ", e.what()));
 			}
 			catch(const std::string& e)
 			{
-				MXT_LOG(stringify("Caught a string in timer: ", e));
+				MXT_LOG(lib::stringify("Caught a string in timer: ", e));
 			}
 			catch(...)
 			{
-				MXT_LOG(stringify("Caught an unknown exception in timer!"));
+				MXT_LOG(lib::stringify("Caught an unknown exception in timer!"));
 			}
 
 			if(should_delete || !t.period)
@@ -222,4 +201,4 @@ void Impl::update(void)
 	}
 }
 
-}}}
+}}

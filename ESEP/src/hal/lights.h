@@ -41,7 +41,7 @@ namespace esep
 					HAL * const mHAL;
 					uint32_t mLight;
 					State mState;
-					lib::Timer::Class::TimerManager mTimer;
+					timer::Manager mTimer;
 			};
 
 			public:
