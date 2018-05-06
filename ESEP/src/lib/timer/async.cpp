@@ -15,7 +15,7 @@ namespace
 
 Async::Async(id_t id, callback_t f, uint r, uint p)
 	: mID(id)
-	, mCallback(f)
+	, mCallback(std::move(f))
 	, mRemainder(r)
 	, mPeriod(p)
 {
@@ -77,14 +77,9 @@ void Async::tick(void)
 	{
 		mConnection.sendPulse(Code::EXECUTE);
 
-		if(mPeriod)
+		if(!(mRemainder = mPeriod))
 		{
-			mRemainder = mPeriod;
-		}
-		else
-		{
-			mRunning = false;
-			mConnection.sendPulse(Code::SHUTDOWN);
+			shutdown();
 		}
 	}
 }
@@ -96,7 +91,9 @@ void Async::shutdown(void)
 	mRunning = false;
 
 	if(mConnection.isConnected())
+	{
 		mConnection.sendPulse(Code::SHUTDOWN);
+	}
 }
 
 }}

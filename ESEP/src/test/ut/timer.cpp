@@ -69,6 +69,76 @@ void Timer::define(void)
 		ASSERT_APPROX_EQUALS(mCounter, 5u);
 		ASSERT_EQUALS(mCounter, c);
 	};
+
+	UNIT_TEST("can execute async timer")
+	{
+		auto t = mTimer->registerAsync(mIncrementer, 0, 10);
+
+		mTimer->sleep(35);
+
+		ASSERT_APPROX_EQUALS(mCounter, 3u);
+	};
+
+	UNIT_TEST("can unregister async timer")
+	{
+		{
+			auto t = mTimer->registerAsync(mIncrementer, 0, 10);
+
+			mTimer->sleep(55);
+		}
+
+		auto c = mCounter;
+
+		mTimer->sleep(25);
+
+		ASSERT_APPROX_EQUALS(mCounter, 5u);
+		ASSERT_EQUALS(mCounter, c);
+	};
+
+	UNIT_TEST("can handle async deletion before thread initialization")
+	{
+		{
+			auto t = mTimer->registerAsync(mIncrementer, 5, 10);
+		}
+
+		mTimer->sleep(30);
+
+		ASSERT_EQUALS(mCounter, 0u);
+	};
+
+	UNIT_TEST("can handle double deletion")
+	{
+		auto t = mTimer->registerCallback(mIncrementer, 5);
+
+		mTimer->sleep(12);
+
+		t.reset();
+
+		mTimer->unregisterCallback(t);
+
+		mTimer->sleep(20);
+
+		mTimer->unregisterCallback(t);
+
+		ASSERT_APPROX_EQUALS(mCounter, 2u);
+	};
+
+	UNIT_TEST("can handle async double deletion")
+	{
+		auto t = mTimer->registerAsync(mIncrementer, 5);
+
+		mTimer->sleep(12);
+
+		t.reset();
+
+		mTimer->unregisterCallback(t);
+
+		mTimer->sleep(20);
+
+		mTimer->unregisterCallback(t);
+
+		ASSERT_APPROX_EQUALS(mCounter, 2u);
+	};
 }
 
 }}}

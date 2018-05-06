@@ -6,6 +6,7 @@
 #include "test/unit/manager.h"
 
 #include "lib/utils.h"
+#include "lib/logger.h"
 
 namespace esep { namespace test { namespace unit {
 
