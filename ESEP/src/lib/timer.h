@@ -41,10 +41,7 @@ namespace esep
 			 * any single callback can be called at most every 1ms. Timer does not
 			 * spawn a new thread for callback execution. This means that callbacks
 			 * should prioritize execution speed and avoid blocking/suspending the
-			 * current thread at all cost. If the Timer is not able to call all
-			 * scheduled timer in any given update tick it will terminate the
-			 * program by throwing an instance of TimerOverflowException in the
-			 * Timer thread. // TODO
+			 * current thread at all cost.
 			 *
 			 * The Timer class is thread safe and supports registering as well as
 			 * unregistering callbacks from inside executing callbacks.
@@ -54,14 +51,13 @@ namespace esep
 				private:
 				typedef uint32_t id_t;
 				typedef std::unique_lock<std::mutex> lock_t;
+				typedef std::chrono::time_point<std::chrono::system_clock> time_t;
 
 				static constexpr id_t INVALID_TIMER_ID = 0;
 
 
 				public:
 				typedef std::function<void(void)> callback_t;
-
-				MXT_DEFINE_E(TimerOverflowException);
 
 				class TimerManager
 				{
@@ -116,18 +112,19 @@ namespace esep
 					// suspends calling thread for a minimum of t ms
 					static void sleep(uint t) { std::this_thread::sleep_for(std::chrono::milliseconds(t)); }
 
-					void reset( ) { mSystemStart = std::chrono::system_clock::now(); }
+					void reset( ) { mSystemStart = std::chrono::system_clock::now(); mCounter = 0; }
 				private:
 					void update( );
 
 				private:
-					std::chrono::time_point<std::chrono::system_clock> mSystemStart;
+					time_t mSystemStart;
 					qnx::Connection mConnection;
 					lib::Thread mTimerThread;
 					std::atomic<bool> mRunning;
 					std::map<id_t, Timer> mTimers;
 					std::mutex mMutex;
 					id_t mNextID;
+					uint mCounter;
 			};
 		}
 

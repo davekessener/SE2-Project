@@ -8,7 +8,7 @@
 
 #include "lib/logger.h"
 
-#define MXT_TIMEOUT 30
+#define MXT_TIMEOUT 20
 
 namespace esep { namespace test { namespace unit {
 

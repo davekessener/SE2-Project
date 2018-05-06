@@ -9,6 +9,8 @@
 #include "test/ft/serial.h"
 #include "test/ft/hal.h"
 
+#include "lib/logger.h"
+
 namespace esep { namespace test {
 
 bool main(const lib::args_t& args)
@@ -21,7 +23,7 @@ bool main(const lib::args_t& args)
 //		functional::testHAL();
 	}
 
-	std::cout << "\nGoodbye." << std::endl;
+	MXT_LOG("\nGoodbye.");
 
 	return ut;
 }

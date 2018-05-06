@@ -82,11 +82,8 @@ Watchdog::Watchdog(client_ptr c, uint t)
 Watchdog::~Watchdog(void)
 {
 	mRunning = false;
-
-	lib::Timer::instance().unregisterCallback(mTimer);
-
+	mTimer.reset();
 	mClient.reset();
-
 	mReaderThread.join();
 }
 

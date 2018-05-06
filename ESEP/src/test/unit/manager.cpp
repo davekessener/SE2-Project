@@ -4,6 +4,7 @@
 #include <exception>
 
 #include "test/unit/manager.h"
+
 #include "lib/utils.h"
 
 namespace esep { namespace test { namespace unit {

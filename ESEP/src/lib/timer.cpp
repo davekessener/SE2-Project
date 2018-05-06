@@ -1,8 +1,11 @@
+#include <pthread.h>
+
 #include "lib/timer.h"
 
 #include "lib/logger.h"
 
 #define MXT_1MS_IN_NS 1000000l
+#define MXT_TOLERANCE 10 // max of 10ms delay is acceptable
 
 namespace esep { namespace lib { namespace timer {
 
@@ -34,21 +37,30 @@ void Impl::TimerManager::swap(TimerManager& tm) noexcept
 
 // # --------------------------------------------------------------------------
 
+namespace
+{
+	constexpr uint diff(const uint a, const uint b) { return a > b ? a - b : b - a; }
+}
+
 Impl::Impl(void)
 {
 	reset();
 
 	mRunning = true;
 	mNextID = INVALID_TIMER_ID + 1;
+	mCounter = 0;
 
 	mTimerThread.construct([this](void) {
 		try
 		{
 			qnx::Channel channel;
+			bool overshot = false;
 
 			mConnection = channel.connect();
 
 			channel.registerTimerListener(mConnection, static_cast<int8_t>(Code::EXPIRED), MXT_1MS_IN_NS);
+
+			pthread_setschedprio(pthread_self(), 250);
 
 			while(mRunning.load())
 			{
@@ -66,6 +78,26 @@ Impl::Impl(void)
 
 				default:
 					MXT_LOG(stringify("Received unknown pulse msg {", hex<8>(p.code), ", ", hex<32>(p.value), " (", p.value, ")}"));
+				}
+
+				if(mRunning.load())
+				{
+					++mCounter;
+
+					auto d = diff(mCounter, elapsed());
+
+					if(!overshot && d > MXT_TOLERANCE)
+					{
+						MXT_LOG(lib::stringify("Significantly overshot timer by ", d, "ms!"));
+
+						overshot = true;
+					}
+					else if(overshot && d <= MXT_TOLERANCE)
+					{
+						MXT_LOG("Timer recovered.");
+
+						overshot = false;
+					}
 				}
 			}
 		}
@@ -132,45 +164,34 @@ void Impl::update(void)
 
 		if(!t.next--)
 		{
-			bool should_exec = false;
+			bool should_delete = true;
 
+			try
 			{
-				lock_t lock(mMutex);
+				t.f();
 
-				should_exec = (mTimers.count(t.id) != 0);
+				should_delete = false;
+			}
+			catch(const std::exception& e)
+			{
+				MXT_LOG(stringify("Caught an exception in timer: ", e.what()));
+			}
+			catch(const std::string& e)
+			{
+				MXT_LOG(stringify("Caught a string in timer: ", e));
+			}
+			catch(...)
+			{
+				MXT_LOG(stringify("Caught an unknown exception in timer!"));
 			}
 
-			if(should_exec)
+			if(should_delete || !t.period)
 			{
-				bool should_delete = true;
-
-				try
-				{
-					t.f();
-
-					should_delete = false;
-				}
-				catch(const std::exception& e)
-				{
-					MXT_LOG(stringify("Caught an exception in timer: ", e.what()));
-				}
-				catch(const std::string& e)
-				{
-					MXT_LOG(stringify("Caught a string in timer: ", e));
-				}
-				catch(...)
-				{
-					MXT_LOG(stringify("Caught an unknown exception in timer!"));
-				}
-
-				if(should_delete || !t.period)
-				{
-					timer_to_delete.push_back(t.id);
-				}
-				else
-				{
-					t.next = t.period;
-				}
+				timer_to_delete.push_back(t.id);
+			}
+			else
+			{
+				t.next = t.period;
 			}
 		}
 	}
