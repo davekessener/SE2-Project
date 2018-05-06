@@ -1,14 +1,16 @@
 #ifndef ESEP_TIMER_IMPL_H
 #define ESEP_TIMER_IMPL_H
 
-#include <map>
-#include <forward_list>
+#include <memory>
+#include <mutex>
 
 #include "lib/timer/types.h"
 #include "lib/timer/manager.h"
+#include "lib/timer/async.h"
 
 #include "lib/utils.h"
 #include "lib/thread.h"
+#include "lib/deferred_container.h"
 
 #include "qnx/channel.h"
 
@@ -18,6 +20,9 @@ namespace esep
 	{
 		class Impl
 		{
+			typedef std::unique_ptr<Async> Async_ptr;
+			typedef std::unique_lock<std::mutex> lock_t;
+
 			public:
 				Impl( );
 				~Impl( );
@@ -34,16 +39,18 @@ namespace esep
 				void reset( );
 			private:
 				void update( );
+				id_t nextID( );
 
 			private:
 				time_t mSystemStart;
 				qnx::Connection mConnection;
 				lib::Thread mTimerThread;
 				std::atomic<bool> mRunning;
-				std::map<id_t, Timer> mTimers;
-				std::mutex mMutex;
+				lib::DeferredContainer<id_t, Timer> mTimers;
+				lib::DeferredContainer<id_t, Async_ptr> mAsyncs;
 				id_t mNextID;
 				uint mCounter;
+				std::mutex mMutex;
 		};
 	}
 }

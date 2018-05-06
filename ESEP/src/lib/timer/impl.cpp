@@ -13,6 +13,12 @@ namespace esep { namespace timer {
 namespace
 {
 	constexpr uint diff(const uint a, const uint b) { return a > b ? a - b : b - a; }
+
+	enum class Code : int8_t
+	{
+		SHUTDOWN,
+		EXPIRED
+	};
 }
 
 Impl::Impl(void)
@@ -96,9 +102,20 @@ Manager Impl::registerCallback(callback_t f, uint o, uint p)
 {
 	lock_t lock(mMutex);
 
-	id_t id = mNextID++;
+	id_t id = nextID();
 
-	mTimers.emplace(std::make_pair(id, Timer(id, f, o, p)));
+	mTimers.insert(id, Timer(id, f, o, p));
+
+	return Manager(id);
+}
+
+Manager Impl::registerAsync(callback_t f, uint o, uint p)
+{
+	lock_t lock(mMutex);
+
+	id_t id = nextID();
+
+	mAsyncs.insert(id, Async_ptr(new Async(id, f, o, p)));
 
 	return Manager(id);
 }
@@ -107,12 +124,8 @@ void Impl::unregisterCallback(const Manager& tm)
 {
 	lock_t lock(mMutex);
 
-	auto i = mTimers.find(tm.mID);
-
-	if(i != mTimers.end())
-	{
-		mTimers.erase(i);
-	}
+	mAsyncs.with(tm.mID, [](Async_ptr& p) { p->shutdown(); });
+	mTimers.remove(tm.mID);
 }
 
 uint64_t Impl::elapsed(void)
@@ -126,77 +139,61 @@ void Impl::reset(void)
 	mCounter = 0;
 }
 
+id_t Impl::nextID(void)
+{
+	return mNextID++;
+}
+
 void Impl::update(void)
 {
-	decltype(mTimers) timer_copy;
-	std::vector<id_t> timer_to_delete;
-
 	{
 		lock_t lock(mMutex);
 
-		timer_copy = mTimers;
+		mTimers.update();
+		mAsyncs.update();
 	}
 
-	for(auto& i : timer_copy)
+	for(auto i1 = mTimers.begin(), i2 = mTimers.end() ; i1 != i2 ;)
 	{
-		auto& t(i.second);
+		bool should_erase = false;
+		auto& t(i1->second);
 
 		if(!t.next--)
 		{
-			bool should_delete = true;
+			should_erase = true;
 
 			try
 			{
 				t.f();
 
-				should_delete = false;
+				should_erase = !(t.next = t.period);
 			}
-			catch(const std::exception& e)
-			{
-				MXT_LOG(lib::stringify("Caught an exception in timer: ", e.what()));
-			}
-			catch(const std::string& e)
-			{
-				MXT_LOG(lib::stringify("Caught a string in timer: ", e));
-			}
-			catch(...)
-			{
-				MXT_LOG(lib::stringify("Caught an unknown exception in timer!"));
-			}
+			MXT_CATCH_ALL_STRAY
+		}
 
-			if(should_delete || !t.period)
-			{
-				timer_to_delete.push_back(t.id);
-			}
-			else
-			{
-				t.next = t.period;
-			}
+		if(should_erase)
+		{
+			i1 = mTimers.erase(i1);
+		}
+		else
+		{
+			++i1;
 		}
 	}
 
+	for(auto i1 = mAsyncs.begin(), i2 = mAsyncs.end() ; i1 != i2 ;)
 	{
-		lock_t lock(mMutex);
+		auto& t(*(i1->second));
 
-		for(const auto& id : timer_to_delete)
+		t.tick();
+
+		if(t.done())
 		{
-			auto i = mTimers.find(id);
-
-			if(i != mTimers.end())
-			{
-				mTimers.erase(i);
-			}
+			i1 = mAsyncs.erase(i1);
 		}
-
-		for(auto& p : timer_copy)
+		else
 		{
-			auto& t(p.second);
-			auto i = mTimers.find(t.id);
-
-			if(i != mTimers.end())
-			{
-				i->second = t;
-			}
+			++i1;
 		}
 	}
 }
