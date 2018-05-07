@@ -6,7 +6,7 @@
 #include "lib/logger.h"
 
 #define MXT_1MS_IN_NS 1000000l
-#define MXT_TOLERANCE 10 // max of 10ms delay is acceptable
+#define MXT_TOLERANCE 30 // max of 10ms delay is acceptable
 
 namespace esep { namespace timer {
 
@@ -111,13 +111,14 @@ Manager Impl::registerCallback(callback_t f, uint o, uint p)
 
 Manager Impl::registerAsync(callback_t f, uint o, uint p)
 {
-	lock_t lock(mMutex);
-
-	id_t id = nextID();
-
-	mAsyncs.insert(id, Async_ptr(new Async(id, f, o, p)));
-
-	return Manager(id);
+	return registerCallback(std::move(f), o, p);
+//	lock_t lock(mMutex);
+//
+//	id_t id = nextID();
+//
+//	mAsyncs.insert(id, Async_ptr(new Async(id, f, o, p)));
+//
+//	return Manager(id);
 }
 
 void Impl::unregisterCallback(const Manager& tm)
