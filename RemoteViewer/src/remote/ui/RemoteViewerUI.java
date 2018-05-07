@@ -1,8 +1,9 @@
 package remote.ui;
 
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -10,10 +11,12 @@ public class RemoteViewerUI
 {
 	private final Stage mStage;
 	private final Scene mScene;
+	private final TextArea mText;
 	
 	public RemoteViewerUI(Stage stage)
 	{
 		mStage = stage;
+		mText = new TextArea();
 		mScene = createScene();
 		
 		mStage.setScene(mScene);
@@ -33,13 +36,21 @@ public class RemoteViewerUI
 		mStage.close();
 	}
 	
+	public void addLine(String s)
+	{
+		mText.setText(mText.getText() + s + "\n");
+	}
+	
 	private Scene createScene()
 	{
-		BorderPane pane = new BorderPane();
+		GridPane pane = new GridPane();
 		
-		Label l = new Label("Hier koennte Ihre werbung stehen!");
+		pane.add(mText, 0, 0);
+
+		GridPane.setHgrow(mText, Priority.ALWAYS);
+		GridPane.setVgrow(mText, Priority.ALWAYS);
 		
-		pane.setCenter(l);
+		mText.setEditable(false);
 		
 		return new Scene(pane, 800, 600);
 	}

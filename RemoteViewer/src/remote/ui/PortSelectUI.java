@@ -32,6 +32,7 @@ public class PortSelectUI extends Stage
 			}
 		});
 		
+		setResizable(false);
 		setScene(createScene());
 		setTitle("Select port");
 	}
@@ -89,7 +90,7 @@ public class PortSelectUI extends Stage
 		root.setHgap(8);
 		root.setVgap(8);
 		
-		root.setPadding(new Insets(10, 10, 10, 10));
+		root.setPadding(new Insets(10, 0, 0, 10));
 		
 		return new Scene(root);
 	}
