@@ -1,6 +1,7 @@
+package remote;
+
 import javafx.application.Application;
 import javafx.stage.Stage;
-import remote.RemoteViewer;
 
 public class Start extends Application
 {
