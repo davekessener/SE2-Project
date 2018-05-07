@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <ios>
+#include <fstream>
 
 #include "lib/log/base.h"
 
@@ -12,12 +13,14 @@ namespace esep
 	{
 		class Standard : public Base
 		{
+			typedef Base::Writer_ptr Writer_ptr;
+
 			public:
 				Standard( );
 			protected:
 				virtual void doWrite(const std::string&);
 			private:
-				std::shared_ptr<std::ostream> mOS;
+				std::ofstream mOS;
 		};
 	}
 }

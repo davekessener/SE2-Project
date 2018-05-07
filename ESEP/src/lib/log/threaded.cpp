@@ -5,7 +5,7 @@
 namespace esep { namespace log {
 
 Threaded::Threaded(void)
-	: mOut(new std::ofstream("log.txt")) // TODO
+	: mOut("log.txt") // TODO
 {
 }
 
@@ -13,7 +13,7 @@ void Threaded::doWrite(const std::string& s)
 {
 	lock_t lock(mMutex);
 
-	*mOut << s;
+	mOut << s << std::endl;
 }
 
 void Threaded::doEcho(const std::string& s)
