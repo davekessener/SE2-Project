@@ -21,12 +21,12 @@ namespace esep
 		class DataManager
 		{
 			public:
-				static std::shared_ptr<DataPoint> deserialize(lib::ByteStream&)
-				{
-					MXT_THROW_EX(communication::Packet::NotImplException);
-				};
-		};
+			MXT_DEFINE_E(UnknownTypeException);
+			MXT_DEFINE_E(UnexpectedEOSException);
 
+			public:
+				static Data_ptr deserialize(lib::ByteStream&);
+		};
 	}
 }
 

@@ -58,7 +58,7 @@ namespace esep
 
 			public:
 				virtual ~HAL( ) { }
-				virtual uint32_t in(Field) = 0;
+				virtual uint32_t in(Field) const = 0;
 				virtual void out(Field, uint32_t) = 0;
 				virtual void set(Field, bitmask_t) = 0;
 				virtual void reset(Field, bitmask_t) = 0;

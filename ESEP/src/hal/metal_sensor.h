@@ -11,7 +11,7 @@ namespace esep
 		{
 			public:
 				MetalSensor(HAL *);
-				bool isMetal( );
+				bool isMetal( ) const;
 			private:
 				HAL * const mHAL;
 		};
