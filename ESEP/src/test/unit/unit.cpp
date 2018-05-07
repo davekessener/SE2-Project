@@ -28,7 +28,7 @@ void TestSuite::doTest(void)
 
 		try
 		{
-			MXT_LOG(lib::stringify("Executing UT '", p.first, "'"));
+//			MXT_LOG(lib::stringify("Executing UT '", p.first, "'"));
 
 			p.second();
 

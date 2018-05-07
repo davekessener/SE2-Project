@@ -21,7 +21,7 @@ namespace esep
 
 		try
 		{
-			lib::Logger::instance().setEcho(std::unique_ptr<lib::Writer>(new lib::NetworkWriter("192.168.127.1", 8000)));
+//			lib::Logger::instance().setEcho(std::unique_ptr<lib::Writer>(new lib::NetworkWriter("127.0.0.1", 8000)));
 		}
 		catch(const lib::NetworkWriter::ConnectionFailedException& e)
 		{
@@ -33,7 +33,7 @@ namespace esep
 int main(int argc, char *argv[])
 try
 {
-	esep::lib::args_t args(argv, argv + argc);
+	esep::lib::args_t args(argv + 1, argv + argc);
 
 	esep::init();
 
