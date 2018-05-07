@@ -28,13 +28,7 @@ namespace esep { namespace test { namespace functional {
 
 bool runUnitTests(bool verbose)
 {
-	typedef std::unique_ptr<lib::Writer> Writer_ptr;
-
-	std::stringstream logger;
-
 	lib::Timer::instance().sleep(5);
-
-	auto os = lib::Logger::instance().setEcho(Writer_ptr(new lib::StreamWriter(logger)));
 
 	auto r = unit::Manager()
 		.addTest<unit::CRC32>()
@@ -116,12 +110,10 @@ bool runUnitTests(bool verbose)
 
 	if(success)
 	{
-		std::cout << "SUCCESS!\n";
+		std::cout << "SUCCESS!";
 	}
 
-	lib::Logger::instance().setEcho(std::move(os));
-
-	std::cout << logger.str() << std::endl;
+	std::cout << std::endl;
 
 	return success;
 }

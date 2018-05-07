@@ -1,6 +1,8 @@
 #ifndef ESEP_LIB_WRITER_H
 #define ESEP_LIB_WRITER_H
 
+#include <string>
+
 namespace esep
 {
 	namespace lib

@@ -6,6 +6,7 @@
 #include "test/unit/unit.h"
 
 #include "lib/utils.h"
+#include "lib/logger.h"
 
 namespace esep { namespace test { namespace unit {
 
@@ -27,6 +28,8 @@ void TestSuite::doTest(void)
 
 		try
 		{
+			MXT_LOG(lib::stringify("Executing UT '", p.first, "'"));
+
 			p.second();
 
 			mResults.push_back(std::make_pair(Result::SUCCESS, ""));
