@@ -3,6 +3,8 @@
 
 #include "lib/log/base.h"
 
+#include "lib/io/stream_writer.h"
+
 #define MXT_DEFAULT_FORMAT "%80message% | %8time% (%thread%) [%4severity% in %6section% (%source%)]"
 
 namespace esep { namespace log {
@@ -57,7 +59,7 @@ namespace
 Base::Base(void)
 	: mThreshold(static_cast<uint>(Severity::WARNING))
 	, mPolicy(EchoPolicy::EXCLUDE)
-	, mEcho(&std::cout)
+	, mEcho(new lib::StreamWriter(std::cout))
 {
 	setFormat(MXT_DEFAULT_FORMAT);
 	setFormatter([](uint t)               -> std::string { return lib::stringify(t); });
@@ -115,7 +117,7 @@ void Base::log(uint time, tid_t tid, Section section, Severity severity, const s
 
 void Base::doEcho(const std::string& msg)
 {
-	(*mEcho) << msg << std::endl;
+	mEcho->write(msg);
 }
 
 // # ====================================================================================================

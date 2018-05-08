@@ -19,6 +19,9 @@ namespace esep
 	{
 		class Packet
 		{
+			typedef std::vector<data::Data_ptr> container_t;
+			typedef container_t::const_iterator iterator;
+
 			public:
 			MXT_DEFINE_E(NotImplException);
 
@@ -35,7 +38,9 @@ namespace esep
 				CONFIG_FAILED,
 				ITEM_APPEARED, // (Base -> Master)
 				ITEM_DISAPPEARED, // (Base -> Master)
-				ERROR_SERIAL
+				ERROR_SERIAL,
+				NEW_ITEM,
+				REACHED_END
 			};
 
 			enum class Location : int8_t
@@ -58,6 +63,9 @@ namespace esep
 				void message(Message v) { mMessage = v; }
 
 				void addDataPoint(std::shared_ptr<data::DataPoint>);
+				iterator begin( ) const { return mDataPoints.cbegin(); }
+				iterator end( ) const { return mDataPoints.cend(); }
+
 				void serialize(lib::ByteStream&);
 
 				static std::shared_ptr<Packet> deserialize(lib::ByteStream&);
@@ -66,7 +74,7 @@ namespace esep
 				Message mMessage;
 				Location mTarget;
 				Location mSource;
-				std::vector<std::shared_ptr<data::DataPoint>> mDataPoints;
+				container_t mDataPoints;
 		};
 
 		typedef std::shared_ptr<Packet> Packet_ptr;

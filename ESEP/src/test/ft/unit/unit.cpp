@@ -6,6 +6,9 @@
 #include "lib/utils.h"
 #include "lib/logger.h"
 #include "lib/timer.h"
+#include "lib/writer.h"
+
+#include "lib/io/stream_writer.h"
 
 #include "test/unit/manager.h"
 
@@ -25,11 +28,7 @@ namespace esep { namespace test { namespace functional {
 
 bool runUnitTests(bool verbose)
 {
-	std::stringstream logger;
-
 	lib::Timer::instance().sleep(5);
-
-	auto *os = lib::Logger::instance().setEcho(&logger);
 
 	auto r = unit::Manager()
 		.addTest<unit::CRC32>()
@@ -111,12 +110,10 @@ bool runUnitTests(bool verbose)
 
 	if(success)
 	{
-		std::cout << "SUCCESS!\n";
+		std::cout << "SUCCESS!";
 	}
 
-	lib::Logger::instance().setEcho(os);
-
-	std::cout << logger.str() << std::endl;
+	std::cout << std::endl;
 
 	return success;
 }

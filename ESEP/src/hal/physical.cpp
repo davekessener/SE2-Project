@@ -55,6 +55,7 @@ Physical::Physical(void)
 				switch(p.code)
 				{
 				case static_cast<int8_t>(Code::SHUTDOWN):
+					mRunning = false;
 					break;
 
 				case static_cast<int8_t>(Code::GPIO_1_OUT):
@@ -107,14 +108,14 @@ Physical::Physical(void)
 
 Physical::~Physical(void)
 {
-	mRunning = false;
-
 	try
 	{
 		mConnection.sendPulse(static_cast<int8_t>(Code::SHUTDOWN));
 	}
 	catch(...)
 	{
+		mRunning = false;
+
 		MXT_LOG("Couldn't send shutdown signal; may hang!");
 	}
 }

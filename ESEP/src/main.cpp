@@ -10,13 +10,32 @@
 #include "lib/logger.h"
 #include "lib/timer.h"
 
+#include "lib/io/network_writer.h"
+
+namespace esep
+{
+	void init(void)
+	{
+		lib::Logger::instance();
+		lib::Timer::instance();
+
+		try
+		{
+//			lib::Logger::instance().setEcho(std::unique_ptr<lib::Writer>(new lib::NetworkWriter("127.0.0.1", 8000)));
+		}
+		catch(const lib::NetworkWriter::ConnectionFailedException& e)
+		{
+			MXT_LOG("Failed to connect to network logger. Echoing to stdout.");
+		}
+	}
+}
+
 int main(int argc, char *argv[])
 try
 {
-	esep::lib::args_t args(argv, argv + argc);
+	esep::lib::args_t args(argv + 1, argv + argc);
 
-	esep::lib::Logger::instance();
-	esep::lib::Timer::instance().reset();
+	esep::init();
 
 #ifdef ESEP_TEST
 	esep::test::main(args);

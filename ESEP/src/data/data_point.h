@@ -8,6 +8,8 @@
 #ifndef SRC_DATA_DATA_POINT_H
 #define SRC_DATA_DATA_POINT_H
 
+#include <memory>
+
 #include "lib/byte_stream.h"
 
 namespace esep
@@ -16,13 +18,26 @@ namespace esep
 	{
 		class DataPoint
 		{
-		   public:
+			public:
+			enum class Type : byte_t
+			{
+				METAL_SENSOR
+			};
 
-			DataPoint();
-			virtual ~DataPoint() {}
+			public:
+				DataPoint(Type t) : mType(t) { }
+				virtual ~DataPoint() {}
+				void serialize(lib::ByteStream&) const;
+				Type type( ) const { return mType; }
 
-			virtual void serialize(lib::ByteStream&) = 0;
+			protected:
+				virtual void doSerialize(lib::ByteStream&) const = 0;
+
+			private:
+				const Type mType;
 		};
+
+		typedef std::shared_ptr<DataPoint> Data_ptr;
 	}
 }
 

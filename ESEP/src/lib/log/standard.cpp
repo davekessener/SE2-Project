@@ -3,17 +3,19 @@
 
 #include "lib/log/standard.h"
 
+#include "lib/io/file_writer.h"
+
 #define MXT_LOGFILE "log.txt"
 
 namespace esep { namespace log {
 
 Standard::Standard(void)
-	: mOS(new std::ofstream(MXT_LOGFILE))
+	: mOS(MXT_LOGFILE)
 {
 }
 
 void Standard::doWrite(const std::string& msg)
 {
-	*mOS << msg << std::endl;
+	mOS << msg << std::endl;
 }
 }}

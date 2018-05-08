@@ -4,10 +4,13 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <memory>
 
 #include "lib/utils.h"
-#include "lib/log/format.h"
 #include "lib/thread.h"
+#include "lib/writer.h"
+
+#include "lib/log/format.h"
 
 namespace esep
 {
@@ -51,6 +54,7 @@ namespace esep
 			};
 
 			typedef std::thread::id tid_t;
+			typedef std::unique_ptr<lib::Writer> Writer_ptr;
 
 			typedef format::Collection<
 				uint,
@@ -70,7 +74,7 @@ namespace esep
 				void addFilter(EchoPolicy ep, Filter f, Section s) { mFilters[s] |= static_cast<uint>(f); }
 				void clearFilters( ) { mFilters.clear(); }
 				void setPolicy(EchoPolicy ep) { mPolicy = ep; }
-				std::ostream *setEcho(std::ostream *os) { std::swap(os, mEcho); return os; }
+				Writer_ptr setEcho(Writer_ptr p) { Writer_ptr t(std::move(mEcho)); mEcho = std::move(p); return t; }
 				template<typename T>
 					void setFormatter(T&& f)
 						{ mFormatters.set(f); }
@@ -84,7 +88,7 @@ namespace esep
 				formatters_t mFormatters;
 				std::vector<std::string> mLiterals;
 				std::vector<std::pair<int, uint>> mFormat;
-				std::ostream *mEcho;
+				Writer_ptr mEcho;
 		};
 	}
 }
