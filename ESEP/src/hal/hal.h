@@ -35,7 +35,7 @@ namespace esep
 				BTN_STOP =        (1 << 23),
 				BTN_RESET =       (1 << 26),
 				BTN_ESTOP =       (1 << 27),
-				HEIGHT_SENSOR =   (3 << 32)
+				HEIGHT_SENSOR =   (3ull << 32)
 			};
 
 			static constexpr Event EVENTS[] = {

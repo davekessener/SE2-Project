@@ -1,5 +1,6 @@
 #include <sstream>
 #include <iostream>
+#include <memory>
 
 #include "test/ft/unit.h"
 
@@ -28,7 +29,13 @@ namespace esep { namespace test { namespace functional {
 
 bool runUnitTests(bool verbose)
 {
+	typedef std::unique_ptr<lib::Writer> Writer_ptr;
+
 	lib::Timer::instance().sleep(5);
+
+	std::stringstream ss;
+
+	auto os(lib::Logger::instance().setEcho(Writer_ptr(new lib::StreamWriter(ss))));
 
 	auto r = unit::Manager()
 		.addTest<unit::CRC32>()
@@ -110,10 +117,12 @@ bool runUnitTests(bool verbose)
 
 	if(success)
 	{
-		std::cout << "SUCCESS!";
+		std::cout << "SUCCESS!\n";
 	}
 
-	std::cout << std::endl;
+	std::cout << ss.str() << std::endl;
+
+	lib::Logger::instance().setEcho(std::move(os));
 
 	return success;
 }
