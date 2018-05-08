@@ -8,7 +8,7 @@
 #include "lib/logger.h"
 
 #define MXT_1MS_IN_NS 1000000l
-#define MXT_TOLERANCE 15 // max of 10ms delay is acceptable
+#define MXT_TOLERANCE 15 // max of 15ms delay is acceptable
 
 namespace esep { namespace timer {
 

@@ -16,18 +16,18 @@ Manager::results_t Manager::run(void)
 
 	auto onError = [&results](const TestSuite *s, const std::string& e) {
 		results[s->name()].second = e;
-//		MXT_LOG(lib::stringify("Encountered unexpected exception: ", e));
+		MXT_LOG(lib::stringify("Encountered unexpected exception: ", e));
 	};
 
 	std::cout << "Running unit test suites: " << std::flush;
 
-//	MXT_LOG("Running unit tests ...");
+	MXT_LOG("Running unit tests ...");
 
 	for(TestSuite *s : mTests)
 	{
 		try
 		{
-//			MXT_LOG(lib::stringify("Running UT suite '", s->name(), "'"));
+			MXT_LOG(lib::stringify("Running UT suite '", s->name(), "'"));
 
 			s->doTest();
 
