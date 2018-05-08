@@ -39,7 +39,7 @@ namespace
 
 		for(auto i1 = HAL::EVENTS, i2 = i1 + HAL::N_EVENTS ; i1 != i2 ; ++i1)
 		{
-			r |= 1 << static_cast<uint>(*i1);
+			r |= static_cast<uint>(*i1);
 		}
 
 		return r;

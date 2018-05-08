@@ -13,14 +13,27 @@ void Buffer::update(Field f, uint32_t v)
 
 	r = v;
 
-	if(f == Field::GPIO_0 && static_cast<bool>(mSubscriber))
+	if(static_cast<bool>(mSubscriber))
 	{
-		for(auto i1 = HAL::EVENTS, i2 = i1 + HAL::N_EVENTS ; i1 != i2 ; ++i1)
+		switch(f)
 		{
-			if(c & (1 << static_cast<uint>(*i1)))
+		case Field::GPIO_0:
+			for(auto i1 = HAL::EVENTS, i2 = i1 + HAL::N_EVENTS ; i1 != i2 ; ++i1)
 			{
-				mSubscriber(*i1);
+				if((static_cast<uint64_t>(*i1) >> 32) == static_cast<uint>(f))
+				{
+					if(c & static_cast<uint>(*i1))
+					{
+						mSubscriber(*i1);
+					}
+				}
 			}
+			break;
+		case Field::ANALOG:
+			mSubscriber(Event::HEIGHT_SENSOR);
+			break;
+		default:
+			break;
 		}
 	}
 }

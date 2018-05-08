@@ -24,17 +24,18 @@ namespace esep
 
 			static const uint N_FIELDS = 4;
 
-			enum class Event : uint
+			enum class Event : uint64_t
 			{
-				LB_START = 2,
-				LB_END = 20,
-				LB_HEIGHTSENSOR = 3,
-				LB_RAMP = 15,
-				LB_SWITCH = 5,
-				BTN_START = 22,
-				BTN_STOP = 23,
-				BTN_RESET = 26,
-				BTN_ESTOP = 27
+				LB_START =        (1 <<  2),
+				LB_END =          (1 << 20),
+				LB_HEIGHTSENSOR = (1 <<  3),
+				LB_RAMP =         (1 << 15),
+				LB_SWITCH =       (1 <<  5),
+				BTN_START =       (1 << 22),
+				BTN_STOP =        (1 << 23),
+				BTN_RESET =       (1 << 26),
+				BTN_ESTOP =       (1 << 27),
+				HEIGHT_SENSOR =   (3 << 32)
 			};
 
 			static constexpr Event EVENTS[] = {
@@ -46,7 +47,8 @@ namespace esep
 				Event::BTN_START,
 				Event::BTN_STOP,
 				Event::BTN_RESET,
-				Event::BTN_ESTOP
+				Event::BTN_ESTOP,
+				Event::HEIGHT_SENSOR
 			};
 			static constexpr size_t N_EVENTS = sizeof(EVENTS) / sizeof(Event);
 
