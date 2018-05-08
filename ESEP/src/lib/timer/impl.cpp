@@ -1,12 +1,14 @@
 #include <pthread.h>
 
 #include "lib/timer/impl.h"
+#include "lib/timer/holder.h"
+#include "lib/timer/async.h"
 
 #include "lib/utils.h"
 #include "lib/logger.h"
 
 #define MXT_1MS_IN_NS 1000000l
-#define MXT_TOLERANCE 30 // max of 10ms delay is acceptable
+#define MXT_TOLERANCE 15 // max of 10ms delay is acceptable
 
 namespace esep { namespace timer {
 
@@ -73,8 +75,6 @@ Impl::Impl(void)
 					}
 					else if(overshot && d <= MXT_TOLERANCE)
 					{
-						MXT_LOG("Timer recovered.");
-
 						overshot = false;
 					}
 				}
@@ -96,37 +96,53 @@ Impl::~Impl(void)
 	{
 		MXT_LOG("Failed to send shutdown signal; may hang!");
 	};
+
+	MXT_LOG("Timer was shut down.");
 }
 
-Manager Impl::registerCallback(callback_t f, uint o, uint p)
+Manager Impl::registerCallback(callback_fn f, uint r, uint p)
 {
-	lock_t lock(mMutex);
-
-	id_t id = nextID();
-
-	mTimers.insert(id, Timer(id, f, o, p));
-
-	return Manager(id);
+	return addTimer(Timer_ptr(new Holder(nextID(), std::move(f), r, p)));
 }
 
-Manager Impl::registerAsync(callback_t f, uint o, uint p)
+Manager Impl::registerAsync(callback_fn f, uint r, uint p)
 {
-	return registerCallback(std::move(f), o, p);
-//	lock_t lock(mMutex);
-//
-//	id_t id = nextID();
-//
-//	mAsyncs.insert(id, Async_ptr(new Async(id, f, o, p)));
-//
-//	return Manager(id);
+	return addTimer(Timer_ptr(new Async(nextID(), std::move(f), r, p)));
 }
 
 void Impl::unregisterCallback(const Manager& tm)
 {
-	lock_t lock(mMutex);
+	lock_t lock;
 
-	mAsyncs.with(tm.mID, [](Async_ptr& p) { p->shutdown(); });
-	mTimers.remove(tm.mID);
+	if(!mTimerThread.active())
+	{
+		lock = lock_t(mMutex);
+	}
+
+	auto i = mTimers.find(tm.mID);
+
+	if(i != mTimers.end())
+	{
+		i->second->shutdown();
+	}
+}
+
+Manager Impl::addTimer(Timer_ptr p)
+{
+	auto id = p->ID();
+
+	if(mTimerThread.active())
+	{
+		mQueue.emplace_front(std::move(p));
+	}
+	else
+	{
+		MXT_SYNCHRONIZE;
+
+		mTimers.emplace(std::make_pair(id, std::move(p)));
+	}
+
+	return Manager(id);
 }
 
 uint64_t Impl::elapsed(void)
@@ -147,56 +163,31 @@ id_t Impl::nextID(void)
 
 void Impl::update(void)
 {
-	{
-		lock_t lock(mMutex);
-
-		mTimers.update();
-		mAsyncs.update();
-	}
+	MXT_SYNCHRONIZE;
 
 	for(auto i1 = mTimers.begin(), i2 = mTimers.end() ; i1 != i2 ;)
 	{
-		bool should_erase = false;
-		auto& t(i1->second);
+		auto& t(*i1->second);
 
-		if(!t.next--)
-		{
-			should_erase = true;
-
-			try
-			{
-				t.f();
-
-				should_erase = !(t.next = t.period);
-			}
-			MXT_CATCH_ALL_STRAY
-		}
-
-		if(should_erase)
+		if(t.done())
 		{
 			i1 = mTimers.erase(i1);
 		}
 		else
 		{
+			t.tick();
+
 			++i1;
 		}
 	}
 
-	for(auto i1 = mAsyncs.begin(), i2 = mAsyncs.end() ; i1 != i2 ;)
+	for(auto& p : mQueue)
 	{
-		auto& t(*(i1->second));
-
-		t.tick();
-
-		if(t.done())
-		{
-			i1 = mAsyncs.erase(i1);
-		}
-		else
-		{
-			++i1;
-		}
+		auto id = p->ID();
+		mTimers.emplace(id, std::move(p)); // evaluation order!
 	}
+
+	mQueue.clear();
 }
 
 }}

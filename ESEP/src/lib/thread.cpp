@@ -37,6 +37,11 @@ void Thread::join(void)
 	}
 }
 
+bool Thread::active(void) const
+{
+	return mThread.get_id() == std::this_thread::get_id();
+}
+
 void Thread::logCreation(void)
 {
 //	std::cout << lib::stringify("Just spawned a new thread with ID ", mThread.get_id()) << std::endl;

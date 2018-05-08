@@ -31,7 +31,7 @@ void DummyConnection::connect(DummyConnection& c)
 	c.close();
 
 	{
-		lock_t lock(mMutex);
+		MXT_SYNCHRONIZE;
 
 		mCounterpart = &c;
 		c.mCounterpart = this;
@@ -42,7 +42,7 @@ void DummyConnection::connect(DummyConnection& c)
 
 void DummyConnection::write(const byte_t * const p, const size_t n)
 {
-	lock_t lock(mMutex);
+	MXT_SYNCHRONIZE;
 
 	if(!isOpen())
 		MXT_THROW_EX(Connection::ConnectionClosedException);
@@ -85,7 +85,7 @@ void DummyConnection::write(const byte_t * const p, const size_t n)
 
 void DummyConnection::read(byte_t *p, size_t n)
 {
-	lock_t lock(mMutex);
+	MXT_SYNCHRONIZE;
 
 	if(!isOpen())
 		MXT_THROW_EX(Connection::ConnectionClosedException);
@@ -133,7 +133,7 @@ void DummyConnection::close(void)
 {
 	if(isOpen())
 	{
-		lock_t lock(mMutex);
+		MXT_SYNCHRONIZE;
 
 		mConnected = false;
 

@@ -7,7 +7,7 @@
 
 namespace esep
 {
-	namespace lib
+	namespace timer
 	{
 		/**
 		 * Timer class
@@ -36,7 +36,10 @@ namespace esep
 		 * The Timer class is thread safe and supports registering as well as
 		 * unregistering callbacks from inside executing callbacks.
 		 */
+	}
 
+	namespace lib
+	{
 		typedef SingletonHolder<timer::Impl> Timer;
 	}
 }

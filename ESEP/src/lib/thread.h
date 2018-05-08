@@ -36,6 +36,7 @@ namespace esep
 					void construct(F&& f, A&& ... a)
 						{ *this = Thread(std::forward<F>(f), std::forward<A>(a)...); logCreation(); }
 				void join( );
+				bool active( ) const;
 			private:
 				void logCreation( );
 

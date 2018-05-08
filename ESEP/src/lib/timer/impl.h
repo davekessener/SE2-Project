@@ -3,14 +3,16 @@
 
 #include <memory>
 #include <mutex>
+#include <forward_list>
+#include <functional>
+#include <map>
 
 #include "lib/timer/types.h"
 #include "lib/timer/manager.h"
-#include "lib/timer/async.h"
+#include "lib/timer/base.h"
 
 #include "lib/utils.h"
 #include "lib/thread.h"
-#include "lib/deferred_container.h"
 
 #include "qnx/channel.h"
 
@@ -20,15 +22,15 @@ namespace esep
 	{
 		class Impl
 		{
-			typedef std::unique_ptr<Async> Async_ptr;
+			typedef std::unique_ptr<Base> Timer_ptr;
 			typedef std::unique_lock<std::mutex> lock_t;
 
 			public:
 				Impl( );
 				~Impl( );
 
-				Manager registerCallback(callback_t, uint, uint = 0);
-				Manager registerAsync(callback_t, uint, uint = 0);
+				Manager registerCallback(callback_fn, uint, uint = 0);
+				Manager registerAsync(callback_fn, uint, uint = 0);
 				void unregisterCallback(const Manager&);
 
 				// Elapsed time in ms since last reset()/Timer construction
@@ -38,6 +40,7 @@ namespace esep
 
 				void reset( );
 			private:
+				Manager addTimer(Timer_ptr);
 				void update( );
 				id_t nextID( );
 
@@ -46,8 +49,8 @@ namespace esep
 				qnx::Connection mConnection;
 				lib::Thread mTimerThread;
 				std::atomic<bool> mRunning;
-				lib::DeferredContainer<id_t, Timer> mTimers;
-				lib::DeferredContainer<id_t, Async_ptr> mAsyncs;
+				std::map<id_t, Timer_ptr> mTimers;
+				std::forward_list<Timer_ptr> mQueue;
 				id_t mNextID;
 				uint mCounter;
 				std::mutex mMutex;

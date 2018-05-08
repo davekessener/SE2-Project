@@ -9,6 +9,7 @@
 #include <sstream>
 #include <vector>
 #include <stdexcept>
+#include <mutex>
 
 #include "lib/tml.h"
 
@@ -44,7 +45,6 @@
 					::esep::lib::stringify("[" #name "] ", s)) \
 			    { } \
 	}
-
 
 typedef unsigned uint;
 typedef uint8_t byte_t;

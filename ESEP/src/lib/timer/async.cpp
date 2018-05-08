@@ -13,20 +13,18 @@ namespace
 	};
 }
 
-Async::Async(id_t id, callback_t f, uint r, uint p)
-	: mID(id)
+Async::Async(id_t id, callback_fn f, uint r, uint p)
+	: Base(id, r, p)
 	, mCallback(std::move(f))
-	, mRemainder(r)
-	, mPeriod(p)
 {
 	mRunning = true;
 	mIsActive = true;
 
 	mThread.construct([this](void) {
+		qnx::Channel channel;
+
 		try
 		{
-			qnx::Channel channel;
-
 			mConnection = channel.connect();
 
 			while(mRunning.load())
@@ -36,7 +34,10 @@ Async::Async(id_t id, callback_t f, uint r, uint p)
 				switch(p.code)
 				{
 				case static_cast<int8_t>(Code::EXECUTE):
-					mCallback();
+					if(mRunning.load())
+					{
+						mCallback();
+					}
 					break;
 
 				case static_cast<int8_t>(Code::SHUTDOWN):
@@ -73,15 +74,7 @@ void Async::tick(void)
 	if(!mIsActive.load() || !mRunning.load() || !mConnection.isConnected())
 		return;
 
-	if(!mRemainder--)
-	{
-		mConnection.sendPulse(Code::EXECUTE);
-
-		if(!(mRemainder = mPeriod))
-		{
-			shutdown();
-		}
-	}
+	Base::tick();
 }
 
 void Async::shutdown(void)
@@ -94,6 +87,13 @@ void Async::shutdown(void)
 	{
 		mConnection.sendPulse(Code::SHUTDOWN);
 	}
+
+	Base::shutdown();
+}
+
+void Async::execute(void)
+{
+	mConnection.sendPulse(Code::EXECUTE);
 }
 
 }}

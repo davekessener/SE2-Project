@@ -25,7 +25,7 @@ bool main(const lib::args_t& args)
 //		functional::testCommunicationLayer(args);
 	}
 
-	MXT_LOG("\nGoodbye.");
+	std::cout << "\nGoodbye." << std::endl;
 
 	return ut;
 }

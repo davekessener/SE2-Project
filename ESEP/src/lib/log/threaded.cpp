@@ -2,6 +2,8 @@
 
 #include "lib/log/threaded.h"
 
+#include "lib/logger.h"
+
 namespace esep { namespace log {
 
 Threaded::Threaded(void)
@@ -11,14 +13,14 @@ Threaded::Threaded(void)
 
 void Threaded::doWrite(const std::string& s)
 {
-	lock_t lock(mMutex);
+	MXT_SYNCHRONIZE;
 
 	mOut << s << std::endl;
 }
 
 void Threaded::doEcho(const std::string& s)
 {
-	lock_t lock(mMutex);
+	MXT_SYNCHRONIZE;
 
 	Base::doEcho(s);
 }
