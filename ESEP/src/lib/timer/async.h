@@ -4,6 +4,7 @@
 #include <atomic>
 
 #include "lib/timer/types.h"
+#include "lib/timer/base.h"
 
 #include "lib/utils.h"
 #include "lib/thread.h"
@@ -14,20 +15,20 @@ namespace esep
 {
 	namespace timer
 	{
-		class Async
+		class Async : public Base
 		{
 			public:
-				Async(id_t, callback_t, uint, uint);
-				~Async( );
-				void tick( );
-				void shutdown( );
-				id_t ID( ) const { return mID; }
-				bool done( ) const { return !mIsActive.load(); }
+				Async(id_t, callback_fn, uint, uint);
+				virtual ~Async( );
+				void tick( ) override;
+				void shutdown( ) override;
+				bool done( ) const override { return !mIsActive.load(); }
+
+			protected:
+				void execute( ) override;
+
 			private:
-				const id_t mID;
-				callback_t mCallback;
-				uint mRemainder;
-				const uint mPeriod;
+				callback_fn mCallback;
 				std::atomic<bool> mRunning, mIsActive;
 				qnx::Connection mConnection;
 				lib::Thread mThread;

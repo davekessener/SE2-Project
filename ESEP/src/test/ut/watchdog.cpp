@@ -56,13 +56,9 @@ void Watchdog::define(void)
 
 	UNIT_TEST("sends packets")
 	{
-		auto r = lib::Timer::instance().elapsed();
-
 		lib::Timer::instance().sleep(10 * (MXT_TIMEOUT / 2));
 
-		r = lib::Timer::instance().elapsed() - r;
-
-		ASSERT_APPROX_EQUALS(mConnections[0]->getSentPackets() / 2, r / (MXT_TIMEOUT / 2));
+		ASSERT_APPROX_EQUALS(mConnections[0]->getSentPackets() / 2, 8u);
 	};
 
 	UNIT_TEST("can communicate")

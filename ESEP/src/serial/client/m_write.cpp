@@ -34,35 +34,35 @@ Writer::Writer(Serializer& c, uint t)
 
 Writer::~Writer(void)
 {
-	lock_t lock(mMutex);
+	MXT_SYNCHRONIZE;
 
 	delete pImpl;
 }
 
 void Writer::put(const types::buffer_t& o)
 {
-	lock_t lock(mMutex);
+	MXT_SYNCHRONIZE;
 
 	pImpl->put(o);
 }
 
 void Writer::acknowledge(types::id_t id, packet::Type t)
 {
-	lock_t lock(mMutex);
+	MXT_SYNCHRONIZE;
 
 	pImpl->acknowledge(id, t);
 }
 
 void Writer::reset( )
 {
-	lock_t lock(mMutex);
+	MXT_SYNCHRONIZE;
 
 	pImpl->reset();
 }
 
 void Writer::send(packet::packet_ptr p)
 {
-	lock_t lock(mMutex);
+	MXT_SYNCHRONIZE;
 
 	pImpl->send(p);
 }

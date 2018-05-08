@@ -23,7 +23,7 @@ bool main(const lib::args_t& args)
 //		functional::testHAL();
 	}
 
-	MXT_LOG("\nGoodbye.");
+	std::cout << "\nGoodbye." << std::endl;
 
 	return ut;
 }

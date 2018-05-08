@@ -33,7 +33,7 @@ void Timer::define(void)
 
 		mTimer->sleep(25);
 
-		ASSERT_APPROX_EQUALS(mCounter, 5u);
+		ASSERT_APPROX_EQUALS(mCounter, 6u);
 		ASSERT_EQUALS(mCounter, c);
 	};
 
@@ -43,14 +43,14 @@ void Timer::define(void)
 
 		mTimer->sleep(50);
 
-		ASSERT_EQUALS(mCounter, 1u);
+		ASSERT_APPROX_EQUALS(mCounter, 1u);
 	};
 
 	UNIT_TEST("calls timer periodically")
 	{
 		auto t = mTimer->registerCallback(mIncrementer, 0, 10);
 
-		mTimer->sleep(105);
+		mTimer->sleep(95);
 
 		ASSERT_APPROX_EQUALS(mCounter, 10u);
 	};
@@ -66,7 +66,7 @@ void Timer::define(void)
 
 		mTimer->sleep(50);
 
-		ASSERT_APPROX_EQUALS(mCounter, 5u);
+		ASSERT_APPROX_EQUALS(mCounter, 6u);
 		ASSERT_EQUALS(mCounter, c);
 	};
 
@@ -76,7 +76,7 @@ void Timer::define(void)
 
 		mTimer->sleep(35);
 
-		ASSERT_APPROX_EQUALS(mCounter, 3u);
+		ASSERT_APPROX_EQUALS(mCounter, 4u);
 	};
 
 	UNIT_TEST("can unregister async timer")
@@ -91,7 +91,7 @@ void Timer::define(void)
 
 		mTimer->sleep(25);
 
-		ASSERT_APPROX_EQUALS(mCounter, 5u);
+		ASSERT_APPROX_EQUALS(mCounter, 6u);
 		ASSERT_EQUALS(mCounter, c);
 	};
 
@@ -103,41 +103,58 @@ void Timer::define(void)
 
 		mTimer->sleep(30);
 
-		ASSERT_EQUALS(mCounter, 0u);
+		ASSERT_APPROX_EQUALS(mCounter, 0u);
 	};
 
 	UNIT_TEST("can handle double deletion")
 	{
-		auto t = mTimer->registerCallback(mIncrementer, 5);
+		auto t = mTimer->registerCallback(mIncrementer, 0, 10);
 
-		mTimer->sleep(12);
+		mTimer->sleep(25);
 
 		t.reset();
 
 		mTimer->unregisterCallback(t);
 
-		mTimer->sleep(20);
+		mTimer->sleep(40);
 
 		mTimer->unregisterCallback(t);
 
-		ASSERT_APPROX_EQUALS(mCounter, 2u);
+		ASSERT_APPROX_EQUALS(mCounter, 3u);
 	};
 
 	UNIT_TEST("can handle async double deletion")
 	{
-		auto t = mTimer->registerAsync(mIncrementer, 5);
+		auto t = mTimer->registerAsync(mIncrementer, 0, 10);
 
-		mTimer->sleep(12);
+		mTimer->sleep(25);
 
 		t.reset();
 
 		mTimer->unregisterCallback(t);
 
-		mTimer->sleep(20);
+		mTimer->sleep(40);
 
 		mTimer->unregisterCallback(t);
 
-		ASSERT_APPROX_EQUALS(mCounter, 2u);
+		ASSERT_APPROX_EQUALS(mCounter, 3u);
+	};
+
+	UNIT_TEST("calls async exactly once")
+	{
+		auto t = mTimer->registerAsync(mIncrementer, 10);
+
+		mTimer->sleep(5);
+
+		ASSERT_EQUALS(mCounter, 0u);
+
+		mTimer->sleep(15);
+
+		ASSERT_EQUALS(mCounter, 1u);
+
+		mTimer->sleep(20);
+
+		ASSERT_EQUALS(mCounter, 1u);
 	};
 }
 

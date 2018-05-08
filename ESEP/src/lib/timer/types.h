@@ -13,19 +13,9 @@ namespace esep
 	{
 		typedef uint32_t id_t;
 		typedef std::chrono::time_point<std::chrono::system_clock> time_t;
-		typedef std::function<void(void)> callback_t;
+		typedef std::function<void(void)> callback_fn;
 
 		constexpr id_t INVALID_TIMER_ID = 0;
-
-		struct Timer
-		{
-			id_t id;
-			callback_t f;
-			uint next, period;
-
-			Timer(id_t id, callback_t f, uint n, uint p)
-				: id(id), f(f), next(n), period(p) { }
-		};
 	}
 }
 
