@@ -54,7 +54,7 @@ void ActualConnection::read(byte_t* b, size_t size)
 	{
 		if(!isOpen())
 		{
-			MXT_THROW("Connection to device is closed!");
+			throw ConnectionClosedException();
 		}
 
 		if((r = readcond(mFD, b + bytes_read, size - bytes_read, 1, 0, 1)) == -1)

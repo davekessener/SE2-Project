@@ -186,6 +186,19 @@ namespace esep
 		};
 
 		typedef InOut_ByteStream<> ByteStream;
+
+		namespace byte_stream
+		{
+			template<typename C>
+			ByteStream from_container(C&& c)
+			{
+				ByteStream bs;
+
+				bs << insert_all(c);
+
+				return bs;
+			}
+		}
 	}
 }
 

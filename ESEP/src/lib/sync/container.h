@@ -65,7 +65,7 @@ namespace esep
 				value_type remove( );
 				size_t size( ) const { return mSize; }
 				bool empty( ) const { return !mSize; }
-				void clear( ) { lock_t lock(mMutex); while(mSize) { --mSize; mRemove(mContainer); } }
+				void clear( ) { MXT_SYNCHRONIZE; while(mSize) { --mSize; mRemove(mContainer); } }
 				void interrupt(bool final = false)
 					{ mInterrupted = true; while(mReaders.load()) mCond.notify_all(); mInterrupted = final; }
 			private:
@@ -84,7 +84,7 @@ namespace esep
 		void Container<T, C, A, I, R>::insert(const value_type& o)
 		{
 			{
-				lock_t lock(mMutex);
+				MXT_SYNCHRONIZE;
 
 				if(mInterrupted.load())
 					MXT_THROW_EX(InterruptedException);
@@ -101,7 +101,7 @@ namespace esep
 		{
 			counter_t count(mReaders);
 
-			lock_t lock(mMutex);
+			MXT_SYNCHRONIZE;
 
 			while(mContainer.empty())
 			{

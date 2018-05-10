@@ -51,7 +51,7 @@ Watchdog::Watchdog(client_ptr c, uint t)
 				{
 					mIsActive = true;
 
-					mTimer = lib::Timer::instance().registerCallback(cb, 1, mTimeout / 4);
+					mTimer = lib::Timer::instance().registerAsync(cb, 1, mTimeout / 4);
 				}
 
 				if(!b.empty() && b.front() == static_cast<byte_t>(Packet::DATA))
@@ -62,22 +62,28 @@ Watchdog::Watchdog(client_ptr c, uint t)
 				}
 			}
 		}
+		catch(const container_t::InterruptedException& e)
+		{
+			mTimedOut = true;
+		}
 		catch(const Connection::ConnectionClosedException& e)
 		{
 			mTimedOut = true;
 		}
 		MXT_CATCH_STRAY
 	});
+
+	while(mLastWrite.load() == 0)
+	{
+		lib::Timer::instance().sleep(1);
+	}
 }
 
 Watchdog::~Watchdog(void)
 {
 	mRunning = false;
-
-	lib::Timer::instance().unregisterCallback(mTimer);
-
+	mTimer.reset();
 	mClient.reset();
-
 	mReaderThread.join();
 }
 

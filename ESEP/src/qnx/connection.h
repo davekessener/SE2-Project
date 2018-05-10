@@ -13,12 +13,21 @@ namespace esep
 				Connection( ) : mID(INVALID_ID), mRef(nullptr) { }
 				Connection(const Connection&);
 				~Connection( );
+
 				Connection& operator=(const Connection& c);
 				void swap(Connection&) noexcept;
+
 				void sendPulse(const pulse_t&);
-				void sendPulse(int8_t c, uint32_t v = 0) { sendPulse(pulse_t(c, v)); }
+				template<typename T>
+					void sendPulse(const T& c, uint32_t v = 0)
+						{ sendPulse<T, uint32_t>(c, v); }
+				template<typename T1, typename T2>
+					void sendPulse(const T1& c, const T2& v)
+						{ sendPulse(pulse_t(c, v)); }
+
 				bool isConnected( ) const { return mID != INVALID_ID; }
 				void close( );
+
 			private:
 				connection_id_t mID;
 				uint *mRef;

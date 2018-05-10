@@ -19,6 +19,9 @@ BSPClient::Impl::Impl(BSPClient::connection_ptr c, uint t)
 {
 	mRunning = true;
 
+	if(!mBaseConnection->isOpen())
+		throw Connection::ConnectionClosedException();
+
 	mReaderThread.construct([this](void) {
 		try
 		{

@@ -7,7 +7,7 @@ namespace esep { namespace serial { namespace modules {
 class Writer::Impl
 {
 	public:
-		Impl(Serializer& c, uint t) : mNextID(0), mTimeout(t), mConnection(c) { }
+		Impl(Writer *s, Serializer& c, uint t) : mSelf(s), mNextID(0), mTimeout(t), mConnection(c) { }
 		void put(const types::buffer_t&);
 		void acknowledge(types::id_t, packet::Type);
 		void reset( );
@@ -17,6 +17,7 @@ class Writer::Impl
 		void enqueue(packet::packet_ptr);
 		void sendAndCheck(packet::packet_ptr);
 	private:
+		Writer *const mSelf;
 		byte_t mNextID;
 		const uint mTimeout;
 		Serializer& mConnection;
@@ -27,41 +28,41 @@ class Writer::Impl
 // # --------------------------------------------------------------------------------------------------
 
 Writer::Writer(Serializer& c, uint t)
-	: pImpl(new Impl(c, t))
+	: pImpl(new Impl(this, c, t))
 {
 }
 
 Writer::~Writer(void)
 {
-	lock_t lock(mMutex);
+	MXT_SYNCHRONIZE;
 
 	delete pImpl;
 }
 
 void Writer::put(const types::buffer_t& o)
 {
-	lock_t lock(mMutex);
+	MXT_SYNCHRONIZE;
 
 	pImpl->put(o);
 }
 
 void Writer::acknowledge(types::id_t id, packet::Type t)
 {
-	lock_t lock(mMutex);
+	MXT_SYNCHRONIZE;
 
 	pImpl->acknowledge(id, t);
 }
 
 void Writer::reset( )
 {
-	lock_t lock(mMutex);
+	MXT_SYNCHRONIZE;
 
 	pImpl->reset();
 }
 
 void Writer::send(packet::packet_ptr p)
 {
-	lock_t lock(mMutex);
+	MXT_SYNCHRONIZE;
 
 	pImpl->send(p);
 }
@@ -172,10 +173,10 @@ void Writer::Impl::sendAndCheck(packet::packet_ptr p)
 {
 	send(p);
 
-	mTimer = lib::Timer::instance().registerCallback([this](void) {
+	mTimer = lib::Timer::instance().registerAsync([this](void) {
 		try
 		{
-			acknowledge(0, packet::Type::AP_ERR);
+			mSelf->acknowledge(0, packet::Type::AP_ERR);
 		}
 		catch(const Connection::ConnectionClosedException& e)
 		{

@@ -13,11 +13,11 @@ namespace esep { namespace serial {
 
 DummyConnection::DummyConnection(void)
 	: mCounterpart(nullptr)
-	, mBuffer(new buffer_t)
 	, mTransform([](byte_t v, uint) { return v; })
 	, mSentPackets(0)
 {
 	mDead = false;
+	mConnected = false;
 }
 
 DummyConnection::~DummyConnection(void)
@@ -30,12 +30,20 @@ void DummyConnection::connect(DummyConnection& c)
 	close();
 	c.close();
 
-	mCounterpart = &c;
-	c.mCounterpart = this;
+	{
+		MXT_SYNCHRONIZE;
+
+		mCounterpart = &c;
+		c.mCounterpart = this;
+		mConnected = true;
+		c.mConnected = true;
+	}
 }
 
 void DummyConnection::write(const byte_t * const p, const size_t n)
 {
+	MXT_SYNCHRONIZE;
+
 	if(!isOpen())
 		MXT_THROW_EX(Connection::ConnectionClosedException);
 
@@ -47,7 +55,7 @@ void DummyConnection::write(const byte_t * const p, const size_t n)
 #ifndef LOG_DUMMY
 	for(uint i = 0 ; i < n ; ++i)
 	{
-		mBuffer->insert(mTransform(p[i], i));
+		mBuffer.insert(mTransform(p[i], i));
 	}
 #else
 	std::vector<byte_t> b(n);
@@ -77,6 +85,8 @@ void DummyConnection::write(const byte_t * const p, const size_t n)
 
 void DummyConnection::read(byte_t *p, size_t n)
 {
+	MXT_SYNCHRONIZE;
+
 	if(!isOpen())
 		MXT_THROW_EX(Connection::ConnectionClosedException);
 
@@ -92,7 +102,11 @@ void DummyConnection::read(byte_t *p, size_t n)
 			if(!isOpen())
 				MXT_THROW_EX(Connection::ConnectionClosedException);
 
-			*(p++) = mCounterpart->mBuffer->remove();
+			auto c = mCounterpart;
+
+			lock.unlock();
+			*(p++) = c->mBuffer.remove();
+			lock.lock();
 		}
 	}
 	catch(const buffer_t::InterruptedException& e)
@@ -119,13 +133,16 @@ void DummyConnection::close(void)
 {
 	if(isOpen())
 	{
-		DummyConnection *c = mCounterpart;
-		mCounterpart = nullptr;
+		MXT_SYNCHRONIZE;
 
-		c->close();
+		mConnected = false;
+
+		mCounterpart->close();
 
 		mSentPackets = 0;
-		mBuffer.reset(new buffer_t);
+		mBuffer.interrupt();
+
+		mCounterpart = nullptr;
 	}
 }
 

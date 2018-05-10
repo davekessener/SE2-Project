@@ -2,7 +2,7 @@
 #define ESEP_LIB_SYNC_MONITOR_H
 
 #include "lib/thread.h"
-
+#include "lib/logger.h"
 #include "lib/function.h"
 
 namespace esep
@@ -36,7 +36,7 @@ namespace esep
 		template<typename F>
 		typename lib::FunctionTraits<F>::return_type Monitor<T>::operator()(F&& f)
 		{
-			lock_t lock(mMutex);
+			MXT_SYNCHRONIZE;
 
 			return f(mObject);
 		}

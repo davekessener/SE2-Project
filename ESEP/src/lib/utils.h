@@ -9,7 +9,9 @@
 #include <sstream>
 #include <vector>
 #include <stdexcept>
+#include <mutex>
 
+#include "lib/tml.h"
 
 #define MXT_GETA1(a1,...) a1
 #define MXT_GETA2(a1,a2,...) a2
@@ -43,7 +45,6 @@
 					::esep::lib::stringify("[" #name "] ", s)) \
 			    { } \
 	}
-
 
 typedef unsigned uint;
 typedef uint8_t byte_t;
@@ -84,33 +85,109 @@ namespace esep
 
 		namespace impl
 		{
-			template<typename S>
-			void stringifyImpl(S&) { }
-
-			template<typename S, typename T1, typename T2>
-			S& operator<<(S& s, const std::pair<T1, T2>& e)
+			template<typename T>
+			struct CanBeWrittenToStream
 			{
-				s << "std::pair<" << e.first << "," << e.second << ">";
+				template<typename TT>
+				using impl = decltype(std::declval<std::ostream&>() << std::declval<TT>());
 
-				return s;
+				static constexpr bool Value = tml::CanApply<impl, T>::Value;
+			};
+
+			template<typename T>
+			struct StreamGenerator
+			{
+				static constexpr bool Value = true;
+
+				static std::string convert(const T& o)
+				{
+					std::stringstream ss;
+
+					ss << o;
+
+					return ss.str();
+				}
+			};
+
+			template<typename T, typename TT>
+			struct CastGenerator
+			{
+				static constexpr bool Value = true;
+
+				static std::string convert(const T& o)
+				{
+					return StreamGenerator<TT>::convert(static_cast<TT>(o));
+				}
+			};
+
+			template<typename T>
+			struct FailedGenerator
+			{
+				static constexpr bool Value = false;
+			};
+
+			template<typename T>
+			struct StringGenerator
+				: tml::DoIf<
+				  	  CanBeWrittenToStream<T>,
+					  tml::Type2Type<StreamGenerator<T>>,
+					  tml::If<
+					  	  tml::CanCastTo<T, int>,
+						  tml::Type2Type<CastGenerator<T, int>>,
+						  tml::Type2Type<FailedGenerator<T>>
+					  >
+				  >
+			{
+			};
+
+			template<typename T>
+			tml::EnableIf<impl::StringGenerator<T>, std::string> to_string(T&& o)
+			{
+				return impl::StringGenerator<T>::convert(std::forward<T>(o));
 			}
 
-			template<typename S, typename T, typename ... TT>
-			void stringifyImpl(S& ss, const T& o, const TT& ... tt)
+			template<typename T1, typename T2>
+			std::string to_string(const std::pair<T1, T2>& o)
 			{
-				ss << o;
-				stringifyImpl(ss, tt...);
+				std::stringstream ss;
+
+				ss << "std::pair<" << to_string(o.first) << ", " << to_string(o.second) << ">";
+
+				return ss.str();
 			}
 		}
 
-		template<typename ... T>
-		std::string stringify(const T& ... o)
+		namespace impl
+		{
+			static_assert(!CanBeWrittenToStream<std::pair<int, int>>::Value, "Can't write pairs to stream!");
+			static_assert(tml::Not<CanBeWrittenToStream<std::pair<int, int>>>::Value, "Can't write pairs to stream!");
+
+			template<typename S>
+			void stringifyImpl(S&&) { }
+
+			template<typename S, typename T, typename ... TT>
+			void stringifyImpl(S&& ss, T&& o, TT&& ... tt)
+			{
+				ss << to_string(std::forward<T>(o));
+
+				stringifyImpl(std::forward<S>(ss), std::forward<TT>(tt)...);
+			}
+		}
+
+		template<typename ... A>
+		std::string stringify(A&& ... a)
 		{
 			std::stringstream ss;
 
-			impl::stringifyImpl(ss, o...);
+			impl::stringifyImpl(ss, std::forward<A>(a)...);
 
 			return ss.str();
+		}
+
+		template<typename T, typename F>
+		auto with_temporary(T o, F&& f) -> decltype(f(o))
+		{
+			return f(o);
 		}
 	}
 }

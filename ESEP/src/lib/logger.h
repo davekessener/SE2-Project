@@ -57,6 +57,21 @@
 	}
 
 
+#define MXT_LOCK_2(l,m) \
+		l lock; \
+		do { try { \
+			lock = l(m); \
+		} catch(const std::system_error& e) { \
+			MXT_LOG("Encountered system_error while locking mutex!"); \
+			throw; \
+		} } while(0)
+#define MXT_LOCK_1(m) MXT_LOCK_2(lock_t,m)
+#define MXT_LOCK_0() MXT_LOCK_1(mMutex)
+#define MXT_LOCK_GET(...) MXT_GETA3(__VA_ARGS__,MXT_LOCK_2,MXT_LOCK_1,MXT_LOCK_0)
+#define MXT_LOCK(...) MXT_LOCK_GET(__VA_ARGS__)(__VA_ARGS__)
+
+#define MXT_SYNCHRONIZE MXT_LOCK_0()
+
 namespace esep
 {
 	namespace lib
