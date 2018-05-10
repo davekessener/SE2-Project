@@ -116,7 +116,7 @@ namespace esep
 					// suspends calling thread for a minimum of t ms
 					static void sleep(uint t) { std::this_thread::sleep_for(std::chrono::milliseconds(t)); }
 
-					void reset( ) { mSystemStart = std::chrono::system_clock::now(); }
+					void reset() { mSystemStart = std::chrono::system_clock::now(); }
 				private:
 					void update( );
 

@@ -1,7 +1,5 @@
-#ifndef SRC_BASE_IDLE_MANAGER_H
-#define SRC_BASE_IDLE_MANAGER_H
-
-#include <memory>
+#ifndef SRC_BASE_READY_MANAGER_H
+#define SRC_BASE_READY_MANAGER_H
 
 #include "base/IManager.h"
 #include "communication/packet.h"
@@ -16,26 +14,15 @@ namespace esep
 {
  	 namespace base
 	 {
- 	   class IdleManager : public IManager
+ 	   class ReadyManager : public IManager
 	   {
 	   	  public:
- 		   IdleManager(communication::IRecipient *);
+ 		   ReadyManager(communication::IRecipient *);
  		   void accept(std::shared_ptr<communication::Packet>);
  		   void handle(hal::HAL::Event);
 
- 			enum class State : int8_t
- 			{
- 				IS_PRESSED,
-				IS_NOT_PRESSED,
-				READY_RUN,
-				READY_CONFIG,
-				RUN,
-				CONFIG
- 			};
-
 	   	  private:
  		  communication::IRecipient * const mBaseHandler;
- 		  State mState;
  		  hal::Buttons& BUTTONS;
 
 
@@ -43,4 +30,6 @@ namespace esep
 	 }
 }
 
-#endif /* SRC_BASE_IDLE_MANAGER_H */
+
+
+#endif /* SRC_BASE_READY_MANAGER_H */
