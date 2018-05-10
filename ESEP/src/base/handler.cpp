@@ -24,44 +24,44 @@ Handler::Handler(communication::IRecipient* communicationModule)
 		{
 			qnx::pulse_t pulse = channel.receivePulse(); //wait for pulse message
 
-			//the code can be a command to switch the Manager
-			if(pulse.code == static_cast<int8_t>(MessageType::SWITCH_MANAGER))
+			switch(pulse.code)
 			{
-				switch(pulse.value)
-				{
-					case(static_cast<uin32_t>(Message::START_RUN)):
-							switchManager(mRunManager.get());
-						break;
+				case(static_cast<int8_t>(MessageType::PACKET_IN_BUFFER)):
+					communication::Packet_ptr packet= mPacketBuffer.remove();
 
-					case(static_cast<uin32_t>(Message::START_CONFIG)):
+					switch(packet->message())
+					{
+						case(Message::SELECT_CONFIG):
 							switchManager(mConfigManager.get());
-						break;
+							break;
 
-					case(static_cast<uin32_t>(Message::IDLE)):
+						case(Message::SELECT_RUN):
+							switchManager(mRunManager.get());
+							break;
+
+						case(Message::IDLE):
 							switchManager(mDefaultManager.get());
-						break;
+							break;
 
-					case(static_cast<uin32_t>(Message::SERIAL_ERROR)):
-							switchManager(mErrorManager.get());
-						break;
+						//TODO: React to new Massage types.
 
-					//TODO: Handle new ErrorStates
-
-					default:
-						MXT_LOG(lib::stringify("Received pulse {", lib::hex<8>(pulse.code), ", ", lib::hex<32>(pulse.value), "}"));
+						default:
+							mCurrentManager->accept(packet);
+					}
 					break;
-				}
-			}
-			// It can be a command to forward a Hal Event
-			else if (pulse.code == static_cast<int8_t>(MessageType::HAL_EVENT))
-			{
-				hal::HAL::Event event = static_cast<hal::HAL::Event>(pulse.value);
-				mCurrentManager->handle(event);
-			}
-			// or it can be a command to destroy the thread
-			else
-			{
-				mRunning = false;
+
+				case(static_cast<int8_t>(MessageType::HAL_EVENT)):
+					hal::HAL::Event event = static_cast<hal::HAL::Event>(pulse.value);
+					mCurrentManager->handle(event);
+					break;
+
+				case(static_cast<int8_t>(MessageType::STOP_RUNNING)):
+					mRunning = false;
+					break;
+
+				default:
+					// make a log, if there was an undefined MassageType
+					MXT_LOG(lib::stringify("Received unexpected pulse {", lib::hex<8>(pulse.code), ", ", lib::hex<32>(pulse.value), "}"));
 			}
 		}
 
@@ -81,7 +81,8 @@ Handler::~Handler()
 	}
 }
 
-void Handler::accept(std::shared_ptr<communication::Packet> packet)
+
+void Handler::accept(communication::Packet_ptr packet)
 {
 	if(packet->target() == communication::Packet::Location::MASTER)
 	{
@@ -89,17 +90,8 @@ void Handler::accept(std::shared_ptr<communication::Packet> packet)
 	}
 	else
 	{
-		Message msg = packet->message();
-		switch(msg)
-		{
-			case(Message::START_RUN): case(Message::START_CONFIG): case(Message::IDLE): case(Message::SERIAL_ERROR):
-				mConnection.sendPulse(static_cast<int8_t>(MessageType::SWITCH_MANAGER), static_cast<int8_t>(msg));
-				break;
-
-			default:
-				mCurrentManager->accept(packet);
-				break;
-		}
+		mPacketBuffer.insert(packet);
+		mConnection.sendPulse(static_cast<int8_t>(MessageType::PACKET_IN_BUFFER));
 	}
 }
 

@@ -9,6 +9,7 @@
 #include "config_manager.h"
 #include "config_object.h"
 #include "lib/thread.h"
+#include "lib/sync/container.h"
 
 
 namespace esep
@@ -18,11 +19,14 @@ namespace esep
 		class Handler : public communication::IRecipient
 		{
 			private:
+			typedef sync::Container<communication::Packet_ptr> container_t;
+			typedef communication::Packet::Message Message;
+
 			enum class MessageType : int8_t
 			{
 				STOP_RUNNING,
 				HAL_EVENT,
-				SWITCH_MANAGER,
+				PACKET_IN_BUFFER,
 			};
 
 			public:
@@ -42,7 +46,7 @@ namespace esep
 				ConfigObject mConfigData;
 				std::shared_ptr<IManager> mConfigManager,  mRunManager, mErrorManager, mDefaultManager;
 				IManager* mCurrentManager;
-				typedef communication::Packet::Message Message;
+				container_t mPacketBuffer;
 		};
 	}
 }
