@@ -27,7 +27,8 @@ Handler::Handler(communication::IRecipient* communicationModule)
 			switch(pulse.code)
 			{
 				case(static_cast<int8_t>(MessageType::PACKET_IN_BUFFER)):
-					communication::Packet_ptr packet= mPacketBuffer.remove();
+				{
+					auto packet= mPacketBuffer.remove();
 
 					switch(packet->message())
 					{
@@ -49,10 +50,9 @@ Handler::Handler(communication::IRecipient* communicationModule)
 							mCurrentManager->accept(packet);
 					}
 					break;
-
+				}
 				case(static_cast<int8_t>(MessageType::HAL_EVENT)):
-					hal::HAL::Event event = static_cast<hal::HAL::Event>(pulse.value);
-					mCurrentManager->handle(event);
+					mCurrentManager->handle(static_cast<hal::HAL::Event>(pulse.value));
 					break;
 
 				case(static_cast<int8_t>(MessageType::STOP_RUNNING)):
