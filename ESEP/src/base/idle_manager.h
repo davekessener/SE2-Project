@@ -20,22 +20,12 @@ namespace esep
 	   {
 	   	  public:
  		   IdleManager(communication::IRecipient *);
- 		   void accept(std::shared_ptr<communication::Packet>);
  		   void handle(hal::HAL::Event);
 
- 			enum class State : int8_t
- 			{
- 				IS_PRESSED,
-				IS_NOT_PRESSED,
-				READY_RUN,
-				READY_CONFIG,
-				RUN,
-				CONFIG
- 			};
 
 	   	  private:
  		  communication::IRecipient * const mBaseHandler;
- 		  State mState;
+ 		  int mTime;
  		  hal::Buttons& BUTTONS;
 
 

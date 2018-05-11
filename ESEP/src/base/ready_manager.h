@@ -18,7 +18,6 @@ namespace esep
 	   {
 	   	  public:
  		   ReadyManager(communication::IRecipient *);
- 		   void accept(std::shared_ptr<communication::Packet>);
  		   void handle(hal::HAL::Event);
 
 	   	  private:
