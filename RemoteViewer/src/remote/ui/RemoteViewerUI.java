@@ -1,9 +1,12 @@
 package remote.ui;
 
+import javafx.application.Platform;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -38,19 +41,24 @@ public class RemoteViewerUI
 	
 	public void addLine(String s)
 	{
-		mText.setText(mText.getText() + s + "\n");
+		Platform.runLater(() -> mText.appendText(s + "\n"));
 	}
 	
 	private Scene createScene()
 	{
 		GridPane pane = new GridPane();
+		Button clear = new Button("Clear");
 		
 		pane.add(mText, 0, 0);
+		pane.add(clear, 0, 1);
 
 		GridPane.setHgrow(mText, Priority.ALWAYS);
 		GridPane.setVgrow(mText, Priority.ALWAYS);
 		
 		mText.setEditable(false);
+		mText.setFont(Font.font("Courier new", 12));
+		
+		clear.setOnAction(e -> mText.setText(""));
 		
 		return new Scene(pane, 800, 600);
 	}
