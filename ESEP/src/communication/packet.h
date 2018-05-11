@@ -35,7 +35,8 @@ namespace esep
 				CONFIG_FAILED,
 				ITEM_APPEARED, // (Base -> Master)
 				ITEM_DISAPPEARED, // (Base -> Master)
-				ERROR_SERIAL
+				ERROR_SERIAL,
+				RAMP_FULL
 			};
 
 			enum class Location : int8_t
