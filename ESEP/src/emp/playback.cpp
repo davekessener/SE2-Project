@@ -25,7 +25,7 @@ namespace
 	inline constexpr uint32_t get_pin(const entry_t e)          { return 1 << ((e >> 48) & 0x1F); }
 	inline constexpr hal::HAL::Field get_field(const entry_t e) { return static_cast<hal::HAL::Field>((e >> 56) & 0x3); }
 
-	inline constexpr entry_t set_time(const entry_t e, const uint32_t t) { return (e & ~0xFFFFFFFFull) | t; }
+	inline constexpr entry_t set_time(const entry_t e, const uint32_t t) { return (e & 0xFFFFFFFF00000000ull) | t; }
 
 	entry_t assemble(uint32_t t, const Location& l, uint32_t v)
 	{
@@ -49,8 +49,20 @@ namespace
 
 // # ------------------------------------------------------------------------
 
-Playback::Playback(Reader_ptr in)
+Playback::Playback(Reader_ptr in, hal::HAL_ptr hal)
+	: mHAL(std::move(hal))
 {
+	update(Field::GPIO_0,
+		  HAL::getPin(Event::LB_START)
+		| HAL::getPin(Event::LB_HEIGHTSENSOR)
+		| HAL::getPin(Event::LB_SWITCH)
+		| HAL::getPin(Event::LB_RAMP)
+		| HAL::getPin(Event::LB_END)
+		| HAL::getPin(Event::BTN_STOP)
+		| HAL::getPin(Event::BTN_ESTOP)
+	);
+	update(Field::ANALOG, 0x00000000);
+
 	while(!in->empty())
 	{
 		std::vector<std::string> buf;
@@ -71,22 +83,36 @@ Playback::Playback(Reader_ptr in)
 		add(assemble(t, l, v));
 	}
 
-	uint32_t t = lib::Timer::instance().elapsed();
-
-	for(auto& e : mEntries)
-	{
-		e = set_time(e, get_time(e) - t);
-		t += get_time(e);
-	}
-
 	mCurrent = mEntries.cbegin();
 	mEnd = mEntries.cend();
 
 	next();
+
+	// TODO warn if first entry has offset of 0
 }
 
 void Playback::out(Field f, uint32_t v)
 {
+	if(static_cast<bool>(mHAL))
+	{
+		mHAL->out(f, v);
+	}
+}
+
+void Playback::set(Field f, uint32_t v)
+{
+	if(static_cast<bool>(mHAL))
+	{
+		mHAL->set(f, v);
+	}
+}
+
+void Playback::reset(Field f, uint32_t v)
+{
+	if(static_cast<bool>(mHAL))
+	{
+		mHAL->reset(f, v);
+	}
 }
 
 void Playback::add(entry_t e)
@@ -116,9 +142,11 @@ void Playback::next(void)
 			next();
 		};
 
-		if(get_time(*mCurrent))
+		auto t = lib::Timer::instance().elapsed();
+
+		if(t < get_time(*mCurrent))
 		{
-			mTimer = lib::Timer::instance().registerCallback(f, get_time(*mCurrent));
+			mTimer = lib::Timer::instance().registerCallback(f, get_time(*mCurrent) - t);
 		}
 		else
 		{

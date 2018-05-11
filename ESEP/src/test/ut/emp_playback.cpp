@@ -26,8 +26,10 @@ namespace
 			"0 heightsensor $1234 # heighsensor",
 			"# empty line",
 			"",
-			"50 lb_start 1",
-			"100 button_reset true"
+			"50 lb_end 1",
+			"100 lb_start 0",
+			"150 button_stop true",
+			"200 button_reset true"
 		};
 	}
 }
@@ -66,7 +68,7 @@ void EMPPlayback::define(void)
 			received.push_back(e);
 		});
 
-		lib::Timer::instance().sleep(150);
+		lib::Timer::instance().sleep(300);
 
 		ASSERT_EACH_EQUALS(received, (decltype(received){Event::LB_START, Event::BTN_RESET}));
 	};
@@ -85,15 +87,15 @@ void EMPPlayback::define(void)
 			received.push_back(e);
 		});
 
-		lib::Timer::instance().sleep(25);
+		lib::Timer::instance().sleep(50);
 
 		ASSERT_EQUALS(received.size(), 0u);
 
-		lib::Timer::instance().sleep(50);
+		lib::Timer::instance().sleep(100);
 
 		ASSERT_EQUALS(received.size(), 1u);
 
-		lib::Timer::instance().sleep(50);
+		lib::Timer::instance().sleep(100);
 
 		ASSERT_EQUALS(received.size(), 2u);
 		ASSERT_EACH_EQUALS(received, (decltype(received){Event::LB_START, Event::BTN_RESET}));

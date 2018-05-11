@@ -2,6 +2,7 @@
 #define ESEP_HAL_HAL_H
 
 #include <functional>
+#include <memory>
 
 #include "lib/utils.h"
 
@@ -70,6 +71,8 @@ namespace esep
 				virtual void setCallback(callback_t) = 0;
 			private:
 		};
+
+		typedef std::unique_ptr<HAL> HAL_ptr;
 	}
 }
 

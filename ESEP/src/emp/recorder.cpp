@@ -9,10 +9,11 @@
 
 namespace esep { namespace emp {
 
-Recorder::Recorder(Writer_ptr p)
-	: mWriter(std::move(p))
+Recorder::Recorder(Writer_ptr p, hal::HAL_ptr hal)
+	: mHAL(std::move(hal))
+	, mWriter(std::move(p))
 {
-	Physical::setCallback([this](Event e) {
+	mHAL->setCallback([this](Event e) {
 		uint64_t t = lib::Timer::instance().elapsed();
 
 		if(t >= (1ull << 32))
@@ -33,9 +34,9 @@ void Recorder::record(uint32_t t, Event e)
 {
 	std::stringstream ss;
 	auto l = Location::byEvent(e);
-	auto v = in(hal::HAL::getField(e)) & static_cast<uint32_t>(e);
+	auto v = mHAL->in(hal::HAL::getField(e)) & hal::HAL::getPin(e);
 
-	ss << std::setfill('0') << std::setw(8) << t << " " << std::setw(20) << l.name << " ";
+	ss << std::setfill('0') << std::setw(8) << t << " " << std::setfill(' ') << std::setw(20) << l.name << " ";
 
 	if(hal::HAL::getField(e) == hal::HAL::Field::ANALOG)
 	{

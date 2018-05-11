@@ -9,6 +9,7 @@
 #include "test/ft/serial.h"
 #include "test/ft/hal.h"
 #include "test/ft/communication.h"
+#include "test/ft/emp.h"
 
 #include "lib/logger.h"
 
@@ -23,6 +24,7 @@ bool main(const lib::args_t& args)
 //		functional::testSerialConnection();
 //		functional::testHAL();
 //		functional::testCommunicationLayer(args);
+		functional::testEMP(args);
 	}
 
 	std::cout << "\nGoodbye." << std::endl;

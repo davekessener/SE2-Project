@@ -156,6 +156,12 @@ void Timer::define(void)
 
 		ASSERT_EQUALS(mCounter, 1u);
 	};
+
+	UNIT_TEST("properly resets")
+	{
+		lib::Timer::instance().reset();
+		ASSERT_EQUALS(lib::Timer::instance().elapsed(), 0ull);
+	};
 }
 
 }}}

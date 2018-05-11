@@ -30,10 +30,10 @@ namespace esep
 			MXT_DEFINE_E(InvalidFileException);
 
 			public:
-				Playback(Reader_ptr);
+				Playback(Reader_ptr, hal::HAL_ptr = hal::HAL_ptr());
 				void out(Field, uint32_t) override;
-				void set(Field f, bitmask_t v) override { out(f, in(f) | v); }
-				void reset(Field f, bitmask_t v) override { out(f, in(f) & ~v); }
+				void set(Field, bitmask_t) override;
+				void reset(Field, bitmask_t) override;
 
 			private:
 				void add(entry_t);
@@ -41,6 +41,7 @@ namespace esep
 				void execute( );
 
 			private:
+				hal::HAL_ptr mHAL;
 				entries_t mEntries;
 				iter_t mCurrent, mEnd;
 				timer::Manager mTimer;
