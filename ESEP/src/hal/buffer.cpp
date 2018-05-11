@@ -20,9 +20,9 @@ void Buffer::update(Field f, uint32_t v)
 		case Field::GPIO_0:
 			for(auto i1 = HAL::EVENTS, i2 = i1 + HAL::N_EVENTS ; i1 != i2 ; ++i1)
 			{
-				if((static_cast<uint64_t>(*i1) >> 32) == static_cast<uint>(f))
+				if(HAL::getField(*i1) == Field::GPIO_0)
 				{
-					if(c & static_cast<uint>(*i1))
+					if(c & HAL::getPin(*i1))
 					{
 						mSubscriber(*i1);
 					}

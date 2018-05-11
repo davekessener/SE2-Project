@@ -13,6 +13,9 @@ namespace esep
 		class Channel
 		{
 			public:
+			MXT_DEFINE_E(TimerRedefinedException);
+
+			public:
 				Channel(uint32_t = 0);
 				~Channel( );
 				Connection connect( );

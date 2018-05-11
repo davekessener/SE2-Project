@@ -25,14 +25,17 @@ namespace esep
 				const Field field;
 				const uint32_t pin;
 
-				static Location byName(const std::string& n)
-					{ return findLocation([&n](const Location& l) { return l.name == n; }); }
-				static Location byHW(Field f, uint32_t p)
-					{ return findLocation([f, p](const Location& l) { return l.field == f && l.pin == p; }); }
+				static Location byName(const std::string&);
+				static Location byHW(Field, uint32_t);
 				static Location byEvent(Event);
 
+				bool operator==(const Location& l) const { return field == l.field && pin == l.pin; }
+				bool operator!=(const Location& l) const { return !(*this == l); }
+
 			private:
-				Location(const std::string&, Field, uint32_t);
+				Location(const std::string& s, Field f, uint32_t p)
+					: name(s), field(f), pin(p)
+				{ }
 
 				static Location findLocation(predicate_fn);
 		};

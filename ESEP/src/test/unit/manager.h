@@ -3,6 +3,7 @@
 
 #include <ios>
 #include <map>
+#include <deque>
 
 #include "lib/singleton.h"
 #include "test/unit/unit.h"
@@ -22,13 +23,13 @@ namespace esep
 						Manager& addTest( );
 					results_t run( );
 				private:
-					std::vector<TestSuite *> mTests;
+					std::deque<TestSuite *> mTests;
 			};
 
 			template<typename T>
 			Manager& Manager::addTest(void)
 			{
-				mTests.push_back(new T);
+				mTests.push_front(new T);
 
 				return *this;
 			}

@@ -37,7 +37,7 @@ NetworkWriter::~NetworkWriter(void)
 	delete pImpl;
 }
 
-void NetworkWriter::write(const std::string& msg)
+void NetworkWriter::writeLine(const std::string& msg)
 {
 	pImpl->write(msg);
 }

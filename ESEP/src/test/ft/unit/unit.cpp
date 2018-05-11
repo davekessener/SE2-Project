@@ -24,6 +24,10 @@
 #include "test/ut/watchdog.h"
 #include "test/ut/sync_container.h"
 #include "test/ut/communication_layer.h"
+#include "test/ut/hw_location.h"
+#include "test/ut/emp_tokenizer.h"
+#include "test/ut/emp_parser.h"
+#include "test/ut/emp_playback.h"
 
 namespace esep { namespace test { namespace functional {
 
@@ -49,6 +53,10 @@ bool runUnitTests(bool verbose)
 		.addTest<unit::SerialClient>()
 		.addTest<unit::Watchdog>()
 		.addTest<unit::CommunicationLayer>()
+		.addTest<unit::HWLocation>()
+		.addTest<unit::EMPTokenizer>()
+		.addTest<unit::EMPParser>()
+		.addTest<unit::EMPPlayback>()
 		.run();
 
 	uint w = 0;
@@ -120,7 +128,7 @@ bool runUnitTests(bool verbose)
 		std::cout << "SUCCESS!\n";
 	}
 
-	std::cout << ss.str() << std::endl;
+	os->writeLine(ss.str());
 
 	lib::Logger::instance().setEcho(std::move(os));
 

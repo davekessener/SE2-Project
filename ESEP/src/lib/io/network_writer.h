@@ -16,7 +16,7 @@ namespace esep
 			public:
 				NetworkWriter(const std::string&, uint);
 				virtual ~NetworkWriter( );
-				void write(const std::string&) override;
+				void writeLine(const std::string&) override;
 			private:
 				struct Impl;
 

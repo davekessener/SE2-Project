@@ -13,7 +13,7 @@ namespace esep
 		{
 			public:
 				StreamWriter(std::ostream& os) : mOS(&os) { }
-				void write(const std::string& s) override { (*mOS) << s << std::endl; }
+				void writeLine(const std::string& s) override { (*mOS) << s << std::endl; }
 			private:
 				std::ostream * const mOS;
 		};

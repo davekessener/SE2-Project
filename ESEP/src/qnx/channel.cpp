@@ -73,6 +73,15 @@ void Channel::registerInterruptListener(Connection& c, hal::GPIO& gpio, int8_t c
 
 void Channel::registerTimerListener(Connection& c, int8_t code, uint64_t period)
 {
+	static bool can_register = true;
+
+	if(!can_register)
+	{
+		MXT_THROW_EX(TimerRedefinedException);
+	}
+
+	can_register = false;
+
 	timer_t timerid;
 	struct sigevent e;
 	struct itimerspec timer;

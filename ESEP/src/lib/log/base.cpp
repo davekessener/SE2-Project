@@ -117,7 +117,7 @@ void Base::log(uint time, tid_t tid, Section section, Severity severity, const s
 
 void Base::doEcho(const std::string& msg)
 {
-	mEcho->write(msg);
+	mEcho->writeLine(msg);
 }
 
 // # ====================================================================================================

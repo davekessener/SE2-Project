@@ -25,7 +25,7 @@ namespace esep
 				void setCallback(callback_t f) override { mCallback = f; }
 
 			private:
-				void record(uint64_t, Event);
+				void record(uint32_t, Event);
 
 			private:
 				Writer_ptr mWriter;

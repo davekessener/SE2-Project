@@ -13,7 +13,7 @@ namespace esep
 		{
 			public:
 				FileWriter(const std::string& path) : mStream(path) { }
-				void write(const std::string& s) override { mStream << s << std::endl; }
+				void writeLine(const std::string& s) override { mStream << s << std::endl; }
 			private:
 				std::ofstream mStream;
 		};

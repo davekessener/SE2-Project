@@ -2,6 +2,7 @@
 #define ESEP_LIB_WRITER_H
 
 #include <string>
+#include <memory>
 
 namespace esep
 {
@@ -11,9 +12,11 @@ namespace esep
 		{
 			public:
 				virtual ~Writer( ) { }
-				virtual void write(const std::string&) = 0;
+				virtual void writeLine(const std::string&) = 0;
 			private:
 		};
+
+		typedef std::unique_ptr<Writer> Writer_ptr;
 	}
 }
 
