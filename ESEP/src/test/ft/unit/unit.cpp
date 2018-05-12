@@ -28,6 +28,7 @@
 #include "test/ut/emp_tokenizer.h"
 #include "test/ut/emp_parser.h"
 #include "test/ut/emp_playback.h"
+#include "test/ut/compound_enum.h"
 
 namespace esep { namespace test { namespace functional {
 
@@ -57,6 +58,7 @@ bool runUnitTests(bool verbose)
 		.addTest<unit::EMPTokenizer>()
 		.addTest<unit::EMPParser>()
 		.addTest<unit::EMPPlayback>()
+		.addTest<unit::CompoundEnum>()
 		.run();
 
 	uint w = 0;

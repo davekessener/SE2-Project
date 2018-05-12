@@ -64,6 +64,12 @@ namespace esep
 					return mValue == e.mValue;
 				}
 
+				template<typename T>
+				bool operator!=(const T& v) const
+				{
+					return !(*this == v);
+				}
+
 				template<typename T, typename = enable_if<T>>
 				T as( ) const
 				{

@@ -120,7 +120,7 @@ void CommunicationLayer::define(void)
 
 		wait();
 
-		lib::Timer::instance().sleep(10);
+		lib::Timer::instance().sleep(20);
 
 		ASSERT_EQUALS(mMaster->packets.size(), 0u);
 		ASSERT_EQUALS(mBaseM->packets.size(),  1u);
