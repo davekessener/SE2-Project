@@ -18,18 +18,18 @@ namespace esep
 			typedef hal::Lights::Light Light;
 
 			public:
-				IrrecoverableError(communication::IRecipient *);
+				IrrecoverableError(communication::IRecipient *, Message);
 				void enter() override;
 				void leave() override { };
 				void handle(hal::HAL::Event) override { };
-				void accept(std::shared_ptr<communication::Packet>) override;
+				void accept(std::shared_ptr<communication::Packet>) override { };
 
 			private:
 				communication::IRecipient * const mHandler;
 				hal::Switch& SWITCH;
 				hal::Lights& LIGHTS;
 				hal::Motor& MOTOR;
-				std::shared_ptr<communication::Packet> mPacket;
+				Message mMessage;
 		};
 }
 }

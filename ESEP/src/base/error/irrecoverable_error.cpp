@@ -5,12 +5,12 @@
 
 namespace esep { namespace base {
 
-IrrecoverableError::IrrecoverableError(communication::IRecipient *handler)
+IrrecoverableError::IrrecoverableError(communication::IRecipient *handler, Message msg)
 	: mHandler(handler)
 	, SWITCH(System::instance().get<hal::Switch>())
 	, LIGHTS(System::instance().get<hal::Lights>())
 	, MOTOR(System::instance().get<hal::Motor>())
-	, mPacket(NULL)
+	, mMessage(msg)
 {
 
 }
@@ -21,7 +21,7 @@ void IrrecoverableError::enter()
 	SWITCH.close();
 	LIGHTS.flash(Light::RED, 1000);
 
-	switch (mPacket->message())
+	switch (mMessage)
 	{
 		case Message::ERROR_SERIAL:
 			MXT_LOG("Fatal Error: Lost serial connection. System restart required!");
@@ -33,11 +33,6 @@ void IrrecoverableError::enter()
 			MXT_LOG("Fatal Error: System restart required!");
 			break;
 	}
-}
-
-void IrrecoverableError::accept(std::shared_ptr<communication::Packet> packet)
-{
-	mPacket = packet;
 }
 
 }}
