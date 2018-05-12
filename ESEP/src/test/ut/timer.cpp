@@ -160,7 +160,7 @@ void Timer::define(void)
 	UNIT_TEST("properly resets")
 	{
 		lib::Timer::instance().reset();
-		ASSERT_EQUALS(lib::Timer::instance().elapsed(), 0ull);
+		ASSERT_APPROX_EQUALS(lib::Timer::instance().elapsed(), 0ull);
 	};
 }
 

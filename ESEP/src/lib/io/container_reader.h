@@ -10,32 +10,27 @@ namespace esep
 	{
 		template
 		<
-			typename C,
-			typename A = ConstMemberWrapper<const std::string&, C>,
-			typename R = MemberWrapper<void, C>
+			typename C
 		>
 		class ContainerReader : public Reader
 		{
+			typedef std::function<std::string(C&)> remove_fn;
+
 			public:
 				template<typename T>
-				ContainerReader(T&& c, A access = &C::front, R remove = &C::pop_front)
-					: mContainer(std::forward<T>(c)), mAccess(access), mRemove(remove) { }
+				ContainerReader(T&& c, remove_fn remove = [](C& c) { std::string s(c.front()); c.pop_front(); return s; })
+					: mContainer(std::forward<T>(c)), mRemove(remove) { }
 				bool empty( ) const override { return mContainer.empty(); }
 
 			protected:
 				std::string doReadLine( ) override
 				{
-					std::string s(mAccess(mContainer));
-
-					mRemove(mContainer);
-
-					return s;
+					return mRemove(mContainer);
 				}
 
 			private:
 				C mContainer;
-				A mAccess;
-				R mRemove;
+				remove_fn mRemove;
 		};
 	}
 }

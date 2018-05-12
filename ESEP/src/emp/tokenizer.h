@@ -14,8 +14,10 @@ namespace esep
 			public:
 				MXT_DEFINE_E(MalformedLineException);
 
-				template<typename C, typename I = lib::MemberWrapper<void, tml::DoDecay<C>, const std::string&>>
-				static void tokenize(C&& out, const std::string& line, I insert = &tml::DoDecay<C>::push_back)
+				template<typename C>
+				static void tokenize(C&& out, const std::string& line,
+						std::function<void(tml::DoDecay<C>&, const std::string&)> insert =
+								[](tml::DoDecay<C>& c, const std::string& s) { c.push_back(s); })
 				{
 					std::stringstream buf;
 
