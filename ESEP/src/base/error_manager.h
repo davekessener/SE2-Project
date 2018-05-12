@@ -16,7 +16,7 @@ namespace esep
 				MXT_DEFINE_E(IncorrectMessageException);
 
 			public:
-				static std::unique_ptr<IManager> create(communication::IRecipient *, communication::Packet::Message);
+				static std::unique_ptr<IManager> create(communication::IRecipient *, communication::Packet_ptr);
 		};
 }
 }

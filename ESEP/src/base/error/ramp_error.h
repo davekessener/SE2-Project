@@ -4,12 +4,12 @@
 
 #include "base/IManager.h"
 #include "hal/hal.h"
-#include "hal/height_sensor.h"
 #include "hal/light_barriers.h"
 #include "hal/lights.h"
 #include "hal/motor.h"
 #include "hal/leds.h"
 #include "hal/switch.h"
+#include "hal/buttons.h"
 
 namespace esep
 {
@@ -17,12 +17,27 @@ namespace esep
 	{
 		class RampError : public IManager
 		{
+			typedef hal::LightBarriers::LightBarrier LightBarrier;
+			typedef hal::Buttons::Button Button;
+			typedef hal::Lights::Light Light;
+			typedef hal::HAL::Event Event;
+			typedef hal::LEDs::LED LED;
+			typedef communication::Packet::Message Message;
+			typedef communication::Packet::Location Location;
+
+			enum class State
+			{
+				PENDING,
+				PENDING_ACK,
+				GONE
+			};
+
 			public:
 				RampError(communication::IRecipient *);
 				void enter() override;
 				void leave() override;
 				void handle(hal::HAL::Event) override;
-				void accept(std::shared_ptr<communication::Packet>) override {};
+				void accept(std::shared_ptr<communication::Packet>) override { };
 
 			private:
 				communication::IRecipient * const mHandler;
@@ -31,6 +46,8 @@ namespace esep
 				hal::Lights& LIGHTS;
 				hal::LEDs& LEDS;
 				hal::Motor& MOTOR;
+				hal::Buttons& BUTTONS;
+				State mState;
 		};
 }
 }
