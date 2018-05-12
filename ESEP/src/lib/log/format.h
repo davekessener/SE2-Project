@@ -26,14 +26,14 @@ namespace esep
 					typedef std::function<std::string(const tml::DoDecay<T>&)> Type;
 				};
 
-				typedef lib::Tuple<tml::DoApply<tml::MakeTypeList<L...>, MakeFormatter>> tuple_t;
+				typedef lib::Tuple<tml::list::DoApply<tml::MakeTypeList<L...>, tml::Fun2Type<MakeFormatter>>> tuple_t;
 
 				public:
 					template<typename T>
 					void set(T&& f)
 					{
 						typedef lib::FunctionTraits<tml::DoDecay<T>> function_traits;
-						typedef tml::DoGet<typename function_traits::argument_types, 0> argument_type;
+						typedef tml::list::DoGet<typename function_traits::argument_types, 0> argument_type;
 						typedef typename MakeFormatter<argument_type>::Type reference_type;
 
 						mFormatters.template get<reference_type>() = f;

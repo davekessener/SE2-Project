@@ -10,15 +10,10 @@ namespace esep
 		template<typename T>
 		struct IsLValue
 		{
-			struct Small { char v[1]; };
-			struct Big { char v[2]; };
+			static SmallType testForLValue(...);
+			static LargeType testForLValue(T);
 
-			static Small testForLValue(...);
-			static Big testForLValue(T);
-
-			static DoDecay<T>& valueFunction( );
-
-			static constexpr bool Value = (sizeof(testForLValue(valueFunction())) == sizeof(Big));
+			static constexpr bool Value = (sizeof(testForLValue(std::declval<DoDecay<T>&>())) == sizeof(LargeType));
 		};
 
 		template<typename T>

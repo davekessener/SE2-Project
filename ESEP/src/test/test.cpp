@@ -24,7 +24,7 @@ bool main(const lib::args_t& args)
 //		functional::testSerialConnection();
 //		functional::testHAL();
 //		functional::testCommunicationLayer(args);
-		functional::testEMP(args);
+//		functional::testEMP(args);
 	}
 
 	std::cout << "\nGoodbye." << std::endl;

@@ -87,17 +87,17 @@ namespace esep
 
 		    template<typename T>
 		        T& get( )
-		            { return this->tuple::ObjectHolder<T, tml::IndexOf<L, T>::Value>::get(); }
+		            { return this->tuple::ObjectHolder<T, tml::list::IndexOf<L, T>::Value>::get(); }
 
 		    template<size_t I>
-		        typename tml::Get<L, I>::Type get( )
-		            { return this->tuple::ObjectHolder<typename tml::Get<L, I>::Type, I>::get(); }
+		        typename tml::list::Get<L, I>::Type get( )
+		            { return this->tuple::ObjectHolder<typename tml::list::Get<L, I>::Type, I>::get(); }
 		};
 
 		template<typename ... T>
-		Tuple<tml::DoApply<tml::MakeTypeList<T...>, tml::Decay>> make_tuple(T&& ... a)
+		Tuple<tml::list::DoApply<tml::MakeTypeList<T...>, tml::Fun2Type<tml::DoDecay>>> make_tuple(T&& ... a)
 		{
-		    return Tuple<tml::DoApply<tml::MakeTypeList<T...>, tml::Decay>>(std::forward<T>(a)...);
+		    return Tuple<tml::list::DoApply<tml::MakeTypeList<T...>, tml::Fun2Type<tml::DoDecay>>>(std::forward<T>(a)...);
 		}
 
 		template<typename ... T>
