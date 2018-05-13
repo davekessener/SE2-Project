@@ -67,6 +67,16 @@ namespace esep
 			template<typename T, typename TP>
 			typename TP::Mutex ClassSynchronization<T, TP>::sMutex;
 
+			template<typename ThreadingPolicy>
+			struct SynchronizeClass
+			{
+				template<typename T>
+				using Apply = Type2Type<ClassSynchronization<T, ThreadingPolicy>>;
+			};
+
+			template<typename C, typename TP>
+			using ThreadingInheritor = DoIf<CanCall<TP, C>, Call<TP, C>, Type2Type<TP>>;
+
 // # ----------------------------------------------------------------------
 
 			template<typename T>

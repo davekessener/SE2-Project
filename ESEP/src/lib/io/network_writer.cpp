@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <arpa/inet.h>
+#include <fcntl.h>
 
 #include "lib/io/network_writer.h"
 
@@ -58,6 +59,8 @@ NetworkWriter::Impl::Impl(const std::string& addr, uint port)
 	server.sin_family = AF_INET;
 	server.sin_port = htons(port);
 	server.sin_addr.s_addr = inet_addr(addr.c_str());
+
+    fcntl(s, F_SETFL, O_NONBLOCK);
 
 	if(connect(s, (struct sockaddr *) &server, sizeof(server)) < 0)
 	{
