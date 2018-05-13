@@ -10,7 +10,7 @@
 #include "hal/switch.h"
 #include "hal/buttons.h"
 
-#define MXT_1KHz 1000
+#define MXT_1Hz 1000
 
 namespace esep
 {

@@ -3,7 +3,7 @@
 #include "system.h"
 #include "lib/logger.h"
 
-#define MXT_1KHz 1000
+#define MXT_1Hz 1000
 
 namespace esep { namespace base {
 
@@ -21,7 +21,7 @@ void IrrecoverableError::enter()
 {
 	MOTOR.stop();
 	SWITCH.close();
-	LIGHTS.flash(Light::RED, MXT_1KHz);
+	LIGHTS.flash(Light::RED, MXT_1Hz);
 
 	switch (mMessage)
 	{

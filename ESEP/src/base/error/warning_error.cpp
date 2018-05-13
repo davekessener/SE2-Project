@@ -2,7 +2,7 @@
 #include <base/error/warning_error.h>
 #include "system.h"
 
-#define MXT_1KHz 1000
+#define MXT_1Hz 1000
 
 namespace esep { namespace base {
 
@@ -19,7 +19,7 @@ void WarningError::enter()
 {
 	MOTOR.stop();
 	SWITCH.close();
-	LIGHTS.flash(Light::YELLOW, MXT_1KHz);
+	LIGHTS.flash(Light::YELLOW, MXT_1Hz);
 }
 
 void WarningError::leave()

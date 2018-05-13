@@ -2,7 +2,7 @@
 #include "base/error/ramp_error.h"
 #include "system.h"
 
-#define MXT_500Hz 500
+#define MXT_500mHz 500
 
 namespace esep { namespace base {
 
