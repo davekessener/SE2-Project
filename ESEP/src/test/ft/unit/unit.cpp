@@ -7,9 +7,6 @@
 #include "lib/utils.h"
 #include "lib/logger.h"
 #include "lib/timer.h"
-#include "lib/writer.h"
-
-#include "lib/io/stream_writer.h"
 
 #include "test/unit/manager.h"
 
@@ -34,13 +31,7 @@ namespace esep { namespace test { namespace functional {
 
 bool runUnitTests(bool verbose)
 {
-	typedef std::unique_ptr<lib::Writer> Writer_ptr;
-
 	lib::Timer::instance().sleep(5);
-
-	std::stringstream ss;
-
-	auto os(lib::Logger::instance().setEcho(Writer_ptr(new lib::StreamWriter(ss))));
 
 	auto r = unit::Manager()
 		.addTest<unit::CRC32>()
@@ -129,10 +120,6 @@ bool runUnitTests(bool verbose)
 	{
 		std::cout << "SUCCESS!\n";
 	}
-
-	os->writeLine(ss.str());
-
-	lib::Logger::instance().setEcho(std::move(os));
 
 	return success;
 }

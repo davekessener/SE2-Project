@@ -53,8 +53,6 @@ namespace esep
 {
 	namespace lib
 	{
-		typedef std::vector<std::string> args_t;
-
 		/**
 		 * The lib::hex helper function accepts an argument of integral
 		 * type and converts it to a hex string. The arguments width in
@@ -93,6 +91,12 @@ namespace esep
 		auto with_temporary(T o, F&& f) -> decltype(f(o))
 		{
 			return f(o);
+		}
+
+		template<typename T, typename S>
+		T lexical_cast(S&& s)
+		{
+			return tml::string::lexical_cast<T>(std::forward<S>(s));
 		}
 	}
 }

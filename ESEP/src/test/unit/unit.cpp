@@ -1,5 +1,3 @@
-#ifdef ESEP_TEST
-
 #include <iostream>
 #include <exception>
 
@@ -53,5 +51,3 @@ void TestSuite::doTest(void)
 }
 
 }}}
-
-#endif

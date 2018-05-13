@@ -1,5 +1,3 @@
-#ifdef ESEP_TEST
-
 #include <chrono>
 #include <vector>
 
@@ -119,5 +117,3 @@ void DummyConnection::define(void)
 }
 
 }}}
-
-#endif

@@ -2,6 +2,7 @@
 #define ESEP_SYSTEM_H
 
 #include "lib/utils.h"
+#include "lib/arguments.h"
 #include "lib/singleton.h"
 #include "lib/tuple.h"
 
@@ -22,7 +23,7 @@ namespace esep
 	{
 		class Impl
 		{
-			typedef lib::Tuple<tml::MakeTypeList<
+			typedef lib::MakeTuple<
 				hal::Buttons,
 				hal::HeightSensor,
 				hal::LEDs,
@@ -31,12 +32,12 @@ namespace esep
 				hal::Lights,
 				hal::MetalSensor,
 				hal::Motor
-			>> hal_t;
+			> hal_t;
 
 			public:
 				Impl( );
 				~Impl( );
-				void run(const lib::args_t&);
+				void run(const lib::Arguments&);
 				template<typename T>
 					T& get( )
 						{ return mHALObjects.get<T>(); }
@@ -46,7 +47,7 @@ namespace esep
 		};
 	}
 
-	typedef lib::SingletonHolder<system::Impl> System;
+	typedef lib::Singleton<system::Impl> System;
 }
 
 #endif

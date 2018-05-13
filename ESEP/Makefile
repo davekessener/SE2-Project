@@ -27,7 +27,7 @@ LIBS += -lsocket
 
 #Compiler flags for build profiles
 CCFLAGS_release += -O2
-CCFLAGS_debug += -g -O0 -fno-builtin -DESEP_TEST
+CCFLAGS_debug += -g -O0 -fno-builtin
 CCFLAGS_coverage += -g -O0 -ftest-coverage -fprofile-arcs -nopipe -Wc,-auxbase-strip,$@
 LDFLAGS_coverage += -ftest-coverage -fprofile-arcs
 CCFLAGS_profile += -g -O0 -finstrument-functions

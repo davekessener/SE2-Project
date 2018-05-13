@@ -87,17 +87,7 @@ Impl::Impl(void)
 Impl::~Impl(void)
 {
 	mRunning = false;
-
-	try
-	{
-		mConnection.sendPulse(static_cast<int8_t>(Code::SHUTDOWN));
-	}
-	catch(...)
-	{
-		MXT_LOG("Failed to send shutdown signal; may hang!");
-	};
-
-	MXT_LOG("Timer was shut down.");
+	mConnection.sendPulse(static_cast<int8_t>(Code::SHUTDOWN));
 }
 
 Manager Impl::registerCallback(callback_fn f, uint r, uint p)

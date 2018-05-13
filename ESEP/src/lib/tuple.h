@@ -30,75 +30,103 @@ namespace esep
 		 * 		std::cout << other_tuple.get<2>() << std::endl; // prints 'Sample Text' to cout
 		 */
 
-		namespace tuple
+		template<typename L>
+		class Tuple
 		{
-			using tml::TypeList;
-			using tml::Nil;
-
 			template<typename T, size_t I>
-			struct ObjectHolder
+			struct Holder
 			{
 				public:
-					ObjectHolder( ) { }
-					ObjectHolder(T&& o) : mObject(std::move(o)) { }
-					ObjectHolder(const T& o) : mObject(o) { }
-					T& get( ) { return mObject; }
-					const T& get( ) const { return mObject; }
+				typedef T value_type;
+
+				public:
+					Holder( ) { }
+
+					template<typename TT>
+						Holder(TT&& o)
+							: mObj(std::forward<TT>(o)) { }
+
+					value_type& get( ) { return mObj; }
+					const value_type& get( ) const { return mObj; }
+
 				private:
-					T mObject;
+					value_type mObj;
 			};
 
-			template<typename L, size_t I>
-			struct TupleImpl;
-
-			template<typename H, typename T, size_t I>
-			struct TupleImpl<TypeList<H, T>, I>
-				: public TupleImpl<T, I + 1>
-				, protected ObjectHolder<H, I>
+			template<typename ... T>
+			struct Helper : T...
 			{
-				TupleImpl( ) { }
+				Helper( ) { }
+
 				template<typename ... TT>
-					TupleImpl(H&& o, TT&& ... a)
-						: TupleImpl<T, I + 1>(std::forward<TT>(a)...)
-						, ObjectHolder<H, I>(std::move(o))
-					{ }
-				template<typename ... TT>
-					TupleImpl(const H& o, TT&& ... a)
-						: TupleImpl<T, I + 1>(std::forward<TT>(a)...)
-						, ObjectHolder<H, I>(o)
-					{ }
+				Helper(TT&& ... a) : T(std::forward<TT>(a))...
+				{
+				}
 			};
 
-			template<size_t I>
-			struct TupleImpl<Nil, I>
+			struct HolderAdapter
 			{
+				template<typename T, typename I>
+				struct Apply
+				{
+					typedef Holder<T, I::Value> Type;
+				};
 			};
-		}
 
-		template<typename L>
-		struct Tuple : public tuple::TupleImpl<L, 0>
-		{
 			typedef L value_types;
+			typedef typename tml::list::Flatten<
+				tml::Fun2Type<Helper>,
+				tml::list::DoApplyWithIndex<
+					value_types,
+					HolderAdapter
+				>
+			>::Type container_t;
 
-		    template<typename ... TT>
-		        Tuple(TT&& ... a)
-		            : tuple::TupleImpl<L, 0>(std::forward<TT>(a)...)
-		                { }
+			public:
+				Tuple( ) { }
 
-		    template<typename T>
-		        T& get( )
-		            { return this->tuple::ObjectHolder<T, tml::list::IndexOf<L, T>::Value>::get(); }
+				template<typename ... T>
+				Tuple(T&& ... a)
+					: mContainer(std::forward<T>(a)...)
+				{
+				}
 
-		    template<size_t I>
-		        typename tml::list::Get<L, I>::Type get( )
-		            { return this->tuple::ObjectHolder<typename tml::list::Get<L, I>::Type, I>::get(); }
+				template<typename T, typename = tml::EnableIf<tml::list::Contains<value_types, T>>>
+				T& get( )
+				{
+					typedef Holder<T, tml::list::IndexOf<value_types, T>::Value> t_t;
+
+					return mContainer.t_t::get();
+				}
+
+				template<typename T, typename = tml::EnableIf<tml::list::Contains<value_types, T>>>
+				const T& get( ) const
+				{
+					typedef Holder<T, tml::list::IndexOf<value_types, T>::Value> t_t;
+
+					return mContainer.t_t::get();
+				}
+
+				template<size_t I, typename = tml::EnableIf<tml::list::IsValidIndex<value_types, I>>>
+				tml::list::DoGet<value_types, I>& get( )
+				{
+					typedef Holder<tml::list::DoGet<value_types, I>, I> t_t;
+
+					return mContainer.t_t::get();
+				}
+
+
+				template<size_t I, typename = tml::EnableIf<tml::list::IsValidIndex<value_types, I>>>
+				const tml::list::DoGet<value_types, I>& get( ) const
+				{
+					typedef Holder<tml::list::DoGet<value_types, I>, I> t_t;
+
+					return mContainer.t_t::get();
+				}
+
+			private:
+				container_t mContainer;
 		};
-
-		template<typename ... T>
-		Tuple<tml::list::DoApply<tml::MakeTypeList<T...>, tml::Fun2Type<tml::DoDecay>>> make_tuple(T&& ... a)
-		{
-		    return Tuple<tml::list::DoApply<tml::MakeTypeList<T...>, tml::Fun2Type<tml::DoDecay>>>(std::forward<T>(a)...);
-		}
 
 		template<typename ... T>
 		using MakeTuple = Tuple<tml::MakeTypeList<T...>>;

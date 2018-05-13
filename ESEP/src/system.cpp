@@ -23,9 +23,6 @@ Impl::Impl(void)
 		hal::MetalSensor(mHAL),
 		hal::Motor(mHAL))
 {
-#ifdef ESEP_TEST
-	MXT_THROW("Instantiated system in test build!");
-#endif
 }
 
 Impl::~Impl(void)
@@ -36,7 +33,7 @@ Impl::~Impl(void)
 	delete mHAL;
 }
 
-void Impl::run(const lib::args_t& args)
+void Impl::run(const lib::Arguments& args)
 {
 	lib::Timer::instance().reset();
 

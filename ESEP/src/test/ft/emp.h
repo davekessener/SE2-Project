@@ -1,7 +1,7 @@
 #ifndef ESEP_TEST_FUNCTIONAL_EMP_H
 #define ESEP_TEST_FUNCTIONAL_EMP_H
 
-#include "lib/utils.h"
+#include "lib/arguments.h"
 
 namespace esep
 {
@@ -9,7 +9,7 @@ namespace esep
 	{
 		namespace functional
 		{
-			void testEMP(const lib::args_t&);
+			void testEMP(const lib::Arguments&);
 		}
 	}
 }

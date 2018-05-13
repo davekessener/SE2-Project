@@ -1,5 +1,3 @@
-#ifdef ESEP_TEST
-
 #include <functional>
 
 #include "test/ut/fsm.h"
@@ -121,5 +119,3 @@ void FSM::define(void)
 }
 
 }}}
-
-#endif
