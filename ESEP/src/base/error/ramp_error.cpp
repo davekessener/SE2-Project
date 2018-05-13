@@ -20,7 +20,7 @@ void RampError::handle(Event event)
 		case State::PENDING :
 			if (event == Event::LB_RAMP && !LIGHT_BARRIERS.isBroken(LightBarrier::LB_RAMP))
 			{
-				LIGHTS.flash(Light::RED, MXT_500Hz);
+				LIGHTS.flash(Light::RED, MXT_500mHz);
 				mState = State::GONE;
 			}
 			else if (event == Event::BTN_RESET && BUTTONS.isPressed(Button::RESET))
@@ -39,7 +39,7 @@ void RampError::handle(Event event)
 			}
 			else if (event == Event::LB_RAMP && LIGHT_BARRIERS.isBroken(LightBarrier::LB_RAMP))
 			{
-				LIGHTS.flash(Light::RED, MXT_1KHz);
+				LIGHTS.flash(Light::RED, MXT_1Hz);
 				mState = State::PENDING;
 			};
 			break;
