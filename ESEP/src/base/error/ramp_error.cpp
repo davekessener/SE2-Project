@@ -5,34 +5,13 @@
 namespace esep { namespace base {
 
 RampError::RampError(communication::IRecipient *handler)
-	: mHandler(handler)
-	, SWITCH(System::instance().get<hal::Switch>())
+	: IRecoverableError(handler)
 	, LIGHT_BARRIERS(System::instance().get<hal::LightBarriers>())
-	, LIGHTS(System::instance().get<hal::Lights>())
-	, LEDS(System::instance().get<hal::LEDs>())
-	, MOTOR(System::instance().get<hal::Motor>())
-	, BUTTONS(System::instance().get<hal::Buttons>())
-	, mState(State::PENDING)
 {
 
 }
 
-void RampError::enter()
-{
-	MOTOR.stop();
-	SWITCH.close();
-	LIGHTS.flash(Light::RED, 1000);
-	LEDS.turnOn(LED::RESET);
-	mState = State::PENDING;
-}
-
-void RampError::leave()
-{
-	LEDS.turnOff(LED::RESET);
-	LIGHTS.turnOff(Light::RED);
-}
-
-void RampError::handle(hal::HAL::Event event)
+void RampError::handle(Event event)
 {
 	switch(mState)
 	{

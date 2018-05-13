@@ -37,7 +37,9 @@ namespace esep
 				ITEM_DISAPPEARED, // (Base -> Master)
 				ERROR_SERIAL,
 				RAMP_FULL,
-				ERROR_FIXED
+				ERROR_FIXED,
+				ESTOP,
+				WARNING
 			};
 
 			enum class Location : int8_t
