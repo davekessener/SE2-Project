@@ -20,7 +20,7 @@ namespace esep
 				template<typename TT>
 				using Apply = decltype(std::declval<std::ostream&>() << std::declval<const TT&>());
 
-				static constexpr bool Value = CanApply<CanPrint<T>, T>::Value;
+				static constexpr bool Value = CanCall<CanPrint<T>, T>::Value;
 			};
 
 			namespace impl

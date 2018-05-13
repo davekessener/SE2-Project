@@ -40,7 +40,7 @@ namespace esep
 
 	namespace lib
 	{
-		typedef SingletonHolder<timer::Impl> Timer;
+		typedef Singleton<timer::Impl, -2> Timer;
 	}
 }
 

@@ -76,7 +76,7 @@ namespace esep
 {
 	namespace lib
 	{
-		typedef SingletonHolder<log::Threaded> Logger;
+		typedef Singleton<log::Threaded, -3> Logger;
 	}
 }
 

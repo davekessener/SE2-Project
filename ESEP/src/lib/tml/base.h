@@ -78,16 +78,29 @@ namespace esep
 		{
 		};
 
+		template<bool V>
+		struct Bool2Type : Val2Type<bool, V>
+		{
+		};
+
 		template<typename T>
 		struct Type2Type
 		{
 			typedef T Type;
 		};
 
-		template<typename F, typename T>
-		struct CanApply
+		template<typename F, typename ... T>
+		struct Call : F::template Apply<T...>
 		{
-			template<typename FF, typename = typename FF::template Apply<T>>
+		};
+
+		template<typename F, typename ... T>
+		using DoCall = typename Call<F, T...>::Type;
+
+		template<typename F, typename ... T>
+		struct CanCall
+		{
+			template<typename FF, typename = typename FF::template Apply<T...>>
 			static SmallType f(FF&&);
 
 			static LargeType f(...);
@@ -101,7 +114,7 @@ namespace esep
 			template<typename TT>
 			using Apply = decltype(TT::Value);
 
-			static constexpr bool Value = CanApply<IsValueType<T>, T>::Value;
+			static constexpr bool Value = CanCall<IsValueType<T>, T>::Value;
 		};
 
 		template<typename T>
@@ -110,7 +123,7 @@ namespace esep
 			template<typename TT>
 			using Apply = typename TT::Type;
 
-			static constexpr bool Value = CanApply<IsTypeType<T>, T>::Value;
+			static constexpr bool Value = CanCall<IsTypeType<T>, T>::Value;
 		};
 
 		template<typename T1, typename T2>
@@ -119,7 +132,7 @@ namespace esep
 			template<typename TT>
 			using Apply = decltype(static_cast<T2>(std::declval<TT>()));
 
-			static constexpr bool Value = CanApply<IsExplicitlyCastable<T1, T2>, T1>::Value;
+			static constexpr bool Value = CanCall<IsExplicitlyCastable<T1, T2>, T1>::Value;
 		};
 
 		template<typename T1, typename T2>
@@ -158,7 +171,7 @@ namespace esep
 		};
 
 		template<template <typename ...> class F, typename T>
-		struct CanApply<Fun2Type<F>, T>
+		struct CanCall<Fun2Type<F>, T>
 		{
 			struct impl
 			{
@@ -166,13 +179,13 @@ namespace esep
 				using Apply = F<TT>;
 			};
 
-			static constexpr bool Value = CanApply<impl, T>::Value;
+			static constexpr bool Value = CanCall<impl, T>::Value;
 		};
 
 		template<typename L>
 		struct IsList
 		{
-			static constexpr bool Value = CanApply<Fun2Type<Car>, L>::Value && CanApply<Fun2Type<Cdr>, L>::Value;
+			static constexpr bool Value = CanCall<Fun2Type<Car>, L>::Value && CanCall<Fun2Type<Cdr>, L>::Value;
 		};
 
 		template<typename T>

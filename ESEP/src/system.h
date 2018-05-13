@@ -22,7 +22,7 @@ namespace esep
 	{
 		class Impl
 		{
-			typedef lib::Tuple<tml::MakeTypeList<
+			typedef lib::MakeTuple<
 				hal::Buttons,
 				hal::HeightSensor,
 				hal::LEDs,
@@ -31,7 +31,7 @@ namespace esep
 				hal::Lights,
 				hal::MetalSensor,
 				hal::Motor
-			>> hal_t;
+			> hal_t;
 
 			public:
 				Impl( );
@@ -46,7 +46,7 @@ namespace esep
 		};
 	}
 
-	typedef lib::SingletonHolder<system::Impl> System;
+	typedef lib::Singleton<system::Impl> System;
 }
 
 #endif
