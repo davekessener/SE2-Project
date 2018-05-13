@@ -2,6 +2,8 @@
 #include "base/error/ramp_error.h"
 #include "system.h"
 
+#define MXT_500Hz 500
+
 namespace esep { namespace base {
 
 RampError::RampError(communication::IRecipient *handler)
@@ -18,7 +20,7 @@ void RampError::handle(Event event)
 		case State::PENDING :
 			if (event == Event::LB_RAMP && !LIGHT_BARRIERS.isBroken(LightBarrier::LB_RAMP))
 			{
-				LIGHTS.flash(Light::RED, 500);
+				LIGHTS.flash(Light::RED, MXT_500Hz);
 				mState = State::GONE;
 			}
 			else if (event == Event::BTN_RESET && BUTTONS.isPressed(Button::RESET))
@@ -37,7 +39,7 @@ void RampError::handle(Event event)
 			}
 			else if (event == Event::LB_RAMP && LIGHT_BARRIERS.isBroken(LightBarrier::LB_RAMP))
 			{
-				LIGHTS.flash(Light::RED, 1000);
+				LIGHTS.flash(Light::RED, MXT_1KHz);
 				mState = State::PENDING;
 			};
 			break;
