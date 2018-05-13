@@ -1,5 +1,3 @@
-#ifdef ESEP_TEST
-
 #include <iostream>
 #include <exception>
 
@@ -58,5 +56,3 @@ Manager::results_t Manager::run(void)
 }
 
 }}}
-
-#endif

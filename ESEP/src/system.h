@@ -2,6 +2,7 @@
 #define ESEP_SYSTEM_H
 
 #include "lib/utils.h"
+#include "lib/arguments.h"
 #include "lib/singleton.h"
 #include "lib/tuple.h"
 
@@ -36,7 +37,7 @@ namespace esep
 			public:
 				Impl( );
 				~Impl( );
-				void run(const lib::args_t&);
+				void run(const lib::Arguments&);
 				template<typename T>
 					T& get( )
 						{ return mHALObjects.get<T>(); }

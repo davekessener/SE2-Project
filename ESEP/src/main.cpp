@@ -1,12 +1,11 @@
 #include <iostream>
 
-#ifdef ESEP_TEST
-#	include "test/test.h"
-#else
-#	include "system.h"
-#endif
+#include "test/test.h"
+
+#include "system.h"
 
 #include "lib/utils.h"
+#include "lib/arguments.h"
 #include "lib/logger.h"
 #include "lib/singleton.h"
 
@@ -17,22 +16,36 @@
 
 namespace esep { namespace lib {
 
-#define MXT_DEFAULT_LOGGER_FN "log.txt"
-#define MXT_DEFAULT_LOGGER_IP "192.168.127.1"
-#define MXT_DEFAULT_LOGGER_PORT 8000
+#define MXT_LOGGER_FN "log"
+#define MXT_LOGGER_IP "logger-ip"
+#define MXT_LOGGER_PORT "logger-port"
+#define MXT_LOGGER_VERBOSE "verbose"
 
-void init( )
+void init(const lib::Arguments& args)
 {
-	Logger::instance().addSink(Writer_ptr(new FileWriter(MXT_DEFAULT_LOGGER_FN)), log::Severity::INFO);
-	Logger::instance().addSink(Writer_ptr(new StreamWriter(std::cout)), log::Severity::WARNING);
-
-	try
+	if(args.has(MXT_LOGGER_FN))
 	{
-		Logger::instance().addSink(Writer_ptr(new NetworkWriter(MXT_DEFAULT_LOGGER_IP, MXT_DEFAULT_LOGGER_PORT)), log::Severity::INFO);
+		Logger::instance().addSink(Writer_ptr(new FileWriter(args.get(MXT_LOGGER_FN))), log::Severity::INFO);
 	}
-	catch(const NetworkWriter::ConnectionFailedException& e)
+
+	if(args.has(MXT_LOGGER_VERBOSE))
 	{
-		MXT_LOG_WARN("Could not connect to network logger ", MXT_DEFAULT_LOGGER_IP, ":", MXT_DEFAULT_LOGGER_PORT);
+		Logger::instance().addSink(Writer_ptr(new StreamWriter(std::cout)), log::Severity::WARNING);
+	}
+
+	if(args.has(MXT_LOGGER_IP) && args.has(MXT_LOGGER_PORT))
+	{
+		std::string ip = args.get(MXT_LOGGER_IP);
+		uint port = lexical_cast<uint>(args.get(MXT_LOGGER_PORT));
+
+		try
+		{
+			Logger::instance().addSink(Writer_ptr(new NetworkWriter(ip, port)), log::Severity::INFO);
+		}
+		catch(const NetworkWriter::ConnectionFailedException& e)
+		{
+			MXT_LOG_WARN("Could not connect to network logger ", ip, ":", port);
+		}
 	}
 }
 
@@ -41,15 +54,14 @@ void init( )
 int main(int argc, char *argv[])
 try
 {
-	esep::lib::args_t args(argv + 1, argv + argc);
+	esep::lib::Arguments args(argv + 1, argv + argc);
 
-	esep::lib::init();
+	esep::lib::init(args);
 
-#ifdef ESEP_TEST
-	esep::test::main(args);
-#else
-	esep::System::instance().run(args);
-#endif
+	if(esep::test::main(args) && args.has("run"))
+	{
+		esep::System::instance().run(args);
+	}
 
 	esep::lib::ExitManager::execute();
 

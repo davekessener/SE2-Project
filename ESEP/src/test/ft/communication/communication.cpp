@@ -1,7 +1,7 @@
 #include <memory>
 #include <iostream>
 
-#include "test/ft/serial/watchdog.h"
+#include "test/ft/communication.h"
 
 #include "serial/actual_connection.h"
 #include "serial/bsp_client.h"
@@ -278,11 +278,11 @@ struct DummyBase : public IRecipient
 };
 
 
-void testCommunicationLayer(const lib::args_t& args)
+void testCommunicationLayer(const lib::Arguments& args)
 {
 	std::cout << "# === COMMUNICATION LAYER TEST ===============================================================\n";
 
-	if(args.size() != 1 || (args.front() != MXT_ARGS_M && args.front() != MXT_ARGS_S))
+	if(!args.has(MXT_ARGS_M) && !args.has(MXT_ARGS_S))
 	{
 		std::cout << "Invalid arguments!" << std::endl;
 	}
@@ -323,7 +323,7 @@ void testCommunicationLayer(const lib::args_t& args)
 			});
 		};
 
-		if(args.front() == MXT_ARGS_M)
+		if(args.has(MXT_ARGS_M))
 		{
 			DummyMaster master;
 			Master master_com(&master, std::move(client));

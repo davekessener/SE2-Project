@@ -1,5 +1,3 @@
-#ifdef ESEP_TEST
-
 #include "lib/byte_stream.h"
 
 #include "test/unit/assertions.h"
@@ -81,5 +79,3 @@ void ByteStream::define(void)
 }
 
 }}}
-
-#endif

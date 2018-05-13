@@ -45,6 +45,25 @@ namespace esep
 
 				return ss.str();
 			}
+
+			struct BadCastException : std::runtime_error
+			{
+				BadCastException(const std::string& s) : std::runtime_error(stringify("Failed to lexical_cast argument '", s, "'!")) { }
+			};
+
+			template<typename T, typename S>
+			T lexical_cast(S&& s)
+			{
+				std::stringstream ss;
+				T o;
+
+				if(!(ss << s) || !(ss >> o) || (ss.rdbuf()->in_avail()))
+				{
+					throw BadCastException(stringify(s));
+				}
+
+				return o;
+			}
 		}
 	}
 }

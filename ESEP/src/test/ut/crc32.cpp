@@ -1,5 +1,3 @@
-#ifdef ESEP_TEST
-
 #include "test/unit/assertions.h"
 
 #include "test/ut/crc32.h"
@@ -79,5 +77,3 @@ void CRC32::define(void)
 }
 
 }}}
-
-#endif

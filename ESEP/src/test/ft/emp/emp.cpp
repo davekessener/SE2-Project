@@ -116,12 +116,12 @@ struct Tester
 
 }
 
-void testEMP(const lib::args_t& args)
+void testEMP(const lib::Arguments& args)
 {
 	std::cout << "=== EMP TEST ===========================================================" << std::endl;
 
 	lib::Timer::instance().reset();
-	Tester t(args.size() >= 1u && args.front() == "play");
+	Tester t(args.has("play"));
 
 	t.run();
 
