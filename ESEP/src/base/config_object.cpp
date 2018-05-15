@@ -17,6 +17,7 @@ ConfigObject::ConfigObject(const std::string& path)
 	, mHsToSwitch(0)
 	, mSwitchToEnd(0)
 	, mSlowFactor(0)
+	, mTimeTolerance(0)
 {
 	std::ifstream confFile;
 	confFile.open(mPath);
@@ -129,6 +130,15 @@ void ConfigObject::setSlowFactor(float val)
 	mSlowFactor = val;
 }
 
+void ConfigObject::setTimeTolerance(float val)
+{
+	if(val > 1 || val == 0)
+	{
+		MXT_THROW_EX(ConfigObject::InvalidDataException);
+	}
+	mTimeTolerance = val;
+}
+
 uint16_t ConfigObject::heightSensor(void)
 {
 	if(!isValid())
@@ -172,6 +182,15 @@ float ConfigObject::slowFactor(void)
 		MXT_THROW_EX(ConfigObject::InvalidObjectException);
 	}
 	return mSlowFactor;
+}
+
+float ConfigObject::timeTolerance(void)
+{
+	if(!isValid())
+	{
+		MXT_THROW_EX(ConfigObject::InvalidObjectException);
+	}
+	return mTimeTolerance;
 }
 
 }}
