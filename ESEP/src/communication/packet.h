@@ -30,17 +30,51 @@ namespace esep
 				SELECT_CONFIG,
 				SELECT_RUN,
 				IDLE,
-				RESUME, // start motor (Master -> Base)
-				SUSPEND, // stop motor (Master -> Base)
-				KEEP_NEXT, // open switch (Master -> Base)
-				ANALYSE, // analyse item at switch (Base -> Master)
+				RESUME,
+				SUSPEND,
+				KEEP_NEXT,
+				ANALYSE,
 				CONFIG_DONE,
 				CONFIG_FAILED,
-				ITEM_APPEARED, // (Base -> Master)
-				ITEM_DISAPPEARED, // (Base -> Master)
+				ITEM_APPEARED,
+				ITEM_DISAPPEARED,
 				ERROR_SERIAL,
 				NEW_ITEM,
-				REACHED_END
+				REACHED_END,
+				RAMP_FULL,
+				ERROR_FIXED,
+				ESTOP,
+				WARNING
+			};
+
+			enum class Config
+			{
+				START,
+				DONE,
+				FAILED
+			};
+
+			enum class Error
+			{
+				CONFIG,
+				SERIAL,
+				ITEM_APPEARED,  // (Base -> Master)
+				ITEM_DISAPPEARED,  // (Base -> Master)
+				ESTOP,
+				RAMP_FULL,
+				WARNING,
+				FIXED
+			};
+
+			enum class Run
+			{
+				NEW_ITEM,
+				REACHED_END,
+				RAMP_FULL,
+				ANALYSE,  // analyse item at switch (Base -> Master)
+				RESUME, // start motor (Master -> Base)
+				SUSPEND, // stop motor (Master -> Base)
+				KEEP_NEXT  // open switch (Master -> Base)
 			};
 
 			enum class Location : int8_t
