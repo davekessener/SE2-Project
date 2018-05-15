@@ -34,6 +34,9 @@ namespace esep
 				hal::Motor
 			> hal_t;
 
+			MXT_DEFINE_E(InvalidRunArgumentException);
+			MXT_DEFINE_E(ConnectionException);
+
 			public:
 				Impl( );
 				~Impl( );
@@ -41,6 +44,7 @@ namespace esep
 				template<typename T>
 					T& get( )
 						{ return mHALObjects.get<T>(); }
+
 			private:
 				hal::HAL *mHAL;
 				hal_t mHALObjects;

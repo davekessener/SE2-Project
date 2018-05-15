@@ -44,7 +44,8 @@ namespace esep
 				RAMP_FULL,
 				ERROR_FIXED,
 				ESTOP,
-				WARNING
+				WARNING,
+				SHUTDOWN
 			};
 
 			enum class Config

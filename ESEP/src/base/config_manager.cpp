@@ -4,6 +4,9 @@
 #include <vector>
 
 #include "base/config_manager.h"
+
+#include "lib/logger.h"
+
 #include "system.h"
 
 namespace esep { namespace base {
@@ -34,16 +37,23 @@ ConfigManager::ConfigManager(communication::IRecipient *handler, ConfigObject *c
 
 void ConfigManager::enter()
 {
+	MXT_LOG_INFO("Entering config manager");
+
 	mState = State::STATE_0;
+
+	LIGHTS.flash(Light::GREEN, 2000);
 }
 
 void ConfigManager::leave()
 {
+	MXT_LOG_INFO("Leaving config manager");
+
 	SWITCH.close();
 	MOTOR.right();
 	MOTOR.fast();
 	MOTOR.stop();
 	LIGHTS.turnOff(Light::YELLOW);
+	LIGHTS.turnOff(Light::GREEN);
 }
 
 void ConfigManager::accept(std::shared_ptr<communication::Packet> packet)
@@ -53,7 +63,7 @@ void ConfigManager::accept(std::shared_ptr<communication::Packet> packet)
 	case State::STATE_0 :
 		if(packet->message() == Message::RESUME)
 			{
-				LIGHTS.flash(Light::YELLOW, 500);
+				LIGHTS.turnOn(Light::YELLOW);
 				MOTOR.right();
 				MOTOR.start();
 
@@ -225,7 +235,7 @@ void ConfigManager::handle(hal::HAL::Event event)
 				mConfig->setTimeTolerance(mTimeTolerance);
 				mConfig->save();
 			} catch (ConfigObject::InvalidDataException const& e) {
-				msg = std::make_shared<communication::Packet>(Location::BASE, Location::MASTER, Message::CONFIG_FAILED);
+				msg->message(Message::CONFIG_FAILED);
 			}
 
 			mHandler->accept(msg);

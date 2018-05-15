@@ -46,8 +46,6 @@ bool main(const lib::Arguments& args)
 		getTest(args.get("test"))(args);
 	}
 
-	std::cout << "\nGoodbye." << std::endl;
-
 	return ut;
 }
 

@@ -18,13 +18,14 @@ namespace esep
 			public:
 				Master(IRecipient *, Client_ptr);
 				~Master( );
+				void setMaster(IRecipient *m) { mMaster = m; }
 				void accept(Packet_ptr) override;
 
 			protected:
 				void process(Packet_ptr) override;
 
 			private:
-				IRecipient * const mMaster;
+				IRecipient * mMaster;
 		};
 	}
 }

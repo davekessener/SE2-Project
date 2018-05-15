@@ -4,33 +4,37 @@
 #include <memory>
 
 #include "base/IManager.h"
+
 #include "communication/packet.h"
 #include "communication/IRecipient.h"
+
 #include "hal/hal.h"
 #include "lib/timer.h"
 #include "hal/buttons.h"
 
-#include "system.h"
-
 namespace esep
 {
- 	 namespace base
-	 {
- 	   class IdleManager : public IManager
-	   {
-	   	  public:
- 		   IdleManager(communication::IRecipient *);
- 		   void handle(hal::HAL::Event);
+	namespace base
+	{
+		class IdleManager : public IManager
+		{
+			typedef communication::Packet::Location Location;
+			typedef communication::Packet::Message Message;
 
+			static constexpr uint T_MIN = 5;
+			static constexpr uint T_MAX = 2000;
 
-	   	  private:
- 		  communication::IRecipient * const mBaseHandler;
- 		  int mTime;
- 		  hal::Buttons& BUTTONS;
+			public:
+				IdleManager(communication::IRecipient *);
+				void handle(hal::HAL::Event);
+				void accept(communication::Packet_ptr) { }
 
-
-	   };
-	 }
+			private:
+				communication::IRecipient * const mBaseHandler;
+				int mTime;
+				hal::Buttons& BUTTONS;
+		};
+	}
 }
 
-#endif /* SRC_BASE_IDLE_MANAGER_H */
+#endif

@@ -5,10 +5,15 @@
 
 namespace esep { namespace communication {
 
-Base::Base(Client_ptr c)
-	: mBase(nullptr)
+Base::Base(IRecipient *b, Client_ptr c)
+	: mBase(b)
 	, mSerial(std::move(c))
 {
+	if(!mBase)
+	{
+		MXT_THROW_EX(MissingBaseException);
+	}
+
 	mRunning = false;
 	mShuttingDown = false;
 
@@ -79,29 +84,9 @@ void Base::shutdown(void)
 	mShuttingDown = true;
 }
 
-void Base::setBase(IRecipient *p)
-{
-	if(mBase)
-	{
-		MXT_THROW_EX(BaseOverrideException);
-	}
-
-	mBase = p;
-}
-
 void Base::accept(Packet_ptr p)
 {
 	mBuffer.insert(p);
-}
-
-IRecipient& Base::base(void)
-{
-	if(!mBase)
-	{
-		MXT_THROW_EX(MissingBaseException);
-	}
-
-	return *mBase;
 }
 
 void Base::send(Packet_ptr p)

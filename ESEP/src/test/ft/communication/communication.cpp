@@ -280,67 +280,67 @@ struct DummyBase : public IRecipient
 
 void testCommunicationLayer(const lib::Arguments& args)
 {
-	std::cout << "# === COMMUNICATION LAYER TEST ===============================================================\n";
-
-	if(!args.has(MXT_ARGS_M) && !args.has(MXT_ARGS_S))
-	{
-		std::cout << "Invalid arguments!" << std::endl;
-	}
-	else
-	{
-		connection_ptr con(new serial::ActualConnection(MXT_SERIAL_DEVICE));
-		client_ptr     bsp(new serial::BSPClient(std::move(con), 50));
-		client_ptr  client(new serial::Watchdog(std::move(bsp), 100));
-
-		HALWrapper hal;
-
-		std::cout << "Connecting " << std::flush;
-
-		while(!client->connected())
-		{
-			std::cout << "." << std::flush;
-			lib::Timer::instance().sleep(1000);
-		}
-
-		std::cout << " [DONE]\nPlease put an item on belt 1." << std::endl;
-
-		auto run = [&](const std::string& name, Base *m) {
-			DummyBase base(hal, name, m);
-
-			m->setBase(&base);
-
-			hal.blink(Lights::Light::GREEN);
-
-			hal.execute([&](HAL::Event e) {
-				if(e == HAL::Event::BTN_STOP && hal.isPressed(Buttons::Button::STOP))
-				{
-					hal.running = false;
-				}
-				else
-				{
-					base.handle(e);
-				}
-			});
-		};
-
-		if(args.has(MXT_ARGS_M))
-		{
-			DummyMaster master;
-			Master master_com(&master, std::move(client));
-
-			master.setCommunication(&master_com);
-
-			run("BASE_M", &master_com);
-		}
-		else
-		{
-			Slave slave_com(std::move(client));
-
-			run("BASE_S", &slave_com);
-		}
-	}
-
-	std::cout << "# ============================================================================================" << std::endl;
+//	std::cout << "# === COMMUNICATION LAYER TEST ===============================================================\n";
+//
+//	if(!args.has(MXT_ARGS_M) && !args.has(MXT_ARGS_S))
+//	{
+//		std::cout << "Invalid arguments!" << std::endl;
+//	}
+//	else
+//	{
+//		connection_ptr con(new serial::ActualConnection(MXT_SERIAL_DEVICE));
+//		client_ptr     bsp(new serial::BSPClient(std::move(con), 50));
+//		client_ptr  client(new serial::Watchdog(std::move(bsp), 100));
+//
+//		HALWrapper hal;
+//
+//		std::cout << "Connecting " << std::flush;
+//
+//		while(!client->connected())
+//		{
+//			std::cout << "." << std::flush;
+//			lib::Timer::instance().sleep(1000);
+//		}
+//
+//		std::cout << " [DONE]\nPlease put an item on belt 1." << std::endl;
+//
+//		auto run = [&](const std::string& name, Base *m) {
+//			DummyBase base(hal, name, m);
+//
+//			m->setBase(&base);
+//
+//			hal.blink(Lights::Light::GREEN);
+//
+//			hal.execute([&](HAL::Event e) {
+//				if(e == HAL::Event::BTN_STOP && hal.isPressed(Buttons::Button::STOP))
+//				{
+//					hal.running = false;
+//				}
+//				else
+//				{
+//					base.handle(e);
+//				}
+//			});
+//		};
+//
+//		if(args.has(MXT_ARGS_M))
+//		{
+//			DummyMaster master;
+//			Master master_com(&master, std::move(client));
+//
+//			master.setCommunication(&master_com);
+//
+//			run("BASE_M", &master_com);
+//		}
+//		else
+//		{
+//			Slave slave_com(std::move(client));
+//
+//			run("BASE_S", &slave_com);
+//		}
+//	}
+//
+//	std::cout << "# ============================================================================================" << std::endl;
 }
 
 }}}

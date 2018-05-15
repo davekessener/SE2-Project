@@ -1,7 +1,8 @@
-
 #include "ready_manager.h"
-namespace esep{ namespace base{
 
+#include "system.h"
+
+namespace esep{ namespace base{
 
 ReadyManager::ReadyManager(communication::IRecipient *basehandler)
 	:mBaseHandler(basehandler)
@@ -18,7 +19,6 @@ void ReadyManager::handle(hal::HAL::Event event)
 	{
 		mBaseHandler->accept(std::make_shared<communication::Packet>(communication::Packet::Location::BASE, communication::Packet::Location::MASTER, communication::Packet::Message::SELECT_RUN));
 	}
-
 }
 
 }}

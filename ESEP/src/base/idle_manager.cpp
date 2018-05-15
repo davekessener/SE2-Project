@@ -1,14 +1,15 @@
-
 #include "idle_manager.h"
 
+#include "lib/logger.h"
 
-namespace esep{ namespace base{
+#include "system.h"
 
+namespace esep { namespace base {
 
 IdleManager::IdleManager(communication::IRecipient *basehandler)
-	:mBaseHandler(basehandler)
- 	,mTime(0)
-    ,BUTTONS(System::instance().get<hal::Buttons>())
+	: mBaseHandler(basehandler)
+ 	, mTime(0)
+    , BUTTONS(System::instance().get<hal::Buttons>())
 {
 }
 
@@ -26,18 +27,17 @@ void IdleManager::handle(hal::HAL::Event event)
 		else
 		{
 			auto elap = lib::Timer::instance().elapsed() - mTime;
-			if(elap >= 2000 )
+
+			if(elap >= T_MAX)
 			{
-				mBaseHandler->accept(std::make_shared<communication::Packet>(communication::Packet::Location::BASE, communication::Packet::Location::MASTER, communication::Packet::Message::SELECT_CONFIG));
+				mBaseHandler->accept(std::make_shared<communication::Packet>(Location::BASE, Location::MASTER, Message::SELECT_CONFIG));
 			}
-			else if(elap >= 5)
+			else if(elap >= T_MIN)
 			{
-				mBaseHandler->accept(std::make_shared<communication::Packet>(communication::Packet::Location::BASE, communication::Packet::Location::MASTER, communication::Packet::Message::SELECT_RUN));
+				mBaseHandler->accept(std::make_shared<communication::Packet>(Location::BASE, Location::MASTER, Message::SELECT_RUN));
 			}
 		}
-		};
-	}
-
+	};
 }
 
-}
+}}
