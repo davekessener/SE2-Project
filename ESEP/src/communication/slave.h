@@ -18,7 +18,7 @@ namespace esep
 			typedef std::unique_ptr<serial::Client> Client_ptr;
 
 			public:
-				Slave(Client_ptr);
+				Slave(IRecipient *, Client_ptr);
 				~Slave( );
 				void accept(Packet_ptr) override;
 

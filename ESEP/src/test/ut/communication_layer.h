@@ -6,7 +6,8 @@
 
 #include "serial/utils/dummy_connection.h"
 
-#include "communication/base.h"
+#include "communication/master.h"
+#include "communication/slave.h"
 
 #include "test/unit/unit.h"
 
@@ -47,7 +48,8 @@ namespace esep
 				private:
 					SimpleRecipient *mMaster, *mBaseM, *mBaseS;
 					serial::DummyConnection *mConnections[2];
-					communication::Base *mMasterCom, *mSlaveCom;
+					communication::Master *mMasterCom;
+					communication::Slave *mSlaveCom;
 			};
 		}
 	}

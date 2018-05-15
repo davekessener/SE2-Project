@@ -33,21 +33,20 @@ namespace esep
 			MXT_DEFINE_E(BaseOverrideException);
 
 			public:
-				Base(Client_ptr);
+				Base(IRecipient *, Client_ptr);
 				virtual ~Base( );
-				void setBase(IRecipient *);
 				void accept(Packet_ptr) override;
 				bool busy( ) const { return !mBuffer.empty(); }
 
 			protected:
-				IRecipient& base( );
+				IRecipient& base( ) { return *mBase; }
 				void send(Packet_ptr);
 				void shutdown( );
 				virtual void process(Packet_ptr) = 0;
 
 			private:
 				std::atomic<bool> mRunning, mShuttingDown;
-				IRecipient *mBase;
+				IRecipient * const mBase;
 				lib::Thread mProcessingThread, mSerialThread;
 				Client_ptr mSerial;
 				container_t mBuffer;

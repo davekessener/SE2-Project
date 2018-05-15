@@ -2,9 +2,9 @@
 
 namespace esep { namespace communication {
 
-Master::Master(IRecipient *master, Client_ptr p)
-	: Base(std::move(p))
-	, mMaster(master)
+Master::Master(IRecipient *com, Client_ptr p)
+	: Base(com, std::move(p))
+	, mMaster(nullptr)
 {
 }
 
@@ -15,6 +15,11 @@ Master::~Master(void)
 
 void Master::accept(Packet_ptr p)
 {
+	if(!mMaster)
+	{
+		MXT_THROW_EX(MissingBaseException);
+	}
+
 	switch(p->target())
 	{
 	case Packet::Location::MASTER:

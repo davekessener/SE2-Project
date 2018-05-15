@@ -19,7 +19,8 @@ CommunicationLayer::CommunicationLayer(void)
 {
 	mMaster = mBaseM = mBaseS = nullptr;
 	mConnections[0] = mConnections[1] = nullptr;
-	mMasterCom = mSlaveCom = nullptr;
+	mMasterCom = nullptr;
+	mSlaveCom = nullptr;
 }
 
 void CommunicationLayer::setup(void)
@@ -40,11 +41,10 @@ void CommunicationLayer::setup(void)
 	Client_ptr bsp0(new serial::BSPClient(std::move(con0))), bsp1(new serial::BSPClient(std::move(con1)));
 	Client_ptr c0(new serial::Watchdog(std::move(bsp0), MXT_TIMEOUT)), c1(new serial::Watchdog(std::move(bsp1), MXT_TIMEOUT));
 
-	mMasterCom = new communication::Master(mMaster, std::move(c0));
-	mSlaveCom = new communication::Slave(std::move(c1));
+	mMasterCom = new communication::Master(mBaseM, std::move(c0));
+	mSlaveCom = new communication::Slave(mBaseS, std::move(c1));
 
-	mMasterCom->setBase(mBaseM);
-	mSlaveCom->setBase(mBaseS);
+	mMasterCom->setMaster(mMaster);
 }
 
 void CommunicationLayer::teardown(void)

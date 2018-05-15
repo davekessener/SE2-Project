@@ -63,6 +63,8 @@ try
 		esep::System::instance().run(args);
 	}
 
+	std::cout << "\nGoodbye." << std::endl;
+
 	esep::lib::ExitManager::execute();
 
 	return 0;
