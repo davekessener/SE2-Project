@@ -53,6 +53,7 @@ void Impl::run(const lib::Arguments& args)
 {
 	typedef std::unique_ptr<serial::Connection> Connection_ptr;
 	typedef std::unique_ptr<serial::Client> Client_ptr;
+	typedef hal::Lights::Light Light;
 
 	bool is_master = false;
 
