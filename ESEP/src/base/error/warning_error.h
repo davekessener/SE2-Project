@@ -16,6 +16,8 @@ namespace esep
 		{
 			typedef hal::Lights::Light Light;
 
+			static constexpr uint ONE_HZ = 1000;
+
 			public:
 				WarningError(communication::IRecipient *);
 				void enter() override;

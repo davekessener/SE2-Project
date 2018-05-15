@@ -17,6 +17,8 @@ namespace esep
 			typedef communication::Packet::Message Message;
 			typedef hal::Lights::Light Light;
 
+			static constexpr uint ONE_HZ = 1000;
+
 			public:
 				IrrecoverableError(communication::IRecipient *, Message);
 				void enter() override;

@@ -20,7 +20,7 @@ void IRecoverableError::enter()
 {
 	MOTOR.stop();
 	SWITCH.close();
-	LIGHTS.flash(Light::RED, MXT_1Hz);
+	LIGHTS.flash(Light::RED, ONE_HZ);
 	LEDS.turnOn(LED::RESET);
 	mState = State::PENDING;
 }

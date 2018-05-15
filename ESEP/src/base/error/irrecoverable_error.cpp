@@ -3,8 +3,6 @@
 #include "system.h"
 #include "lib/logger.h"
 
-#define MXT_1Hz 1000
-
 namespace esep { namespace base {
 
 IrrecoverableError::IrrecoverableError(communication::IRecipient *handler, Message msg)
@@ -21,7 +19,7 @@ void IrrecoverableError::enter()
 {
 	MOTOR.stop();
 	SWITCH.close();
-	LIGHTS.flash(Light::RED, MXT_1Hz);
+	LIGHTS.flash(Light::RED, ONE_HZ);
 
 	switch (mMessage)
 	{

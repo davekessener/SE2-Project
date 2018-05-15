@@ -2,8 +2,6 @@
 #include <base/error/warning_error.h>
 #include "system.h"
 
-#define MXT_1Hz 1000
-
 namespace esep { namespace base {
 
 WarningError::WarningError(communication::IRecipient *handler)
@@ -19,7 +17,7 @@ void WarningError::enter()
 {
 	MOTOR.stop();
 	SWITCH.close();
-	LIGHTS.flash(Light::YELLOW, MXT_1Hz);
+	LIGHTS.flash(Light::YELLOW, ONE_HZ);
 }
 
 void WarningError::leave()

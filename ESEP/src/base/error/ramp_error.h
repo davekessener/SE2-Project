@@ -5,7 +5,6 @@
 #include "base/error/recoverable_error.h"
 #include "hal/light_barriers.h"
 
-
 namespace esep
 {
 	namespace base
@@ -19,6 +18,8 @@ namespace esep
 			typedef hal::LEDs::LED LED;
 			typedef communication::Packet::Message Message;
 			typedef communication::Packet::Location Location;
+
+			static constexpr uint FIVEHNDRT_mHZ = 2000;
 
 			public:
 				RampError(communication::IRecipient *);

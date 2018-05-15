@@ -10,8 +10,6 @@
 #include "hal/switch.h"
 #include "hal/buttons.h"
 
-#define MXT_1Hz 1000
-
 namespace esep
 {
 	namespace base
@@ -22,6 +20,7 @@ namespace esep
 			typedef hal::LEDs::LED LED;
 
 			protected:
+				static constexpr uint ONE_HZ = 1000;
 				enum class State
 				{
 					PENDING,
