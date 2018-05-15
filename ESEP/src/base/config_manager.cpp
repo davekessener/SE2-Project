@@ -35,6 +35,7 @@ ConfigManager::ConfigManager(communication::IRecipient *handler, ConfigObject *c
 void ConfigManager::enter()
 {
 	mState = State::STATE_0;
+	LIGHTS.flash(Light::GREEN, FIVEHDRT_mHZ);
 }
 
 void ConfigManager::leave()
@@ -44,6 +45,7 @@ void ConfigManager::leave()
 	MOTOR.fast();
 	MOTOR.stop();
 	LIGHTS.turnOff(Light::YELLOW);
+	LIGHTS.turnOff(Light::GREEN);
 }
 
 void ConfigManager::accept(std::shared_ptr<communication::Packet> packet)
@@ -53,7 +55,7 @@ void ConfigManager::accept(std::shared_ptr<communication::Packet> packet)
 	case State::STATE_0 :
 		if(packet->message() == Message::RESUME)
 			{
-				LIGHTS.flash(Light::YELLOW, 500);
+				LIGHTS.turnOn(Light::YELLOW);
 				MOTOR.right();
 				MOTOR.start();
 
@@ -61,6 +63,18 @@ void ConfigManager::accept(std::shared_ptr<communication::Packet> packet)
 			};
 	break;
 	case State::STATE_15 :
+		if(packet->message() == Message::RESUME)
+		{
+			MOTOR.start();
+			mState = State::STATE_16;
+		}
+		else if(packet->message() == Message::CONFIG_DONE)
+		{
+			MOTOR.stop();
+			LIGHTS.turnOff(Light::YELLOW);
+		};
+	break;
+	case State::STATE_16 :
 		if(packet->message() == Message::CONFIG_DONE)
 		{
 			MOTOR.stop();
@@ -81,7 +95,7 @@ void ConfigManager::handle(hal::HAL::Event event)
 	case State::STATE_0 :
 		if(event == Event::LB_START && LIGHT_BARRIERS.isBroken(LightBarrier::LB_START))
 		{
-			LIGHTS.flash(Light::YELLOW, 500);
+			LIGHTS.turnOn(Light::YELLOW);
 			MOTOR.right();
 			MOTOR.start();
 
@@ -210,6 +224,7 @@ void ConfigManager::handle(hal::HAL::Event event)
 		{
 			actualTime = Timer::instance().elapsed();
 			SWITCH.close();
+			MOTOR.stop();
 			mStartToEndSlow = (uint32_t) actualTime - mTimestamp;
 			mSlowFactor = mStartToEnd / (float) mStartToEndSlow;
 			mTimeTolerance = 1 - ((mStartToEnd / (float) mStartToEndLong) + (mStartToEnd / (float) mStartToEndLong) * ConfigObject::TOLERANCE);
@@ -232,7 +247,7 @@ void ConfigManager::handle(hal::HAL::Event event)
 
 			mState = State::STATE_15;
 		};
-	break;
+		break;
 
 	default:
 		break;
