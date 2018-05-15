@@ -126,6 +126,15 @@ void Impl::run(const lib::Arguments& args)
 	{
 		lib::Timer::instance().sleep(10);
 	}
+
+	get<hal::Switch>().close();
+	get<hal::Motor>().right();
+	get<hal::Motor>().fast();
+	get<hal::Motor>().enable();
+	get<hal::Motor>().stop();
+	get<hal::Lights>().turnOff(Light::RED);
+	get<hal::Lights>().turnOff(Light::GREEN);
+	get<hal::Lights>().turnOff(Light::YELLOW);
 }
 
 }}

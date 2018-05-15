@@ -49,6 +49,9 @@ namespace esep
 							send(Location::BASE, Message::RESUME);
 						}
 						break;
+					case Message::ESTOP:
+						send(Location::BASE, Message::SHUTDOWN);
+						break;
 					default:
 						break;
 					}

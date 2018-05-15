@@ -21,7 +21,10 @@ namespace esep
 		{
 			private:
 			typedef sync::Container<communication::Packet_ptr> container_t;
-			typedef communication::Packet::Message Message;
+			typedef communication::Packet Packet;
+			typedef Packet::Location Location;
+			typedef Packet::Message Message;
+			typedef hal::HAL::Event Event;
 
 			enum class MessageType : int8_t
 			{

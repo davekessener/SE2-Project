@@ -23,67 +23,73 @@ Handler::Handler( )
 	mCurrentManager = mIdleManager.get();
 
 	//Start the Base Handler Thread
-	mHandlerThread.construct([this](void){
-		qnx::Channel channel;
-
-		mConnection = channel.connect();
-
-		while(mRunning.load())
+	mHandlerThread.construct([this](void) {
+		try
 		{
-			qnx::pulse_t pulse = channel.receivePulse(); //wait for pulse message
+			qnx::Channel channel;
 
-			switch(pulse.code)
+			mConnection = channel.connect();
+
+			while(mRunning.load())
 			{
-				case(static_cast<int8_t>(MessageType::PACKET_IN_BUFFER)):
+				qnx::pulse_t pulse = channel.receivePulse(); //wait for pulse message
+
+				switch(pulse.code)
 				{
-					auto packet = mPacketBuffer.remove();
-
-					switch(packet->message())
+					case(static_cast<int8_t>(MessageType::PACKET_IN_BUFFER)):
 					{
-					case(Message::SHUTDOWN):
-						mRunning = false;
-						break;
-					case(Message::SELECT_CONFIG):
-						switchManager(mConfigManager.get());
-						break;
+						auto packet = mPacketBuffer.remove();
 
-					case(Message::SELECT_RUN):
-						MXT_LOG_WARN("Run manager not implemented yet!");
+						switch(packet->message())
+						{
+						case(Message::SHUTDOWN):
+							mRunning = false;
+							break;
+						case(Message::SELECT_CONFIG):
+							switchManager(mConfigManager.get());
+							break;
+
+						case(Message::SELECT_RUN):
+							MXT_LOG_WARN("Run manager not implemented yet!");
 //							switchManager(mRunManager.get());
-						break;
+							break;
 
-					case(Message::IDLE):
-						switchManager(mIdleManager.get());
-						break;
+						case(Message::IDLE):
+							switchManager(mIdleManager.get());
+							break;
 
-					case(Message::ERROR_SERIAL):
-						MXT_LOG_FATAL("Serial connection failed! Shutting down ...");
-						mRunning = false;
-						break;
+						case(Message::ERROR_SERIAL):
+							MXT_LOG_FATAL("Serial connection failed! Shutting down ...");
+							mRunning = false;
+							break;
 
-					//TODO: React to new Massage types.
+						//TODO: React to new Massage types.
 
-					default:
-						mCurrentManager->accept(packet);
+						default:
+							mCurrentManager->accept(packet);
+							break;
+						}
 						break;
 					}
-					break;
+					case(static_cast<int8_t>(MessageType::HAL_EVENT)):
+						mCurrentManager->handle(static_cast<hal::HAL::Event>(pulse.value));
+						break;
+
+					case(static_cast<int8_t>(MessageType::STOP_RUNNING)):
+						mRunning = false;
+						break;
+
+					default:
+						// make a log, if there was an undefined MassageType
+						MXT_LOG_WARN("Received unexpected pulse {", lib::hex<8>(pulse.code), ", ", lib::hex<32>(pulse.value), "}");
 				}
-				case(static_cast<int8_t>(MessageType::HAL_EVENT)):
-					mCurrentManager->handle(static_cast<hal::HAL::Event>(pulse.value));
-					break;
-
-				case(static_cast<int8_t>(MessageType::STOP_RUNNING)):
-					mRunning = false;
-					break;
-
-				default:
-					// make a log, if there was an undefined MassageType
-					MXT_LOG_WARN("Received unexpected pulse {", lib::hex<8>(pulse.code), ", ", lib::hex<32>(pulse.value), "}");
 			}
-		}
 
-		mConnection.close();
+			mCurrentManager->leave();
+
+			mConnection.close();
+		}
+		MXT_CATCH_ALL_STRAY
 	});
 }
 
@@ -109,7 +115,7 @@ void Handler::accept(communication::Packet_ptr p)
 
 	MXT_LOG("Received packet {", (int)p->source(), " -> ", (int)p->target(), ", msg: ", (int)p->message());
 
-	if(p->target() == communication::Packet::Location::MASTER)
+	if(p->target() == Location::MASTER)
 	{
 		mMaster->accept(p);
 	}
@@ -132,8 +138,16 @@ void Handler::switchManager(IManager *m)
 
 void Handler::handle(hal::HAL::Event e)
 {
-	mConnection.sendPulse(static_cast<int8_t>(MessageType::HAL_EVENT), static_cast<uint32_t>(e));
 	MXT_LOG("Received HAL event ", lib::hex<32>(e));
+
+	if(e == Event::BTN_ESTOP)
+	{
+		accept(std::make_shared<Packet>(Location::BASE, Location::MASTER, Message::ESTOP));
+	}
+	else
+	{
+		mConnection.sendPulse(static_cast<int8_t>(MessageType::HAL_EVENT), static_cast<uint32_t>(e));
+	}
 }
 
 }}
