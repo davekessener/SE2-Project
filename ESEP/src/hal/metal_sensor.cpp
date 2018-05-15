@@ -9,7 +9,7 @@ MetalSensor::MetalSensor(HAL *hal)
 {
 }
 
-bool MetalSensor::isMetal(void)
+bool MetalSensor::isMetal(void) const
 {
 	return mHAL->in(HAL::Field::GPIO_0) & MXT_BM_ISMETAL;
 }

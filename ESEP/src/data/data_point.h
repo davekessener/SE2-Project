@@ -1,0 +1,46 @@
+/*
+ * data_point.h
+ *
+ *  Created on: 26.04.2018
+ *      Author: ace991
+ */
+
+#ifndef SRC_DATA_DATA_POINT_H
+#define SRC_DATA_DATA_POINT_H
+
+#include <memory>
+
+#include "lib/byte_stream.h"
+
+namespace esep
+{
+	namespace data
+	{
+		class DataPoint
+		{
+			public:
+			enum class Type : byte_t
+			{
+				METAL_SENSOR
+			};
+
+			public:
+				DataPoint(Type t) : mType(t) { }
+				virtual ~DataPoint() {}
+				void serialize(lib::ByteStream&) const;
+				Type type( ) const { return mType; }
+
+			protected:
+				virtual void doSerialize(lib::ByteStream&) const = 0;
+
+			private:
+				const Type mType;
+		};
+
+		typedef std::shared_ptr<DataPoint> Data_ptr;
+	}
+}
+
+
+
+#endif /* SRC_DATA_DATA_POINT_H */

@@ -6,6 +6,8 @@
 #include <vector>
 #include <stdexcept>
 
+#include "lib/utils.h"
+
 namespace esep
 {
 	namespace test
@@ -17,9 +19,9 @@ namespace esep
 				struct TestWriter
 				{
 					TestWriter(TestSuite *ts) : ts(ts) { }
-					template<typename T>
-						void operator=(T&& f)
-							{ ts->addTest(name, f); }
+					template<typename F>
+						void operator=(F&& f)
+							{ ts->addTest(name, std::forward<F>(f)); }
 					TestSuite * const ts;
 					std::string name;
 				};
@@ -31,15 +33,15 @@ namespace esep
 				};
 
 				typedef std::function<void(void)> cb_fn;
-				typedef std::function<void(Result)> result_fn;
-				typedef std::vector<std::string> errors_t;
+				typedef std::vector<std::pair<Result, std::string>> result_t;
 
 				public:
 					TestSuite(const std::string& name) : mWriter(this), mName(name) { }
 					virtual ~TestSuite( ) { }
 					const std::string& name( ) const { return mName; }
-					const errors_t& errors( ) const { return mErrors; }
-					void doTest(result_fn);
+					const result_t& results( ) const { return mResults; }
+					uint testCount( ) const { return mTests.size(); }
+					void doTest( );
 				protected:
 					virtual void setup( ) { }
 					virtual void teardown( ) { }
@@ -52,7 +54,7 @@ namespace esep
 				private:
 					const std::string mName;
 					std::vector<std::pair<std::string, cb_fn>> mTests;
-					errors_t mErrors;
+					result_t mResults;
 
 					friend class TestWriter;
 			};

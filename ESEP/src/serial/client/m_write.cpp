@@ -7,7 +7,7 @@ namespace esep { namespace serial { namespace modules {
 class Writer::Impl
 {
 	public:
-		Impl(Serializer& c) : mNextID(0), mConnection(c) { }
+		Impl(Writer *s, Serializer& c, uint t) : mSelf(s), mNextID(0), mTimeout(t), mConnection(c) { }
 		void put(const types::buffer_t&);
 		void acknowledge(types::id_t, packet::Type);
 		void reset( );
@@ -15,50 +15,54 @@ class Writer::Impl
 	private:
 		void processNext( );
 		void enqueue(packet::packet_ptr);
+		void sendAndCheck(packet::packet_ptr);
 	private:
+		Writer *const mSelf;
 		byte_t mNextID;
+		const uint mTimeout;
 		Serializer& mConnection;
 		std::deque<packet::packet_ptr> mSendingBuffer;
+		timer_t mTimer;
 };
 
 // # --------------------------------------------------------------------------------------------------
 
-Writer::Writer(Serializer& c)
-	: pImpl(new Impl(c))
+Writer::Writer(Serializer& c, uint t)
+	: pImpl(new Impl(this, c, t))
 {
 }
 
 Writer::~Writer(void)
 {
-	lock_t lock(mMutex);
+	MXT_SYNCHRONIZE;
 
 	delete pImpl;
 }
 
 void Writer::put(const types::buffer_t& o)
 {
-	lock_t lock(mMutex);
+	MXT_SYNCHRONIZE;
 
 	pImpl->put(o);
 }
 
 void Writer::acknowledge(types::id_t id, packet::Type t)
 {
-	lock_t lock(mMutex);
+	MXT_SYNCHRONIZE;
 
 	pImpl->acknowledge(id, t);
 }
 
 void Writer::reset( )
 {
-	lock_t lock(mMutex);
+	MXT_SYNCHRONIZE;
 
 	pImpl->reset();
 }
 
 void Writer::send(packet::packet_ptr p)
 {
-	lock_t lock(mMutex);
+	MXT_SYNCHRONIZE;
 
 	pImpl->send(p);
 }
@@ -110,6 +114,8 @@ void Writer::Impl::put(const types::buffer_t& o)
 
 void Writer::Impl::acknowledge(types::id_t id, packet::Type t)
 {
+	mTimer.reset();
+
 	if(t == packet::Type::AP_OK)
 	{
 		if(!mSendingBuffer.empty() && id == mSendingBuffer.front()->getID())
@@ -121,7 +127,7 @@ void Writer::Impl::acknowledge(types::id_t id, packet::Type t)
 	{
 		if(!mSendingBuffer.empty())
 		{
-			send(mSendingBuffer.front());
+			sendAndCheck(mSendingBuffer.front());
 		}
 	}
 	else
@@ -132,7 +138,10 @@ void Writer::Impl::acknowledge(types::id_t id, packet::Type t)
 
 void Writer::Impl::reset( )
 {
-	// TODO
+	if(!mSendingBuffer.empty())
+	{
+		sendAndCheck(mSendingBuffer.front());
+	}
 }
 
 void Writer::Impl::send(packet::packet_ptr p)
@@ -146,7 +155,7 @@ void Writer::Impl::processNext(void)
 
 	if(!mSendingBuffer.empty())
 	{
-		send(mSendingBuffer.front());
+		sendAndCheck(mSendingBuffer.front());
 	}
 }
 
@@ -154,10 +163,25 @@ void Writer::Impl::enqueue(packet::packet_ptr p)
 {
 	if(mSendingBuffer.empty())
 	{
-		send(p);
+		sendAndCheck(p);
 	}
 
 	mSendingBuffer.push_back(p);
+}
+
+void Writer::Impl::sendAndCheck(packet::packet_ptr p)
+{
+	send(p);
+
+	mTimer = lib::Timer::instance().registerAsync([this](void) {
+		try
+		{
+			mSelf->acknowledge(0, packet::Type::AP_ERR);
+		}
+		catch(const Connection::ConnectionClosedException& e)
+		{
+		}
+	}, mTimeout);
 }
 
 }}}

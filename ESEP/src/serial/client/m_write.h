@@ -1,7 +1,7 @@
 #ifndef ESEP_SERIAL_CLIENT_MODULE_WRITE_H
 #define ESEP_SERIAL_CLIENT_MODULE_WRITE_H
 
-#include <mutex>
+#include "lib/thread.h"
 
 #include "lib/utils.h"
 #include "lib/sync/container.h"
@@ -22,9 +22,10 @@ namespace esep
 			class Writer
 			{
 				typedef std::unique_lock<std::mutex> lock_t;
+				typedef timer::Manager timer_t;
 
 				public:
-					Writer(Serializer&);
+					Writer(Serializer&, uint);
 					~Writer( );
 					void put(const types::buffer_t&);
 					void acknowledge(types::id_t, packet::Type);

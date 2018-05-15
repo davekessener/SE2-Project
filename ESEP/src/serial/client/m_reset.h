@@ -14,8 +14,10 @@ namespace esep
 			{
 				public:
 					Resetter(InOut_Connection& c) : mConnection(c) { }
+					void handle( ) { send(); receive(); }
+				private:
 					void send( );
-					void respond( );
+					void receive( );
 				private:
 					InOut_Connection& mConnection;
 			};

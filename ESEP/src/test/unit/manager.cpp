@@ -1,63 +1,58 @@
-#ifdef ESEP_TEST
-
 #include <iostream>
 #include <exception>
 
 #include "test/unit/manager.h"
+
 #include "lib/utils.h"
+#include "lib/logger.h"
 
 namespace esep { namespace test { namespace unit {
 
-void ManagerImpl::run(std::ostream& os)
+Manager::results_t Manager::run(void)
 {
-	auto printStatus = [&os](TestSuite::Result r) {
-		os << (r == TestSuite::Result::SUCCESS ? "." : "E");
+	results_t results;
+
+	auto onError = [&results](const TestSuite *s, const std::string& e) {
+		results[s->name()].second = e;
+		MXT_LOG(lib::stringify("Encountered unexpected exception: ", e));
 	};
 
-	auto onError = [&os](const TestSuite *s, const std::string& e) {
-		os << "\nSuite '" << s->name() << "' has encountered a critical error:\n" << e << "\n";
-	};
+	std::cout << "Running unit test suites: " << std::flush;
 
-	os << "Running automatic unit test suites.\n";
+	MXT_LOG("Running unit tests ...");
 
 	for(TestSuite *s : mTests)
 	{
 		try
 		{
-			os << s->name() << ": ";
+			MXT_LOG(lib::stringify("Running UT suite '", s->name(), "'"));
 
-			s->doTest(printStatus);
+			s->doTest();
 
-			os << "\n";
+			results[s->name()].first = s->results();
 		}
 		catch(const std::exception& e)
 		{
-			onError(s, lib::stringify(":\n", e.what(), "\n"));
+			onError(s, lib::stringify("std::exception(", e.what(), ")"));
 		}
 		catch(const std::string& e)
 		{
-			onError(s, lib::stringify(":\n", e, "\n"));
+			onError(s, lib::stringify("std::string(", e, ")"));
 		}
 		catch(...)
 		{
-			onError(s, lib::stringify(" of unknown type!\n"));
+			onError(s, "[unknown error]");
 		}
 	}
 
-	for(TestSuite *s : mTests)
-	{
-		for(const std::string& e : s->errors())
-		{
-			os << "[" << s->name() << "] " << e << "\n";
-		}
-	}
+	std::cout << "\n" << std::flush;
 
 	for(TestSuite *ts : mTests)
 	{
 		delete ts;
 	}
+
+	return results;
 }
 
 }}}
-
-#endif

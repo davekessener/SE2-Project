@@ -16,14 +16,11 @@ namespace esep
 			typedef std::vector<byte_t> buffer_t;
 
 			public:
-				Client(Connection&);
-				~Client( );
-				void write(const buffer_t&);
-				buffer_t read( );
+				virtual ~Client( ) { }
+				virtual void write(const buffer_t&) = 0;
+				virtual buffer_t read( ) = 0;
+				virtual bool connected( ) const = 0;
 			private:
-				struct Impl;
-
-				Impl *pImpl;
 		};
 	}
 }

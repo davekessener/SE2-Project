@@ -18,12 +18,15 @@ namespace esep
 				void fast( );
 				void enable( );
 				void disable( );
+				void right( );
+				void left( );
 				bool isRunning( ) const { return mRunning; }
 				bool isFast( ) const { return mFast; }
 				bool isEnabled( ) const { return mEnabled; }
+				bool isGoingRight( ) const { return mRight; }
 			private:
 				HAL * const mHAL;
-				bool mRunning, mFast, mEnabled;
+				bool mRunning, mFast, mEnabled, mRight;
 		};
 	}
 }

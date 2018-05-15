@@ -3,7 +3,9 @@
 
 #include <atomic>
 
-#include "serial/client.h"
+#include "lib/thread.h"
+
+#include "serial/bsp_client.h"
 #include "serial/client/types.h"
 #include "serial/client/m_connection.h"
 #include "serial/client/m_serialize.h"
@@ -16,16 +18,17 @@ namespace esep
 {
 	namespace serial
 	{
-		class Client::Impl
+		class BSPClient::Impl
 		{
 			public:
-				Impl(Connection&);
+				Impl(BSPClient::connection_ptr, uint);
 				~Impl( );
 				void write(const types::buffer_t&);
 				types::buffer_t read( );
+				size_t size( ) const { return mReader.size(); }
 
 			private:
-				Connection& mBaseConnection;
+				BSPClient::connection_ptr mBaseConnection;
 				modules::Out_Connection mWriteConnection;
 				modules::In_Connection mReadConnection;
 				modules::SeperatedConnection mReadWriteConnection;
@@ -36,7 +39,7 @@ namespace esep
 				modules::Resetter mReset;
 
 				std::atomic<bool> mRunning;
-				std::thread mReaderThread;
+				lib::Thread mReaderThread;
 		};
 	}
 }

@@ -1,47 +1,52 @@
-#ifdef ESEP_TEST
-
 #include <iostream>
-#include <sstream>
-
-#include "lib/stream_intercept.h"
 
 #include "test/test.h"
-#include "test/unit/manager.h"
 
-#include "test/ut/logger_format_parser.h"
-#include "test/ut/crc32.h"
-#include "test/ut/fsm.h"
-#include "test/ut/byte_stream.h"
-#include "test/ut/dummy_connection.h"
-#include "test/ut/serial_client.h"
+#include "test/ft/unit.h"
+#include "test/ft/serial.h"
+#include "test/ft/hal.h"
+#include "test/ft/communication.h"
+#include "test/ft/emp.h"
+
+#include "lib/logger.h"
 
 namespace esep { namespace test {
 
-void runUnitTests(std::ostream& os)
-{
-	unit::Manager::instance()
-		.addTest<unit::LoggerFormatParser>()
-		.addTest<unit::CRC32>()
-		.addTest<unit::FSM>()
-		.addTest<unit::ByteStream>()
-		.addTest<unit::DummyConnection>()
-		.addTest<unit::SerialClient>()
-		.run(os);
-}
+typedef void (*test_fn)(const lib::Arguments&);
+typedef std::map<std::string, test_fn> tests_t;
 
-void main(const std::vector<std::string>& args)
+test_fn getTest(const std::string& id)
 {
-	std::stringstream my_cout, unit_testresults;
+	static tests_t t;
 
+	if(t.empty())
 	{
-		lib::StreamIntercept si(my_cout, std::cout);
-
-		runUnitTests(unit_testresults);
+		t["serial"] = &functional::testSerialConnection;
+		t["hal"] = &functional::testHAL;
+		t["com"] = &functional::testCommunicationLayer;
+		t["emp"] = &functional::testEMP;
 	}
 
-	std::cout << my_cout.str() << "\n" << unit_testresults.str();
+	auto i = t.find(id);
+
+	if(i == t.end())
+	{
+		throw std::runtime_error(lib::stringify("Unknown test '", id, "'!"));
+	}
+
+	return i->second;
+}
+
+bool main(const lib::Arguments& args)
+{
+	bool ut = functional::runUnitTests(args.has("verbose"));
+
+	if(ut && args.has("test"))
+	{
+		getTest(args.get("test"))(args);
+	}
+
+	return ut;
 }
 
 }}
-
-#endif

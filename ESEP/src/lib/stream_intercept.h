@@ -2,6 +2,7 @@
 #define ESEP_LIB_STREAMINTERCEPT_H
 
 #include <iostream>
+#include <sstream>
 
 namespace esep
 {
@@ -13,8 +14,9 @@ namespace esep
 
 			public:
 				template<typename T>
-					StreamIntercept(std::basic_ios<T>&, std::basic_ios<T>&);
+					StreamIntercept(std::basic_ios<T>&);
 				~StreamIntercept( );
+				std::string getBuffer( ) { return mSS.str(); }
 			protected:
 				int_type overflow(int_type = traits_type::eof());
 
@@ -22,6 +24,7 @@ namespace esep
 				std::streambuf *mTarget;
 				restore_fn mRestore;
 				std::streambuf *mSink;
+				std::stringstream mSS;
 
 			private:
 				StreamIntercept(const StreamIntercept&) = delete;
@@ -29,11 +32,11 @@ namespace esep
 		};
 
 		template<typename T>
-		StreamIntercept::StreamIntercept(std::basic_ios<T>& t, std::basic_ios<T>& s)
-			: mTarget(t.rdbuf())
+		StreamIntercept::StreamIntercept(std::basic_ios<T>& s)
 		{
 			mRestore = [&s](std::streambuf *p) { s.rdbuf(p); };
 			mSink = s.rdbuf(this);
+			mTarget = mSS.rdbuf();
 		}
 	}
 }

@@ -16,21 +16,6 @@ namespace esep
 			struct defaults
 			{
 			    typedef std::deque<byte_t> container_type;
-
-			    typedef MemberWrapper
-			    <
-			        void,
-			        container_type,
-			        container_type::const_reference
-			    > insert_fn;
-
-			    typedef ConstMemberWrapper
-			    <
-			        container_type::const_reference,
-			        container_type
-			    > retrieve_fn;
-
-			    typedef MemberWrapper<void, container_type> remove_fn;
 			};
 
 			template<typename I>
@@ -85,20 +70,19 @@ namespace esep
 
 		template
 		<
-		    typename C = byte_stream::defaults::container_type,
-		    typename I = byte_stream::defaults::insert_fn
+		    typename C = byte_stream::defaults::container_type
 		>
 		class Out_ByteStream : public virtual Base_ByteStream<C>
 		{
 		    public:
 		    typedef typename Base_ByteStream<C>::container_type container_type;
-		    typedef I insert_fn;
+		    typedef std::function<void(container_type&, byte_t)> insert_fn;
 
 		    using Base_ByteStream<C>::getContainer;
 		    using Base_ByteStream<C>::increment;
 
 		    public:
-		        Out_ByteStream(insert_fn i = &container_type::push_back)
+		        Out_ByteStream(insert_fn i = [](container_type& c, byte_t v) { c.push_back(v); })
 		            : mInsert(i) { }
 		        void insert(byte_t v)
 		        {
@@ -111,70 +95,58 @@ namespace esep
 
 		template
 		<
-		    typename C = byte_stream::defaults::container_type,
-		    typename G = byte_stream::defaults::retrieve_fn,
-		    typename R = byte_stream::defaults::remove_fn
+		    typename C = byte_stream::defaults::container_type
 		>
 		class In_ByteStream : public virtual Base_ByteStream<C>
 		{
 		    public:
 		    typedef typename Base_ByteStream<C>::container_type container_type;
-		    typedef G retrieve_fn;
-		    typedef R remove_fn;
+		    typedef std::function<byte_t(container_type&)> remove_fn;
 
 		    using Base_ByteStream<C>::getContainer;
 		    using Base_ByteStream<C>::decrement;
 
 		    public:
 		        In_ByteStream(
-		            retrieve_fn get = &container_type::front,
-		            remove_fn rem = &container_type::pop_front)
-		                : mGet(get), mRemove(rem) { }
+		            remove_fn rem = [](container_type& c) { byte_t v(c.front()); c.pop_front(); return v; })
+		                : mRemove(rem) { }
 		            byte_t remove( )
 		            {
-		                byte_t v = mGet(getContainer());
-		                mRemove(getContainer());
-		                decrement();
-		                return v;
+		            	decrement();
+		                return mRemove(getContainer());
 		            }
 		    private:
-		        retrieve_fn mGet;
 		        remove_fn mRemove;
 		};
 
 		template
 		<
-		    typename C = byte_stream::defaults::container_type,
-		    typename I = byte_stream::defaults::insert_fn,
-		    typename G = byte_stream::defaults::retrieve_fn,
-		    typename R = byte_stream::defaults::remove_fn
+		    typename C = byte_stream::defaults::container_type
 		>
 		class InOut_ByteStream
-		: public In_ByteStream<C, G, R>
-		, public Out_ByteStream<C, I>
+		: public In_ByteStream<C>
+		, public Out_ByteStream<C>
 		{
 		    public:
 		    typedef typename Base_ByteStream<C>::container_type container_type;
-		    typedef typename Out_ByteStream<C, I>::insert_fn insert_fn;
-		    typedef typename In_ByteStream<C, G, R>::retrieve_fn retrieve_fn;
-		    typedef typename In_ByteStream<C, G, R>::remove_fn remove_fn;
+		    typedef typename Out_ByteStream<C>::insert_fn insert_fn;
+		    typedef typename In_ByteStream<C>::remove_fn remove_fn;
 
 		    using Base_ByteStream<C>::cbegin;
 		    using Base_ByteStream<C>::size;
 
 		    public:
 		        InOut_ByteStream(
-		            insert_fn in = &container_type::push_back,
-		            retrieve_fn get = &container_type::front,
-		            remove_fn rem = &container_type::pop_front)
-		                : In_ByteStream<C, G, R>(get, rem)
-		                , Out_ByteStream<C, I>(in) { }
-		        InOut_ByteStream<C, I, G, R> section(size_t p1, size_t p2) const
+		            insert_fn in = [](container_type& c, byte_t v) { c.push_back(v); },
+		            remove_fn rem = [](container_type& c) { byte_t v(c.front()); c.pop_front(); return v; })
+		                : In_ByteStream<C>(rem)
+		                , Out_ByteStream<C>(in) { }
+		        InOut_ByteStream<C> section(size_t p1, size_t p2) const
 				{
 		        	if(p1 > p2 || p2 > size())
 		        		MXT_THROW("Invalid section boundaries (buffer size is ", size(), "): [", p1, ", ", p2, ")!");
 
-		        	InOut_ByteStream<C, I, G, R> r;
+		        	InOut_ByteStream<C> r;
 		        	auto i = cbegin();
 
 		        	while(p1) { ++i; --p1; --p2; }
@@ -186,11 +158,24 @@ namespace esep
 		};
 
 		typedef InOut_ByteStream<> ByteStream;
+
+		namespace byte_stream
+		{
+			template<typename C>
+			ByteStream from_container(C&& c)
+			{
+				ByteStream bs;
+
+				bs << insert_all(c);
+
+				return bs;
+			}
+		}
 	}
 }
 
-template<typename T, typename C, typename I>
-esep::lib::Out_ByteStream<C, I>& operator<<(esep::lib::Out_ByteStream<C, I>& os, T&& o)
+template<typename T, typename C>
+esep::lib::Out_ByteStream<C>& operator<<(esep::lib::Out_ByteStream<C>& os, T&& o)
 {
     const byte_t *p = reinterpret_cast<const byte_t *>(&o);
 
@@ -202,8 +187,8 @@ esep::lib::Out_ByteStream<C, I>& operator<<(esep::lib::Out_ByteStream<C, I>& os,
     return os;
 }
 
-template<typename T, typename C, typename I>
-esep::lib::Out_ByteStream<C, I>& operator<<(esep::lib::Out_ByteStream<C, I>& os, esep::lib::byte_stream::IterableWrapper<T> w)
+template<typename T, typename C>
+esep::lib::Out_ByteStream<C>& operator<<(esep::lib::Out_ByteStream<C>& os, esep::lib::byte_stream::IterableWrapper<T> w)
 {
 	auto i = w.i1;
 
@@ -215,8 +200,8 @@ esep::lib::Out_ByteStream<C, I>& operator<<(esep::lib::Out_ByteStream<C, I>& os,
 	return os;
 }
 
-template<typename T, typename C, typename G, typename R>
-esep::lib::In_ByteStream<C, G, R>& operator>>(esep::lib::In_ByteStream<C, G, R>& is, T&& o)
+template<typename T, typename C>
+esep::lib::In_ByteStream<C>& operator>>(esep::lib::In_ByteStream<C>& is, T&& o)
 {
     byte_t *p = reinterpret_cast<byte_t *>(&o);
 

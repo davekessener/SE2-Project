@@ -23,7 +23,9 @@ namespace esep
 				public:
 					Reader(Writer& c) : mConnection(c) { }
 					void process(packet::packet_ptr);
-					types::buffer_t get( ) { return mStorage.remove(); }
+					types::buffer_t get( );
+					void reset( );
+					size_t size( ) const { return mStorage.size(); }
 				private:
 					void processDataPacket(packet::packet_ptr);
 					bool recordPacket(packet::packet_ptr);
@@ -32,6 +34,7 @@ namespace esep
 					lib::RestrictedList<packet::packet_ptr, N> mHistory;
 					types::storage_t mStorage;
 					types::buffer_t mChain;
+					packet::packet_ptr mLastAck;
 			};
 		}
 	}

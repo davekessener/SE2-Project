@@ -1,4 +1,7 @@
-/ESEP/build/
-/ESEP/build
-/ESEP/build/*
-/ESEP/build/**
+ESEP/build/
+
+ESEP/.project
+ESEP/.cproject
+
+**/*.class
+

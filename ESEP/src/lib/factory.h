@@ -18,7 +18,7 @@ namespace esep
 			static constexpr T2 generator = V2;
 		};
 
-		struct UnknownKeyException : public std::exception { };
+		MXT_DEFINE_E(UnknownKeyException);
 
 		namespace factory_impl
 		{

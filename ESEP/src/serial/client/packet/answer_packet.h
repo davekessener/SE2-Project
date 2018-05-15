@@ -44,7 +44,7 @@ namespace esep
 
 				if(lib::checksum(b) != 0)
 				{
-					throw types::FailedPacketRead();
+					MXT_THROW_EX(types::FailedPacketException);
 				}
 
 				uint16_t type;

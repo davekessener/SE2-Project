@@ -1,7 +1,6 @@
 #ifndef ESEP_TML_TYPELIST_H
 #define ESEP_TML_TYPELIST_H
 
-#include "lib/utils.h"
 #include "lib/tml/base.h"
 
 namespace esep
@@ -32,12 +31,6 @@ namespace esep
 
 		template<typename ... T>
 		using MakeTypeList = typename TypeListMaker<T...>::Type;
-
-		template<typename L>
-		using Car = typename L::Head;
-
-		template<typename L>
-		using Cdr = typename L::Tail;
 	}
 }
 

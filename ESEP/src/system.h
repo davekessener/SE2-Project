@@ -2,6 +2,7 @@
 #define ESEP_SYSTEM_H
 
 #include "lib/utils.h"
+#include "lib/arguments.h"
 #include "lib/singleton.h"
 #include "lib/tuple.h"
 
@@ -14,6 +15,7 @@
 #include "hal/lights.h"
 #include "hal/metal_sensor.h"
 #include "hal/motor.h"
+#include "hal/switch.h"
 
 namespace esep
 {
@@ -21,34 +23,35 @@ namespace esep
 	{
 		class Impl
 		{
-			typedef lib::Tuple<tml::MakeTypeList<
+			typedef lib::MakeTuple<
 				hal::Buttons,
 				hal::HeightSensor,
 				hal::LEDs,
+				hal::Switch,
 				hal::LightBarriers,
 				hal::Lights,
 				hal::MetalSensor,
 				hal::Motor
-			>> hal_t;
+			> hal_t;
+
+			MXT_DEFINE_E(InvalidRunArgumentException);
+			MXT_DEFINE_E(ConnectionException);
 
 			public:
 				Impl( );
 				~Impl( );
-				void run( );
-				uint64_t elapsed( );
-				void sleep(uint);
-				void updateHAL(hal::HAL::Field f, uint32_t v) { mHAL->update(f, v); }
+				void run(const lib::Arguments&);
 				template<typename T>
 					T& get( )
 						{ return mHALObjects.get<T>(); }
+
 			private:
-				hal::Buffer *mHAL;
+				hal::HAL *mHAL;
 				hal_t mHALObjects;
-				std::chrono::time_point<std::chrono::system_clock> mSystemStart;
 		};
 	}
 
-	typedef lib::SingletonHolder<system::Impl> System;
+	typedef lib::Singleton<system::Impl> System;
 }
 
 #endif

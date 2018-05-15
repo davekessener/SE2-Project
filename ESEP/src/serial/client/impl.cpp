@@ -1,23 +1,28 @@
 #include "serial/client/impl.h"
 
+#include "lib/logger.h"
+
 namespace esep { namespace serial {
 
 using namespace types;
 
-Client::Impl::Impl(Connection& c)
-	: mBaseConnection(c)
-	, mWriteConnection(&mBaseConnection)
-	, mReadConnection(&mBaseConnection)
+BSPClient::Impl::Impl(BSPClient::connection_ptr c, uint t)
+	: mBaseConnection(std::move(c))
+	, mWriteConnection(mBaseConnection.get())
+	, mReadConnection(mBaseConnection.get())
 	, mReadWriteConnection(mReadConnection, mWriteConnection)
 	, mSerializer(mWriteConnection)
 	, mDeserializer(mReadConnection)
-	, mWriter(mSerializer)
+	, mWriter(mSerializer, t)
 	, mReader(mWriter)
 	, mReset(mReadWriteConnection)
 {
 	mRunning = true;
 
-	mReaderThread = std::thread([this](void) {
+	if(!mBaseConnection->isOpen())
+		throw Connection::ConnectionClosedException();
+
+	mReaderThread.construct([this](void) {
 		try
 		{
 			while(mRunning.load())
@@ -28,51 +33,48 @@ Client::Impl::Impl(Connection& c)
 				}
 				catch(const types::BadPacketException& e)
 				{
-					mReset.send();
+					mReset.handle();
+					mWriter.reset();
+					mReader.reset();
 				}
-				catch(const types::ResetTriggeredException& e)
-				{
-					mReset.respond();
-				}
-				catch(const types::FailedPacketRead& e)
+				catch(const types::FailedPacketException& e)
 				{
 					mWriter.acknowledge(0, packet::Type::AP_ERR);
+					mReader.reset();
 				}
 			}
+		}
+		catch(const types::storage_t::InterruptedException& e)
+		{
 		}
 		catch(const Connection::ConnectionClosedException& e)
 		{
-			if(mRunning)
-			{
-				MXT_LOG("Serial connection was terminated by the other side.");
-			}
-			else
-			{
-				MXT_LOG("Serial connection was terminated.");
-			}
 		}
-		catch(const std::string& e)
-		{
-			MXT_LOG(lib::stringify("Caught a stray std::string: ", e));
-		}
+		MXT_CATCH_STRAY
 	});
 }
 
-Client::Impl::~Impl()
+BSPClient::Impl::~Impl()
 {
 	mRunning = false;
-	mBaseConnection.close();
-	mReaderThread.join();
+	mBaseConnection->close();
 }
 
-void Client::Impl::write(const types::buffer_t& data)
+void BSPClient::Impl::write(const types::buffer_t& data)
 {
 	mWriter.put(data);
 }
 
-buffer_t Client::Impl::read(void)
+buffer_t BSPClient::Impl::read(void)
 {
-	return mReader.get();
+	try
+	{
+		return mReader.get();
+	}
+	catch(const types::storage_t::InterruptedException& e)
+	{
+		MXT_THROW_EX(Connection::ConnectionClosedException);
+	}
 }
 
 }}

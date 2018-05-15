@@ -1,6 +1,7 @@
 #include "hal/motor.h"
 
-#define MXT_BM_RUN		(1 << 12)
+#define MXT_BM_LEFT		(1 << 13)
+#define MXT_BM_RIGHT	(1 << 12)
 #define MXT_BM_SLOW		(1 << 14)
 #define MXT_BM_DISABLE	(1 << 15)
 
@@ -11,79 +12,64 @@ Motor::Motor(HAL *hal)
 	, mRunning(false)
 	, mFast(true)
 	, mEnabled(true)
+	, mRight(true)
 {
 }
 
 Motor::~Motor(void)
 {
-	if(isRunning())
-	{
-		stop();
-	}
-
-	if(!isFast())
-	{
-		fast();
-	}
-
-	if(!isEnabled())
-	{
-		enable();
-	}
 }
 
 void Motor::start(void)
 {
-	if(!isRunning())
-	{
-		mHAL->set(HAL::Field::GPIO_1, MXT_BM_RUN);
-		mRunning = true;
-	}
+	mHAL->set(HAL::Field::GPIO_1, isGoingRight() ? MXT_BM_RIGHT : MXT_BM_LEFT);
+	mRunning = true;
 }
 
 void Motor::stop(void)
 {
-	if(isRunning())
-	{
-		mHAL->reset(HAL::Field::GPIO_1, MXT_BM_RUN);
-		mRunning = false;
-	}
+	mHAL->reset(HAL::Field::GPIO_1, MXT_BM_LEFT | MXT_BM_RIGHT);
+	mRunning = false;
 }
 
 void Motor::slow(void)
 {
-	if(isFast())
-	{
-		mHAL->set(HAL::Field::GPIO_1, MXT_BM_SLOW);
-		mFast = false;
-	}
+	mHAL->set(HAL::Field::GPIO_1, MXT_BM_SLOW);
+	mFast = false;
 }
 
 void Motor::fast(void)
 {
-	if(!isFast())
-	{
-		mHAL->reset(HAL::Field::GPIO_1, MXT_BM_SLOW);
-		mFast = true;
-	}
+	mHAL->reset(HAL::Field::GPIO_1, MXT_BM_SLOW);
+	mFast = true;
 }
 
 void Motor::enable(void)
 {
-	if(!isEnabled())
-	{
-		mHAL->set(HAL::Field::GPIO_1, MXT_BM_DISABLE);
-		mEnabled = true;
-	}
+	mHAL->reset(HAL::Field::GPIO_1, MXT_BM_DISABLE);
+	mEnabled = true;
 }
 
 void Motor::disable(void)
 {
-	if(isEnabled())
-	{
-		mHAL->reset(HAL::Field::GPIO_1, MXT_BM_DISABLE);
-		mEnabled = false;
-	}
+	mHAL->set(HAL::Field::GPIO_1, MXT_BM_DISABLE);
+	mEnabled = false;
+}
+
+void Motor::right(void)
+{
+	mHAL->reset(HAL::Field::GPIO_1, MXT_BM_LEFT);
+	mHAL->set(HAL::Field::GPIO_1, MXT_BM_RIGHT);
+
+	mRight = true;
+}
+
+void Motor::left(void)
+{
+	mHAL->reset(HAL::Field::GPIO_1, MXT_BM_RIGHT);
+	mHAL->set(HAL::Field::GPIO_1, MXT_BM_LEFT);
+
+	mRight = false;
 }
 
 }}
