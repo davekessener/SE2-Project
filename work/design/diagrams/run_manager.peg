@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<preferences application="Regelungstechnik" version-major="1" version-minor="0" copyright="Joachim Lukasser">
+  <property typ="Size" key="PED_WINDOW_SIZE" width="1548" height="763" />
+  <property typ="Integer" key="PREF_PETRINETZ_SIDEBAR_STRUCTURE_TEXT_WIDTH" value="70" />
+  <property typ="Size" key="PREF_PETRINETZ_SIDEBAR_OVERVIEW_SIZE" width="170" height="180" />
+  <property typ="Integer" key="PREF_PETRINETZ_BOTTOMBAR_STEP_WIDTH" value="80" />
+  <property typ="Integer" key="PREF_PETRINETZ_SIDEBAR_STRUCTURE_ID_WIDTH" value="80" />
+  <property typ="Size" key="PREF_PETRINETZ_LAMPSPANEL_SIZE" width="100" height="70" />
+  <property typ="Size" key="PREF_PETRINETZ_SIDEBAR_STRUCTURE_SIZE" width="170" height="300" />
+  <property typ="Integer" key="PREF_PETRINETZ_BOTTOMBAR_TEXT_WIDTH" value="490" />
+  <property typ="Point" key="PED_WINDOW_LOCATION" x="-8" y="-31" />
+  <property typ="Size" key="PREF_PETRINETZ_SIDEBAR_SIZE" width="172" height="724" />
+  <property typ="Size" key="PREF_PETRINETZ_BOTTOMBAR_SIZE" width="1357" height="66" />
+  <property typ="Size" key="PREF_PETRINETZ_SIDEBAR_PROPERTIES_SIZE" width="170" height="24" />
+  <property typ="Integer" key="PED_WINDOW_STATE" value="2" />
+  <property typ="Integer" key="PREF_PETRINETZ_BOTTOMBAR_ID_WIDTH" value="80" />
+</preferences>
