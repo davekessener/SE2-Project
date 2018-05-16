@@ -5,6 +5,9 @@
 
 namespace esep { namespace communication {
 
+typedef communication::Message Message;
+typedef Packet::Location Location;
+
 Base::Base(IRecipient *b, Client_ptr c)
 	: mBase(b)
 	, mSerial(std::move(c))
@@ -54,8 +57,8 @@ Base::Base(IRecipient *b, Client_ptr c)
 			{
 				if(mRunning.load())
 				{
-					accept(std::make_shared<Packet>(Packet::Location::MASTER, Packet::Location::BASE, Packet::Message::ERROR_SERIAL));
-					accept(std::make_shared<Packet>(Packet::Location::BASE, Packet::Location::MASTER, Packet::Message::ERROR_SERIAL));
+					accept(std::make_shared<Packet>(Location::MASTER, Location::BASE, Message::Error::SERIAL));
+					accept(std::make_shared<Packet>(Location::BASE, Location::MASTER, Message::Error::SERIAL));
 				}
 			}
 		}

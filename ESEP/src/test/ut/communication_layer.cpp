@@ -66,7 +66,7 @@ void CommunicationLayer::define(void)
 
 	UNIT_TEST("can route from master to base_m")
 	{
-		mMasterCom->accept(packet(Location::MASTER, Location::BASE_M, Message::ANALYSE));
+		mMasterCom->accept(packet(Location::MASTER, Location::BASE_M, Message::Run::ANALYSE));
 
 		wait();
 
@@ -77,12 +77,12 @@ void CommunicationLayer::define(void)
 		ASSERT_EQUALS(mBaseS->packets.size(),  0u);
 		ASSERT_EQUALS(mBaseM->packets.front()->target(),  Location::BASE);
 		ASSERT_EQUALS(mBaseM->packets.front()->source(),  Location::MASTER);
-		ASSERT_EQUALS(mBaseM->packets.front()->message(), Message::ANALYSE);
+		ASSERT_EQUALS(mBaseM->packets.front()->message().as<Message::Run>(), Message::Run::ANALYSE);
 	};
 
 	UNIT_TEST("can route from base_m to master")
 	{
-		mMasterCom->accept(packet(Location::BASE, Location::MASTER, Message::RESUME));
+		mMasterCom->accept(packet(Location::BASE, Location::MASTER, Message::Run::RESUME));
 
 		wait();
 
@@ -93,12 +93,12 @@ void CommunicationLayer::define(void)
 		ASSERT_EQUALS(mBaseS->packets.size(),  0u);
 		ASSERT_EQUALS(mMaster->packets.front()->target(),  Location::MASTER);
 		ASSERT_EQUALS(mMaster->packets.front()->source(),  Location::BASE_M);
-		ASSERT_EQUALS(mMaster->packets.front()->message(), Message::RESUME);
+		ASSERT_EQUALS(mMaster->packets.front()->message().as<Message::Run>(), Message::Run::RESUME);
 	};
 
 	UNIT_TEST("can route from base_s to master")
 	{
-		mSlaveCom->accept(packet(Location::BASE, Location::MASTER, Message::IDLE));
+		mSlaveCom->accept(packet(Location::BASE, Location::MASTER, Message::Master::IDLE));
 
 		lib::Timer::instance().sleep(10);
 
@@ -111,12 +111,12 @@ void CommunicationLayer::define(void)
 		ASSERT_EQUALS(mBaseS->packets.size(),  0u);
 		ASSERT_EQUALS(mMaster->packets.front()->target(),  Location::MASTER);
 		ASSERT_EQUALS(mMaster->packets.front()->source(),  Location::BASE_S);
-		ASSERT_EQUALS(mMaster->packets.front()->message(), Message::IDLE);
+		ASSERT_EQUALS(mMaster->packets.front()->message().as<Message::Master>(), Message::Master::IDLE);
 	};
 
 	UNIT_TEST("can broadcast from master")
 	{
-		mMasterCom->accept(packet(Location::MASTER, Location::BASE, Message::KEEP_NEXT));
+		mMasterCom->accept(packet(Location::MASTER, Location::BASE, Message::Run::KEEP_NEXT));
 
 		wait();
 
@@ -128,16 +128,16 @@ void CommunicationLayer::define(void)
 
 		ASSERT_EQUALS(mBaseM->packets.front()->target(),  Location::BASE);
 		ASSERT_EQUALS(mBaseM->packets.front()->source(),  Location::MASTER);
-		ASSERT_EQUALS(mBaseM->packets.front()->message(), Message::KEEP_NEXT);
+		ASSERT_EQUALS(mBaseM->packets.front()->message().as<Message::Run>(), Message::Run::KEEP_NEXT);
 
 		ASSERT_EQUALS(mBaseS->packets.front()->target(),  Location::BASE);
 		ASSERT_EQUALS(mBaseS->packets.front()->source(),  Location::MASTER);
-		ASSERT_EQUALS(mBaseS->packets.front()->message(), Message::KEEP_NEXT);
+		ASSERT_EQUALS(mBaseS->packets.front()->message().as<Message::Run>(), Message::Run::KEEP_NEXT);
 	};
 
 	UNIT_TEST("detects a dead connection")
 	{
-		mMasterCom->accept(packet(Location::BASE, Location::MASTER, Message::RESUME));
+		mMasterCom->accept(packet(Location::BASE, Location::MASTER, Message::Run::RESUME));
 
 		wait();
 
@@ -153,19 +153,19 @@ void CommunicationLayer::define(void)
 
 		ASSERT_EQUALS(mMaster->packets[0]->target(),  Location::MASTER);
 		ASSERT_EQUALS(mMaster->packets[0]->source(),  Location::BASE_M);
-		ASSERT_EQUALS(mMaster->packets[0]->message(), Message::RESUME);
+		ASSERT_EQUALS(mMaster->packets[0]->message().as<Message::Run>(), Message::Run::RESUME);
 
 		ASSERT_EQUALS(mMaster->packets[1]->target(),  Location::MASTER);
 		ASSERT_EQUALS(mMaster->packets[1]->source(),  Location::BASE_M);
-		ASSERT_EQUALS(mMaster->packets[1]->message(), Message::ERROR_SERIAL);
+		ASSERT_EQUALS(mMaster->packets[1]->message().as<Message::Error>(), Message::Error::SERIAL);
 
 		ASSERT_EQUALS(mBaseM->packets.front()->target(),  Location::BASE);
 		ASSERT_EQUALS(mBaseM->packets.front()->source(),  Location::MASTER);
-		ASSERT_EQUALS(mBaseM->packets.front()->message(), Message::ERROR_SERIAL);
+		ASSERT_EQUALS(mBaseM->packets.front()->message().as<Message::Error>(), Message::Error::SERIAL);
 
 		ASSERT_EQUALS(mBaseS->packets.front()->target(),  Location::BASE);
 		ASSERT_EQUALS(mBaseS->packets.front()->source(),  Location::MASTER);
-		ASSERT_EQUALS(mBaseS->packets.front()->message(), Message::ERROR_SERIAL);
+		ASSERT_EQUALS(mBaseS->packets.front()->message().as<Message::Error>(), Message::Error::SERIAL);
 	};
 }
 

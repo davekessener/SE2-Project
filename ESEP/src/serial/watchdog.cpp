@@ -6,6 +6,7 @@ namespace esep { namespace serial {
 
 Watchdog::Watchdog(client_ptr c, uint t)
 	: mClient(std::move(c))
+	, mStartTime(std::chrono::system_clock::now())
 	, mTimeout(t)
 {
 	mLastRead = mLastWrite = 0;
@@ -16,7 +17,7 @@ Watchdog::Watchdog(client_ptr c, uint t)
 	auto cb = [this](void) {
 		if(mRunning.load()) try
 		{
-			auto e = lib::Timer::instance().elapsed();
+			auto e = elapsed();
 
 			if(e - mLastWrite.load() > mTimeout / 2)
 			{
@@ -45,7 +46,7 @@ Watchdog::Watchdog(client_ptr c, uint t)
 			{
 				auto b = mClient->read();
 
-				mLastRead = lib::Timer::instance().elapsed();
+				mLastRead = elapsed();
 
 				if(!mIsActive.load())
 				{
@@ -73,9 +74,15 @@ Watchdog::Watchdog(client_ptr c, uint t)
 		MXT_CATCH_STRAY
 	});
 
-	while(mLastWrite.load() == 0)
+	uint to = 100;
+	while(mLastWrite.load() == 0 && --to)
 	{
 		lib::Timer::instance().sleep(1);
+	}
+
+	if(!to)
+	{
+		MXT_THROW_EX(CantSendException);
 	}
 }
 
@@ -89,7 +96,7 @@ Watchdog::~Watchdog(void)
 
 void Watchdog::sendPacket(const Client::buffer_t& b)
 {
-	mLastWrite = lib::Timer::instance().elapsed();
+	mLastWrite = elapsed();
 
 	mClient->write(b);
 }

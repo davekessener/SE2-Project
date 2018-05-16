@@ -19,8 +19,10 @@ namespace esep
 		{
 			class CommunicationLayer : public TestSuite
 			{
-				typedef  communication::Packet::Location Location;
-				typedef  communication::Packet::Message Message;
+				typedef communication::Packet Packet;
+				typedef communication::Message Message;
+				typedef Packet::Location Location;
+				typedef Packet::msg_t msg_t;
 
 				struct SimpleRecipient : public communication::IRecipient
 				{
@@ -41,7 +43,7 @@ namespace esep
 					void define( ) override;
 
 				private:
-					communication::Packet_ptr packet(Location s, Location t, Message m)
+					communication::Packet_ptr packet(Location s, Location t, msg_t m)
 						{ return std::make_shared<communication::Packet>(s, t, m); }
 					void wait( ) { while((mMasterCom && mMasterCom->busy()) || (mSlaveCom && mSlaveCom->busy())) lib::Timer::instance().sleep(1); }
 
