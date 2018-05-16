@@ -30,6 +30,7 @@
   <property typ="Boolean" key="PREF_PETRINETZ_TTSEMULATE" value="False" />
   <property typ="Boolean" key="PREF_PETRINETZ_SHOWID" value="False" />
   <property typ="String" key="PREF_PETRINETZ_BEZEICHNUNG" value="Neu" />
+  <property typ="Boolean" key="SYSTEM_IS_NEW_FILE" value="False" />
   <property typ="Boolean" key="PREF_PETRINETZ_CLEARSELECTIONONRUNNINGMODE" value="True" />
   <property typ="Integer" key="PREF_PETRINETZ_NEXTSTELLENNR" value="7" />
   <property typ="Boolean" key="PREF_PETRINETZ_LOGTRACE" value="False" />
@@ -39,4 +40,5 @@
   <property typ="Boolean" key="PREF_PETRINETZ_TTSENABLED" value="True" />
   <property typ="Boolean" key="PREF_PETRINETZ_SRENABLED" value="True" />
   <property typ="Integer" key="PREF_PETRINETZ_NEXTTRANSITIONNR" value="14" />
+  <property typ="Boolean" key="SYSTEM_IS_CLEAN" value="True" />
 </preferences>
