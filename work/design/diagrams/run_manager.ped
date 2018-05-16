@@ -16,7 +16,6 @@
   <transition id="!LB_HS" horizontal="False" x="1562" y="377" text="" textposition="6" />
   <transition id="ITEM_READY_SWITCH" horizontal="False" x="1782" y="377" text="" textposition="6" />
   <transition id="LB_SWITCH" horizontal="False" x="2002" y="377" text="" textposition="6" />
-  <transition id="ITEM_READY_HS" horizontal="False" x="642" y="367" text="TIMER" textposition="6" />
   <transition id="TIMER_START_1" horizontal="True" x="287" y="302" text="ITEM_DISAPP." textposition="1" />
   <transition id="TIMER_START_2" horizontal="True" x="727" y="302" text="ITEM_DISAPP." textposition="1" />
   <transition id="TIMER_HS_1" horizontal="True" x="1427" y="312" text="ITEM_DISAPP." textposition="1" />
@@ -48,6 +47,7 @@
   <transition id="!LB_SWITCH_1" horizontal="False" x="422" y="1127" text="" textposition="6" />
   <transition id="TIMER_SWITCH_1" horizontal="True" x="297" y="1062" text="ITEM_DISAPP." textposition="1" />
   <transition id="LB_RAMP_E" horizontal="True" x="507" y="1062" text="ITEM_APP." textposition="1" />
+  <transition id="ITEM_READY_HS" horizontal="False" x="642" y="367" text="" textposition="6" />
   <path id="P2" value="1" type="0" start="LB_START" startSPI="6" end="S2" endSPI="7" text="">
     <pathpoint id="PP3" x="210" y="396" text="" />
     <pathpoint id="PP4" x="295" y="396" text="" />
