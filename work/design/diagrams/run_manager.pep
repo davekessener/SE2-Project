@@ -1,11 +1,10 @@
 <?xml version="1.0"?>
 <preferences application="Regelungstechnik" version-major="1" version-minor="0" copyright="Joachim Lukasser">
   <property typ="String" key="PREF_PETRINETZ_PRINT_PAPERSIZE" value="A4" />
-  <property typ="Boolean" key="PREF_PETRINETZ_SHOWTEXT" value="True" />
   <property typ="Boolean" key="PREF_PETRINETZ_ANIMATESIMULATION" value="True" />
   <property typ="Integer" key="PREF_PETRINETZ_PIXELYPERPAGE" value="787" />
   <property typ="String" key="PREF_PETRINETZ_WORKING_GRAPHIC_PATH" value="C:\Users\Dennis\Desktop\RunManager" />
-  <property typ="Integer" key="PREF_PETRINETZ_NEXTPATHNR" value="68" />
+  <property typ="Integer" key="PREF_PETRINETZ_NEXTPATHNR" value="78" />
   <property typ="Integer" key="PREF_PETRINETZ_GRAPHICFORMAT" value="7" />
   <property typ="Integer" key="PREF_PETRINETZ_PRINT_MARGIN_BOTTOM" value="20" />
   <property typ="Integer" key="PREF_PETRINETZ_PRINT_PAPERHEIGHT" value="1169" />
@@ -21,8 +20,9 @@
   <property typ="Integer" key="PREF_PETRINETZ_VERTICALPAGECOUNT" value="3" />
   <property typ="String" key="APP_WORKING_GEOMPREFERENCES_PATH" value="C:\Users\Dennis\Desktop\ESE\SE2-Projekt\work\design\diagrams\run_manager.peg" />
   <property typ="Integer" key="PREF_PETRINETZ_PIXELXPERPAGE" value="1129" />
-  <property typ="Integer" key="PREF_PETRINETZ_NEXTPATHPOINTNR" value="113" />
+  <property typ="Integer" key="PREF_PETRINETZ_NEXTPATHPOINTNR" value="141" />
   <property typ="Boolean" key="PREF_PETRINETZ_VISITEDITMODES" value="True" />
+  <property typ="Boolean" key="PREF_PETRINETZ_SHOWLAMPS" value="False" />
   <property typ="String" key="APP_WORKING_PREFERENCES_PATH" value="C:\Users\Dennis\Desktop\ESE\SE2-Projekt\work\design\diagrams\run_manager.pep" />
   <property typ="Integer" key="PREF_PETRINETZ_PRINT_MARGIN_TOP" value="20" />
   <property typ="Integer" key="PREF_PETRINETZ_PRINT_MARGIN_RIGHT" value="20" />
@@ -30,15 +30,13 @@
   <property typ="Boolean" key="PREF_PETRINETZ_TTSEMULATE" value="False" />
   <property typ="Boolean" key="PREF_PETRINETZ_SHOWID" value="False" />
   <property typ="String" key="PREF_PETRINETZ_BEZEICHNUNG" value="Neu" />
-  <property typ="Boolean" key="SYSTEM_IS_NEW_FILE" value="False" />
   <property typ="Boolean" key="PREF_PETRINETZ_CLEARSELECTIONONRUNNINGMODE" value="True" />
   <property typ="Integer" key="PREF_PETRINETZ_NEXTSTELLENNR" value="28" />
   <property typ="Boolean" key="PREF_PETRINETZ_LOGTRACE" value="False" />
-  <property typ="Boolean" key="PREF_PETRINETZ_SHOWLAMPS" value="False" />
+  <property typ="Boolean" key="PREF_PETRINETZ_SHOWTEXT" value="True" />
   <property typ="Boolean" key="PREF_PETRINETZ_SREMULATE" value="False" />
   <property typ="Integer" key="PREF_PETRINETZ_PRINT_PAPERWIDTH" value="827" />
   <property typ="Boolean" key="PREF_PETRINETZ_TTSENABLED" value="True" />
   <property typ="Boolean" key="PREF_PETRINETZ_SRENABLED" value="True" />
-  <property typ="Integer" key="PREF_PETRINETZ_NEXTTRANSITIONNR" value="31" />
-  <property typ="Boolean" key="SYSTEM_IS_CLEAN" value="True" />
+  <property typ="Integer" key="PREF_PETRINETZ_NEXTTRANSITIONNR" value="41" />
 </preferences>
