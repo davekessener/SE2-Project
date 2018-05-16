@@ -87,7 +87,8 @@ namespace esep
 					return get_header<T>() == get_header();
 				}
 
-				explicit operator value_type( ) const
+				template<typename T, typename = tml::EnableIf<tml::logic::GreaterThanOrEqualTo<tml::SizeOf<T>, tml::SizeOf<value_type>>>>
+				explicit operator T( ) const
 				{
 					return mValue;
 				}
@@ -100,13 +101,13 @@ namespace esep
 				}
 
 				template<typename T>
-				static constexpr part_type get_header( )
+				static constexpr value_type get_header( )
 				{
 					return list::IndexOf<enums_t, T>::Value;
 				}
 
 				template<typename T>
-				static constexpr part_type get_body(const T& v)
+				static constexpr value_type get_body(const T& v)
 				{
 					return static_cast<part_type>(v);
 				}

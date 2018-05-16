@@ -13,7 +13,7 @@
 
 namespace esep { namespace communication {
 
-Packet::Packet(Location src, Location trg, Message msg)
+Packet::Packet(Location src, Location trg, msg_t msg)
 	: mMessage(msg)
 	, mTarget(trg)
 	, mSource(src)
@@ -32,20 +32,20 @@ void Packet::serialize(lib::ByteStream& bs)
 
 std::shared_ptr<Packet> Packet::deserialize(lib::ByteStream& bs)
 {
-	Location sourc;
-	Location targe;
-	Message messag;
+	Location s;
+	Location t;
+	msg_t m = Message::Master::FIXED;
 
-	bs >> messag >> sourc >> targe;
+	bs >> m >> s >> t;
 
-	std::shared_ptr<Packet> pakptr(new Packet(sourc, targe, messag));
+	Packet_ptr p(new Packet(s, t, m));
 
 	while(!bs.empty())
 	{
-		pakptr->addDataPoint(data::DataManager::deserialize(bs));
+		p->addDataPoint(data::DataManager::deserialize(bs));
 	}
 
-	return pakptr;
+	return p;
 }
 
 void Packet::addDataPoint(std::shared_ptr<data::DataPoint> p)

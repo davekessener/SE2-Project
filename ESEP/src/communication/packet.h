@@ -1,17 +1,14 @@
-/*
- * message.h
- *
- *  Created on: 26.04.2018
- *      Author: ace991
- */
-
 #ifndef SRC_COMMUNICATION_PACKET_H
 #define SRC_COMMUNICATION_PACKET_H
 
 #include <memory>
 
 #include "lib/byte_stream.h"
+#include "lib/enum.h"
+
 #include "data/data_point.h"
+
+#include "communication/message.h"
 
 namespace esep
 {
@@ -23,79 +20,34 @@ namespace esep
 			typedef container_t::const_iterator iterator;
 
 			public:
-			MXT_DEFINE_E(NotImplException);
+			MXT_DEFINE_E(NotImplementedException);
 
-			enum class Message : int8_t
+			enum class Location : uint8_t
 			{
-				SELECT_CONFIG,
-				SELECT_RUN,
-				IDLE,
-				RESUME,
-				SUSPEND,
-				KEEP_NEXT,
-				ANALYSE,
-				CONFIG_DONE,
-				CONFIG_FAILED,
-				ITEM_APPEARED,
-				ITEM_DISAPPEARED,
-				ERROR_SERIAL,
-				NEW_ITEM,
-				REACHED_END,
-				RAMP_FULL,
-				ERROR_FIXED,
-				ESTOP,
-				WARNING,
-				SHUTDOWN
-			};
-
-			enum class Config
-			{
-				START,
-				DONE,
-				FAILED
-			};
-
-			enum class Error
-			{
-				CONFIG,
-				SERIAL,
-				ITEM_APPEARED,  // (Base -> Master)
-				ITEM_DISAPPEARED,  // (Base -> Master)
-				ESTOP,
-				RAMP_FULL,
-				WARNING,
-				FIXED
-			};
-
-			enum class Run
-			{
-				NEW_ITEM,
-				REACHED_END,
-				RAMP_FULL,
-				ANALYSE,  // analyse item at switch (Base -> Master)
-				RESUME, // start motor (Master -> Base)
-				SUSPEND, // stop motor (Master -> Base)
-				KEEP_NEXT  // open switch (Master -> Base)
-			};
-
-			enum class Location : int8_t
-			{
-				BASE_M,
-				BASE_S,
 				MASTER,
-				BASE
+				BASE,
+				BASE_M,
+				BASE_S
 			};
+
+			typedef tml::MakeCompoundEnum<
+				Message::Master,
+				Message::Base,
+				Message::Config,
+				Message::Run,
+				Message::Error
+			> msg_t;
 
 			public :
-				Packet(Location src, Location trg, Message msg);
+				Packet(Location src, Location trg, msg_t msg);
 
 				Location target() const { return mTarget; }
 				Location source() const { return mSource; }
-				Message message() const { return mMessage; }
+				msg_t message() const { return mMessage; }
 
 				void target(Location v) { mTarget = v; }
 				void source(Location v) { mSource = v; }
-				void message(Message v) { mMessage = v; }
+				void message(msg_t v) { mMessage = v; }
 
 				void addDataPoint(std::shared_ptr<data::DataPoint>);
 				iterator begin( ) const { return mDataPoints.cbegin(); }
@@ -106,7 +58,7 @@ namespace esep
 				static std::shared_ptr<Packet> deserialize(lib::ByteStream&);
 
 			private :
-				Message mMessage;
+				msg_t mMessage;
 				Location mTarget;
 				Location mSource;
 				container_t mDataPoints;

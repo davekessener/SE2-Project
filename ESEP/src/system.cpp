@@ -53,7 +53,6 @@ void Impl::run(const lib::Arguments& args)
 {
 	typedef std::unique_ptr<serial::Connection> Connection_ptr;
 	typedef std::unique_ptr<serial::Client> Client_ptr;
-	typedef hal::Lights::Light Light;
 
 	bool is_master = false;
 
@@ -101,6 +100,8 @@ void Impl::run(const lib::Arguments& args)
 		MXT_THROW_EX(ConnectionException);
 	}
 
+	lib::Timer::instance().reset();
+
 	if(is_master)
 	{
 		auto m = new communication::Master(&handler, std::move(serial));
@@ -127,15 +128,6 @@ void Impl::run(const lib::Arguments& args)
 	{
 		lib::Timer::instance().sleep(10);
 	}
-
-	get<hal::Switch>().close();
-	get<hal::Motor>().right();
-	get<hal::Motor>().fast();
-	get<hal::Motor>().enable();
-	get<hal::Motor>().stop();
-	get<hal::Lights>().turnOff(Light::RED);
-	get<hal::Lights>().turnOff(Light::GREEN);
-	get<hal::Lights>().turnOff(Light::YELLOW);
 }
 
 }}

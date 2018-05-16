@@ -1,10 +1,3 @@
-/*
- * data_point.h
- *
- *  Created on: 26.04.2018
- *      Author: ace991
- */
-
 #ifndef SRC_DATA_DATA_POINT_H
 #define SRC_DATA_DATA_POINT_H
 
