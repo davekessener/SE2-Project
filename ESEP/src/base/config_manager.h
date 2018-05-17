@@ -40,7 +40,8 @@ namespace esep
 				State mState;
 				uint64_t mTimestamp;
 				uint64_t mTimestamp2;
-				uint16_t mHeightSensor;
+				uint16_t mHeightSensorMin;
+				uint16_t mHeightSensorMax;
 				uint32_t mStartToEnd;
 				uint32_t mStartToEndLong;
 				uint32_t mStartToEndSlow;

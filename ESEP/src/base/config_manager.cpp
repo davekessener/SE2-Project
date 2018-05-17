@@ -23,7 +23,8 @@ ConfigManager::ConfigManager(communication::IRecipient *handler, ConfigObject *c
 	, mState(State::STATE_0)
 	, mTimestamp(0)
 	, mTimestamp2(0)
-	, mHeightSensor(0)
+	, mHeightSensorMin(0)
+	, mHeightSensorMax(0)
 	, mStartToEnd(0)
 	, mStartToEndLong(0)
 	, mStartToEndSlow(0)
@@ -231,7 +232,8 @@ void ConfigManager::handle(hal::HAL::Event event)
 
 			try
 			{
-				mConfig->setHeightSensor(1); // TODO measure HEIGHTSENSOR
+				mConfig->setHeightSensorMin(1); // TODO measure HEIGHTSENSOR value without ITEM
+				mConfig->setHeightSensorMax(1); // TODO measure HEIGHTSENSOR value with ITEM
 				mConfig->setStartToHs(mStartToHs);
 				mConfig->setHsToSwitch(mHsToSwitch);
 				mConfig->setSwitchToEnd(mSwitchToEnd);
