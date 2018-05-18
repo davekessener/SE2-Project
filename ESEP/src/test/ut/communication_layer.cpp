@@ -11,6 +11,7 @@
 #include "lib/logger.h"
 
 #define MXT_TIMEOUT 50
+#define MXT_MAXTRIES 100
 
 namespace esep { namespace test { namespace unit {
 
@@ -40,6 +41,16 @@ void CommunicationLayer::setup(void)
 	Connection_ptr con0(mConnections[0]), con1(mConnections[1]);
 	Client_ptr bsp0(new serial::BSPClient(std::move(con0))), bsp1(new serial::BSPClient(std::move(con1)));
 	Client_ptr c0(new serial::Watchdog(std::move(bsp0), MXT_TIMEOUT)), c1(new serial::Watchdog(std::move(bsp1), MXT_TIMEOUT));
+
+	for(uint i = MXT_MAXTRIES ; !c0->connected() || !c1->connected() ; --i)
+	{
+		if(!i)
+		{
+			MXT_THROW_EX(InstantiationException);
+		}
+
+		lib::Timer::instance().sleep(10);
+	}
 
 	mMasterCom = new communication::Master(mBaseM, std::move(c0));
 	mSlaveCom = new communication::Slave(mBaseS, std::move(c1));

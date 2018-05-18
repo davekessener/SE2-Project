@@ -62,7 +62,7 @@ Handler::Handler( )
 				break;
 
 				case(static_cast<int8_t>(MessageType::HAL_EVENT)):
-					mCurrentManager->handle(static_cast<hal::HAL::Event>(pulse.value));
+					handleHAL(static_cast<hal::HAL::Event>(pulse.value));
 					break;
 
 				case(static_cast<int8_t>(MessageType::STOP_RUNNING)):
@@ -166,14 +166,7 @@ void Handler::handle(Event e)
 {
 	MXT_LOG_INFO("Received HAL event ", lib::hex<32>(e));
 
-	if(e == Event::BTN_ESTOP && HAL_BUTTONS.isPressed(Button::ESTOP))
-	{
-		accept(std::make_shared<Packet>(Location::BASE, Location::MASTER, Message::Error::ESTOP));
-	}
-	else
-	{
-		mConnection.sendPulse(static_cast<int8_t>(MessageType::HAL_EVENT), static_cast<uint32_t>(e));
-	}
+	mConnection.sendPulse(static_cast<int8_t>(MessageType::HAL_EVENT), static_cast<uint32_t>(e));
 }
 
 void Handler::handleError(Message::Error e, Packet_ptr p)
@@ -188,6 +181,18 @@ void Handler::handleError(Message::Error e, Packet_ptr p)
 		mErrorManager = std::move(m);
 		mCurrentManager = mErrorManager.get();
 		mCurrentManager->enter();
+	}
+}
+
+void Handler::handleHAL(Event e)
+{
+	if(e == Event::BTN_ESTOP && HAL_BUTTONS.isPressed(Button::ESTOP))
+	{
+		mMaster->accept(std::make_shared<Packet>(Location::BASE, Location::MASTER, Message::Error::ESTOP));
+	}
+	else
+	{
+		mCurrentManager->handle(e);
 	}
 }
 

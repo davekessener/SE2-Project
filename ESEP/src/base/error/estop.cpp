@@ -23,8 +23,6 @@ void Estop::enter(void)
 	{
 		acknowledge();
 		solve();
-
-		HAL_LEDS.turnOff(LED::RESET);
 	}
 }
 

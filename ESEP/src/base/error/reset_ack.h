@@ -16,6 +16,9 @@ namespace esep
 
 					void enter( ) override;
 					void handle(Event) override;
+
+				protected:
+					void acknowledge( );
 			};
 		}
 	}

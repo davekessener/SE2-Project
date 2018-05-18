@@ -12,6 +12,7 @@
 #include "serial/bsp_client.h"
 
 #define MXT_TIMEOUT 50
+#define MXT_MAXTRIES 100
 
 namespace esep { namespace test { namespace unit {
 
@@ -38,6 +39,15 @@ void Watchdog::setup(void)
 	mWatchdog[0] = new serial::Watchdog(std::move(c0), MXT_TIMEOUT);
 	mWatchdog[1] = new serial::Watchdog(std::move(c1), MXT_TIMEOUT);
 
+	for(uint i = MXT_MAXTRIES ; !mWatchdog[0]->connected() || !mWatchdog[1]->connected() ; --i)
+	{
+		if(!i)
+		{
+			MXT_THROW_EX(InstantiationException);
+		}
+
+		lib::Timer::instance().sleep(10);
+	}
 }
 
 void Watchdog::teardown(void)

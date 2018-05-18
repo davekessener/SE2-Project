@@ -50,6 +50,7 @@ namespace esep
 			private:
 				void switchManager(Message::Base);
 				void handleError(Message::Error, Packet_ptr);
+				void handleHAL(Event);
 
 			private:
 				communication::IRecipient* mMaster;

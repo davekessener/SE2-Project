@@ -24,8 +24,11 @@
 #define MXT_SLAVE "slave"
 
 #define MXT_DEFAULT_DEVICE "/dev/ser4"
+#define MXT_SERIAL_TIMEOUT 60
 
 namespace esep { namespace system {
+
+typedef hal::Buttons::Button Button;
 
 Impl::Impl(void)
 	: mHAL(new hal::Physical())
@@ -54,17 +57,28 @@ void Impl::run(const lib::Arguments& args)
 	typedef std::unique_ptr<serial::Connection> Connection_ptr;
 	typedef std::unique_ptr<serial::Client> Client_ptr;
 
+	if(HAL_BUTTONS.isPressed(Button::ESTOP))
+	{
+		MXT_LOG_FATAL("Can't start system when ESTOP is active!");
+
+		return;
+	}
+
 	bool is_master = false;
 
 	if(args.get("run") == MXT_MASTER)
 	{
 		is_master = true;
 
+		MXT_LOG_INFO("Starting system in MASTER mode.");
+
 		std::cout << "Running system as MASTER!" << std::endl;
 	}
 	else if(args.get("run") == MXT_SLAVE)
 	{
 		is_master = false;
+
+		MXT_LOG_INFO("Starting system in SLAVE mode.");
 
 		std::cout << "Running system as SLAVE!" << std::endl;
 	}
@@ -85,7 +99,7 @@ void Impl::run(const lib::Arguments& args)
 
 	std::cout << "Connecting via serial " << std::flush;
 
-	for(uint i = 0 ; i < 30 ; ++i)
+	for(uint i = 0 ; i < MXT_SERIAL_TIMEOUT ; ++i)
 	{
 		std::cout << "." << std::flush;
 		lib::Timer::instance().sleep(1000);
@@ -122,12 +136,15 @@ void Impl::run(const lib::Arguments& args)
 		handler.handle(e);
 	});
 
+	MXT_LOG_INFO("Successfully connected. Starting main program now.");
 	std::cout << "Starting main program" << std::endl;
 
 	while(handler.running())
 	{
 		lib::Timer::instance().sleep(10);
 	}
+
+	MXT_LOG_INFO("End of system::run.");
 }
 
 }}
