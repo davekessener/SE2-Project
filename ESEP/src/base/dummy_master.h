@@ -11,16 +11,17 @@ namespace esep
 	{
 		class DummyMaster : public communication::IRecipient
 		{
+			typedef communication::Message Message;
 			typedef communication::IRecipient IRecipient;
 			typedef communication::Packet Packet;
+			typedef Packet::msg_t msg_t;
 			typedef Packet::Location Location;
-			typedef Packet::Message Message;
 
 			public:
 			MXT_DEFINE_E(UndefinedBaseException);
 
 			public:
-				DummyMaster(IRecipient *b) : mBase(b) { }
+				DummyMaster(IRecipient *b) : mBase(b), mErrors(0) { }
 
 				void accept(communication::Packet_ptr p)
 				{
@@ -29,44 +30,71 @@ namespace esep
 						MXT_THROW_EX(UndefinedBaseException);
 					}
 
-					MXT_LOG("Master received message ", static_cast<uint>(p->message()));
+					MXT_LOG("Master received message ", lib::hex<16>(p->message()));
 
-					switch(p->message())
+					if(p->message().is<Message::Master>())
+						switch(p->message().as<Message::Master>())
 					{
-					case Message::SELECT_CONFIG:
-						send(Location::BASE, Message::SELECT_CONFIG);
-						break;
-					case Message::SELECT_RUN:
-						send(Location::BASE, Message::SHUTDOWN);
-						break;
-					case Message::CONFIG_DONE:
-						if(p->source() == Location::BASE_S)
-						{
-							send(Location::BASE, Message::IDLE);
-						}
-						else
-						{
-							send(Location::BASE, Message::RESUME);
-						}
-						break;
-					case Message::ESTOP:
-						send(Location::BASE, Message::SHUTDOWN);
-						break;
-					default:
-						break;
+						case Message::Master::CONFIG:
+							send(Location::BASE, Message::Base::CONFIG);
+							break;
+						case Message::Master::RUN:
+							send(Location::BASE, Message::Base::RUN);
+							break;
+						case Message::Master::IDLE:
+							send(Location::BASE, Message::Base::IDLE);
+							break;
+						case Message::Master::READY:
+							send(Location::BASE, Message::Base::READY);
+							break;
+						case Message::Master::FIXED:
+							if(!--mErrors)
+							{
+								send(Location::BASE, Message::Base::READY);
+							}
+							break;
+					}
+					else if(p->message().is<Message::Error>())
+					{
+						mErrors = 2;
+						send(Location::BASE, p->message());
+					}
+					else if(p->message().is<Message::Config>())
+						switch(p->message().as<Message::Config>())
+					{
+						case Message::Config::START:
+							if(p->source() == Location::BASE_S)
+							{
+								send(Location::BASE_M, Message::Run::SUSPEND);
+							}
+							break;
+						case Message::Config::DONE:
+							if(p->source() == Location::BASE_M)
+							{
+								send(Location::BASE, Message::Run::RESUME);
+							}
+							else
+							{
+								send(Location::BASE, Message::Base::IDLE);
+							}
+							break;
+						case Message::Config::FAILED:
+							send(Location::BASE, Message::Error::CONFIG);
+							break;
 					}
 				}
 
 				bool running( ) const { return true; }
 
 			private:
-				void send(Location t, Message msg)
+				void send(Location t, msg_t msg)
 				{
 					mBase->accept(std::make_shared<Packet>(Location::MASTER, t, msg));
 				}
 
 			private:
 				IRecipient *mBase;
+				uint mErrors;
 		};
 	}
 }

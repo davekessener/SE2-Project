@@ -5,6 +5,7 @@
 #include <atomic>
 
 #include "base/IManager.h"
+#include "base/error_manager.h"
 #include "base/config_object.h"
 
 #include "communication/IRecipient.h"
@@ -20,10 +21,12 @@ namespace esep
 		class Handler : public communication::IRecipient
 		{
 			private:
-			typedef sync::Container<communication::Packet_ptr> container_t;
+			typedef communication::Message Message;
 			typedef communication::Packet Packet;
+			typedef communication::Packet_ptr Packet_ptr;
+			typedef sync::Container<Packet_ptr> container_t;
+			typedef Packet::msg_t msg_t;
 			typedef Packet::Location Location;
-			typedef Packet::Message Message;
 			typedef hal::HAL::Event Event;
 
 			enum class MessageType : int8_t
@@ -40,12 +43,14 @@ namespace esep
 				Handler( ); //requires the IRecipient of the higher comm. layer
 				~Handler();
 				void setMaster(communication::IRecipient *p) { mMaster = p; }
-				void handle(hal::HAL::Event); //for event listening registration
-				void accept(std::shared_ptr<communication::Packet>);
+				void handle(Event); //for event listening registration
+				void accept(Packet_ptr);
 				bool running( ) const { return mRunning.load(); }
 
 			private:
-				void switchManager(IManager *);
+				void switchManager(Message::Base);
+				void handleError(Message::Error, Packet_ptr);
+				void handleHAL(Event);
 
 			private:
 				communication::IRecipient* mMaster;
@@ -53,11 +58,12 @@ namespace esep
 				std::atomic<bool> mRunning;
 				qnx::Connection mConnection;
 				ConfigObject mConfigData;
-				std::shared_ptr<IManager> mConfigManager,  mRunManager, mIdleManager, mReadyManager, mErrorManager;
+				std::unique_ptr<IManager> mConfigManager,  mRunManager, mIdleManager, mReadyManager;
+				ErrorManager::Error_ptr mErrorManager;
 				IManager* mCurrentManager;
 				container_t mPacketBuffer;
 		};
 	}
 }
 
-#endif /* SRC_BASE_HANDLER_H */
+#endif

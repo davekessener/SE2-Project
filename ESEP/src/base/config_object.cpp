@@ -12,7 +12,8 @@ namespace esep { namespace base {
 ConfigObject::ConfigObject(const std::string& path)
 	: mPath(path)
 	, mValid(false)
-	, mHeightSensor(0)
+	, mHeightSensorMin(0)
+	, mHeightSensorMax(0)
 	, mStartToHs(0)
 	, mHsToSwitch(0)
 	, mSwitchToEnd(0)
@@ -46,7 +47,9 @@ ConfigObject::ConfigObject(const std::string& path)
 			fileData.pop_back();
 			mStartToHs = std::stoi(fileData.back());
 			fileData.pop_back();
-			mHeightSensor = (uint16_t) std::stoi(fileData.back());
+			mHeightSensorMax = (uint16_t) std::stoi(fileData.back());
+			fileData.pop_back();
+			mHeightSensorMin = (uint16_t) std::stoi(fileData.back());
 			mValid = true;
 		}
 	}
@@ -63,7 +66,8 @@ void ConfigObject::save()
 
 	if(confFile.is_open())
 	{
-		confFile << mHeightSensor << "\n"
+		confFile << mHeightSensorMin << "\n"
+				 << mHeightSensorMax << "\n"
 				 << mStartToHs    << "\n"
 				 << mHsToSwitch   << "\n"
 				 << mSwitchToEnd  << "\n"
@@ -78,20 +82,30 @@ void ConfigObject::save()
 bool ConfigObject::isValid()
 {
 	return mValid || (mValid =
-			(mHeightSensor > 0
+			(mHeightSensorMin > 0
+			&& mHeightSensorMax > 0
 			&& mStartToHs > 0
 			&& mHsToSwitch > 0
 			&& mSwitchToEnd > 0
 			&& mSlowFactor > 0));
 }
 
-void ConfigObject::setHeightSensor(uint16_t val)
+void ConfigObject::setHeightSensorMin(uint16_t val)
 {
 	if(val == 0)
 	{
 		MXT_THROW_EX(ConfigObject::InvalidDataException);
 	}
-	mHeightSensor = val;
+	mHeightSensorMin = val;
+}
+
+void ConfigObject::setHeightSensorMax(uint16_t val)
+{
+	if(val == 0)
+	{
+		MXT_THROW_EX(ConfigObject::InvalidDataException);
+	}
+	mHeightSensorMax = val;
 }
 
 void ConfigObject::setStartToHs(uint32_t val)
@@ -139,13 +153,22 @@ void ConfigObject::setTimeTolerance(float val)
 	mTimeTolerance = val;
 }
 
-uint16_t ConfigObject::heightSensor(void)
+uint16_t ConfigObject::heightSensorMin(void)
 {
 	if(!isValid())
 	{
 		MXT_THROW_EX(ConfigObject::InvalidObjectException);
 	}
-	return mHeightSensor;
+	return mHeightSensorMin;
+}
+
+uint16_t ConfigObject::heightSensorMax(void)
+{
+	if(!isValid())
+	{
+		MXT_THROW_EX(ConfigObject::InvalidObjectException);
+	}
+	return mHeightSensorMax;
 }
 
 uint32_t ConfigObject::startToHs(void)

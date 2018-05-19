@@ -58,7 +58,7 @@ Impl::Impl(void)
 					break;
 
 				default:
-					MXT_LOG(lib::stringify("Received unknown pulse msg {", lib::hex<8>(p.code), ", ", lib::hex<32>(p.value), " (", p.value, ")}"));
+					MXT_LOG_WARN("Received unknown pulse msg {", lib::hex<8>(p.code), ", ", lib::hex<32>(p.value), " (", p.value, ")}");
 				}
 
 				if(mRunning.load())
@@ -69,7 +69,7 @@ Impl::Impl(void)
 
 					if(!overshot && d > MXT_TOLERANCE)
 					{
-						MXT_LOG(lib::stringify("Significantly overshot timer by ", d, "ms!"));
+						MXT_LOG_WARN("Significantly overshot timer by ", d, "ms!");
 
 						overshot = true;
 					}

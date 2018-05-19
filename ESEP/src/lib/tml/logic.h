@@ -35,6 +35,30 @@ namespace esep
 		namespace logic
 		{
 			template<typename T1, typename T2>
+			struct GreaterThan
+			{
+				static constexpr bool Value = T1::Value > T2::Value;
+			};
+
+			template<typename T1, typename T2>
+			struct LessThan
+			{
+				static constexpr bool Value = T1::Value < T2::Value;
+			};
+
+			template<typename T1, typename T2>
+			struct GreaterThanOrEqualTo
+			{
+				static constexpr bool Value = T1::Value >= T2::Value;
+			};
+
+			template<typename T1, typename T2>
+			struct LessThanOrEqualTo
+			{
+				static constexpr bool Value = T1::Value <= T2::Value;
+			};
+
+			template<typename T1, typename T2>
 			struct And
 			{
 				static constexpr bool Value = T1::Value && T2::Value;

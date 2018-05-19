@@ -58,6 +58,11 @@ void SerialClient::setup(void)
 
 	mClients[0] = new serial::BSPClient(connection_ptr(mConnections[0]), MXT_TIMEOUT);
 	mClients[1] = new serial::BSPClient(connection_ptr(mConnections[1]), MXT_TIMEOUT);
+
+	if(!mClients[0]->connected() || !mClients[1]->connected())
+	{
+		MXT_THROW_EX(InstantiationException);
+	}
 }
 
 void SerialClient::teardown(void)

@@ -19,7 +19,6 @@ constexpr uint32_t GPIO_BASE_0 = 0x44E07000; // Sensors
 constexpr uint32_t GPIO_BASE_1 = 0x4804C000; // Actors /wo LEDs
 constexpr uint32_t GPIO_BASE_2 = 0x481AC000; // LEDs
 
-
 Physical::Physical(void)
 {
 	mRunning = false;
@@ -46,6 +45,11 @@ Physical::Physical(void)
 			channel.registerInterruptListener(mConnection, *mGPIOs[0], static_cast<int8_t>(Code::INTERRUPT));
 
 			updateSensors();
+
+			for(auto& gpio : mGPIOs)
+			{
+				gpio->write(0);
+			}
 
 			mRunning = true;
 			while(mRunning.load())
@@ -93,6 +97,11 @@ Physical::Physical(void)
 			}
 		}
 		MXT_CATCH_ALL_STRAY
+
+		for(auto& gpio : mGPIOs)
+		{
+			gpio->write(0);
+		}
 
 		mConnection.close();
 		mThreadAlive = false;

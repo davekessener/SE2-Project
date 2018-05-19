@@ -45,6 +45,7 @@ namespace esep
 				id_t nextID( );
 
 			private:
+				std::mutex mMutex;
 				time_t mSystemStart;
 				qnx::Connection mConnection;
 				lib::Thread mTimerThread;
@@ -53,7 +54,6 @@ namespace esep
 				std::forward_list<Timer_ptr> mQueue;
 				id_t mNextID;
 				uint mCounter;
-				std::mutex mMutex;
 		};
 	}
 }

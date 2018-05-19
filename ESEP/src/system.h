@@ -17,6 +17,15 @@
 #include "hal/motor.h"
 #include "hal/switch.h"
 
+#define HAL_BUTTONS			::esep::System::instance().get<::esep::hal::Buttons>()
+#define HAL_HEIGHT_SENSOR	::esep::System::instance().get<::esep::hal::HeightSensor>()
+#define HAL_LEDS			::esep::System::instance().get<::esep::hal::LEDs>()
+#define HAL_LIGHT_BARRIERS	::esep::System::instance().get<::esep::hal::LightBarriers>()
+#define HAL_LIGHTS			::esep::System::instance().get<::esep::hal::Lights>()
+#define HAL_METAL_SENSOR	::esep::System::instance().get<::esep::hal::MetalSensor>()
+#define HAL_MOTOR			::esep::System::instance().get<::esep::hal::Motor>()
+#define HAL_SWITCH			::esep::System::instance().get<::esep::hal::Switch>()
+
 namespace esep
 {
 	namespace system

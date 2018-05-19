@@ -9,8 +9,13 @@
 #include "base/config_manager.h"
 #include "base/idle_manager.h"
 #include "base/ready_manager.h"
+#include "base/error_manager.h"
+
+#include "system.h"
 
 namespace esep { namespace base {
+
+typedef hal::Buttons::Button Button;
 
 Handler::Handler( )
 	: mMaster(nullptr)
@@ -36,52 +41,37 @@ Handler::Handler( )
 
 				switch(pulse.code)
 				{
-					case(static_cast<int8_t>(MessageType::PACKET_IN_BUFFER)):
+				case(static_cast<int8_t>(MessageType::PACKET_IN_BUFFER)):
+				{
+					auto packet = mPacketBuffer.remove();
+					auto msg = packet->message();
+
+					if(msg.is<Message::Base>())
 					{
-						auto packet = mPacketBuffer.remove();
-
-						switch(packet->message())
-						{
-						case(Message::SHUTDOWN):
-							mRunning = false;
-							break;
-						case(Message::SELECT_CONFIG):
-							switchManager(mConfigManager.get());
-							break;
-
-						case(Message::SELECT_RUN):
-							MXT_LOG_WARN("Run manager not implemented yet!");
-//							switchManager(mRunManager.get());
-							break;
-
-						case(Message::IDLE):
-							switchManager(mIdleManager.get());
-							break;
-
-						case(Message::ERROR_SERIAL):
-							MXT_LOG_FATAL("Serial connection failed! Shutting down ...");
-							mRunning = false;
-							break;
-
-						//TODO: React to new Massage types.
-
-						default:
-							mCurrentManager->accept(packet);
-							break;
-						}
-						break;
+						switchManager(msg.as<Message::Base>());
 					}
-					case(static_cast<int8_t>(MessageType::HAL_EVENT)):
-						mCurrentManager->handle(static_cast<hal::HAL::Event>(pulse.value));
-						break;
+					else if(msg.is<Message::Error>())
+					{
+						handleError(msg.as<Message::Error>(), packet);
+					}
+					else
+					{
+						mCurrentManager->accept(packet);
+					}
+				}
+				break;
 
-					case(static_cast<int8_t>(MessageType::STOP_RUNNING)):
-						mRunning = false;
-						break;
+				case(static_cast<int8_t>(MessageType::HAL_EVENT)):
+					handleHAL(static_cast<hal::HAL::Event>(pulse.value));
+					break;
 
-					default:
-						// make a log, if there was an undefined MassageType
-						MXT_LOG_WARN("Received unexpected pulse {", lib::hex<8>(pulse.code), ", ", lib::hex<32>(pulse.value), "}");
+				case(static_cast<int8_t>(MessageType::STOP_RUNNING)):
+					mRunning = false;
+					break;
+
+				default:
+					MXT_LOG_WARN("Received unexpected pulse {", lib::hex<8>(pulse.code), ", ", lib::hex<32>(pulse.value), "}");
+					break;
 				}
 			}
 
@@ -106,14 +96,14 @@ Handler::~Handler()
 }
 
 
-void Handler::accept(communication::Packet_ptr p)
+void Handler::accept(Packet_ptr p)
 {
 	if(!mMaster)
 	{
 		MXT_THROW_EX(UndefinedMasterException);
 	}
 
-	MXT_LOG("Received packet {", (int)p->source(), " -> ", (int)p->target(), ", msg: ", (int)p->message());
+	MXT_LOG("Received packet {", (int)p->source(), " -> ", (int)p->target(), ", msg: ", lib::hex<16>(p->message()), "}");
 
 	if(p->target() == Location::MASTER)
 	{
@@ -122,31 +112,87 @@ void Handler::accept(communication::Packet_ptr p)
 	else
 	{
 		mPacketBuffer.insert(p);
-		mConnection.sendPulse(static_cast<int8_t>(MessageType::PACKET_IN_BUFFER));
+		mConnection.sendPulse(MessageType::PACKET_IN_BUFFER);
 	}
 }
 
-void Handler::switchManager(IManager *m)
+void Handler::switchManager(Message::Base msg)
 {
+	auto m = mCurrentManager;
+
+	switch(msg)
+	{
+	case Message::Base::SHUTDOWN:
+		MXT_LOG("Shutting down ...");
+		mRunning = false;
+		break;
+
+	case Message::Base::RUN:
+		MXT_LOG_WARN("RunManager not implemented yet!");
+		mRunning = false;
+//		m = mRunManager.get(); TODO
+		break;
+
+	case Message::Base::CONFIG:
+		MXT_LOG_INFO("Switching to ConfigManager");
+		m = mConfigManager.get();
+		break;
+
+	case Message::Base::IDLE:
+		MXT_LOG_INFO("Switching to Idle");
+		m = mIdleManager.get();
+		break;
+
+	case Message::Base::READY:
+		MXT_LOG_INFO("Switching to Ready");
+		m = mReadyManager.get();
+		break;
+	}
+
 	if(mCurrentManager != m)
 	{
 		mCurrentManager->leave();
 		mCurrentManager = m;
 		mCurrentManager->enter();
 	}
+
+	if(mCurrentManager != mErrorManager.get())
+	{
+		mErrorManager.reset();
+	}
 }
 
-void Handler::handle(hal::HAL::Event e)
+void Handler::handle(Event e)
 {
-	MXT_LOG("Received HAL event ", lib::hex<32>(e));
+	MXT_LOG_INFO("Received HAL event ", lib::hex<32>(e));
 
-	if(e == Event::BTN_ESTOP)
+	mConnection.sendPulse(static_cast<int8_t>(MessageType::HAL_EVENT), static_cast<uint32_t>(e));
+}
+
+void Handler::handleError(Message::Error e, Packet_ptr p)
+{
+	MXT_LOG_INFO("Received error message ", e, "!");
+
+	auto m = ErrorManager::create(this, p);
+
+	if(!static_cast<bool>(mErrorManager) || m->priority() >= mErrorManager->priority())
 	{
-		accept(std::make_shared<Packet>(Location::BASE, Location::MASTER, Message::ESTOP));
+		mCurrentManager->leave();
+		mErrorManager = std::move(m);
+		mCurrentManager = mErrorManager.get();
+		mCurrentManager->enter();
+	}
+}
+
+void Handler::handleHAL(Event e)
+{
+	if(e == Event::BTN_ESTOP && HAL_BUTTONS.isPressed(Button::ESTOP))
+	{
+		mMaster->accept(std::make_shared<Packet>(Location::BASE, Location::MASTER, Message::Error::ESTOP));
 	}
 	else
 	{
-		mConnection.sendPulse(static_cast<int8_t>(MessageType::HAL_EVENT), static_cast<uint32_t>(e));
+		mCurrentManager->handle(e);
 	}
 }
 

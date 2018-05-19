@@ -25,7 +25,10 @@ namespace esep
 					TestSuite * const ts;
 					std::string name;
 				};
+
 				public:
+				MXT_DEFINE_E(InstantiationException);
+
 				enum class Result
 				{
 					SUCCESS,
