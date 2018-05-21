@@ -16,7 +16,6 @@ namespace esep
 			{
 				METAL_SENSOR,
 				LOCATION
-
 			};
 
 			public:
