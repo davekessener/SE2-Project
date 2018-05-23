@@ -6,11 +6,11 @@ namespace esep { namespace base {
 
 #define MXT_P_NR_STATES	13
 
-RunManager::RunManager(communication::IRecipient* m) :
-		mMaster(m)
+RunManager::RunManager(communication::IRecipient* m)
+	:	mMaster(m)
+	,	mLogic(MXT_P_NR_STATES, Auto::FIRE)
 {
-//	mPetriNet.PetriNet(MXT_P_NR_STATES, Auto::FIRE);
-//	mPetriNet.transition(hal_e::LB_START, NULL, to, f);
+
 }
 
 RunManager::~RunManager()

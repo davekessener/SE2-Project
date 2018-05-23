@@ -5,7 +5,7 @@
 #include "IManager.h"
 #include "lib/enum.h"
 #include "hal/hal.h"
-
+#include "lib/petri_net.h"
 
 namespace esep
 {
@@ -14,11 +14,11 @@ namespace esep
 		class RunManager : public IManager
 		{
 			private:
-			typedef enum class Auto {FIRE} auto_t;
+			enum class Auto {FIRE};
 			typedef communication::Packet::msg_t message;
-			typedef hal::HAL::Event hal_e;
-			typedef tml::MakeCompoundEnum<hal_e, communication::Message::Run, auto_t> petriEvents;
-			//typedef lib::PetriNet<petriEvents> petri_t;
+			typedef hal::HAL::Event Event;
+			typedef tml::MakeCompoundEnum<Event, communication::Message::Run, Auto> petriEvents_t;
+			typedef lib::PetriNet<petriEvents_t> petri_t;
 
 			public:
 			   RunManager(communication::IRecipient *);
@@ -30,7 +30,7 @@ namespace esep
 
 			private:
 			   communication::IRecipient * mMaster;
-			   //petri_t mPetriNet;
+			   petri_t mLogic;
 		};
 	}
 }
