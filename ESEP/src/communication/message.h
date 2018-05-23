@@ -50,10 +50,13 @@ namespace esep
 				NEW_ITEM,
 				REACHED_END,
 				RAMP_FULL,
+				IN_HEIGHTSENSOR,
 				ANALYSE,  // analyse item at switch (Base -> Master)
 				RESUME, // start motor (Master -> Base)
 				SUSPEND, // stop motor (Master -> Base)
-				KEEP_NEXT  // open switch (Master -> Base)
+				KEEP_NEXT,  // open switch (Master -> Base)
+				END_FREE,
+				EXPECT_NEW
 			};
 
 			private:

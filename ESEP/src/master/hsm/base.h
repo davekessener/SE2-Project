@@ -5,6 +5,8 @@
 
 #include "master/types.h"
 
+#include "communication/packet.h"
+
 namespace esep
 {
 	namespace master
@@ -13,12 +15,15 @@ namespace esep
 		{
 			class Base
 			{
+				protected:
+				typedef communication::Packet_ptr Packet_ptr;
+
 				public:
 				MXT_DEFINE_E(UnhandledEventException);
 
 				public:
 					virtual ~Base( ) { }
-					virtual void handle(event_t);
+					virtual void handle(Packet_ptr);
 			};
 		}
 	}

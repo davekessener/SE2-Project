@@ -25,50 +25,54 @@ namespace esep
 			MXT_DEFINE_E(UnknownStateException);
 			MXT_DEFINE_E(AmbiguousTransitionException);
 
-			template<typename> class Hierarchy;
+			template<typename, typename> class Hierarchy;
 			template<typename> class Machine;
 			template<typename> class Leaf;
 
 			template<typename B>
 			class State : public B
 			{
+				typedef State<B> state_t;
+
 				public:
 					virtual ~State( ) { }
 
-					virtual void initial(State *) = 0;
+					virtual void initial(state_t *) = 0;
 
 				protected:
 					virtual void enter( ) { }
 					virtual void leave( ) { }
 
-					State *parent( ) { return mParent; }
+					state_t *parent( ) { return mParent; }
 
-					virtual State *current( ) = 0;
-					virtual void current(State *) = 0;
+					virtual state_t *current( ) = 0;
+					virtual void current(state_t *) = 0;
 					virtual void history( ) = 0;
 
 				private:
-					State(State *parent)
+					State(state_t *parent)
 						: mParent(parent)
 					{
 					}
 
 				private:
-					State *mParent;
+					state_t *mParent;
 
-					template<typename>
+					template<typename, typename>
 					friend class Hierarchy;
 
-					friend class Machine;
-					friend class Leaf;
+					friend class Machine<B>;
+					friend class Leaf<B>;
 			};
 
 			template<typename B>
 			class Machine : public State<B>
 			{
+				typedef State<B> state_t;
+
 				public:
-					Machine(bool history = false, State *parent = nullptr)
-						: State(parent)
+					Machine(bool history, state_t *parent)
+						: state_t(parent)
 						, mHistory(history)
 						, mCurrent(nullptr)
 						, mStart(nullptr)
@@ -77,10 +81,10 @@ namespace esep
 					virtual ~Machine( ) { }
 
 				protected:
-					virtual State *current( ) override final { return mCurrent; }
-					virtual void current(State *s) override final { mCurrent = s; }
+					virtual state_t *current( ) override final { return mCurrent; }
+					virtual void current(state_t *s) override final { mCurrent = s; }
 					virtual void history( ) override final { if(!mHistory) mCurrent = mStart; }
-					virtual void initial(State *s) override final
+					virtual void initial(state_t *s) override final
 					{
 						if(mStart)
 							MXT_THROW_EX(OverrideInitialStateException);
@@ -90,15 +94,17 @@ namespace esep
 
 				private:
 					bool mHistory;
-					State *mCurrent, *mStart;
+					state_t *mCurrent, *mStart;
 			};
 
 			template<typename B>
 			class Leaf : public State<B>
 			{
+				typedef State<B> state_t;
+
 				public:
-					Leaf(State *parent)
-						: State(parent)
+					Leaf(state_t *parent)
+						: state_t(parent)
 					{
 						if(!parent)
 							MXT_THROW_EX(SingularStateMachine);
@@ -106,9 +112,9 @@ namespace esep
 					virtual ~Leaf( ) { }
 
 				protected:
-					virtual State *current( ) override final { return nullptr; }
-					virtual void current(State *) override final { }
-					virtual void initial(State *) override final { MXT_THROW_EX(InvalidOperationException); }
+					virtual state_t *current( ) override final { return nullptr; }
+					virtual void current(state_t *) override final { }
+					virtual void initial(state_t *) override final { MXT_THROW_EX(InvalidOperationException); }
 					virtual void history( ) override final { }
 			};
 
@@ -133,6 +139,8 @@ namespace esep
 				typedef typename types::key_type key_type;
 
 				public:
+					Hierarchy( ) : mCurrent(nullptr) { }
+
 					bool process(const T& e)
 					{
 						if(!mCurrent)
@@ -167,7 +175,10 @@ namespace esep
 							c->leave();
 						}
 
-						f(*mCurrent, *s, e);
+						if(static_cast<bool>(f))
+						{
+							f(*mCurrent, *s, e);
+						}
 
 						std::function<void(state_t *)> enter_tree = [&](state_t *a) {
 							if(a != c)
@@ -185,8 +196,10 @@ namespace esep
 						return true;
 					}
 
+					state_t *getActive( ) { return mCurrent; }
+
 				private:
-					Hierarchy(State *i, typename types::states_t&& states, typename types::transitions_t&& trans)
+					Hierarchy(state_t *i, typename types::states_t&& states, typename types::transitions_t&& trans)
 						: mStates(std::move(states))
 						, mTransitions(std::move(trans))
 					{
@@ -269,9 +282,9 @@ namespace esep
 						mInitial.reset(s);
 					}
 
-					Hierarchy<T> build( )
+					Hierarchy<T, B> build( )
 					{
-						return Hierarchy<T>(mInitial.release(), std::move(mStates), std::move(mTransitions));
+						return Hierarchy<T, B>(mInitial.release(), std::move(mStates), std::move(mTransitions));
 					}
 
 				private:

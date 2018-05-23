@@ -1,10 +1,12 @@
 #include "master/hsm/base.h"
 
-namespace esep { namespace master {
+#include "lib/logger.h"
 
-void Base::handle(event_t e)
+namespace esep { namespace master { namespace hsm {
+
+void Base::handle(Packet_ptr p)
 {
-	MXT_THROW_EX(UnhandledEventException);
+	MXT_LOG_INFO("Received packet {", p->source(), ", ", lib::hex<16>(p->message()), "}!");
 }
 
-}}
+}}}

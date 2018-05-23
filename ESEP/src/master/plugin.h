@@ -14,6 +14,7 @@ namespace esep
 			public:
 			enum class Action : uint8_t
 			{
+				VOID,
 				KEEP,
 				TOSS_M,
 				TOSS_S,
@@ -22,6 +23,8 @@ namespace esep
 
 			enum class Type : uint8_t
 			{
+				UNKNOWN,
+				DEFAULT
 			};
 
 			typedef std::vector<data::Data_ptr> data_t;
