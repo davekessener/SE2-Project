@@ -308,7 +308,7 @@
 <name>
 <value>VorEinlauf_2</value>
 <graphics>
-<offset x="38.0" y="-6.0"/>
+<offset x="50.5" y="45.25"/>
 </graphics>
 </name>
 <initialMarking>
@@ -410,7 +410,7 @@
 </graphics>
 </name>
 <orientation>
-<value>0</value>
+<value>180</value>
 </orientation>
 <rate>
 <value>1.0</value>
@@ -557,7 +557,7 @@
 </transition>
 <transition id="M2_DIS_END">
 <graphics>
-<position x="1815.0" y="258.46153846153845"/>
+<position x="1815.0" y="255.0"/>
 </graphics>
 <name>
 <value>M2_DIS_END</value>
@@ -749,6 +749,32 @@
 </name>
 <orientation>
 <value>0</value>
+</orientation>
+<rate>
+<value>1.0</value>
+</rate>
+<timed>
+<value>false</value>
+</timed>
+<infiniteServer>
+<value>false</value>
+</infiniteServer>
+<priority>
+<value>1</value>
+</priority>
+</transition>
+<transition id="M2_NEW_2">
+<graphics>
+<position x="1203.75" y="93.75"/>
+</graphics>
+<name>
+<value>M2_NEW_2</value>
+<graphics>
+<offset x="35.0" y="-3.75"/>
+</graphics>
+</name>
+<orientation>
+<value>270</value>
 </orientation>
 <rate>
 <value>1.0</value>
@@ -1098,7 +1124,7 @@
 <tagged>
 <value>false</value>
 </tagged>
-<arcpath id="000" x="260" y="968" curvePoint="false"/>
+<arcpath id="000" x="168" y="623" curvePoint="false"/>
 <arcpath id="001" x="246" y="756" curvePoint="false"/>
 <type value="normal"/>
 </arc>
@@ -1439,7 +1465,7 @@
 <tagged>
 <value>false</value>
 </tagged>
-<arcpath id="000" x="900" y="221" curvePoint="false"/>
+<arcpath id="000" x="901" y="220" curvePoint="false"/>
 <arcpath id="001" x="986" y="220" curvePoint="false"/>
 <type value="normal"/>
 </arc>
@@ -1582,7 +1608,7 @@
 <tagged>
 <value>false</value>
 </tagged>
-<arcpath id="000" x="1820" y="275" curvePoint="false"/>
+<arcpath id="000" x="1820" y="271" curvePoint="false"/>
 <arcpath id="001" x="1300" y="397" curvePoint="false"/>
 <type value="normal"/>
 </arc>
@@ -1648,7 +1674,7 @@
 <value>false</value>
 </tagged>
 <arcpath id="000" x="1136" y="836" curvePoint="false"/>
-<arcpath id="001" x="2066" y="656" curvePoint="false"/>
+<arcpath id="001" x="1281" y="415" curvePoint="false"/>
 <type value="normal"/>
 </arc>
 <arc id="T6 to Running" source="T6" target="Running">
@@ -1688,7 +1714,7 @@
 <tagged>
 <value>false</value>
 </tagged>
-<arcpath id="000" x="246" y="761" curvePoint="false"/>
+<arcpath id="000" x="246" y="766" curvePoint="false"/>
 <arcpath id="001" x="161" y="761" curvePoint="false"/>
 <arcpath id="002" x="161" y="626" curvePoint="false"/>
 <type value="normal"/>
@@ -1716,7 +1742,7 @@
 <value>false</value>
 </tagged>
 <arcpath id="000" x="806" y="221" curvePoint="false"/>
-<arcpath id="001" x="890" y="221" curvePoint="false"/>
+<arcpath id="001" x="891" y="220" curvePoint="false"/>
 <type value="normal"/>
 </arc>
 <arc id="VorAuslauf_1 to T16" source="VorAuslauf_1" target="M1_DIS_END">
@@ -1754,9 +1780,22 @@
 <tagged>
 <value>false</value>
 </tagged>
-<arcpath id="000" x="1763" y="229" curvePoint="false"/>
-<arcpath id="001" x="1821" y="265" curvePoint="false"/>
+<arcpath id="000" x="1763" y="228" curvePoint="false"/>
+<arcpath id="001" x="1821" y="261" curvePoint="false"/>
 <type value="normal"/>
+</arc>
+<arc id="VorEinlauf_2 to M2_NEW_2" source="VorEinlauf_2" target="M2_NEW_2">
+<graphics/>
+<inscription>
+<value/>
+<graphics/>
+</inscription>
+<tagged>
+<value/>
+</tagged>
+<arcpath id="000" x="1211" y="206" curvePoint="false"/>
+<arcpath id="001" x="1215" y="110" curvePoint="false"/>
+<type value="inhibitor"/>
 </arc>
 <arc id="VorEinlauf_2 to T17" source="VorEinlauf_2" target="M2_NEW">
 <graphics/>
