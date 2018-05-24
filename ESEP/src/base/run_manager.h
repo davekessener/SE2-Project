@@ -24,10 +24,10 @@ namespace esep
 
 			typedef communication::Packet_ptr Packet_ptr;
 			typedef communication::Packet::msg_t msg_t;
-			typedef communication::Message Message;
+			typedef communication::Message::Run Message;
 			typedef communication::Packet::Location Location;
 			typedef hal::HAL::Event Event;
-			typedef tml::MakeCompoundEnum<Event, Message::Run, run::TimerEvent, Auto> petriEvents_t;
+			typedef tml::MakeCompoundEnum<Event, Message, run::TimerEvent, Auto> petriEvents_t;
 			typedef lib::PetriNet<petriEvents_t> petri_t;
 			typedef lib::Timer Timer;
 

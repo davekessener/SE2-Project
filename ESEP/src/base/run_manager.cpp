@@ -37,6 +37,7 @@ void RunManager::leave()
 
 void RunManager::handle(Event e)
 {
+	// TODO check if the LB is broken or not!
 	mLogic.process(e);
 }
 
@@ -44,17 +45,17 @@ void RunManager::accept(Packet_ptr p)
 {
 	msg_t m = p->message();
 
-	if(m.is<Message::Run>())
+	if(m.is<Message>())
 	{
 		//takes only messages of the type Run
-		Message::Run runM = m.as<Message::Run>();
+		Message runM = m.as<Message>();
 		switch(MXT_CAST(runM))
 		{
-		case(MXT_CAST(Message::Run::RESUME)):
+		case(MXT_CAST(Message::RESUME)):
 				HAL_MOTOR.right();
 				break;
 
-		case(MXT_CAST(Message::Run::SUSPEND)):
+		case(MXT_CAST(Message::SUSPEND)):
 				HAL_MOTOR.stop();
 				break;
 
@@ -65,7 +66,7 @@ void RunManager::accept(Packet_ptr p)
 	}
 	else
 	{
-		MXT_LOG_WARN("Received unexpected packet { Source:", lib::hex<8>(p->source()), ", Target:", lib::hex<8>(p->target()), ", Msg: ", lib::hex<8>(m.as<Message::Run>()), "}");
+		MXT_LOG_WARN("Received unexpected packet { Source:", lib::hex<8>(p->source()), ", Target:", lib::hex<8>(p->target()), ", Msg: ", lib::hex<8>(m.as<Message>()), "}");
 	}
 }
 
