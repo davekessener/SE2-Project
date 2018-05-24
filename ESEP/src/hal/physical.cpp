@@ -45,7 +45,7 @@ Physical::Physical(void)
 			mConnection = channel.connect();
 			// Send a Code::INTERRUPT pulse msg when an interrupt in GPIO Block 0 occurs
 			channel.registerInterruptListener(mConnection, *mGPIOs[0], static_cast<int8_t>(Code::INTERRUPT));
-
+			// Send a Code::ANALOG_SET pulse msg when an interrupt in ADC occurs
 			channel.registerADC(mConnection, *mADC, static_cast<int8_t>(Code::ANALOG_SET));
 
 			updateSensors();

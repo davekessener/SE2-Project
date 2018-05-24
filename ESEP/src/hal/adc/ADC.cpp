@@ -1,37 +1,15 @@
-/**
- * @file 		ADC.cpp
- * @brief		This module controls and configures the ADC of the BeagleboneBlack
- * @date 		03.11.2017
- * @author: 	T Jaehnichen
- *				HAW-Hamburg
- *          	Labor f�r technische Informatik
- *          	Berliner Tor  7
- *          	D-20099 Hamburg
- * @version 	1
- * @details		
- * @copybrief	Based on the StarterWareFree for AM335X provided by Texas Instrument
- *				
- */
-
 
 #include <sys/neutrino.h>
 
 #include "ADC.h"
 #include "lib/logger.h"
 
-#define ADC_FIFO0_VALUE 		6
-#define ADC_TSC_GENINT 	 		16
+#define ADC_TSC_GENINT 	 	16
+#define MXT_BUFSIZE 		50
+#define MXT_FREQ 			100
+#define MXT_CLOCK 			(MXT_FREQ * MXT_BUFSIZE)
 
 namespace esep { namespace hal { namespace adc {
-
-namespace
-{
-	enum ADC_PULSE_CODE : unsigned short {
-		EndOfSequenzNotReached = 0,
-		FIFO0Value = 1,
-		FIFO1Value = 2
-	};
-}
 
 class ADC::Impl
 {
@@ -55,10 +33,6 @@ class ADC::Impl
 		int interruptID;
 		struct sigevent e;
 };
-
-#define MXT_BUFSIZE 50
-#define MXT_FREQ 100
-#define MXT_CLOCK (MXT_FREQ * MXT_BUFSIZE)
 
 const struct sigevent* ADC::Impl::adcISR(void* arg, int id)
 {
@@ -119,13 +93,14 @@ ADC::Impl::Impl(void)
 {
 	if (-1 == ThreadCtl(_NTO_TCTL_IO, 0))
 	{
-		MXT_THROW("Thread could not aquire hw priviliges");
+		MXT_THROW_EX(ADC::NoHwPriviligesException);
 	}
 
 	init();
 }
 
-void ADC::Impl::registerAdcISR(uint cid, int8_t code){
+void ADC::Impl::registerAdcISR(uint cid, int8_t code)
+{
 	__asm(" dsb");
 
 	/* Clear the status of all interrupts */
@@ -134,8 +109,9 @@ void ADC::Impl::registerAdcISR(uint cid, int8_t code){
 	SIGEV_PULSE_INIT(&e, cid, SIGEV_PULSE_PRIO_INHERIT, code, 0);
 
 	interruptID = InterruptAttach(ADC_TSC_GENINT, Impl::adcISR, this, sizeof(ADC), 0);
-	if(interruptID == -1){
-		MXT_THROW("InterruptAttach failed");
+	if(interruptID == -1)
+	{
+		MXT_THROW_EX(ADC::InterruptAttachException);
 	}
 
 	/* Clear the status of all interrupts */
@@ -147,16 +123,20 @@ void ADC::Impl::registerAdcISR(uint cid, int8_t code){
 	adcEnable(1);
 }
 
-void ADC::Impl::unregisterAdcISR(void){
-	if( InterruptDetach(interruptID) < 0){
-		MXT_THROW("could not detach adc interrupt handler");
+void ADC::Impl::unregisterAdcISR(void)
+{
+	if( InterruptDetach(interruptID) < 0)
+	{
+		MXT_THROW_EX(ADC::InterruptDetachException);
 	}
+
 	tscadc.eventInterruptDisable(END_OF_SEQUENCE_INT);
 
 	cleanUpInterrupts();
 }
 
-void ADC::Impl::init(void) {
+void ADC::Impl::init(void)
+{
 	/* Configures ADC to 3Mhz */
 	tscadc.configureAFEClock(24000000, MXT_CLOCK);
 
@@ -183,8 +163,8 @@ void ADC::Impl::init(void) {
 
 }
 
-void ADC::Impl::stepConfigure(unsigned int stepSel, Fifo fifo,
-		PositiveInput positiveInpChannel) {
+void ADC::Impl::stepConfigure(unsigned int stepSel, Fifo fifo, PositiveInput positiveInpChannel)
+{
     /* Configure ADC to Single ended operation mode */
     tscadc.tsStepOperationModeControl(SINGLE_ENDED_OPER_MODE, stepSel);
 
@@ -214,24 +194,27 @@ void ADC::Impl::stepConfigure(unsigned int stepSel, Fifo fifo,
  *
  * @return 	None
  */
-void ADC::Impl::adcEnable(unsigned int steps) {
+void ADC::Impl::adcEnable(unsigned int steps)
+{
 	tscadc.moduleStateSet(false);
 	int maxSteps = steps<16?steps:16;
-	for(int i=1; i<=maxSteps; i++){
+	for(int i=1; i<=maxSteps; i++)
+	{
 		tscadc.configureStepEnable(i, true);
 	}
 	tscadc.moduleStateSet(true);
 }
 
-void ADC::Impl::adcDisable(void){
+void ADC::Impl::adcDisable(void)
+{
 	tscadc.moduleStateSet(false);
 }
 
-void ADC::Impl::cleanUpInterrupts(void){
+void ADC::Impl::cleanUpInterrupts(void)
+{
 	tscadc.intStatusClear(0x7FF);
 	tscadc.intStatusClear(0x7FF);
 	tscadc.intStatusClear(0x7FF);
 }
-
 
 }}}
