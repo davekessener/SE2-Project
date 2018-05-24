@@ -22,7 +22,7 @@ namespace esep
 				};
 
 				Location(Type v) : DataPoint(DataPoint::Type::LOCATION), mLocation(v) { }
-				Location getLocation( ) const { return mLocation; }
+				Type location( ) const { return mLocation; }
 
 				static Data_ptr deserialize(lib::ByteStream&);
 

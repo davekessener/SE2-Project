@@ -11,9 +11,12 @@ namespace esep
 		class Base
 		{
 			public:
-				Base(id_t id, uint r, uint p) : mID(id), mRemaining(r), mPeriod(p), mActive(true) { }
+				Base(id_t id, uint r, uint p) : mID(id), mRemaining(r), mPeriod(p), mActive(true), mPaused(false){ }
 				virtual ~Base( ) { }
 				virtual void tick( );
+				virtual void suspend() { mPaused = true; }
+				virtual void resume() { mPaused = false; }
+				virtual bool isPaused() const { return mPaused; }
 				virtual void shutdown( ) { mActive = false; }
 				virtual bool done( ) const { return !mActive; }
 
@@ -27,6 +30,7 @@ namespace esep
 				uint mRemaining;
 				const uint mPeriod;
 				bool mActive;
+				bool mPaused;
 		};
 	}
 }

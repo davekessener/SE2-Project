@@ -5,7 +5,7 @@ namespace esep { namespace data {
 
 void Location::doSerialize(lib::ByteStream& bs) const
 {
-	bs.insert(static_cast<byte_t>(mLocation));
+	bs << mLocation;
 }
 
 Data_ptr Location::deserialize(lib::ByteStream& bs)
