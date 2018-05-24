@@ -71,6 +71,19 @@ namespace esep
 			return ss.str();
 		}
 
+		template<uint B, typename T>
+		std::string bin(const T& v)
+		{
+			std::stringstream ss;
+
+			for(int i = B - 1 ; i >= 0 ; --i)
+			{
+				ss << ((static_cast<uint64_t>(v) & (1 << i)) ? 1 : 0);
+			}
+
+			return ss.str();
+		}
+
 		/**
 		 * The stringify helper function accepts a variable number of arguments which
 		 * are all converted to strings and concatenated by running them through an

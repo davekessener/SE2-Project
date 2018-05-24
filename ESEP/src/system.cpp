@@ -42,6 +42,7 @@ Impl::Impl(void)
 		hal::MetalSensor(mHAL),
 		hal::Motor(mHAL))
 {
+	MXT_LOG_INFO("Creating system object!");
 }
 
 Impl::~Impl(void)

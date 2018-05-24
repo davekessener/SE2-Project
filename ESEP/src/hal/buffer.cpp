@@ -30,7 +30,10 @@ void Buffer::update(Field f, uint32_t v)
 			}
 			break;
 		case Field::ANALOG:
-			mSubscriber(Event::HEIGHT_SENSOR);
+			if(c)
+			{
+				mSubscriber(Event::HEIGHT_SENSOR);
+			}
 			break;
 		default:
 			break;

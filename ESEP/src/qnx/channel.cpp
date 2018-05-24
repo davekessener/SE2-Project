@@ -96,4 +96,9 @@ void Channel::registerTimerListener(Connection& c, int8_t code, uint64_t period)
 	timer_settime(timerid, 0, &timer, nullptr);
 }
 
+void Channel::registerADC(Connection& c, ADC& adc, int8_t code)
+{
+	adc.registerAdcISR(c.mID, code);
+}
+
 }}
