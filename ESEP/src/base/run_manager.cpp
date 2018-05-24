@@ -45,17 +45,17 @@ void RunManager::accept(Packet_ptr p)
 {
 	msg_t m = p->message();
 
-	if(m.is<Message>())
+	if(m.is<runMessage_t>())
 	{
 		//takes only messages of the type Run
-		Message runM = m.as<Message>();
+		runMessage_t runM = m.as<runMessage_t>();
 		switch(MXT_CAST(runM))
 		{
-		case(MXT_CAST(Message::RESUME)):
+		case(MXT_CAST(runMessage_t::RESUME)):
 				HAL_MOTOR.right();
 				break;
 
-		case(MXT_CAST(Message::SUSPEND)):
+		case(MXT_CAST(runMessage_t::SUSPEND)):
 				HAL_MOTOR.stop();
 				break;
 
@@ -66,7 +66,7 @@ void RunManager::accept(Packet_ptr p)
 	}
 	else
 	{
-		MXT_LOG_WARN("Received unexpected packet { Source:", lib::hex<8>(p->source()), ", Target:", lib::hex<8>(p->target()), ", Msg: ", lib::hex<8>(m.as<Message>()), "}");
+		MXT_LOG_WARN("Received unexpected packet { Source:", lib::hex<8>(p->source()), ", Target:", lib::hex<8>(p->target()), ", Msg: ", lib::hex<8>(m.as<runMessage_t>()), "}");
 	}
 }
 

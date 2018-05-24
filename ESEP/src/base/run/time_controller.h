@@ -9,6 +9,8 @@
 #define SRC_BASE_RUN_TIMER_H
 
 #include <functional>
+#include <deque>
+#include <array>
 
 #include "lib/timer.h"
 #include "lib/timer/types.h"
@@ -25,17 +27,20 @@ namespace esep
 			class TimeCtrl
 			{
 				typedef std::function<void(TimerEvent)> callback_fn;
-				typedef std::map<id_t, timer::Manager> timerMap_t;
+				typedef std::array<std::deque<timer::Manager>, 14> timerArray_t;
+
+				public:
+					MXT_DEFINE_E(TimerAccessExsception);
 
 				public:
 					TimeCtrl(callback_fn);
-					void setTimer(id_t itemID, TimerEvent, uint, uint = 0);
-					void deleteTimer(id_t itemID);
+					void setTimer(State, TimerEvent, uint, uint = 0);
+					void deleteTimer(State);
 					void pauseAllTimer();
 					void resumeAllTimer();
 
 				private:
-					timerMap_t mTimer;
+					timerArray_t mTimer;
 					callback_fn mCallback;
 			};
 		}
