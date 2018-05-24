@@ -4,7 +4,7 @@ namespace esep { namespace base {
 
 void RunManager::initLogic()
 {
-	printf("sd");
+	//mLogic.transition(Message::Run::, from, to, f)
 }
 
 }}
