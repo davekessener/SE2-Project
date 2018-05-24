@@ -15,9 +15,12 @@ namespace esep
 		{
 			private:
 			enum class Auto {FIRE};
-			typedef communication::Packet::msg_t message;
+			typedef communication::Packet_ptr Packet_ptr;
+			typedef communication::Packet::msg_t msg_t;
+			typedef communication::Message Message;
+			typedef communication::Packet::Location Location;
 			typedef hal::HAL::Event Event;
-			typedef tml::MakeCompoundEnum<Event, communication::Message::Run, Auto> petriEvents_t;
+			typedef tml::MakeCompoundEnum<Event, Message::Run, Auto> petriEvents_t;
 			typedef lib::PetriNet<petriEvents_t> petri_t;
 
 			public:
@@ -25,8 +28,11 @@ namespace esep
 			   ~RunManager();
 			   void enter() override;
 			   void leave() override;
-			   void handle(hal::HAL::Event) override;
-			   void accept(communication::Packet_ptr) override;
+			   void handle(Event) override;
+			   void accept(Packet_ptr) override;
+
+			private:
+			   void initLogic();
 
 			private:
 			   communication::IRecipient * mMaster;
