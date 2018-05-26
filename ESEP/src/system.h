@@ -17,6 +17,7 @@
 #include "hal/motor.h"
 #include "hal/switch.h"
 
+
 #define HAL_BUTTONS			::esep::System::instance().get<::esep::hal::Buttons>()
 #define HAL_HEIGHT_SENSOR	::esep::System::instance().get<::esep::hal::HeightSensor>()
 #define HAL_LEDS			::esep::System::instance().get<::esep::hal::LEDs>()
@@ -57,6 +58,7 @@ namespace esep
 			private:
 				hal::HAL *mHAL;
 				hal_t mHALObjects;
+				base::ConfigObject mConfig;
 		};
 	}
 

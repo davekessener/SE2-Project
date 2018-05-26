@@ -8,6 +8,8 @@
 #include "hal/buttons.h"
 #include "hal/height_sensor.h"
 
+#include "base/config_object.h"
+
 #include "lib/timer.h"
 
 namespace esep { namespace test { namespace functional {
@@ -21,7 +23,8 @@ void testHeightSensor(const lib::Arguments& args)
 
 	hal::Physical hal;
 	hal::Buttons btns(&hal);
-	hal::HeightSensor height(&hal);
+	base::ConfigObject config;
+	hal::HeightSensor height(&hal, &config);
 
 	std::atomic<bool> running(true);
 

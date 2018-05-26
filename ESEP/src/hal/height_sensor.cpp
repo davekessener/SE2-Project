@@ -32,21 +32,19 @@ uint16_t HeightSensor::measureNormalized(uint16_t val)
 {
 	uint16_t min = mConfig->heightSensorMin();
 	uint16_t max = mConfig->heightSensorMax();
+	uint16_t margin = (min-max) * MXT_QUARTER;
 
-	uint16_t lowerLimit = min + MXT_QUARTERT * max;
-	uint16_t upperLimit = max;
-
-	if (val < upperLimit)
+	if (val < max)
 	{
-		return upperLimit;
+		return (min-max-margin);
 	}
-	else if (val > lowerLimit)
+	else if (val > (min-margin))
 	{
-		return lowerLimit;
+		return 0;
 	}
 	else
 	{
-		return val;
+		return (min-margin-val);
 	}
 
 }
