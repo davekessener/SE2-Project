@@ -44,7 +44,6 @@ namespace esep
 			   void leave() override;
 			   void handle(Event) override;
 			   void accept(Packet_ptr) override;
-			   void acceptTimerEvent(run::TimerEvent);
 
 			private:
 			   void initLogic();

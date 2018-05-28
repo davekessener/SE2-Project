@@ -27,8 +27,6 @@ namespace esep
 				STATE_14,
 			};
 
-
-
 			enum class HalEvent : uint8_t
 			{
 				LB_START,

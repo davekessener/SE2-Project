@@ -87,6 +87,9 @@ void RunManager::accept(Packet_ptr p)
 				HAL_MOTOR.stop();
 				break;
 
+		case(MXT_CAST(runMessage_t::TIMER)):
+				p->
+
 		//if its not resume or suspend, proceed this msg to logic
 		default:
 				mLogic.process(runM);

@@ -28,8 +28,8 @@ namespace esep
 				SWITCH_3,
 			};
 
-				RunManagerTimer(Type v) : DataPoint(DataPoint::Type::LOCATION), mLocation(v) { }
-				Type location( ) const { return mLocation; }
+				RunManagerTimer(TimerEvent v) : DataPoint(DataPoint::Type::RUN_MANAGER_TIMER), mEvent(v) { }
+				TimerEvent event( ) const { return mEvent; }
 
 				static Data_ptr deserialize(lib::ByteStream&);
 
@@ -37,7 +37,7 @@ namespace esep
 				void doSerialize(lib::ByteStream&) const override;
 
 			private:
-				const Type mLocation;
+				const TimerEvent mEvent;
 		};
 	}
 }
