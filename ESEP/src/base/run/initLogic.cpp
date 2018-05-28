@@ -105,11 +105,10 @@ void RunManager::initLogic()
 			{},
 			[this](void)
 			{
-				this->sendMasterMessage(runMessage_t::ITEM_APPEARED);
+				this->sendMasterMessage(runMessage_t::ITEM_APPEARED, data::Location::Type::LB_HEIGHTSENSOR);
 			});
 
 	//--------- Hoehenmessung bis zum Switch
-
 	//TIMER_HS_1
 	mLogic.transition(run::TimerEvent::HS_1,
 			{{MXT_CAST(State::STATE_5), 1}},
@@ -164,9 +163,6 @@ void RunManager::initLogic()
 				this->sendErrorMessage(runMessage_t::ITEM_APPEARED, data::Location::Type::LB_SWITCH);
 			});
 
-
-
-
 	//--------- Switch und Rampe
 	//KEEP_NEXT
 	mLogic.transition(runMessage_t::KEEP_NEXT,
@@ -207,7 +203,7 @@ void RunManager::initLogic()
 			{},
 			[this](void)
 			{
-				this->sendMasterMessage(runMessage_t::ITEM_APPEARED);
+				this->sendMasterMessage(runMessage_t::ITEM_APPEARED, data::Location::Type::LB_RAMP);
 			});
 	//TIMER_RAMP
 	mLogic.transition(run::TimerEvent::RAMP,
