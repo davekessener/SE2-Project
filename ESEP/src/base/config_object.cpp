@@ -87,7 +87,8 @@ bool ConfigObject::isValid()
 			&& mStartToHs > 0
 			&& mHsToSwitch > 0
 			&& mSwitchToEnd > 0
-			&& mSlowFactor > 0));
+			&& mSlowFactor > 0
+			&& mTimeTolerance > 0));
 }
 
 void ConfigObject::setHeightSensorMin(uint16_t val)

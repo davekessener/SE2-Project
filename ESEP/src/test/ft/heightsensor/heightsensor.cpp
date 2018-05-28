@@ -26,6 +26,27 @@ void testHeightSensor(const lib::Arguments& args)
 	base::ConfigObject config;
 	hal::HeightSensor height(&hal, &config);
 
+
+	//Set config params
+	config.setHeightSensorMax(0b10001111);
+	config.setHeightSensorMin(0b11100010);
+	config.setHsToSwitch(1);
+	config.setSlowFactor(0.5);
+	config.setStartToHs(1);
+	config.setSwitchToEnd(1);
+	config.setTimeTolerance(0.5);
+
+	if(config.isValid())
+	{
+		std::cout << "Valid ConfigObject!" << std::endl;
+	}
+	else
+	{
+
+		std::cout << "Invalid ConfigObject!" << std::endl;
+	}
+
+
 	std::atomic<bool> running(true);
 
 	hal.setCallback([&](Event e) {

@@ -1,7 +1,7 @@
 #include "hal/height_sensor.h"
 
 #define MXT_BM_VALID (1 << 4)
-#define MXT_QUARTER (1/4)
+#define MXT_MAX 0xFFFF
 
 namespace esep { namespace hal {
 
@@ -30,22 +30,26 @@ bool HeightSensor::isValid(void)
 
 uint16_t HeightSensor::measureNormalized(uint16_t val)
 {
-	uint16_t min = mConfig->heightSensorMin();
-	uint16_t max = mConfig->heightSensorMax();
-	uint16_t margin = (min-max) * MXT_QUARTER;
+	uint16_t min_sensor = mConfig->heightSensorMax();
+	uint16_t max_sensor = mConfig->heightSensorMin();
 
-	if (val < max)
+	uint16_t range = max_sensor - min_sensor;
+	uint16_t r = 0;
+
+	if (val < min_sensor - range / 4)
 	{
-		return (min-max-margin);
+		r = 0;
 	}
-	else if (val > (min-margin))
+	else if (val > max_sensor - range / 4)
 	{
-		return 0;
+		r = MXT_MAX;
 	}
 	else
 	{
-		return (min-margin-val);
+		r = (val - min_sensor) * MXT_MAX / range ;
 	}
+
+	return ~r;
 
 }
 
