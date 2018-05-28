@@ -41,6 +41,7 @@ void RunManager::initLogic()
 			{{MXT_CAST(State::STATE_2), 1}},
 			[this](void)
 			{
+				this->mTimeCtrl.deleteTimer(State::STATE_1);
 				this->mTimeCtrl.setTimer(State::STATE_2, run::TimerEvent::START_1, MXT_TIME_IN_LB);
 			});
 	//LB_START_2
@@ -52,8 +53,8 @@ void RunManager::initLogic()
 				this->mTimeCtrl.setTimer(State::STATE_2, run::TimerEvent::START_1, MXT_TIME_IN_LB);
 			});
 	//TIMER_START_1
-	mLogic.transition(run::TimerEvent::EXPECT_NEW,
-			{{MXT_CAST(State::STATE_1), 1}},
+	mLogic.transition(run::TimerEvent::START_1,
+			{{MXT_CAST(State::STATE_2), 1}},
 			{},
 			[this](void)
 			{
@@ -65,11 +66,12 @@ void RunManager::initLogic()
 			{{MXT_CAST(State::STATE_3), 1}},
 			[this](void)
 			{
+				this->mTimeCtrl.deleteTimer(State::STATE_2);
 				auto minTimeStartToHs = computeMinTime(MXT_CONFIG->startToHs());
 				minTimeStartToHs =- minTimeStartToHs * MXT_CONFIG->timeTolerance();
 				this->mTimeCtrl.setTimer(State::STATE_3, run::TimerEvent::ITEM_READY_HS, minTimeStartToHs);
 			});
-	//TIMER_START_2
+	//ITEM_READY_HS
 	mLogic.transition(run::TimerEvent::ITEM_READY_HS,
 			{{MXT_CAST(State::STATE_3), 1}},
 			{{MXT_CAST(State::STATE_4), 1}},
@@ -82,12 +84,21 @@ void RunManager::initLogic()
 				maxTimeStartToHs =+ maxTimeStartToHs * MXT_CONFIG->timeTolerance();
 				this->mTimeCtrl.setTimer(State::STATE_4, run::TimerEvent::START_2, maxTimeStartToHs-minTimeStartToHs);
 			});
+	//TIMER_START_2
+	mLogic.transition(run::TimerEvent::START_2,
+			{{MXT_CAST(State::STATE_4), 1}},
+			{},
+			[this](void)
+			{
+				this->sendErrorMessage(runMessage_t::ITEM_DISAPPEARED, data::Location::Type::LB_START);
+			});
 	//LB_HS
 	mLogic.transition(run::HalEvent::LB_HS,
 			{{MXT_CAST(State::STATE_4), 1}},
 			{{MXT_CAST(State::STATE_5), 1}},
 			[this](void)
 			{
+				this->mTimeCtrl.deleteTimer(State::STATE_4);
 				this->mTimeCtrl.setTimer(State::STATE_5, run::TimerEvent::HS_1, MXT_TIME_IN_LB);
 			});
 	//LB_HS_E
@@ -101,7 +112,24 @@ void RunManager::initLogic()
 
 	//--------- Hoehenmessung bis zum Switch
 
+	//LB_SWITCH
+	mLogic.transition(run::HalEvent::LB_SWITCH,
+			{{MXT_CAST(State::STATE_7), 1}},
+			{{MXT_CAST(State::STATE_8), 1}},
+			[this](void)
+			{
+				this->mTimeCtrl.setTimer(State::STATE_8, run::TimerEvent::SWITCH_1, MXT_TIME_IN_LB);
+			});
+
 	//--------- Switch und Rampe
+
+	mLogic.transition(runMessage_t::KEEP_NEXT,
+			{{MXT_CAST(State::STATE_8), 1}},
+			{{MXT_CAST(State::STATE_11), 1}},
+			[this](void)
+			{
+				this->mTimeCtrl.setTimer(State::STATE_8, run::TimerEvent::SWITCH_1, MXT_TIME_IN_LB);
+			});
 
 	//--------- Switch bis zur Ausgabe
 }
