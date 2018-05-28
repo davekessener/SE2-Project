@@ -15,7 +15,9 @@ namespace esep
 			enum class Type : byte_t
 			{
 				METAL_SENSOR,
-				LOCATION
+				LOCATION,
+				RUN_MANAGER_TIMER,
+				HEIGHT_MAP,
 			};
 
 			public:

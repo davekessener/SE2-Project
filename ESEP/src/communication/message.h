@@ -59,6 +59,7 @@ namespace esep
 				EXPECT_NEW,
 				ITEM_APPEARED,
 				ITEM_DISAPPEARED,
+				TIMER,
 			};
 
 			private:

@@ -27,21 +27,7 @@ namespace esep
 				STATE_14,
 			};
 
-			enum class TimerEvent : uint8_t
-			{
-				EXPECT_NEW,
-				START_1,
-				ITEM_READY_HS,
-				START_2,
-				HS_1,
-				ITEM_READY_SWITCH,
-				HS_2,
-				SWITCH_1,
-				RAMP,
-				SWITCH_2,
-				ITEM_READY_END,
-				SWITCH_3,
-			};
+
 
 			enum class HalEvent : uint8_t
 			{

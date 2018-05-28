@@ -40,48 +40,33 @@ void RunManager::leave()
 
 void RunManager::handle(Event e)
 {
+	run::HalEvent he;
 	switch(MXT_CAST(e))
 	{
 		case(MXT_CAST(halEvent_t::LB_START)):
-			{
-				run::HalEvent he = HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_START) ? run::HalEvent::LB_START : run::HalEvent::I_LB_START;
-				mLogic.process(he);
-				break;
-			}
+			he = HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_START) ? run::HalEvent::LB_START : run::HalEvent::I_LB_START;
+			break;
 
 		case(MXT_CAST(halEvent_t::LB_HEIGHTSENSOR)):
-			{
-				run::HalEvent he = HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_HEIGHTSENSOR) ? run::HalEvent::LB_HS : run::HalEvent::I_LB_HS;
-				mLogic.process(he);
-				break;
-			}
+			mLogic.process(HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_HEIGHTSENSOR) ? run::HalEvent::LB_HS : run::HalEvent::I_LB_HS);
+			break;
 
 		case(MXT_CAST(halEvent_t::LB_SWITCH)):
-			{
-				run::HalEvent he = HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_SWITCH) ? run::HalEvent::LB_SWITCH : run::HalEvent::I_LB_SWITCH;
-				mLogic.process(he);
-				break;
-			}
+			he = HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_SWITCH) ? run::HalEvent::LB_SWITCH : run::HalEvent::I_LB_SWITCH;
+			break;
 
 		case(MXT_CAST(halEvent_t::LB_RAMP)):
-			{
-				run::HalEvent he = HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_RAMP) ? run::HalEvent::LB_RAMP : run::HalEvent::I_LB_RAMP;
-				mLogic.process(he);
-				break;
-			}
+			he = HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_RAMP) ? run::HalEvent::LB_RAMP : run::HalEvent::I_LB_RAMP;
+			break;
 
 		case(MXT_CAST(halEvent_t::LB_END)):
-			{
-				run::HalEvent he = HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_END) ? run::HalEvent::LB_END : run::HalEvent::I_LB_END;
-				mLogic.process(he);
-				break;
-			}
+			he = HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_END) ? run::HalEvent::LB_END : run::HalEvent::I_LB_END;
+			break;
 
 		default:
-			{
-				MXT_THROW_E(UndefinedEventException, lib::stringify("There is no definition for the hal::HAL::Event ", MXT_CAST(e)));
-			}
+			return;
 	}
+	mLogic.process(he);
 }
 
 void RunManager::accept(Packet_ptr p)
