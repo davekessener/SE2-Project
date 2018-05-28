@@ -50,7 +50,8 @@ namespace esep
 			   void initLogic();
 			   uint32_t computeMinTime(uint32_t time);
 			   uint32_t computeMaxTime(uint32_t time);
-			   void sendErrorMessage(runMessage_t msg, data::Location::Type location);
+			   void sendMasterMessage(runMessage_t msg, data::Location::Type location);
+			   void sendMasterMessage(runMessage_t msg);
 
 			private:
 			   communication::IRecipient * mMaster;

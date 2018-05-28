@@ -16,8 +16,6 @@ namespace esep { namespace base {
 
 void RunManager::initLogic()
 {
-	auto noFunc = [](void){};
-
 	//--------- Eingabe bis zur Hoehenmessung
 	//EXPECT_NEW
 	mLogic.transition(runMessage_t::EXPECT_NEW,
@@ -33,7 +31,7 @@ void RunManager::initLogic()
 			{},
 			[this](void)
 			{
-				this->sendErrorMessage(runMessage_t::ITEM_DISAPPEARED, data::Location::Type::HAND_OVER);
+				this->sendMasterMessage(runMessage_t::ITEM_DISAPPEARED, data::Location::Type::HAND_OVER);
 			});
 	//LB_START_1
 	mLogic.transition(run::HalEvent::LB_START,
@@ -58,7 +56,7 @@ void RunManager::initLogic()
 			{},
 			[this](void)
 			{
-				this->sendErrorMessage(runMessage_t::ITEM_DISAPPEARED, data::Location::Type::LB_START);
+				this->sendMasterMessage(runMessage_t::ITEM_DISAPPEARED, data::Location::Type::LB_START);
 			});
 	//!LB_START
 	mLogic.transition(run::HalEvent::I_LB_START,
@@ -90,7 +88,7 @@ void RunManager::initLogic()
 			{},
 			[this](void)
 			{
-				this->sendErrorMessage(runMessage_t::ITEM_DISAPPEARED, data::Location::Type::LB_START);
+				this->sendMasterMessage(runMessage_t::ITEM_DISAPPEARED, data::Location::Type::LB_START);
 			});
 	//LB_HS
 	mLogic.transition(run::HalEvent::LB_HS,
@@ -107,7 +105,7 @@ void RunManager::initLogic()
 			{},
 			[this](void)
 			{
-				this->sendErrorMessage(runMessage_t::ITEM_APPEARED, data::Location::Type::LB_HEIGHTSENSOR);
+				this->sendMasterMessage(runMessage_t::ITEM_APPEARED);
 			});
 
 	//--------- Hoehenmessung bis zum Switch
@@ -122,16 +120,116 @@ void RunManager::initLogic()
 			});
 
 	//--------- Switch und Rampe
-
+	//KEEP_NEXT
 	mLogic.transition(runMessage_t::KEEP_NEXT,
 			{{MXT_CAST(State::STATE_8), 1}},
 			{{MXT_CAST(State::STATE_11), 1}},
 			[this](void)
 			{
-				this->mTimeCtrl.setTimer(State::STATE_8, run::TimerEvent::SWITCH_1, MXT_TIME_IN_LB);
+				this->mTimeCtrl.deleteTimer(State::STATE_8);
+				this->mTimeCtrl.setTimer(State::STATE_11, run::TimerEvent::SWITCH_2, MXT_TIME_IN_LB);
+			});
+	//TIMER_SWITCH_1
+	mLogic.transition(run::TimerEvent::SWITCH_1,
+			{{MXT_CAST(State::STATE_8), 1}},
+			{},
+			[this](void)
+			{
+				this->sendMasterMessage(runMessage_t::ITEM_DISAPPEARED, data::Location::Type::LB_SWITCH);
+			});
+	//!LB_SWITCH
+	mLogic.transition(run::HalEvent::I_LB_SWITCH,
+			{{MXT_CAST(State::STATE_8), 1}},
+			{{MXT_CAST(State::STATE_9), 1}},
+			[this](void)
+			{
+				this->mTimeCtrl.deleteTimer(State::STATE_8);
+			});
+	//LB_RAMP
+	mLogic.transition(run::HalEvent::LB_RAMP,
+			{{MXT_CAST(State::STATE_9), 1}},
+			{{MXT_CAST(State::STATE_10), 1}},
+			[this](void)
+			{
+				this->mTimeCtrl.setTimer(State::STATE_10, run::TimerEvent::RAMP, MXT_TIME_IN_LB);
+			});
+	//LB_RAMP_E
+	mLogic.transition(run::HalEvent::LB_RAMP,
+			{{MXT_CAST(State::STATE_9), 0}},
+			{},
+			[this](void)
+			{
+				this->sendMasterMessage(runMessage_t::ITEM_APPEARED);
+			});
+	//TIMER_RAMP
+	mLogic.transition(run::TimerEvent::RAMP,
+			{{MXT_CAST(State::STATE_10), 1}},
+			{},
+			[this](void)
+			{
+				this->sendMasterMessage(runMessage_t::RAMP_FULL, data::Location::Type::LB_RAMP);
+			});
+	//TIMER_RAMP
+	mLogic.transition(run::HalEvent::I_LB_RAMP,
+			{{MXT_CAST(State::STATE_10), 1}},
+			{},
+			[this](void)
+			{
+				this->mTimeCtrl.deleteTimer(State::STATE_10);
 			});
 
 	//--------- Switch bis zur Ausgabe
+	//TIMER_SWITCH_2
+	mLogic.transition(run::TimerEvent::SWITCH_2,
+			{{MXT_CAST(State::STATE_11), 1}},
+			{},
+			[this](void)
+			{
+				this->sendMasterMessage(runMessage_t::ITEM_DISAPPEARED, data::Location::Type::LB_SWITCH);
+			});
+	//!LB_SWITCH_2
+	mLogic.transition(run::TimerEvent::SWITCH_2,
+			{{MXT_CAST(State::STATE_11), 1}},
+			{{MXT_CAST(State::STATE_12), 1}},
+			[this](void)
+			{
+				this->mTimeCtrl.deleteTimer(State::STATE_11);
+				this->mTimeCtrl.setTimer(State::STATE_12, run::TimerEvent::ITEM_READY_END, computeMinTime(MXT_CONFIG->switchToEnd()));
+			});
+	//ITEM_READY_END
+	mLogic.transition(run::TimerEvent::ITEM_READY_END,
+			{{MXT_CAST(State::STATE_12), 1}},
+			{{MXT_CAST(State::STATE_13), 1}},
+			[this](void)
+			{
+				auto maxTimeDiff = computeMaxTime(MXT_CONFIG->switchToEnd()) - computeMinTime(MXT_CONFIG->switchToEnd());
+				this->mTimeCtrl.setTimer(State::STATE_13, run::TimerEvent::SWITCH_3, maxTimeDiff);
+			});
+	//TIMER_SWITCH_3
+	mLogic.transition(run::TimerEvent::SWITCH_3,
+			{{MXT_CAST(State::STATE_13), 1}},
+			{},
+			[this](void)
+			{
+				this->sendMasterMessage(runMessage_t::ITEM_DISAPPEARED, data::Location::Type::LB_SWITCH);
+			});
+	//LB_END
+	mLogic.transition(run::HalEvent::LB_END,
+			{{MXT_CAST(State::STATE_13), 1}},
+			{{MXT_CAST(State::STATE_14), 1}},
+			[this](void)
+			{
+				this->mTimeCtrl.deleteTimer(State::STATE_13);
+				this->sendMasterMessage(runMessage_t::REACHED_END);
+			});
+	//!LB_END
+	mLogic.transition(run::HalEvent::I_LB_END,
+			{{MXT_CAST(State::STATE_14), 1}},
+			{},
+			[this](void)
+			{
+				this->sendMasterMessage(runMessage_t::END_FREE);
+			});
 }
 
 uint32_t RunManager::computeMinTime(uint32_t time)
