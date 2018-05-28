@@ -4,7 +4,7 @@ namespace esep { namespace master { namespace hsm {
 
 void Manager::enter(void)
 {
-	com().send(Location::BASE, mMessage);
+	send(Location::BASE, mMessage);
 }
 
 }}}

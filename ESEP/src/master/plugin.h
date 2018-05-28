@@ -41,6 +41,8 @@ namespace esep
 			private:
 				const Type mType;
 		};
+
+		typedef std::unique_ptr<Plugin> Plugin_ptr;
 	}
 }
 

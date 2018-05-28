@@ -68,4 +68,7 @@ namespace esep
 	}
 }
 
+std::ostream& operator<<(std::ostream&, const esep::communication::Packet&);
+inline std::ostream& operator<<(std::ostream& os, const esep::communication::Packet_ptr& p) { return os << *p; }
+
 #endif /* SRC_COMMUNICATION_PACKET_H_ */

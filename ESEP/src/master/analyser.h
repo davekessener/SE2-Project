@@ -27,6 +27,7 @@ namespace esep
 
 				virtual void analyse(Item&, const data_t&) = 0;
 				virtual void evaluate(Item&, const history_t&) = 0;
+				virtual void process(Item&) = 0;
 		};
 	}
 }

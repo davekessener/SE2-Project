@@ -10,7 +10,6 @@
 
 #include "master/types.h"
 #include "master/master.h"
-#include "master/sender.h"
 #include "master/analyser.h"
 
 namespace esep
@@ -33,7 +32,7 @@ namespace esep
 				static constexpr size_t NO_SEGMENTS = 10;
 
 				public:
-					Run(uint, State *, Sender *, Analyser *);
+					Run(uint, State *, IRecipient *, Analyser *);
 
 					void enter( ) override;
 					void leave( ) override;
@@ -42,11 +41,13 @@ namespace esep
 
 				private:
 					history_t history(id_t);
+					void flush( );
 
 				private:
 					Analyser * const mAnalyser;
 					petri_t mLogic;
 					lib::SegmentedBuffer<Item, NO_SEGMENTS> mItems;
+					std::vector<Packet_ptr> mBuffer;
 			};
 		}
 	}

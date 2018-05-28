@@ -4,6 +4,7 @@
 #include "test/unit/unit.h"
 
 #include "master/master.h"
+#include "master/item.h"
 
 namespace esep
 {
@@ -15,6 +16,14 @@ namespace esep
 
 			class MasterLogic : public TestSuite
 			{
+				typedef communication::Packet Packet;
+				typedef communication::Message Message;
+				typedef Packet::Location Location;
+				typedef Packet::msg_t msg_t;
+				typedef master::Plugin Plugin;
+				typedef master::Plugin_ptr Plugin_ptr;
+				typedef master::Item Item;
+
 				public:
 					MasterLogic( );
 
@@ -24,8 +33,12 @@ namespace esep
 					void define( ) override;
 
 				private:
+					void send(Location, msg_t);
+
+				private:
 					BasicRecipient *mCom;
 					master::Master *mMaster;
+					std::vector<Item> mItems;
 			};
 		}
 	}

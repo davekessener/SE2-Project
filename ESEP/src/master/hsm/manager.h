@@ -3,11 +3,10 @@
 
 #include "lib/hsm.h"
 
+#include "communication/IRecipient.h"
 #include "communication/packet.h"
 
 #include "master/hsm/base.h"
-
-#include "master/sender.h"
 
 namespace esep
 {
@@ -19,6 +18,7 @@ namespace esep
 			{
 				typedef lib::hsm::State<Base> State;
 				typedef lib::hsm::Machine<Base> Super;
+				typedef communication::IRecipient IRecipient;
 				typedef communication::Message Message;
 				typedef communication::Packet Packet;
 				typedef communication::Packet_ptr Packet_ptr;
@@ -26,14 +26,15 @@ namespace esep
 				typedef Packet::msg_t msg_t;
 
 				public:
-					Manager(State *p, Sender *r, Message::Base m) : Super(true, p), mCom(r), mMessage(m) { }
+					Manager(State *p, IRecipient *r, Message::Base m) : Super(true, p), mCom(r), mMessage(m) { }
 					void enter( ) override;
 
 				protected:
-					Sender& com( ) { return *mCom; }
+					IRecipient& com( ) { return *mCom; }
+					void send(Location l, msg_t msg) { mCom->accept(std::make_shared<Packet>(Location::MASTER, l, msg)); }
 
 				private:
-					Sender * const mCom;
+					IRecipient * const mCom;
 					Message::Base mMessage;
 			};
 		}

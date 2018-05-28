@@ -7,17 +7,21 @@
 #include "master/hsm/run.h"
 #include "master/hsm/forward.h"
 
+#include "lib/logger.h"
+
 #define MXT_MAX_DEPTH 3
 
 namespace esep { namespace master {
 
-Logic::Logic(Sender *s, Analyser *a)
+Logic::Logic(IRecipient *s, Analyser *a)
 {
 	typedef lib::hsm::State<hsm::Base> State;
 	typedef lib::hsm::Machine<hsm::Base> Machine;
 	typedef lib::hsm::Leaf<hsm::Base> Leaf;
 	typedef std::unique_ptr<State> State_ptr;
 	typedef communication::Message Message;
+
+	mRampFull[0] = mRampFull[1] = false;
 
 	lib::hsm::Builder<event_t, hsm::Base> builder;
 
@@ -59,8 +63,8 @@ Logic::Logic(Sender *s, Analyser *a)
 	builder.transition(error_s, error_both, Event::ERROR);
 	builder.transition(error_both, error_m, Event::fromParts(Location::BASE_S, Message::Master::FIXED));
 	builder.transition(error_both, error_s, Event::fromParts(Location::BASE_M, Message::Master::FIXED));
-	builder.transition(error_m, working, Event::fromParts(Location::BASE_M, Message::Master::FIXED));
-	builder.transition(error_s, working, Event::fromParts(Location::BASE_S, Message::Master::FIXED));
+	builder.transition(error_m, ready, Event::fromParts(Location::BASE_M, Message::Master::FIXED));
+	builder.transition(error_s, ready, Event::fromParts(Location::BASE_S, Message::Master::FIXED));
 
 	builder.transition(idle, config_m1_rdy, Event::fromParts(Location::BASE_M, Message::Master::CONFIG));
 	builder.transition(idle, config_m1_rdy, Event::fromParts(Location::BASE_S, Message::Master::CONFIG));
@@ -71,12 +75,20 @@ Logic::Logic(Sender *s, Analyser *a)
 	builder.transition(ready, run, Event::fromParts(Location::BASE_M, Message::Master::RUN));
 	builder.transition(ready, run, Event::fromParts(Location::BASE_S, Message::Master::RUN));
 
-	builder.transition(run_both_empty, run_m_empty, Event::fromParts(Location::BASE_S, Message::Run::RAMP_FULL));
-	builder.transition(run_both_empty, run_s_empty, Event::fromParts(Location::BASE_M, Message::Run::RAMP_FULL));
+	builder.transition(run_both_empty, run_m_empty, Event::fromParts(Location::BASE_S, Message::Run::RAMP_FULL),
+			[this](State&, State&, event_t) { mRampFull[1] = true; });
+	builder.transition(run_both_empty, run_s_empty, Event::fromParts(Location::BASE_M, Message::Run::RAMP_FULL),
+			[this](State&, State&, event_t) { mRampFull[0] = true; });
 	builder.transition(run_m_empty, run_both_empty, Event::fromParts(Location::BASE_M, Message::Run::RAMP_FULL),
-			[s](State&, State&, event_t) { s->send(Location::MASTER, Message::Error::RAMP_FULL); });
+			[this, s](State&, State&, event_t) {
+				mRampFull[1] = false;
+				s->accept(std::make_shared<Packet>(Location::MASTER, Location::MASTER, Message::Error::RAMP_FULL));
+			});
 	builder.transition(run_s_empty, run_both_empty, Event::fromParts(Location::BASE_S, Message::Run::RAMP_FULL),
-			[s](State&, State&, event_t) { s->send(Location::MASTER, Message::Error::RAMP_FULL); });
+			[this, s](State&, State&, event_t) {
+				mRampFull[0] = false;
+				s->accept(std::make_shared<Packet>(Location::MASTER, Location::MASTER, Message::Error::RAMP_FULL));
+			});
 
 	root->initial(working);
 	working->initial(idle);

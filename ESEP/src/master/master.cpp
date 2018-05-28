@@ -4,17 +4,15 @@
 #include "master/hsm/run.h"
 #include "master/hsm/error.h"
 
-#include "master/plugin/default.h"
-
 #include "lib/logger.h"
 
 namespace esep { namespace master {
 
-Master::Master(IRecipient *com)
+Master::Master(IRecipient *com, item_handler_fn f)
 	: mCom(com)
-	, mLogic(this, this)
+	, mCallback(f)
+	, mLogic(com, this)
 {
-	mPlugins.push_back(new plugin::Default);
 }
 
 Master::~Master(void)
@@ -48,6 +46,8 @@ void Master::analyse(Item& item, const data_t& data)
 	Plugin *m = nullptr;
 	float c = 0.0f;
 
+	item.data().push_back(data);
+
 	for(auto& p : mPlugins)
 	{
 		float t = p->match(data);
@@ -59,24 +59,92 @@ void Master::analyse(Item& item, const data_t& data)
 		}
 	}
 
-	if(item.plugin() && item.plugin() != m)
+	if(m)
 	{
-		MXT_LOG_WARN("Conflicting types for item ", item.ID(), ": previously determined to be ", item.plugin()->type(), ", now it's ", m->type(), "!");
+		if(item.plugin() && item.plugin() != m)
+		{
+			MXT_LOG_WARN("Conflicting types for item ", item.ID(), ": previously determined to be ", item.plugin()->type(), ", now it's ", m->type(), "!");
+
+			item.action(Plugin::Action::TOSS);
+		}
+
+		item.plugin(m);
+	}
+	else
+	{
+		MXT_LOG_WARN("Could not identify item #", lib::hex<32>(item.ID()), "!");
+
 		item.action(Plugin::Action::TOSS);
 	}
-
-	item.plugin(m);
-	item.data().push_back(data);
 }
 
 void Master::evaluate(Item& item, const history_t& history)
 {
-	item.action(item.plugin()->decide(history));
-}
+	auto keep = [this, &item](void) {
+		mCom->accept(std::make_shared<Packet>(Location::MASTER, item.location(), Message::Run::KEEP_NEXT));
+	};
 
-void Master::send(Location l, msg_t msg)
-{
-	mCom->accept(std::make_shared<Packet>(Location::MASTER, l, msg));
+	auto toss = [this, &item, &keep](void) {
+		if(mLogic.isRampFull(item.location()))
+		{
+			if(item.location() == Location::BASE_M)
+			{
+				item.action(Plugin::Action::TOSS_S);
+
+				keep();
+			}
+			else
+			{
+				mCom->accept(std::make_shared<Packet>(Location::BASE_M, Location::MASTER, Message::Run::RAMP_FULL));
+			}
+		}
+	};
+
+	if(item.plugin())
+	{
+		item.action(item.plugin()->decide(history));
+
+		switch(item.action())
+		{
+		case Plugin::Action::KEEP:
+			keep();
+			break;
+
+		case Plugin::Action::TOSS:
+			toss();
+			break;
+
+		case Plugin::Action::TOSS_M:
+			if(item.location() == Location::BASE_M)
+			{
+				toss();
+			}
+			else
+			{
+				keep();
+			}
+			break;
+
+		case Plugin::Action::TOSS_S:
+			if(item.location() == Location::BASE_S)
+			{
+				toss();
+			}
+			else
+			{
+				keep();
+			}
+			break;
+
+		default:
+			MXT_LOG_WARN("Indecisive item #", (int)item.ID());
+			break;
+		}
+	}
+	else
+	{
+		toss();
+	}
 }
 
 }}
