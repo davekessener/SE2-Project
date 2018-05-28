@@ -60,7 +60,7 @@ void testHeightSensor(const lib::Arguments& args)
 			break;
 
 		case Event::HEIGHT_SENSOR:
-			std::cout << lib::bin<12>(height.measure()) << std::endl;
+			std::cout << lib::bin<16>(height.measure()) << std::endl;
 			break;
 
 		default:
