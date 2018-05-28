@@ -1,4 +1,5 @@
 #include <base/run/time_controller.h>
+#include "lib/tml/str.h"
 
 namespace esep { namespace base { namespace run {
 
@@ -37,12 +38,12 @@ void TimeCtrl::setTimer(State state,TimerEvent e, uint r, uint p)
 	uint8_t s = MXT_CAST(state);
 	if(s <= MXT_P_NR_STATES)
 	{
-		auto f = [this, e](void) { mCallback(e); };
+		auto f = [this, e, state](void) { mCallback(e, state); };
 		mTimer[s].push_back(lib::Timer::instance().registerCallback(f, r, p));
 	}
 	else
 	{
-		MXT_THROW_E(TimerAccessExsception, "There is no state with number "+s);
+		MXT_THROW_E(TimerAccessException, lib::stringify("There is no state with number ",s));
 	}
 }
 
@@ -55,7 +56,7 @@ void TimeCtrl::deleteTimer(State state)
 	}
 	else
 	{
-		MXT_THROW_E(TimerAccessExsception, "There is no timer to delete in state "+s);
+		MXT_THROW_E(TimerAccessException, lib::stringify("There is no timer to delete in state ", s));
 	}
 }
 

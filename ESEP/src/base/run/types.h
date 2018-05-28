@@ -42,6 +42,20 @@ namespace esep
 				ITEM_READY_END,
 				SWITCH_3,
 			};
+
+			enum class HalEvent : uint8_t
+			{
+				LB_START,
+				I_LB_START,
+				LB_HS,
+				I_LB_HS,
+				LB_SWITCH,
+				I_LB_SWITCH,
+				LB_RAMP,
+				I_LB_RAMP,
+				LB_END,
+				I_LB_END,
+			};
 		}
 	}
 }

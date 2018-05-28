@@ -10,6 +10,7 @@
 #include "config_object.h"
 #include "run/time_controller.h"
 #include "run/types.h"
+#include "hal/light_barriers.h"
 
 namespace esep
 {
@@ -18,6 +19,7 @@ namespace esep
 		class RunManager : public IManager
 		{
 			public:
+			MXT_DEFINE_E(UndefinedEventException);
 
 			private:
 			enum class Auto : uint8_t {FIRE};
@@ -26,9 +28,10 @@ namespace esep
 			typedef communication::Packet::msg_t msg_t;
 			typedef communication::Message::Run runMessage_t;
 			typedef communication::Packet::Location Location;
-			typedef hal::HAL::Event Event;
+			typedef hal::HAL::Event halEvent_t;
+			typedef hal::LightBarriers::LightBarrier LightBarrier;
 			typedef run::State State;
-			typedef tml::MakeCompoundEnum<Event, runMessage_t, run::TimerEvent, Auto> petriEvents_t;
+			typedef tml::MakeCompoundEnum<run::HalEvent, runMessage_t, run::TimerEvent, Auto> petriEvents_t;
 			typedef lib::PetriNet<petriEvents_t> petri_t;
 			typedef lib::Timer Timer;
 

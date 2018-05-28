@@ -26,11 +26,11 @@ namespace esep
 		{
 			class TimeCtrl
 			{
-				typedef std::function<void(TimerEvent)> callback_fn;
+				typedef std::function<void(TimerEvent, State)> callback_fn;
 				typedef std::array<std::deque<timer::Manager>, 14> timerArray_t;
 
 				public:
-					MXT_DEFINE_E(TimerAccessExsception);
+					MXT_DEFINE_E(TimerAccessException);
 
 				public:
 					TimeCtrl(callback_fn);
