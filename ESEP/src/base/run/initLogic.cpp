@@ -112,6 +112,43 @@ void RunManager::initLogic()
 
 	//--------- Hoehenmessung bis zum Switch
 
+	//TIMER_HS_1
+	mLogic.transition(run::TimerEvent::HS_1,
+			{{MXT_CAST(State::STATE_5), 1}},
+			{},
+			[this](void)
+			{
+				this->sendErrorMessage(runMessage_t::ITEM_DISAPPEARED, data::Location::Type::LB_HEIGHTSENSOR);
+			});
+
+	//!LB_HS
+	mLogic.transition(run::HalEvent::I_LB_HS,
+			{{MXT_CAST(State::STATE_5), 1}},
+			{{MXT_CAST(State::STATE_6), 1}},
+			[this](void)
+			{
+				this->mTimeCtrl.deleteTimer(State::STATE_5);
+				this->mTimeCtrl.setTimer(State::STATE_6, run::TimerEvent::ITEM_READY_SWITCH, computeMinTime(MXT_CONFIG->hsToSwitch()));
+			});
+
+	//ITEM_READY_SWITCH
+	mLogic.transition(run::TimerEvent::ITEM_READY_SWITCH,
+			{{MXT_CAST(State::STATE_6), 1}},
+			{{MXT_CAST(State::STATE_7), 1}},
+			[this](void)
+			{
+				auto maxTimeDiff = computeMaxTime(MXT_CONFIG->hsToSwitch()) - computeMinTime(MXT_CONFIG->hsToSwitch());
+				this->mTimeCtrl.setTimer(State::STATE_7, run::TimerEvent::HS_2, maxTimeDiff);
+			});
+
+	//TIMER_HS_2
+	mLogic.transition(run::TimerEvent::HS_2,
+			{{MXT_CAST(State::STATE_7), 1}},
+			{},
+			[this](void)
+			{
+				this->sendErrorMessage(runMessage_t::ITEM_DISAPPEARED, data::Location::Type::LB_HEIGHTSENSOR);
+			});
 	//LB_SWITCH
 	mLogic.transition(run::HalEvent::LB_SWITCH,
 			{{MXT_CAST(State::STATE_7), 1}},
@@ -120,6 +157,17 @@ void RunManager::initLogic()
 			{
 				this->mTimeCtrl.setTimer(State::STATE_8, run::TimerEvent::SWITCH_1, MXT_TIME_IN_LB);
 			});
+	//LB_SWITCH_E
+	mLogic.transition(run::HalEvent::LB_SWITCH,
+			{{MXT_CAST(State::STATE_7), 0}},
+			{},
+			[this](void)
+			{
+				this->sendErrorMessage(runMessage_t::ITEM_APPEARED, data::Location::Type::LB_SWITCH);
+			});
+
+
+
 
 	//--------- Switch und Rampe
 
