@@ -118,6 +118,9 @@ void RunManager::acceptTimerEvent(run::TimerEvent e)
 	mLogic.process(e);
 }
 
+/**
+ * Sends a error message to master with source BASE and target MASTER
+ */
 void RunManager::sendErrorMessage(runMessage_t msg, data::Location::Type location)
 {
 	auto packet = std::make_shared<communication::Packet>(Location::BASE, Location::MASTER, msg);
