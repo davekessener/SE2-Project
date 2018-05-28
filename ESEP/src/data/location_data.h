@@ -14,6 +14,7 @@ namespace esep
 
 				enum class Type : byte_t
 				{
+					HAND_OVER,
 					LB_START,
 					LB_END,
 					LB_HEIGHTSENSOR,

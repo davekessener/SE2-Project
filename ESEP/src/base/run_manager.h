@@ -11,6 +11,8 @@
 #include "run/time_controller.h"
 #include "run/types.h"
 #include "hal/light_barriers.h"
+#include "data/data_point.h"
+#include "data/location_data.h"
 
 namespace esep
 {
@@ -46,6 +48,9 @@ namespace esep
 
 			private:
 			   void initLogic();
+			   uint32_t computeMinTime(uint32_t time);
+			   uint32_t computeMaxTime(uint32_t time);
+			   void sendErrorMessage(runMessage_t msg, data::Location::Type location);
 
 			private:
 			   communication::IRecipient * mMaster;

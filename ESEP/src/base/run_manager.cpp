@@ -6,6 +6,8 @@
 #include "system.h"
 #include "run/time_controller.h"
 #include "run/types.h"
+#include "data/location_data.h"
+#include "data/data_point.h"
 
 namespace esep { namespace base {
 
@@ -114,6 +116,14 @@ void RunManager::accept(Packet_ptr p)
 void RunManager::acceptTimerEvent(run::TimerEvent e)
 {
 	mLogic.process(e);
+}
+
+void RunManager::sendErrorMessage(runMessage_t msg, data::Location::Type location)
+{
+	auto packet = std::make_shared<communication::Packet>(Location::BASE, Location::MASTER, msg);
+	auto data = std::make_shared<data::Location>(location);
+	packet->addDataPoint(data);
+	mMaster->accept(packet);
 }
 
 }

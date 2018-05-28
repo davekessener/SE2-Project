@@ -6,17 +6,19 @@
 #include "system.h"
 #include "types.h"
 
+
 namespace esep { namespace base {
 
 #define MXT_TIME_FOR_EXPCT_NEW	3000
 #define MXT_TIME_IN_LB			3000
-#define MXT_CREATE_PACKET(m) 	std::make_shared<communication::Packet>(Location::BASE, Location::MASTER, m)
 #define MXT_CAST(t)				static_cast<uint8_t>(t)
+#define MXT_CONFIG				this->mConfigData
 
 void RunManager::initLogic()
 {
 	auto noFunc = [](void){};
 
+	//--------- Eingabe bis zur Hoehenmessung
 	//EXPECT_NEW
 	mLogic.transition(runMessage_t::EXPECT_NEW,
 			{},
@@ -31,9 +33,7 @@ void RunManager::initLogic()
 			{},
 			[this](void)
 			{
-				auto p = MXT_CREATE_PACKET(runMessage_t::ITEM_DISAPPEARED);
-				//p->addDataPoint(std::make_shared<data::DataPoint>(data::Location()))
-				this->mMaster->accept(p);
+				this->sendErrorMessage(runMessage_t::ITEM_DISAPPEARED, data::Location::Type::HAND_OVER);
 			});
 	//LB_START_1
 	mLogic.transition(run::HalEvent::LB_START,
@@ -57,8 +57,63 @@ void RunManager::initLogic()
 			{},
 			[this](void)
 			{
-				this->mMaster->accept(MXT_CREATE_PACKET(runMessage_t::ITEM_DISAPPEARED));
+				this->sendErrorMessage(runMessage_t::ITEM_DISAPPEARED, data::Location::Type::LB_START);
 			});
+	//!LB_START
+	mLogic.transition(run::HalEvent::I_LB_START,
+			{{MXT_CAST(State::STATE_2), 1}},
+			{{MXT_CAST(State::STATE_3), 1}},
+			[this](void)
+			{
+				auto minTimeStartToHs = computeMinTime(MXT_CONFIG->startToHs());
+				minTimeStartToHs =- minTimeStartToHs * MXT_CONFIG->timeTolerance();
+				this->mTimeCtrl.setTimer(State::STATE_3, run::TimerEvent::ITEM_READY_HS, minTimeStartToHs);
+			});
+	//TIMER_START_2
+	mLogic.transition(run::TimerEvent::ITEM_READY_HS,
+			{{MXT_CAST(State::STATE_3), 1}},
+			{{MXT_CAST(State::STATE_4), 1}},
+			[this](void)
+			{
+				auto minTimeStartToHs = computeMinTime(MXT_CONFIG->startToHs());
+				minTimeStartToHs =- minTimeStartToHs * MXT_CONFIG->timeTolerance();
+
+				auto maxTimeStartToHs = computeMaxTime(MXT_CONFIG->startToHs());
+				maxTimeStartToHs =+ maxTimeStartToHs * MXT_CONFIG->timeTolerance();
+				this->mTimeCtrl.setTimer(State::STATE_4, run::TimerEvent::START_2, maxTimeStartToHs-minTimeStartToHs);
+			});
+	//LB_HS
+	mLogic.transition(run::HalEvent::LB_HS,
+			{{MXT_CAST(State::STATE_4), 1}},
+			{{MXT_CAST(State::STATE_5), 1}},
+			[this](void)
+			{
+				this->mTimeCtrl.setTimer(State::STATE_5, run::TimerEvent::HS_1, MXT_TIME_IN_LB);
+			});
+	//LB_HS_E
+	mLogic.transition(run::HalEvent::LB_HS,
+			{{MXT_CAST(State::STATE_4), 0}},
+			{},
+			[this](void)
+			{
+				this->sendErrorMessage(runMessage_t::ITEM_APPEARED, data::Location::Type::LB_HEIGHTSENSOR);
+			});
+
+	//--------- Hoehenmessung bis zum Switch
+
+	//--------- Switch und Rampe
+
+	//--------- Switch bis zur Ausgabe
+}
+
+uint32_t RunManager::computeMinTime(uint32_t time)
+{
+	return time-(time*mConfigData->TOLERANCE);
+}
+
+uint32_t RunManager::computeMaxTime(uint32_t time)
+{
+	return time+(time*mConfigData->TOLERANCE);
 }
 
 }}
