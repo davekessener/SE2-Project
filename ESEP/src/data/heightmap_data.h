@@ -1,5 +1,5 @@
-#ifndef ESEP_DATA_LOCATION_H
-#define ESEP_DATA_LOCATION_H
+#ifndef ESEP_DATA_HEIGHTMAP_H
+#define ESEP_DATA_HEIGHTMAP_H
 
 #include "data/data_point.h"
 
@@ -9,11 +9,8 @@ namespace esep
 	{
 		class HeightMap : public DataPoint
 		{
-
 			public:
-
-				Location(Type v) : DataPoint(DataPoint::Type::LOCATION), mLocation(v) { }
-				Type location( ) const { return mLocation; }
+				HeightMap(Type v) : DataPoint(DataPoint::Type::HEIGHT_MAP) { }
 
 				static Data_ptr deserialize(lib::ByteStream&);
 
@@ -21,7 +18,6 @@ namespace esep
 				void doSerialize(lib::ByteStream&) const override;
 
 			private:
-				const ;
 		};
 	}
 }

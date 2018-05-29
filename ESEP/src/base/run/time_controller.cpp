@@ -38,7 +38,7 @@ void TimeCtrl::setTimer(State state,TimerEvent e, uint r, uint p)
 	uint8_t s = MXT_CAST(state);
 	if(s <= MXT_P_NR_STATES)
 	{
-		auto f = [this, e, state](void) { mCallback(e, state); };
+		auto f = [this, e](void) { mCallback(e); };
 		mTimer[s].push_back(lib::Timer::instance().registerCallback(f, r, p));
 	}
 	else

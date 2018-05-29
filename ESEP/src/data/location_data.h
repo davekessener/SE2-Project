@@ -1,5 +1,5 @@
-#ifndef ESEP_DATA_LOCATION_H
-#define ESEP_DATA_LOCATION_H
+#ifndef ESEP_DATA_LOCATION_DATA_H
+#define ESEP_DATA_LOCATION_DATA_H
 
 #include "data/data_point.h"
 

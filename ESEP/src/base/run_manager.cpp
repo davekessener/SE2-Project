@@ -1,3 +1,4 @@
+#include <memory>
 #include "run_manager.h"
 #include "lib/petri_net.h"
 #include "lib/timer.h"
@@ -17,7 +18,7 @@ namespace esep { namespace base {
 RunManager::RunManager(communication::IRecipient* m, ConfigObject * c)
 	:	mMaster(m)
 	,	mConfigData(c)
-	,	mTimeCtrl([this](run::TimerEvent e, run::State s){ acceptTimerEvent(e); this->mTimeCtrl.deleteTimer(s); })
+	,	mTimeCtrl([this](TimerEvent e){ this->sendMessage(Location::BASE, runMessage_t::TIMER, std::make_shared<data::RunManagerTimer>(e)); })
 	,	mLogic(MXT_P_NR_STATES, Auto::FIRE)
 {
 	initLogic();
@@ -88,7 +89,15 @@ void RunManager::accept(Packet_ptr p)
 				break;
 
 		case(MXT_CAST(runMessage_t::TIMER)):
-				p->
+				for (auto& d : *p)
+				{
+					if(d->type() == data::DataPoint::Type::RUN_MANAGER_TIMER)
+					{
+						//takes timer event
+						mLogic.process((static_cast<data::RunManagerTimer&>(*d).event()));
+					}
+				}
+				break;
 
 		//if its not resume or suspend, proceed this msg to logic
 		default:
@@ -101,25 +110,16 @@ void RunManager::accept(Packet_ptr p)
 	}
 }
 
-void RunManager::acceptTimerEvent(run::TimerEvent e)
-{
-	mLogic.process(e);
-}
-
-/**
- * Sends a message to master with source BASE and target MASTER
- */
-void RunManager::sendMasterMessage(runMessage_t msg, data::Location::Type location)
-{
-	auto packet = std::make_shared<communication::Packet>(Location::BASE, Location::MASTER, msg);
-	auto data = std::make_shared<data::Location>(location);
-	packet->addDataPoint(data);
-	mMaster->accept(packet);
-}
-
 void RunManager::sendMasterMessage(runMessage_t msg)
 {
 	mMaster->accept(std::make_shared<communication::Packet>(Location::BASE, Location::MASTER, msg));
+}
+
+void RunManager::sendMessage(Location target, runMessage_t msg, data::Data_ptr data)
+{
+	auto packet = std::make_shared<communication::Packet>(Location::BASE, target, msg);
+	packet->addDataPoint(data);
+	mMaster->accept(packet);
 }
 
 }

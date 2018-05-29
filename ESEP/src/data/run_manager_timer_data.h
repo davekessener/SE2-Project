@@ -1,5 +1,5 @@
-#ifndef ESEP_DATA_LOCATION_H
-#define ESEP_DATA_LOCATION_H
+#ifndef ESEP_DATA_RUN_MANAGER_TIMER_H
+#define ESEP_DATA_RUN_MANAGER_TIMER_H
 
 #include "data/data_point.h"
 

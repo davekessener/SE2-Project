@@ -16,6 +16,8 @@
 #include "lib/timer/types.h"
 #include "lib/timer/manager.h"
 #include "types.h"
+#include "data/data_point.h"
+#include "data/run_manager_timer_data.h"
 
 
 namespace esep
@@ -26,7 +28,8 @@ namespace esep
 		{
 			class TimeCtrl
 			{
-				typedef std::function<void(TimerEvent, State)> callback_fn;
+				typedef data::RunManagerTimer::TimerEvent TimerEvent;
+				typedef std::function<void(TimerEvent)> callback_fn;
 				typedef std::array<std::deque<timer::Manager>, 14> timerArray_t;
 
 				public:

@@ -1,4 +1,4 @@
-#include <data/location_data.h>
+#include <data/run_manager_timer_data.h>
 #include "data/data_manager.h"
 
 namespace esep { namespace data {
@@ -15,7 +15,7 @@ Data_ptr RunManagerTimer::deserialize(lib::ByteStream& bs)
 		MXT_THROW_EX(DataManager::UnexpectedEOSException);
 	}
 
-	return Data_ptr(new TimerEvent(static_cast<TimerEvent> (bs.remove())));
+	return Data_ptr(new RunManagerTimer(static_cast<TimerEvent> (bs.remove())));
 }
 
 }}
