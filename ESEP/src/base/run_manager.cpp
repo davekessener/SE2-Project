@@ -18,7 +18,7 @@ namespace esep { namespace base {
 RunManager::RunManager(communication::IRecipient* m, ConfigObject * c)
 	:	mMaster(m)
 	,	mConfigData(c)
-	,	mTimeCtrl([this](TimerEvent e){ this->sendMessage(Location::BASE, runMessage_t::TIMER, std::make_shared<data::RunManagerTimer>(e)); })
+	,	mTimeCtrl([this](TimerEvent e){ this->sendMessageWithData(Location::BASE, runMessage_t::TIMER, std::make_shared<data::RunManagerTimer>(e)); })
 	,	mLogic(MXT_P_NR_STATES, Auto::FIRE)
 {
 	initLogic();
@@ -81,6 +81,7 @@ void RunManager::accept(Packet_ptr p)
 		{
 		case(MXT_CAST(runMessage_t::RESUME)):
 				HAL_MOTOR.right();
+				HAL_MOTOR.start();
 				break;
 
 		case(MXT_CAST(runMessage_t::SUSPEND)):
@@ -114,7 +115,7 @@ void RunManager::sendMasterMessage(runMessage_t msg)
 	mMaster->accept(std::make_shared<communication::Packet>(Location::BASE, Location::MASTER, msg));
 }
 
-void RunManager::sendMessage(Location target, runMessage_t msg, data::Data_ptr data)
+void RunManager::sendMessageWithData(Location target, runMessage_t msg, data::Data_ptr data)
 {
 	auto packet = std::make_shared<communication::Packet>(Location::BASE, target, msg);
 	packet->addDataPoint(data);

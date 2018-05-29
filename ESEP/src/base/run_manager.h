@@ -53,7 +53,7 @@ namespace esep
 			   uint32_t computeMinTime(uint32_t time);
 			   uint32_t computeMaxTime(uint32_t time);
 			   void sendMasterMessage(runMessage_t msg);
-			   void sendMessage(Location target, runMessage_t msg, data::Data_ptr data);
+			   void sendMessageWithData(Location target, runMessage_t msg, data::Data_ptr data);
 
 			private:
 			   communication::IRecipient * mMaster;
