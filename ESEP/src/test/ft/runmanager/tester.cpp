@@ -104,7 +104,7 @@ void Tester::accept(Packet_ptr p)
 				break;
 
 			case Message::Config::DONE:
-				send(Message::Run::SUSPEND);
+				send(Message::Base::VALID);
 				break;
 
 			default:
