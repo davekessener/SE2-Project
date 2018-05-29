@@ -6,10 +6,13 @@
 
 #include "lib/logger.h"
 
+#include "base/idle/idle_manager.h"
+#include "base/idle/ready_manager.h"
+#include "base/idle/valid_manager.h"
+
 #include "base/config_manager.h"
-#include "base/idle_manager.h"
-#include "base/ready_manager.h"
 #include "base/error_manager.h"
+#include "base/run_manager.h"
 
 #include "system.h"
 
@@ -17,13 +20,16 @@ namespace esep { namespace base {
 
 typedef hal::Buttons::Button Button;
 
-Handler::Handler( )
+Handler::Handler(ConfigObject *co)
 	: mMaster(nullptr)
+	, mConfigData(co)
 	, mRunning(true)
 {
-	mIdleManager.reset(new IdleManager(this));
+	mIdleManager.reset(new IdleManager(this, mConfigData));
+	mValidManager.reset(new ValidManager(this));
 	mReadyManager.reset(new ReadyManager(this));
-	mConfigManager.reset(new ConfigManager(this, &mConfigData));
+	mConfigManager.reset(new ConfigManager(this, mConfigData));
+	mRunManager.reset(new RunManager(this, mConfigData));
 
 	mCurrentManager = mIdleManager.get();
 
@@ -128,13 +134,12 @@ void Handler::switchManager(Message::Base msg)
 		break;
 
 	case Message::Base::RUN:
-		MXT_LOG_WARN("RunManager not implemented yet!");
-		mRunning = false;
-//		m = mRunManager.get(); TODO
+		MXT_LOG_INFO("Switching to Run");
+		m = mRunManager.get();
 		break;
 
 	case Message::Base::CONFIG:
-		MXT_LOG_INFO("Switching to ConfigManager");
+		MXT_LOG_INFO("Switching to Config");
 		m = mConfigManager.get();
 		break;
 
@@ -146,6 +151,11 @@ void Handler::switchManager(Message::Base msg)
 	case Message::Base::READY:
 		MXT_LOG_INFO("Switching to Ready");
 		m = mReadyManager.get();
+		break;
+
+	case Message::Base::VALID:
+		MXT_LOG_INFO("Switching to Valid");
+		m = mValidManager.get();
 		break;
 	}
 

@@ -83,10 +83,10 @@ void RunManager::initLogic()
 			[this](void)
 			{
 				auto minTimeStartToHs = computeMinTime(MXT_CONFIG->startToHs());
-				minTimeStartToHs =- minTimeStartToHs * MXT_CONFIG->timeTolerance();
+				minTimeStartToHs *= 1 - MXT_CONFIG->timeTolerance();
 
 				auto maxTimeStartToHs = computeMaxTime(MXT_CONFIG->startToHs());
-				maxTimeStartToHs =+ maxTimeStartToHs * MXT_CONFIG->timeTolerance();
+				maxTimeStartToHs *= 1 + MXT_CONFIG->timeTolerance();
 				this->mTimeCtrl.setTimer(State::STATE_4, TimerEvent::START_2, maxTimeStartToHs-minTimeStartToHs);
 			});
 	//TIMER_START_2
@@ -285,12 +285,12 @@ void RunManager::initLogic()
 
 uint32_t RunManager::computeMinTime(uint32_t time)
 {
-	return time-(time*mConfigData->TOLERANCE);
+	return time * (1 - mConfigData->TOLERANCE);
 }
 
 uint32_t RunManager::computeMaxTime(uint32_t time)
 {
-	return time+(time*mConfigData->TOLERANCE);
+	return time * (1 + mConfigData->TOLERANCE);
 }
 
 }}

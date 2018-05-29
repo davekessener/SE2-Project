@@ -91,7 +91,7 @@ void Impl::run(const lib::Arguments& args)
 
 	std::unique_ptr<communication::IRecipient> master;
 	std::unique_ptr<communication::Base> com;
-	base::Handler handler;
+	base::Handler handler(&mConfig);
 
 	Connection_ptr c(new serial::ActualConnection(MXT_DEFAULT_DEVICE));
 	Client_ptr bsp(new serial::BSPClient(std::move(c)));

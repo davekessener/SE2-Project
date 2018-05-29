@@ -26,17 +26,16 @@ RunManager::RunManager(communication::IRecipient* m, ConfigObject * c)
 
 RunManager::~RunManager()
 {
-
 }
 
 void RunManager::enter()
 {
-
+	mTimeCtrl.resumeAllTimer();
 }
 
 void RunManager::leave()
 {
-
+	mTimeCtrl.pauseAllTimer();
 }
 
 void RunManager::handle(Event e)
