@@ -1,5 +1,5 @@
-#ifndef ESEP_DATA_LOCATION_DATA_H
-#define ESEP_DATA_LOCATION_DATA_H
+#ifndef ESEP_DATA_LOCATION_H
+#define ESEP_DATA_LOCATION_H
 
 #include "data/data_point.h"
 
@@ -9,12 +9,9 @@ namespace esep
 	{
 		class Location : public DataPoint
 		{
-
 			public:
-
 				enum class Type : byte_t
 				{
-					HAND_OVER,
 					LB_START,
 					LB_END,
 					LB_HEIGHTSENSOR,

@@ -17,7 +17,7 @@ namespace esep
 				METAL_SENSOR,
 				LOCATION,
 				RUN_MANAGER_TIMER,
-				HEIGHT_MAP,
+				HEIGHT_MAP
 			};
 
 			public:

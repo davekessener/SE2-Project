@@ -25,57 +25,66 @@ namespace esep
 			MXT_DEFINE_E(UnknownStateException);
 			MXT_DEFINE_E(AmbiguousTransitionException);
 
-			template<typename T> class Hierarchy;
+			template<typename, typename> class Hierarchy;
+			template<typename> class Machine;
+			template<typename> class Leaf;
 
-			class State
+			template<typename B>
+			class State : public B
 			{
+				typedef State<B> state_t;
+
 				public:
 					virtual ~State( ) { }
 
-					virtual void initial(State *) = 0;
+					virtual void initial(state_t *) = 0;
 
 				protected:
 					virtual void enter( ) { }
 					virtual void leave( ) { }
 
-					State *parent( ) { return mParent; }
+					state_t *parent( ) { return mParent; }
 
-					virtual State *current( ) = 0;
-					virtual void current(State *) = 0;
+					virtual state_t *current( ) = 0;
+					virtual void current(state_t *) = 0;
 					virtual void history( ) = 0;
 
 				private:
-					State(State *parent)
+					State(state_t *parent)
 						: mParent(parent)
 					{
 					}
 
 				private:
-					State *mParent;
+					state_t *mParent;
 
-					template<typename T>
+					template<typename, typename>
 					friend class Hierarchy;
 
-					friend class Machine;
-					friend class Leaf;
+					friend class Machine<B>;
+					friend class Leaf<B>;
 			};
 
-			class Machine : public State
+			template<typename B>
+			class Machine : public State<B>
 			{
+				typedef State<B> state_t;
+
 				public:
-					Machine(bool history = false, State *parent = nullptr)
-						: State(parent)
+					Machine(bool history, state_t *parent)
+						: state_t(parent)
 						, mHistory(history)
 						, mCurrent(nullptr)
 						, mStart(nullptr)
 					{
 					}
+					virtual ~Machine( ) { }
 
 				protected:
-					virtual State *current( ) override final { return mCurrent; }
-					virtual void current(State *s) override final { mCurrent = s; }
+					virtual state_t *current( ) override final { return mCurrent; }
+					virtual void current(state_t *s) override final { mCurrent = s; }
 					virtual void history( ) override final { if(!mHistory) mCurrent = mStart; }
-					virtual void initial(State *s) override final
+					virtual void initial(state_t *s) override final
 					{
 						if(mStart)
 							MXT_THROW_EX(OverrideInitialStateException);
@@ -85,55 +94,64 @@ namespace esep
 
 				private:
 					bool mHistory;
-					State *mCurrent, *mStart;
+					state_t *mCurrent, *mStart;
 			};
 
-			class Leaf : public State
+			template<typename B>
+			class Leaf : public State<B>
 			{
+				typedef State<B> state_t;
+
 				public:
-					Leaf(State *parent)
-						: State(parent)
+					Leaf(state_t *parent)
+						: state_t(parent)
 					{
 						if(!parent)
 							MXT_THROW_EX(SingularStateMachine);
 					}
+					virtual ~Leaf( ) { }
 
 				protected:
-					virtual State *current( ) override final { return nullptr; }
-					virtual void current(State *) override final { }
-					virtual void initial(State *) override final { MXT_THROW_EX(InvalidOperationException); }
+					virtual state_t *current( ) override final { return nullptr; }
+					virtual void current(state_t *) override final { }
+					virtual void initial(state_t *) override final { MXT_THROW_EX(InvalidOperationException); }
 					virtual void history( ) override final { }
 			};
 
-			template<typename T>
+			template<typename T, typename B>
 			struct Types
 			{
-				typedef std::function<void(State&, State&, const T&)> transition_fn;
-				typedef std::pair<State *, T> key_type;
-				typedef std::pair<State *, transition_fn> value_type;
+				typedef State<B> state_t;
+				typedef std::function<void(state_t&, state_t&, const T&)> transition_fn;
+				typedef std::pair<state_t *, T> key_type;
+				typedef std::pair<state_t *, transition_fn> value_type;
 				typedef std::map<key_type, value_type> transitions_t;
-				typedef std::set<State *> states_t;
+				typedef std::set<state_t *> states_t;
 			};
 
-			template<typename T> struct Builder;
+			template<typename, typename> struct Builder;
 
-			template<typename T>
+			template<typename T, typename B>
 			class Hierarchy
 			{
-				typedef Types<T> types;
+				typedef Types<T, B> types;
+				typedef typename types::state_t state_t;
+				typedef typename types::key_type key_type;
 
 				public:
+					Hierarchy( ) : mCurrent(nullptr) { }
+
 					bool process(const T& e)
 					{
 						if(!mCurrent)
 							MXT_THROW_EX(IllegalStateException);
 
 						auto t = mTransitions.end();
-						State *s = mCurrent;
+						state_t *s = mCurrent;
 
 						do
 						{
-							if((t = mTransitions.find(typename types::key_type(s, e))) != mTransitions.end()) break;
+							if((t = mTransitions.find(key_type(s, e))) != mTransitions.end()) break;
 						}
 						while((s = s->parent()));
 
@@ -144,10 +162,10 @@ namespace esep
 
 						s = t->second.first;
 						auto f = t->second.second;
-						std::function<bool(State *, State *)> is_ancestor = [&](State *s1, State *s2) -> bool
+						std::function<bool(state_t *, state_t *)> is_ancestor = [&](state_t *s1, state_t *s2) -> bool
 							{ return s2 == nullptr ? false : (s1 == s2) ? true : is_ancestor(s1, s2->parent()); };
 
-						State *c = mCurrent;
+						state_t *c = mCurrent;
 						for(; !is_ancestor(c, s) ; c = c->parent())
 						{
 							if(!c)
@@ -157,9 +175,12 @@ namespace esep
 							c->leave();
 						}
 
-						f(*mCurrent, *s, e);
+						if(static_cast<bool>(f))
+						{
+							f(*mCurrent, *s, e);
+						}
 
-						std::function<void(State *)> enter_tree = [&](State *a) {
+						std::function<void(state_t *)> enter_tree = [&](state_t *a) {
 							if(a != c)
 							{
 								enter_tree(a->parent());
@@ -175,8 +196,10 @@ namespace esep
 						return true;
 					}
 
+					state_t *getActive( ) { return mCurrent; }
+
 				private:
-					Hierarchy(State *i, typename types::states_t&& states, typename types::transitions_t&& trans)
+					Hierarchy(state_t *i, typename types::states_t&& states, typename types::transitions_t&& trans)
 						: mStates(std::move(states))
 						, mTransitions(std::move(trans))
 					{
@@ -188,7 +211,7 @@ namespace esep
 						mCurrent = i;
 					}
 
-					void enterState(State *s)
+					void enterState(state_t *s)
 					{
 						do
 						{
@@ -200,36 +223,41 @@ namespace esep
 				private:
 					typename types::states_t mStates;
 					typename types::transitions_t mTransitions;
-					State *mCurrent;
+					state_t *mCurrent;
 
-					friend class Builder<T>;
+					friend class Builder<T, B>;
 			};
 
-			template<typename T>
+			template
+			<
+				typename T,
+				typename B = tml::Null
+			>
 			class Builder
 			{
-				typedef Types<T> types;
+				typedef Types<T, B> types;
+				typedef typename types::state_t state_t;
 
 				public:
 					~Builder( )
 					{
 						mInitial.release();
 
-						for(State *s : mStates)
+						for(state_t *s : mStates)
 						{
 							delete s;
 						}
 					}
 
 					template<typename ... A>
-					void add(std::unique_ptr<State> s, A&& ... a)
+					void add(std::unique_ptr<state_t> s, A&& ... a)
 					{
 						mStates.insert(s.release());
 
 						add(std::forward<A>(a)...);
 					}
 
-					void transition(State *s1, State *s2, const T& e, typename types::transition_fn f = typename types::transition_fn())
+					void transition(state_t *s1, state_t *s2, const T& e, typename types::transition_fn f = typename types::transition_fn())
 					{
 						if(!mStates.count(s1))
 							MXT_THROW_EX(UnknownStateException);
@@ -246,7 +274,7 @@ namespace esep
 						mTransitions.emplace(std::make_pair(key, entry));
 					}
 
-					void initial(State *s)
+					void initial(state_t *s)
 					{
 						if(!mStates.count(s))
 							MXT_THROW_EX(UnknownStateException);
@@ -254,9 +282,9 @@ namespace esep
 						mInitial.reset(s);
 					}
 
-					Hierarchy<T> build( )
+					Hierarchy<T, B> build( )
 					{
-						return Hierarchy<T>(mInitial.release(), std::move(mStates), std::move(mTransitions));
+						return Hierarchy<T, B>(mInitial.release(), std::move(mStates), std::move(mTransitions));
 					}
 
 				private:
@@ -265,7 +293,7 @@ namespace esep
 				private:
 					typename types::states_t mStates;
 					typename types::transitions_t mTransitions;
-					std::unique_ptr<State> mInitial;
+					std::unique_ptr<state_t> mInitial;
 			};
 		}
 	}

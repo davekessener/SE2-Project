@@ -62,6 +62,7 @@ namespace esep
 				ITEM_APPEARED,
 				ITEM_DISAPPEARED,
 				TIMER,
+				ITEM_REMOVED
 			};
 
 			private:
