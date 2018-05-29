@@ -123,7 +123,7 @@ namespace esep
 				typedef Types<T> types;
 
 				public:
-					void process(const T& e)
+					bool process(const T& e)
 					{
 						if(!mCurrent)
 							MXT_THROW_EX(IllegalStateException);
@@ -139,9 +139,7 @@ namespace esep
 
 						if(t == mTransitions.end())
 						{
-							std::cout << "Unknown Event " << static_cast<int>(e) << std::endl;
-
-							return;
+							return false;
 						}
 
 						s = t->second.first;
@@ -173,6 +171,8 @@ namespace esep
 
 						enter_tree(s);
 						enterState(s);
+
+						return true;
 					}
 
 				private:

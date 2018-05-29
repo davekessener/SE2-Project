@@ -6,6 +6,8 @@
 #include "lib/utils.h"
 #include "lib/logger.h"
 
+#include "system.h"
+
 namespace esep { namespace test { namespace unit {
 
 void TestSuite::doTest(void)
@@ -17,7 +19,7 @@ void TestSuite::doTest(void)
 
 	auto onFailure = [this](const std::string& s) {
 		mResults.push_back(std::make_pair(Result::FAILURE, s));
-		std::cout << "E" << std::flush;
+		HAL_CONSOLE.print("E");
 	};
 
 	for(const auto& p : mTests)
@@ -26,12 +28,13 @@ void TestSuite::doTest(void)
 
 		try
 		{
-			MXT_LOG(lib::stringify("Executing UT '", p.first, "'"));
+			MXT_LOG("Executing UT '", p.first, "'");
 
 			p.second();
 
 			mResults.push_back(std::make_pair(Result::SUCCESS, ""));
-			std::cout << "." << std::flush;
+
+			HAL_CONSOLE.print(".");
 		}
 		catch(const std::exception& e)
 		{

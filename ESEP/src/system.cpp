@@ -72,7 +72,7 @@ void Impl::run(const lib::Arguments& args)
 
 		MXT_LOG_INFO("Starting system in MASTER mode.");
 
-		std::cout << "Running system as MASTER!" << std::endl;
+		HAL_CONSOLE.println("Running system as MASTER!");
 	}
 	else if(args.get("run") == MXT_SLAVE)
 	{
@@ -80,7 +80,7 @@ void Impl::run(const lib::Arguments& args)
 
 		MXT_LOG_INFO("Starting system in SLAVE mode.");
 
-		std::cout << "Running system as SLAVE!" << std::endl;
+		HAL_CONSOLE.println("Running system as SLAVE!");
 	}
 	else
 	{
@@ -97,19 +97,23 @@ void Impl::run(const lib::Arguments& args)
 	Client_ptr bsp(new serial::BSPClient(std::move(c)));
 	Client_ptr serial(new serial::Watchdog(std::move(bsp)));
 
-	std::cout << "Connecting via serial " << std::flush;
+	HAL_CONSOLE.print("Connecting via serial ");
 
 	for(uint i = 0 ; i < MXT_SERIAL_TIMEOUT ; ++i)
 	{
-		std::cout << "." << std::flush;
+		HAL_CONSOLE.print(".");
 		lib::Timer::instance().sleep(1000);
 		if(serial->connected()) break;
 	}
-	std::cout << std::endl;
+	HAL_CONSOLE.println();
 
 	if(!serial->connected())
 	{
-		MXT_LOG_FATAL("Serial connection failed! Shutting down ...");
+		auto e = "Serial connection failed! Shutting down ...";
+
+		MXT_LOG_FATAL(e);
+
+		HAL_CONSOLE.println(e);
 
 		MXT_THROW_EX(ConnectionException);
 	}
@@ -137,7 +141,7 @@ void Impl::run(const lib::Arguments& args)
 	});
 
 	MXT_LOG_INFO("Successfully connected. Starting main program now.");
-	std::cout << "Starting main program" << std::endl;
+	HAL_CONSOLE.println("Starting main program");
 
 	while(handler.running())
 	{
