@@ -41,31 +41,33 @@ void RunManager::leave()
 void RunManager::handle(Event e)
 {
 	run::HalEvent he;
-	switch(MXT_CAST(e))
+
+	switch(e)
 	{
-		case(MXT_CAST(halEvent_t::LB_START)):
+		case(Event::LB_START):
 			he = HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_START) ? run::HalEvent::LB_START : run::HalEvent::I_LB_START;
 			break;
 
-		case(MXT_CAST(halEvent_t::LB_HEIGHTSENSOR)):
-			mLogic.process(HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_HEIGHTSENSOR) ? run::HalEvent::LB_HS : run::HalEvent::I_LB_HS);
+		case(Event::LB_HEIGHTSENSOR):
+			he = HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_HEIGHTSENSOR) ? run::HalEvent::LB_HS : run::HalEvent::I_LB_HS;
 			break;
 
-		case(MXT_CAST(halEvent_t::LB_SWITCH)):
+		case(Event::LB_SWITCH):
 			he = HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_SWITCH) ? run::HalEvent::LB_SWITCH : run::HalEvent::I_LB_SWITCH;
 			break;
 
-		case(MXT_CAST(halEvent_t::LB_RAMP)):
+		case(Event::LB_RAMP):
 			he = HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_RAMP) ? run::HalEvent::LB_RAMP : run::HalEvent::I_LB_RAMP;
 			break;
 
-		case(MXT_CAST(halEvent_t::LB_END)):
+		case(Event::LB_END):
 			he = HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_END) ? run::HalEvent::LB_END : run::HalEvent::I_LB_END;
 			break;
 
 		default:
 			return;
 	}
+
 	mLogic.process(he);
 }
 

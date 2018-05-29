@@ -1,6 +1,8 @@
 #include <base/run/time_controller.h>
 #include "lib/tml/str.h"
 
+#include "lib/logger.h"
+
 namespace esep { namespace base { namespace run {
 
 #define MXT_CAST(t)		static_cast<uint8_t>(t)
@@ -33,13 +35,14 @@ void TimeCtrl::resumeAllTimer()
 	}
 }
 
-void TimeCtrl::setTimer(State state,TimerEvent e, uint r, uint p)
+void TimeCtrl::setTimer(State state, TimerEvent e, uint r, uint p)
 {
 	uint8_t s = MXT_CAST(state);
 	if(s <= MXT_P_NR_STATES)
 	{
 		auto f = [this, e](void) { mCallback(e); };
-		mTimer[s].push_back(lib::Timer::instance().registerCallback(f, r, p));
+		MXT_LOG_INFO("Registering timer for ", state, " on ", e, " in ", r);
+		mTimer[s].emplace_back(lib::Timer::instance().registerCallback(f, r, p));
 	}
 	else
 	{

@@ -28,11 +28,11 @@ namespace esep
 			private:
 			enum class Auto : uint8_t {FIRE};
 
+			typedef communication::Packet Packet;
 			typedef communication::Packet_ptr Packet_ptr;
 			typedef communication::Packet::msg_t msg_t;
 			typedef communication::Message::Run runMessage_t;
 			typedef communication::Packet::Location Location;
-			typedef hal::HAL::Event halEvent_t;
 			typedef data::RunManagerTimer::TimerEvent TimerEvent;
 			typedef hal::LightBarriers::LightBarrier LightBarrier;
 			typedef run::State State;

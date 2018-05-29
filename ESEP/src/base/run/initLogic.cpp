@@ -53,6 +53,7 @@ void RunManager::initLogic()
 			{{MXT_CAST(State::STATE_2), 1}},
 			[this](void)
 			{
+				mMaster->accept(std::make_shared<Packet>(Location::BASE, Location::MASTER, runMessage_t::NEW_ITEM));
 				//this->mTimeCtrl.setTimer(State::STATE_2, TimerEvent::START_1, MXT_TIME_IN_LB);
 			});
 	//TIMER_START_1
@@ -163,6 +164,7 @@ void RunManager::initLogic()
 			[this](void)
 			{
 				this->mTimeCtrl.deleteTimer(State::STATE_7);
+				// TODO send analyse
 				//this->mTimeCtrl.setTimer(State::STATE_8, TimerEvent::SWITCH_1, MXT_TIME_IN_LB);
 			});
 	//LB_SWITCH_E
@@ -231,6 +233,7 @@ void RunManager::initLogic()
 			{},
 			[this](void)
 			{
+		// TODO send ITEM_REMOVED
 				this->mTimeCtrl.deleteTimer(State::STATE_10);
 			});
 

@@ -5,7 +5,7 @@
 
 #include "base/config_object.h"
 
-#define MXT_NO_OF_VALUES 5
+#define MXT_NO_OF_VALUES 7
 
 namespace esep { namespace base {
 
@@ -51,7 +51,7 @@ ConfigObject::ConfigObject(const std::string& path)
 			fileData.pop_back();
 			mHeightSensorMin = (uint16_t) std::stoi(fileData.back());
 			fileData.pop_back();
-			mTimeTolerance = (float) std::stoi(fileData.back());
+			mTimeTolerance = (float) std::stof(fileData.back());
 		}
 	}
 }
@@ -149,7 +149,7 @@ void ConfigObject::setSlowFactor(float val)
 
 void ConfigObject::setTimeTolerance(float val)
 {
-	if(val > 1 || val == 0)
+	if(val > 1 || val <= 0)
 	{
 		MXT_THROW_EX(ConfigObject::InvalidDataException);
 	}

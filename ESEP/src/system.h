@@ -55,6 +55,7 @@ namespace esep
 				Impl( );
 				~Impl( );
 				void run(const lib::Arguments&);
+				hal::HAL& HAL( ) { return *mHAL; }
 				template<typename T>
 					T& get( )
 						{ return mHALObjects.get<T>(); }

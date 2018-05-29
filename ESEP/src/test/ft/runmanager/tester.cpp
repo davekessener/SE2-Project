@@ -6,6 +6,10 @@
 #include "hal/buttons.h"
 #include "hal/physical.h"
 
+#include "data/location_data.h"
+
+#include "system.h"
+
 namespace esep { namespace test { namespace functional { namespace r {
 
 Tester::Tester(void)
@@ -26,25 +30,22 @@ void Tester::run(void)
 	typedef hal::HAL::Event Event;
 	typedef hal::Buttons::Button Button;
 
-	hal::Physical hal;
-	hal::Buttons btns(&hal);
-
 	mHandler.setMaster(this);
 
 	mRunning = true;
 
-	hal.setCallback([this, &btns](Event e) {
+	System::instance().HAL().setCallback([this](Event e) {
 		if(mRunning.load()) switch(e)
 		{
 		case Event::BTN_STOP:
-			if(btns.isPressed(Button::STOP))
+			if(HAL_BUTTONS.isPressed(Button::STOP))
 			{
 				mRunning = false;
 			}
 			break;
 
 		case Event::BTN_RESET:
-			if(btns.isPressed(Button::RESET))
+			if(HAL_BUTTONS.isPressed(Button::RESET))
 			{
 				mKeep = !mKeep.load();
 			}
@@ -56,17 +57,19 @@ void Tester::run(void)
 		}
 	});
 
+	std::cout << "Config data is " << (mConfig.isValid() ? "" : "NOT ") << "valid!" << std::endl;
+
 	while(mRunning.load())
 	{
 		lib::Timer::instance().sleep(10);
 	}
 
-	hal.setCallback([](Event) { });
+	System::instance().HAL().setCallback([](Event) { });
 }
 
 void Tester::accept(Packet_ptr p)
 {
-	std::cout << "Received {" << (int)p->source() << " -> " << (int)p->target() << ": " << lib::hex<16>(p->message()) << "}" << std::endl;
+	HAL_CONSOLE.println("Received", p);
 
 	if(mRunning.load())
 	{
@@ -118,7 +121,15 @@ void Tester::accept(Packet_ptr p)
 				break;
 
 			case Message::Run::REACHED_END:
+			case Message::Run::ITEM_REMOVED:
 				send(Message::Run::SUSPEND);
+				break;
+
+			case Message::Run::ITEM_APPEARED:
+			case Message::Run::ITEM_DISAPPEARED:
+				HAL_CONSOLE.println("Item ", (p->message() == Message::Run::ITEM_APPEARED ? "appeared" : "disappeared"), " in ",
+						static_cast<data::Location&>(**p->begin()).location());
+				send(Message::Error::SERIAL);
 				break;
 
 			case Message::Run::ANALYSE:

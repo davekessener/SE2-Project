@@ -211,6 +211,8 @@ void ConfigManager::handle(hal::HAL::Event event)
 	case State::STATE_13 :
 		if(event == Event::LB_HEIGHTSENSOR && HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_HEIGHTSENSOR))
 		{
+			MXT_LOG_INFO("HeightSensor measured ", lib::hex<16>(HAL_HEIGHT_SENSOR.measure()));
+
 			//measure HEIGHTSENSOR MAXIMUM
 			mHeightSensorMax = HAL_HEIGHT_SENSOR.measure();
 			mHeightSensorMax = (mHeightSensorMax + HAL_HEIGHT_SENSOR.measure()) / 2;
@@ -224,6 +226,9 @@ void ConfigManager::handle(hal::HAL::Event event)
 		if(event == Event::LB_SWITCH && HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_SWITCH))
 		{
 			HAL_SWITCH.open();
+
+			MXT_LOG_INFO("HeightSensor measured ", lib::hex<16>(HAL_HEIGHT_SENSOR.measure()));
+
 			//measure HEIGHTSENSOR MINIMUM
 			mHeightSensorMin = HAL_HEIGHT_SENSOR.measure();
 			mHeightSensorMin = (mHeightSensorMin + HAL_HEIGHT_SENSOR.measure()) / 2;
@@ -248,6 +253,15 @@ void ConfigManager::handle(hal::HAL::Event event)
 
 			try
 			{
+				MXT_LOG_INFO("HS min is ", mHeightSensorMin);
+				MXT_LOG_INFO("HS max is ", mHeightSensorMax);
+				MXT_LOG_INFO("Start to HS is ", mStartToHs);
+				MXT_LOG_INFO("HS to switch is ", mHsToSwitch);
+				MXT_LOG_INFO("switch to end is ", mSwitchToEnd);
+				MXT_LOG_INFO("SlowFactor is ", mSlowFactor);
+				MXT_LOG_INFO("TimeTolerance is ", mTimeTolerance);
+
+
 				mConfig->setHeightSensorMin(mHeightSensorMin);
 				mConfig->setHeightSensorMax(mHeightSensorMax);
 				mConfig->setStartToHs(mStartToHs);
@@ -261,6 +275,7 @@ void ConfigManager::handle(hal::HAL::Event event)
 			}
 			catch(ConfigObject::InvalidDataException const& e)
 			{
+				MXT_LOG_WARN("Failed configuration: ", e.what());
 			}
 
 			mHandler->accept(msg);
