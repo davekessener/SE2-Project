@@ -2,6 +2,8 @@
 #include "run_manager.h"
 #include "lib/petri_net.h"
 #include "lib/timer.h"
+#include "lib/timer/impl.h"
+#include "lib/timer/manager.h"
 #include "lib/logger.h"
 #include "lib/utils.h"
 #include "system.h"
@@ -12,8 +14,9 @@
 
 namespace esep { namespace base {
 
-#define MXT_P_NR_STATES	14
-#define MXT_CAST(t)		static_cast<uint8_t>(t)
+#define MXT_P_NR_STATES			14
+#define MXT_CAST(t)				static_cast<uint8_t>(t)
+#define MXT_ITEM_DUR			500
 
 RunManager::RunManager(communication::IRecipient* m, ConfigObject * c)
 	:	mMaster(m)
@@ -52,6 +55,10 @@ void RunManager::handle(Event e)
 			he = HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_HEIGHTSENSOR) ? run::HalEvent::LB_HS : run::HalEvent::I_LB_HS;
 			break;
 
+		case(Event::HEIGHT_SENSOR):
+			takeMeasurement();
+			break;
+
 		case(Event::LB_SWITCH):
 			he = HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_SWITCH) ? run::HalEvent::LB_SWITCH : run::HalEvent::I_LB_SWITCH;
 			break;
@@ -69,6 +76,28 @@ void RunManager::handle(Event e)
 	}
 
 	mLogic.process(he);
+}
+
+void RunManager::takeMeasurement()
+{
+	uint16_t hval = HAL_HEIGHT_SENSOR.measure();
+	uint64_t hvalStamp = lib::Timer::instance().elapsed();
+
+	if(mHeightMapBuffer.empty() || (timeDiff(mHeightMapBuffer.front().first, hvalStamp) >= MXT_ITEM_DUR))
+	{
+		heightMap_ptr hm(new data::HeightMap);
+		mHeightMapBuffer.emplace_back(std::make_pair(hvalStamp, hm));
+		mHeightMapBuffer.front().second->addHeightValue(0, hval);
+	}
+	else
+	{
+		mHeightMapBuffer.front().second->addHeightValue(timeDiff(mHeightMapBuffer.front().first, hvalStamp), hval);
+	}
+}
+
+uint64_t RunManager::timeDiff(uint64_t oldstamp, uint64_t currstamp)
+{
+	return currstamp - oldstamp;
 }
 
 void RunManager::accept(Packet_ptr p)
@@ -121,6 +150,14 @@ void RunManager::sendMessageWithData(Location target, runMessage_t msg, data::Da
 {
 	auto packet = std::make_shared<communication::Packet>(Location::BASE, target, msg);
 	packet->addDataPoint(data);
+	mMaster->accept(packet);
+}
+
+void RunManager::sendItemInfo(data::Data_ptr hm, data::Data_ptr metal)
+{
+	auto packet = std::make_shared<communication::Packet>(Location::BASE, Location::MASTER, runMessage_t::ANALYSE);
+	packet->addDataPoint(hm);
+	packet->addDataPoint(metal);
 	mMaster->accept(packet);
 }
 
