@@ -50,7 +50,8 @@ ConfigObject::ConfigObject(const std::string& path)
 			mHeightSensorMax = (uint16_t) std::stoi(fileData.back());
 			fileData.pop_back();
 			mHeightSensorMin = (uint16_t) std::stoi(fileData.back());
-			mValid = true;
+			fileData.pop_back();
+			mTimeTolerance = (float) std::stoi(fileData.back());
 		}
 	}
 }
@@ -66,7 +67,8 @@ void ConfigObject::save()
 
 	if(confFile.is_open())
 	{
-		confFile << mHeightSensorMin << "\n"
+		confFile << mTimeTolerance << "\n"
+				 << mHeightSensorMin << "\n"
 				 << mHeightSensorMax << "\n"
 				 << mStartToHs    << "\n"
 				 << mHsToSwitch   << "\n"
@@ -87,7 +89,8 @@ bool ConfigObject::isValid()
 			&& mStartToHs > 0
 			&& mHsToSwitch > 0
 			&& mSwitchToEnd > 0
-			&& mSlowFactor > 0));
+			&& mSlowFactor > 0
+			&& mTimeTolerance > 0));
 }
 
 void ConfigObject::setHeightSensorMin(uint16_t val)

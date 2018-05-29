@@ -34,7 +34,7 @@ Impl::Impl(void)
 	: mHAL(new hal::Physical())
 	, mHALObjects(
 		hal::Buttons(mHAL),
-		hal::HeightSensor(mHAL),
+		hal::HeightSensor(mHAL, &mConfig),
 		hal::LEDs(mHAL),
 		hal::Switch(mHAL),
 		hal::LightBarriers(mHAL),
@@ -42,6 +42,7 @@ Impl::Impl(void)
 		hal::MetalSensor(mHAL),
 		hal::Motor(mHAL))
 {
+	MXT_LOG_INFO("Creating system object!");
 }
 
 Impl::~Impl(void)

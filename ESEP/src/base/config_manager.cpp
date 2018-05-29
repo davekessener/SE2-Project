@@ -10,6 +10,7 @@
 #include "hal/lights.h"
 #include "hal/motor.h"
 #include "hal/switch.h"
+#include "hal/height_sensor.h"
 
 namespace esep { namespace base {
 
@@ -208,16 +209,31 @@ void ConfigManager::handle(hal::HAL::Event event)
 	break;
 
 	case State::STATE_13 :
-		if(event == Event::LB_SWITCH && HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_SWITCH))
+		if(event == Event::LB_HEIGHTSENSOR && HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_HEIGHTSENSOR))
 		{
-			HAL_SWITCH.open();
-			//TODO measure HEIGHTSENSOR
+			//measure HEIGHTSENSOR MAXIMUM
+			mHeightSensorMax = HAL_HEIGHT_SENSOR.measure();
+			mHeightSensorMax = (mHeightSensorMax + HAL_HEIGHT_SENSOR.measure()) / 2;
+			mHeightSensorMax = (mHeightSensorMax + HAL_HEIGHT_SENSOR.measure()) / 2;
 
 			mState = State::STATE_14;
 		};
 	break;
 
 	case State::STATE_14 :
+		if(event == Event::LB_SWITCH && HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_SWITCH))
+		{
+			HAL_SWITCH.open();
+			//measure HEIGHTSENSOR MINIMUM
+			mHeightSensorMin = HAL_HEIGHT_SENSOR.measure();
+			mHeightSensorMin = (mHeightSensorMin + HAL_HEIGHT_SENSOR.measure()) / 2;
+			mHeightSensorMin = (mHeightSensorMin + HAL_HEIGHT_SENSOR.measure()) / 2;
+
+			mState = State::STATE_15;
+		};
+	break;
+
+	case State::STATE_15 :
 		if(event == Event::LB_END && HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_END))
 		{
 			actualTime = ELAPSED;
@@ -225,15 +241,15 @@ void ConfigManager::handle(hal::HAL::Event event)
 			HAL_MOTOR.stop();
 			mStartToEndSlow = (uint32_t) actualTime - mTimestamp;
 			mSlowFactor = mStartToEnd / (float) mStartToEndSlow;
-			mTimeTolerance = 1 - ((mStartToEnd / (float) mStartToEndLong) + (mStartToEnd / (float) mStartToEndLong) * ConfigObject::TOLERANCE);
+			mTimeTolerance = 1 - (mStartToEnd / (float) mStartToEndLong);
 
 			// Save config and send message to handler
 			auto msg = std::make_shared<communication::Packet>(Location::BASE, Location::MASTER, Message::Config::FAILED);
 
 			try
 			{
-				mConfig->setHeightSensorMin(1); // TODO measure HEIGHTSENSOR value without ITEM
-				mConfig->setHeightSensorMax(1); // TODO measure HEIGHTSENSOR value with ITEM
+				mConfig->setHeightSensorMin(mHeightSensorMin);
+				mConfig->setHeightSensorMax(mHeightSensorMax);
 				mConfig->setStartToHs(mStartToHs);
 				mConfig->setHsToSwitch(mHsToSwitch);
 				mConfig->setSwitchToEnd(mSwitchToEnd);
@@ -249,11 +265,11 @@ void ConfigManager::handle(hal::HAL::Event event)
 
 			mHandler->accept(msg);
 
-			mState = State::STATE_15;
+			mState = State::STATE_16;
 		};
 		break;
 
-	case State::STATE_15:
+	case State::STATE_16:
 		break;
 	}
 #undef ELAPSED

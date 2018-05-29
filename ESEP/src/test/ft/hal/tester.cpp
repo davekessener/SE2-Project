@@ -11,7 +11,7 @@ namespace esep { namespace test { namespace functional {
 HALTester::HALTester(void)
 	: mHAL(new hal::Physical)
 , BUTTONS(mHAL)
-, HEIGHT_SENSOR(mHAL)
+, HEIGHT_SENSOR(mHAL, &mConfig)
 , LEDS(mHAL)
 , SWITCH(mHAL)
 , LIGHT_BARRIERS(mHAL)
