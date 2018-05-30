@@ -140,7 +140,7 @@ void ConfigObject::setSwitchToEnd(uint32_t val)
 
 void ConfigObject::setSlowFactor(float val)
 {
-	if(val > 1 || val == 0)
+	if(val > 1 || val <= 0)
 	{
 		MXT_THROW_EX(ConfigObject::InvalidDataException);
 	}

@@ -214,9 +214,9 @@ void ConfigManager::handle(hal::HAL::Event event)
 			MXT_LOG_INFO("HeightSensor measured ", lib::hex<16>(HAL_HEIGHT_SENSOR.measure()));
 
 			//measure HEIGHTSENSOR MAXIMUM
-			mHeightSensorMax = HAL_HEIGHT_SENSOR.measure();
-			mHeightSensorMax = (mHeightSensorMax + HAL_HEIGHT_SENSOR.measure()) / 2;
-			mHeightSensorMax = (mHeightSensorMax + HAL_HEIGHT_SENSOR.measure()) / 2;
+			mHeightSensorMax = HAL_HEIGHT_SENSOR.measure(false);
+			mHeightSensorMax = (mHeightSensorMax + HAL_HEIGHT_SENSOR.measure(false)) / 2;
+			mHeightSensorMax = (mHeightSensorMax + HAL_HEIGHT_SENSOR.measure(false)) / 2;
 
 			mState = State::STATE_14;
 		};
@@ -230,9 +230,9 @@ void ConfigManager::handle(hal::HAL::Event event)
 			MXT_LOG_INFO("HeightSensor measured ", lib::hex<16>(HAL_HEIGHT_SENSOR.measure()));
 
 			//measure HEIGHTSENSOR MINIMUM
-			mHeightSensorMin = HAL_HEIGHT_SENSOR.measure();
-			mHeightSensorMin = (mHeightSensorMin + HAL_HEIGHT_SENSOR.measure()) / 2;
-			mHeightSensorMin = (mHeightSensorMin + HAL_HEIGHT_SENSOR.measure()) / 2;
+			mHeightSensorMin = HAL_HEIGHT_SENSOR.measure(false);
+			mHeightSensorMin = (mHeightSensorMin + HAL_HEIGHT_SENSOR.measure(false)) / 2;
+			mHeightSensorMin = (mHeightSensorMin + HAL_HEIGHT_SENSOR.measure(false)) / 2;
 
 			mState = State::STATE_15;
 		};

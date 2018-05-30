@@ -11,9 +11,9 @@ HeightSensor::HeightSensor(HAL *hal, ConfigObject *config)
 {
 }
 
-uint16_t HeightSensor::measure(void)
+uint16_t HeightSensor::measure(bool normalize)
 {
-	if (mConfig->isValid())
+	if (mConfig->isValid() && normalize)
 	{
 		return measureNormalized(mHAL->in(HAL::Field::ANALOG));
 	}
