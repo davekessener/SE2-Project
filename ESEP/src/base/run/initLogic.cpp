@@ -1,3 +1,4 @@
+#include <tuple>
 #include "base/run_manager.h"
 #include "lib/timer.h"
 #include "lib/timer/manager.h"
@@ -19,6 +20,8 @@ namespace esep { namespace base {
 #define MXT_CAST(t)				static_cast<uint8_t>(t)
 #define MXT_CONFIG				this->mConfigData
 #define MXT_SHARE(T, V)			data::Data_ptr(new T(V))
+#define MXT_HM					3
+#define MXT_FINISHED			1
 
 void RunManager::initLogic()
 {
@@ -171,13 +174,13 @@ void RunManager::initLogic()
 				this->mTimeCtrl.deleteTimer(State::STATE_7);
 
 				//check if there is measured date to send
-				if(mHeightMapBuffer.empty())
+				if(mHeightMapBuffer.empty() || !std::get<MXT_FINISHED>(mHeightMapBuffer.front))
 				{
 					MXT_THROW_EX(NoMeasuredHighMap);
 				}
 
 				// send item info to master (heightmap, metalsensor)
-				this->sendItemInfo(data::Data_ptr(mHeightMapBuffer.front().second) ,MXT_SHARE(data::MetalSensor, HAL_METAL_SENSOR.isMetal()));
+				this->sendItemInfo(data::Data_ptr(std::get<MXT_HM>(mHeightMapBuffer.front)), MXT_SHARE(data::MetalSensor, HAL_METAL_SENSOR.isMetal()));
 				// delete the old hightmap
 				mHeightMapBuffer.pop_front();
 				//this->mTimeCtrl.setTimer(State::STATE_8, TimerEvent::SWITCH_1, MXT_TIME_IN_LB);

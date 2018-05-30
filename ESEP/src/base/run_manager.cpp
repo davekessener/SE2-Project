@@ -1,4 +1,5 @@
 #include <memory>
+#include <tuple>
 #include "run_manager.h"
 #include "lib/petri_net.h"
 #include "lib/timer.h"
@@ -17,6 +18,9 @@ namespace esep { namespace base {
 #define MXT_P_NR_STATES			14
 #define MXT_CAST(t)				static_cast<uint8_t>(t)
 #define MXT_ITEM_DUR			500
+#define MXT_FINISHED			1
+#define MXT_FIRSTTIME			2
+#define MXT_HM					3
 
 RunManager::RunManager(communication::IRecipient* m, ConfigObject * c)
 	:	mMaster(m)
@@ -83,15 +87,25 @@ void RunManager::takeMeasurement()
 	uint16_t hval = HAL_HEIGHT_SENSOR.measure();
 	uint64_t hvalStamp = lib::Timer::instance().elapsed();
 
-	if(mHeightMapBuffer.empty() || (timeDiff(mHeightMapBuffer.front().first, hvalStamp) >= MXT_ITEM_DUR))
+
+	if(mHeightMapBuffer.empty() || std::get<MXT_FINISHED>(mHeightMapBuffer.back))
 	{
 		heightMap_ptr hm(new data::HeightMap);
-		mHeightMapBuffer.emplace_back(std::make_pair(hvalStamp, hm));
-		mHeightMapBuffer.front().second->addHeightValue(0, hval);
+		mHeightMapBuffer.emplace_back(std::make_tuple(false, hvalStamp, hm));
+		std::get<MXT_HM>(mHeightMapBuffer.back).addHeightValue(0, hval);
 	}
 	else
 	{
-		mHeightMapBuffer.front().second->addHeightValue(timeDiff(mHeightMapBuffer.front().first, hvalStamp), hval);
+		if(hval == 0)
+		{
+			std::get<MXT_FINISHED>(mHeightMapBuffer.back) = true;
+		}
+		else
+		{
+			std::get<MXT_HM>(mHeightMapBuffer.back).addHeightValue(timeDiff(std::get<MXT_FIRSTTIME>(mHeightMapBuffer.back), hvalStamp), hval);
+		}
+
+
 	}
 }
 
@@ -113,10 +127,12 @@ void RunManager::accept(Packet_ptr p)
 		case(MXT_CAST(runMessage_t::RESUME)):
 				HAL_MOTOR.right();
 				HAL_MOTOR.start();
+				mTimeCtrl.resumeAllTimer();
 				break;
 
 		case(MXT_CAST(runMessage_t::SUSPEND)):
 				HAL_MOTOR.stop();
+				mTimeCtrl.pauseAllTimer();
 				break;
 
 		case(MXT_CAST(runMessage_t::TIMER)):

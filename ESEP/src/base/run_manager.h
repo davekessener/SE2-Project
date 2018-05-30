@@ -2,7 +2,7 @@
 #define SRC_BASE_RUN_MANAGER_H
 
 #include <memory>
-
+#include <tuple>
 #include "communication/packet.h"
 #include "IManager.h"
 #include "lib/enum.h"
@@ -43,7 +43,8 @@ namespace esep
 			typedef lib::Timer Timer;
 			typedef uint64_t timeStamp_t;
 			typedef std::shared_ptr<data::HeightMap> heightMap_ptr;
-			typedef std::deque<std::pair<timeStamp_t, heightMap_ptr>> buffer_t;
+			// bool is for checking if the heightmap is finished
+			typedef std::deque<std::tuple<bool, timeStamp_t, heightMap_ptr>> buffer_t;
 
 
 			public:
