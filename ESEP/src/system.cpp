@@ -34,7 +34,7 @@ Impl::Impl(void)
 	: mHAL(new hal::Physical())
 	, mHALObjects(
 		hal::Buttons(mHAL),
-		hal::HeightSensor(mHAL),
+		hal::HeightSensor(mHAL, &mConfig),
 		hal::LEDs(mHAL),
 		hal::Switch(mHAL),
 		hal::LightBarriers(mHAL),
@@ -42,6 +42,7 @@ Impl::Impl(void)
 		hal::MetalSensor(mHAL),
 		hal::Motor(mHAL))
 {
+	MXT_LOG_INFO("Creating system object!");
 }
 
 Impl::~Impl(void)
@@ -91,7 +92,7 @@ void Impl::run(const lib::Arguments& args)
 
 	std::unique_ptr<communication::IRecipient> master;
 	std::unique_ptr<communication::Base> com;
-	base::Handler handler;
+	base::Handler handler(&mConfig);
 
 	Connection_ptr c(new serial::ActualConnection(MXT_DEFAULT_DEVICE));
 	Client_ptr bsp(new serial::BSPClient(std::move(c)));

@@ -15,6 +15,7 @@ namespace esep
 				RUN,
 				IDLE,
 				READY,
+				VALID,
 				FIXED
 			};
 
@@ -24,6 +25,7 @@ namespace esep
 				RUN,
 				IDLE,
 				READY,
+				VALID,
 				SHUTDOWN
 			};
 
@@ -54,12 +56,13 @@ namespace esep
 				ANALYSE,  // analyse item at switch (Base -> Master)
 				RESUME, // start motor (Master -> Base)
 				SUSPEND, // stop motor (Master -> Base)
-				KEEP_NEXT,  // open switch (Master -> Base)
-				ITEM_REMOVED,
+				KEEP_NEXT,  // open switch (Master -> Base
 				END_FREE,
 				EXPECT_NEW,
 				ITEM_APPEARED,
-				ITEM_DISAPPEARED
+				ITEM_DISAPPEARED,
+				TIMER,
+				ITEM_REMOVED
 			};
 
 			private:

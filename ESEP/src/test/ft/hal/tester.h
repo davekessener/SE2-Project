@@ -57,6 +57,7 @@ namespace esep
 					std::vector<std::pair<std::string, test_fn>> mTests;
 					bool mRunning;
 					std::vector<timer_t> mTimers;
+					base::ConfigObject mConfig;
 					hal::HAL *mHAL;
 					hal::Buttons BUTTONS;
 					hal::HeightSensor HEIGHT_SENSOR;

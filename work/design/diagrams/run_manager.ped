@@ -1,0 +1,233 @@
+<?xml version="1.0"?>
+<petri-net application="Petri-Netz" version-major="1" version-minor="0" copyright="Joachim Lukasser">
+  <text id="B1" x="20" y="10" width="224" height="31" text="1. Eingabe bis zur Höhenmessung" />
+  <text id="B2" x="1150" y="10" width="221" height="31" text="2. Höhenmessung bis zum Switch" />
+  <text id="B3" x="20" y="1590" width="180" height="31" text="4.2 Switch bis zur Ausgabe" />
+  <text id="B4" x="1150" y="800" width="180" height="31" text="4.1 Switch bis zur Ausgabe" />
+  <text id="B5" x="20" y="800" width="145" height="31" text="3. Switch und Rampe" />
+  <transition id="LB_HS_copy" horizontal="False" x="1342" y="377" text="" textposition="6" />
+  <transition id="!LB_HS" horizontal="False" x="1562" y="377" text="" textposition="6" />
+  <transition id="ITEM_READY_SWITCH" horizontal="False" x="1782" y="377" text="" textposition="6" />
+  <transition id="LB_SWITCH" horizontal="False" x="2002" y="377" text="" textposition="6" />
+  <transition id="TIMER_HS_1" horizontal="True" x="1427" y="312" text="ITEM_DISAPP." textposition="1" />
+  <transition id="TIMER_HS_2" horizontal="True" x="1867" y="312" text="ITEM_DISAPP." textposition="1" />
+  <transition id="KEEP_NEXT_copy" horizontal="False" x="1272" y="1187" text="" textposition="6" />
+  <transition id="LB_SWITCH_E" horizontal="True" x="1867" y="502" text="ITEM_APP." textposition="6" />
+  <transition id="TIMER_SWITCH_2" horizontal="True" x="1357" y="1122" text="ITEM_DISAPP." textposition="1" />
+  <transition id="!LB_SWITCH_2" horizontal="False" x="1492" y="1187" text="" textposition="6" />
+  <transition id="ITEM_READY_END" horizontal="False" x="1712" y="1187" text="" textposition="6" />
+  <transition id="TIMER_SWITCH_3" horizontal="True" x="1797" y="1122" text="ITEM_DISAPP." textposition="1" />
+  <transition id="LB_END" horizontal="False" x="1932" y="1187" text="" textposition="6" />
+  <transition id="!LB_END" horizontal="False" x="2152" y="1187" text="" textposition="6" />
+  <transition id="LB_END_E" horizontal="True" x="1797" y="1302" text="ITEM_APP." textposition="6" />
+  <transition id="LB_SWITCH_copy" horizontal="False" x="212" y="1217" text="" textposition="6" />
+  <transition id="KEEP_NEXT" horizontal="False" x="422" y="1307" text="" textposition="1" />
+  <transition id="LB_RAMP" horizontal="False" x="642" y="1127" text="" textposition="6" />
+  <transition id="!LB_RAMP" horizontal="False" x="882" y="1067" text="" textposition="3" />
+  <transition id="TIMER_RAMP" horizontal="False" x="882" y="1187" text="RAMP_FULL" textposition="6" />
+  <transition id="!LB_SWITCH_1" horizontal="False" x="422" y="1127" text="" textposition="6" />
+  <transition id="TIMER_SWITCH_1" horizontal="True" x="297" y="1062" text="ITEM_DISAPP." textposition="1" />
+  <transition id="LB_RAMP_E" horizontal="True" x="507" y="1062" text="ITEM_APP." textposition="1" />
+  <place id="S5" x="1435" y="384" value="0" limit="1" text="" textposition="1" />
+  <place id="S6" x="1655" y="384" value="0" limit="1" text="" textposition="1" />
+  <place id="S7" x="1875" y="384" value="0" limit="1" text="" textposition="1" />
+  <place id="S8" x="305" y="1224" value="0" limit="1" text="" textposition="1" />
+  <place id="S18" x="515" y="1134" value="0" limit="1" text="" textposition="1" />
+  <place id="S10" x="735" y="1134" value="0" limit="1" text="" textposition="1" />
+  <place id="S11" x="1365" y="1194" value="0" limit="1" text="" textposition="1" />
+  <place id="S12" x="1585" y="1194" value="0" limit="1" text="" textposition="1" />
+  <place id="S13" x="1805" y="1194" value="0" limit="1" text="" textposition="1" />
+  <place id="S14" x="2025" y="1194" value="0" limit="1" text="" textposition="1" />
+  <transition id="!LB_START" horizontal="False" x="562" y="367" text="" textposition="6" />
+  <transition id="LB_HS" horizontal="False" x="1002" y="367" text="" textposition="6" />
+  <transition id="TIMER_START_2" horizontal="True" x="867" y="302" text="ITEM_DISAPP." textposition="1" />
+  <transition id="LB_HS_E" horizontal="True" x="867" y="482" text="ITEM_APP." textposition="6" />
+  <transition id="ITEM_READY_HS" horizontal="False" x="782" y="367" text="" textposition="6" />
+  <place id="S4" x="875" y="374" value="0" limit="1" text="" textposition="1" />
+  <place id="S2" x="435" y="374" value="0" limit="1" text="" textposition="1" />
+  <place id="S3" x="655" y="374" value="0" limit="1" text="" textposition="1" />
+  <transition id="LB_START_1" horizontal="False" x="342" y="367" text="" textposition="6" />
+  <transition id="LB_START_2" horizontal="False" x="342" y="467" text="" textposition="1" />
+  <transition id="EXPECT_NEW" horizontal="False" x="122" y="367" text="" textposition="6" />
+  <place id="S1" x="215" y="374" value="0" limit="1" text="" textposition="1" />
+  <transition id="TIMER_START_1" horizontal="True" x="427" y="302" text="ITEM_DISAPP." textposition="1" />
+  <transition id="TIMER_EXPECT_NEW" horizontal="True" x="207" y="302" text="ITEM_DISAPP." textposition="1" />
+  <path id="P5" value="1" type="0" start="S2" startSPI="8" end="!LB_START" endSPI="5" text="">
+    <pathpoint id="PP10" x="478" y="396" text="" />
+    <pathpoint id="PP11" x="562" y="396" text="" />
+  </path>
+  <path id="P6" value="1" type="0" start="!LB_START" startSPI="6" end="S3" endSPI="7" text="">
+    <pathpoint id="PP12" x="570" y="396" text="" />
+    <pathpoint id="PP13" x="655" y="396" text="" />
+  </path>
+  <path id="P7" value="1" type="0" start="S3" startSPI="8" end="ITEM_READY_HS" endSPI="5" text="">
+    <pathpoint id="PP14" x="698" y="396" text="" />
+    <pathpoint id="PP15" x="782" y="396" text="" />
+  </path>
+  <path id="P8" value="1" type="0" start="ITEM_READY_HS" startSPI="6" end="S4" endSPI="7" text="">
+    <pathpoint id="PP16" x="790" y="396" text="" />
+    <pathpoint id="PP17" x="875" y="396" text="" />
+  </path>
+  <path id="P12" value="1" type="0" start="S4" startSPI="3" end="TIMER_START_2" endSPI="9" text="">
+    <pathpoint id="PP26" x="896" y="374" text="" />
+    <pathpoint id="PP27" x="896" y="310" text="" />
+  </path>
+  <path id="P14" value="1" type="0" start="S4" startSPI="8" end="LB_HS" endSPI="5" text="">
+    <pathpoint id="PP30" x="918" y="396" text="" />
+    <pathpoint id="PP32" x="1002" y="396" text="" />
+  </path>
+  <path id="P19" value="1" type="0" start="LB_HS_copy" startSPI="6" end="S5" endSPI="7" text="">
+    <pathpoint id="PP36" x="1350" y="406" text="" />
+    <pathpoint id="PP36" x="1435" y="406" text="" />
+  </path>
+  <path id="P20" value="1" type="0" start="S7" startSPI="3" end="TIMER_HS_2" endSPI="9" text="">
+    <pathpoint id="PP37" x="1896" y="384" text="" />
+    <pathpoint id="PP37" x="1896" y="320" text="" />
+  </path>
+  <path id="P22" value="1" type="0" start="S5" startSPI="8" end="!LB_HS" endSPI="5" text="">
+    <pathpoint id="PP41" x="1478" y="406" text="" />
+    <pathpoint id="PP41" x="1562" y="406" text="" />
+  </path>
+  <path id="P24" value="1" type="0" start="!LB_HS" startSPI="6" end="S6" endSPI="7" text="">
+    <pathpoint id="PP43" x="1570" y="406" text="" />
+    <pathpoint id="PP43" x="1655" y="406" text="" />
+  </path>
+  <path id="P25" value="1" type="0" start="S6" startSPI="8" end="ITEM_READY_SWITCH" endSPI="5" text="">
+    <pathpoint id="PP44" x="1698" y="406" text="" />
+    <pathpoint id="PP44" x="1782" y="406" text="" />
+  </path>
+  <path id="P26" value="1" type="0" start="ITEM_READY_SWITCH" startSPI="6" end="S7" endSPI="7" text="">
+    <pathpoint id="PP45" x="1790" y="406" text="" />
+    <pathpoint id="PP45" x="1875" y="406" text="" />
+  </path>
+  <path id="P27" value="1" type="0" start="S7" startSPI="8" end="LB_SWITCH" endSPI="5" text="">
+    <pathpoint id="PP46" x="1918" y="406" text="" />
+    <pathpoint id="PP46" x="2002" y="406" text="" />
+  </path>
+  <path id="P58" value="1" type="0" start="LB_SWITCH_copy" startSPI="6" end="S8" endSPI="7" text="">
+    <pathpoint id="PP83" x="220" y="1246" text="" />
+    <pathpoint id="PP83" x="305" y="1246" text="" />
+  </path>
+  <path id="P3" value="1" type="0" start="S2" startSPI="3" end="TIMER_START_1" endSPI="9" text="">
+    <pathpoint id="PP5" x="456" y="374" text="" />
+    <pathpoint id="PP6" x="456" y="310" text="" />
+  </path>
+  <path id="P15" value="1" type="0" start="S5" startSPI="3" end="TIMER_HS_1" endSPI="9" text="">
+    <pathpoint id="PP34" x="1456" y="384" text="" />
+    <pathpoint id="PP35" x="1456" y="320" text="" />
+  </path>
+  <path id="P23" value="1" type="2" start="S7" startSPI="12" end="LB_SWITCH_E" endSPI="2" text="" labelDeltaX="1,25" labelDeltaY="0,50">
+    <pathpoint id="PP42" x="1896" y="427" text="" />
+    <pathpoint id="PP47" x="1896" y="502" text="" />
+  </path>
+  <path id="P9" value="1" type="2" start="S4" startSPI="12" end="LB_HS_E" endSPI="2" text="" labelDeltaX="1,25" labelDeltaY="0,50">
+    <pathpoint id="PP18" x="896" y="417" text="" />
+    <pathpoint id="PP19" x="896" y="482" text="" />
+  </path>
+  <path id="P4" value="1" type="0" start="S18" startSPI="8" end="LB_RAMP" endSPI="5" text="">
+    <pathpoint id="PP7" x="558" y="1156" text="" />
+    <pathpoint id="PP8" x="642" y="1156" text="" />
+  </path>
+  <path id="P37" value="1" type="0" start="LB_RAMP" startSPI="6" end="S10" endSPI="7" text="">
+    <pathpoint id="PP66" x="650" y="1156" text="" />
+    <pathpoint id="PP76" x="735" y="1156" text="" />
+  </path>
+  <path id="P31" value="1" type="0" start="S12" startSPI="8" end="ITEM_READY_END" endSPI="5" text="">
+    <pathpoint id="PP50" x="1628" y="1216" text="" />
+    <pathpoint id="PP50" x="1712" y="1216" text="" />
+  </path>
+  <path id="P32" value="1" type="0" start="ITEM_READY_END" startSPI="6" end="S13" endSPI="7" text="">
+    <pathpoint id="PP51" x="1720" y="1216" text="" />
+    <pathpoint id="PP51" x="1805" y="1216" text="" />
+  </path>
+  <path id="P38" value="1" type="0" start="!LB_SWITCH_2" startSPI="6" end="S12" endSPI="7" text="">
+    <pathpoint id="PP57" x="1500" y="1216" text="" />
+    <pathpoint id="PP57" x="1585" y="1216" text="" />
+  </path>
+  <path id="P29" value="1" type="0" start="S13" startSPI="3" end="TIMER_SWITCH_3" endSPI="9" text="">
+    <pathpoint id="PP48" x="1826" y="1194" text="" />
+    <pathpoint id="PP48" x="1826" y="1130" text="" />
+  </path>
+  <path id="P36" value="1" type="0" start="S13" startSPI="8" end="LB_END" endSPI="5" text="">
+    <pathpoint id="PP55" x="1848" y="1216" text="" />
+    <pathpoint id="PP55" x="1932" y="1216" text="" />
+  </path>
+  <path id="P11" value="1" type="2" start="S13" startSPI="12" end="LB_END_E" endSPI="2" text="" labelDeltaX="1,60" labelDeltaY="0,00">
+    <pathpoint id="PP21" x="1826" y="1237" text="" />
+    <pathpoint id="PP22" x="1826" y="1302" text="" />
+  </path>
+  <path id="P41" value="1" type="0" start="S11" startSPI="8" end="!LB_SWITCH_2" endSPI="5" text="">
+    <pathpoint id="PP61" x="1408" y="1216" text="" />
+    <pathpoint id="PP62" x="1492" y="1216" text="" />
+  </path>
+  <path id="P60" value="1" type="0" start="LB_END" startSPI="6" end="S14" endSPI="7" text="">
+    <pathpoint id="PP93" x="1940" y="1216" text="" />
+    <pathpoint id="PP94" x="2025" y="1216" text="" />
+  </path>
+  <path id="P40" value="1" type="0" start="KEEP_NEXT_copy" startSPI="6" end="S11" endSPI="7" text="">
+    <pathpoint id="PP59" x="1280" y="1216" text="" />
+    <pathpoint id="PP60" x="1365" y="1216" text="" />
+  </path>
+  <path id="P13" value="1" type="0" start="S11" startSPI="3" end="TIMER_SWITCH_2" endSPI="9" text="">
+    <pathpoint id="PP38" x="1386" y="1194" text="" />
+    <pathpoint id="PP63" x="1386" y="1130" text="" />
+  </path>
+  <path id="P61" value="1" type="0" start="S14" startSPI="8" end="!LB_END" endSPI="5" text="">
+    <pathpoint id="PP95" x="2068" y="1216" text="" />
+    <pathpoint id="PP96" x="2152" y="1216" text="" />
+  </path>
+  <path id="P1" value="1" type="0" start="!LB_SWITCH_1" startSPI="6" end="S18" endSPI="7" text="">
+    <pathpoint id="PP1" x="430" y="1156" text="" />
+    <pathpoint id="PP2" x="515" y="1156" text="" />
+  </path>
+  <path id="P10" value="1" type="0" start="S8" startSPI="13" end="KEEP_NEXT" endSPI="5" text="">
+    <pathpoint id="PP20" x="335" y="1266" text="" />
+    <pathpoint id="PP28" x="422" y="1336" text="" />
+  </path>
+  <path id="P18" value="1" type="0" start="S8" startSPI="4" end="!LB_SWITCH_1" endSPI="5" text="">
+    <pathpoint id="PP29" x="335" y="1225" text="" />
+    <pathpoint id="PP31" x="422" y="1156" text="" />
+  </path>
+  <path id="P21" value="1" type="0" start="S8" startSPI="3" end="TIMER_SWITCH_1" endSPI="9" text="">
+    <pathpoint id="PP33" x="326" y="1224" text="" />
+    <pathpoint id="PP39" x="326" y="1070" text="" />
+  </path>
+  <path id="P16" value="1" type="0" start="S10" startSPI="5" end="!LB_RAMP" endSPI="5" text="">
+    <pathpoint id="PP9" x="772" y="1140" text="" />
+    <pathpoint id="PP23" x="882" y="1096" text="" />
+  </path>
+  <path id="P28" value="1" type="0" start="S10" startSPI="14" end="TIMER_RAMP" endSPI="5" text="">
+    <pathpoint id="PP24" x="772" y="1171" text="" />
+    <pathpoint id="PP25" x="882" y="1216" text="" />
+  </path>
+  <path id="P30" value="1" type="2" start="S18" startSPI="3" end="LB_RAMP_E" endSPI="9" text="" labelDeltaX="0,00" labelDeltaY="0,20">
+    <pathpoint id="PP40" x="536" y="1134" text="" />
+    <pathpoint id="PP49" x="536" y="1070" text="" />
+  </path>
+  <path id="P17" value="1" type="0" start="EXPECT_NEW" startSPI="6" end="S1" endSPI="7" text="">
+    <pathpoint id="PP52" x="130" y="396" text="" />
+    <pathpoint id="PP52" x="215" y="396" text="" />
+  </path>
+  <path id="P33" value="1" type="0" start="LB_START_1" startSPI="6" end="S2" endSPI="7" text="">
+    <pathpoint id="PP53" x="350" y="396" text="" />
+    <pathpoint id="PP54" x="435" y="396" text="" />
+  </path>
+  <path id="P35" value="1" type="0" start="LB_START_2" startSPI="6" end="S2" endSPI="12" text="">
+    <pathpoint id="PP65" x="350" y="496" text="" />
+    <pathpoint id="PP67" x="456" y="496" text="" />
+    <pathpoint id="PP68" x="456" y="417" text="" />
+  </path>
+  <path id="P39" value="1" type="0" start="S1" startSPI="3" end="TIMER_EXPECT_NEW" endSPI="9" text="">
+    <pathpoint id="PP69" x="236" y="374" text="" />
+    <pathpoint id="PP70" x="236" y="310" text="" />
+  </path>
+  <path id="P2" value="1" type="0" start="S1" startSPI="8" end="LB_START_1" endSPI="5" text="">
+    <pathpoint id="PP3" x="258" y="396" text="" />
+    <pathpoint id="PP4" x="342" y="396" text="" />
+  </path>
+  <path id="P34" value="1" type="2" start="S1" startSPI="12" end="LB_START_2" endSPI="5" text="" labelDeltaX="1,25" labelDeltaY="0,50">
+    <pathpoint id="PP56" x="236" y="417" text="" />
+    <pathpoint id="PP58" x="236" y="496" text="" />
+    <pathpoint id="PP64" x="342" y="496" text="" />
+  </path>
+</petri-net>

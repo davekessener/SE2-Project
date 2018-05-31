@@ -19,4 +19,3 @@ Data_ptr Location::deserialize(lib::ByteStream& bs)
 }
 
 }}
-
