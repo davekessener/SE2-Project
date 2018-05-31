@@ -14,7 +14,7 @@
 #define MXT_TIMEOUT 50
 #define MXT_MAXTRIES 100
 
-namespace esep { namespace test { namespace unit {
+namespace esep { namespace test { namespace ut {
 
 Watchdog::Watchdog(void)
 	: TestSuite("Watchdog")

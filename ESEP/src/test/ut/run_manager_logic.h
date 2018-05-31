@@ -10,12 +10,12 @@ namespace esep
 {
 	namespace test
 	{
-		namespace unit
+		namespace ut
 		{
 
 			struct BasicRecipient;
 
-			class RunManagerLogic : public TestSuite
+			class RunManagerLogic : public unit::TestSuite
 			{
 				typedef base::ConfigObject config_t;
 

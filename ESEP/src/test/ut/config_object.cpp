@@ -5,7 +5,7 @@
 #include "test/ut/config_object.h"
 #include "test/unit/assertions.h"
 
-namespace esep { namespace test { namespace unit {
+namespace esep { namespace test { namespace ut {
 
 ConfigObject::ConfigObject(void)
 	: TestSuite("Configuration Object")

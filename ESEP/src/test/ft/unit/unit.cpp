@@ -28,6 +28,7 @@
 #include "test/ut/compound_enum.h"
 #include "test/ut/master_logic.h"
 #include "test/ut/config_object.h"
+#include "test/ut/test_hal.h"
 
 namespace esep { namespace test { namespace functional {
 
@@ -36,24 +37,25 @@ bool runUnitTests(bool verbose)
 	lib::Timer::instance().sleep(5);
 
 	auto r = unit::Manager()
-		.addTest<unit::CRC32>()
-		.addTest<unit::LoggerFormatParser>()
-		.addTest<unit::FSM>()
-		.addTest<unit::ByteStream>()
-		.addTest<unit::QNXConnections>()
-		.addTest<unit::SyncContainer>()
-		.addTest<unit::Timer>()
-		.addTest<unit::DummyConnection>()
-		.addTest<unit::SerialClient>()
-		.addTest<unit::Watchdog>()
-		.addTest<unit::CommunicationLayer>()
-		.addTest<unit::HWLocation>()
-		.addTest<unit::EMPTokenizer>()
-		.addTest<unit::EMPParser>()
-		.addTest<unit::EMPPlayback>()
-		.addTest<unit::CompoundEnum>()
-		.addTest<unit::MasterLogic>()
-		.addTest<unit::ConfigObject>()
+		.addTest<ut::CRC32>()
+		.addTest<ut::LoggerFormatParser>()
+		.addTest<ut::FSM>()
+		.addTest<ut::ByteStream>()
+		.addTest<ut::QNXConnections>()
+		.addTest<ut::SyncContainer>()
+		.addTest<ut::Timer>()
+		.addTest<ut::DummyConnection>()
+		.addTest<ut::SerialClient>()
+		.addTest<ut::Watchdog>()
+		.addTest<ut::CommunicationLayer>()
+		.addTest<ut::HWLocation>()
+		.addTest<ut::EMPTokenizer>()
+		.addTest<ut::EMPParser>()
+		.addTest<ut::EMPPlayback>()
+		.addTest<ut::CompoundEnum>()
+		.addTest<ut::MasterLogic>()
+		.addTest<ut::ConfigObject>()
+		.addTest<ut::TestHAL>()
 		.run();
 
 	uint w = 0;

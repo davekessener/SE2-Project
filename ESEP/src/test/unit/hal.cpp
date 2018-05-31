@@ -31,6 +31,11 @@ void TestHAL::clear(void)
 	mReads.clear();
 	mWrites.clear();
 	mCallback = nullptr;
+
+	for(uint i = 0 ; i < hal::HAL::N_FIELDS ; ++i)
+	{
+		mBuffer[i] = 0;
+	}
 }
 
 void TestHAL::trigger(Event e)

@@ -4,7 +4,7 @@
 
 #include "emp/location.h"
 
-namespace esep { namespace test { namespace unit {
+namespace esep { namespace test { namespace ut {
 
 typedef hal::HAL HAL;
 typedef HAL::Field Field;

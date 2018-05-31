@@ -1,5 +1,5 @@
-#ifndef ESEP_TEST_UNIT_MASTERLOGIC_H
-#define ESEP_TEST_UNIT_MASTERLOGIC_H
+#ifndef ESEP_TEST_UT_MASTERLOGIC_H
+#define ESEP_TEST_UT_MASTERLOGIC_H
 
 #include "test/unit/unit.h"
 
@@ -10,11 +10,11 @@ namespace esep
 {
 	namespace test
 	{
-		namespace unit
+		namespace ut
 		{
 			struct BasicRecipient;
 
-			class MasterLogic : public TestSuite
+			class MasterLogic : public unit::TestSuite
 			{
 				typedef communication::Packet Packet;
 				typedef communication::Message Message;

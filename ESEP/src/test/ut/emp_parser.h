@@ -1,5 +1,5 @@
-#ifndef ESEP_TEST_UNIT_EMPPARSER_H
-#define ESEP_TEST_UNIT_EMPPARSER_H
+#ifndef ESEP_TEST_UT_EMPPARSER_H
+#define ESEP_TEST_UT_EMPPARSER_H
 
 #include "test/unit/unit.h"
 
@@ -7,9 +7,9 @@ namespace esep
 {
 	namespace test
 	{
-		namespace unit
+		namespace ut
 		{
-			class EMPParser : public TestSuite
+			class EMPParser : public unit::TestSuite
 			{
 				public:
 					EMPParser( );

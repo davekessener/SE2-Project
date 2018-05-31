@@ -1,5 +1,5 @@
-#ifndef ESEP_TEST_UNIT_EMPPLAYBACK_H
-#define ESEP_TEST_UNIT_EMPPLAYBACK_H
+#ifndef ESEP_TEST_UT_EMPPLAYBACK_H
+#define ESEP_TEST_UT_EMPPLAYBACK_H
 
 #include "test/unit/unit.h"
 
@@ -7,9 +7,9 @@ namespace esep
 {
 	namespace test
 	{
-		namespace unit
+		namespace ut
 		{
-			class EMPPlayback : public TestSuite
+			class EMPPlayback : public unit::TestSuite
 			{
 				public:
 					EMPPlayback( );

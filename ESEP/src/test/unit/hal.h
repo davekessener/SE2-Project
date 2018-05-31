@@ -20,9 +20,6 @@ namespace esep
 				typedef hal::HAL::Event Event;
 
 				public:
-				MXT_DEFINE_E(MissingCallbackException);
-
-				public:
 					TestHAL( );
 
 					uint32_t in(Field) override;

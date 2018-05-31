@@ -24,6 +24,9 @@ namespace esep
 				typedef std::vector<entry_t> data_t;
 
 				public:
+				MXT_DEFINE_E(MissingCallbackException);
+
+				public:
 					virtual ~Testable( ) { }
 
 					virtual const data_t& reads( ) const = 0;

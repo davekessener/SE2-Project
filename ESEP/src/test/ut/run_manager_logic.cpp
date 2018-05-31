@@ -2,7 +2,7 @@
 
 #include "test/unit/assertions.h"
 
-namespace esep { namespace test { namespace unit {
+namespace esep { namespace test { namespace ut {
 
 
 typedef communication::Packet_ptr Packet_ptr;

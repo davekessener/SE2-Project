@@ -15,9 +15,9 @@ namespace esep
 {
 	namespace test
 	{
-		namespace unit
+		namespace ut
 		{
-			class CommunicationLayer : public TestSuite
+			class CommunicationLayer : public unit::TestSuite
 			{
 				typedef communication::Packet Packet;
 				typedef communication::Message Message;

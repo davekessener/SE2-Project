@@ -9,9 +9,9 @@ namespace esep
 {
 	namespace test
 	{
-		namespace unit
+		namespace ut
 		{
-			class LoggerFormatParser : public TestSuite
+			class LoggerFormatParser : public unit::TestSuite
 			{
 				public:
 					LoggerFormatParser( );
