@@ -7,8 +7,8 @@
 #include "communication/IRecipient.h"
 
 #include "hal/hal.h"
+
 #include "lib/timer.h"
-#include "hal/buttons.h"
 
 namespace esep
 {
@@ -23,7 +23,6 @@ namespace esep
 
 			private:
 				communication::IRecipient * const mBaseHandler;
-				hal::Buttons& BUTTONS;
 		};
 	 }
 }

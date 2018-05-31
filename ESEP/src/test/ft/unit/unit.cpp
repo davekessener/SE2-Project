@@ -29,8 +29,6 @@
 #include "test/ut/master_logic.h"
 #include "test/ut/config_object.h"
 
-#include "system.h"
-
 namespace esep { namespace test { namespace functional {
 
 bool runUnitTests(bool verbose)
@@ -61,7 +59,7 @@ bool runUnitTests(bool verbose)
 	uint w = 0;
 	bool success = true;
 
-	HAL_CONSOLE.println();
+	std::cout << std::endl;
 
 	for(const auto& t : r)
 	{
@@ -74,7 +72,7 @@ bool runUnitTests(bool verbose)
 
 		if(total == 0)
 		{
-			HAL_CONSOLE.println(t.first, ": No tests run !!!");
+			std::cout << t.first << ": No tests run !!!" << std::endl;
 
 			continue;
 		}
@@ -91,21 +89,23 @@ bool runUnitTests(bool verbose)
 
 		if(verbose)
 		{
-			HAL_CONSOLE.println(std::setw(w), t.first, ": ", std::setw(3), p, "% [", std::setw(2), succ, " / ", std::setw(2), total,
-					"] tests successful");
+			std::cout << std::setw(w) << t.first << ": " << std::setw(3) << p << "% ["
+					  << std::setw(2) << succ << " / " << std::setw(2) << total
+					  << "] tests successful" << std::endl;
 		}
 	}
 
 	if(verbose)
 	{
-		HAL_CONSOLE.println();
+		std::cout << std::endl;
 	}
 
 	for(const auto& t : r)
 	{
 		if(!t.second.second.empty())
 		{
-			HAL_CONSOLE.println(t.first, " has encountered a critical error: ", t.second.second, "!");
+			std::cout << t.first << " has encountered a critical error: " << t.second.second << "!" << std::endl;
+
 			success = false;
 		}
 	}
@@ -116,7 +116,8 @@ bool runUnitTests(bool verbose)
 		{
 			if(p.first == unit::TestSuite::Result::FAILURE)
 			{
-				HAL_CONSOLE.println("[ERR] ", t.first, ": ", p.second);
+				std::cout << "[ERR] " << t.first << ": " << p.second << std::endl;
+
 				success = false;
 			}
 		}
@@ -124,7 +125,7 @@ bool runUnitTests(bool verbose)
 
 	if(success)
 	{
-		HAL_CONSOLE.println("SUCCESS!");
+		std::cout << "SUCCESS!" << std::endl;
 	}
 
 	return success;

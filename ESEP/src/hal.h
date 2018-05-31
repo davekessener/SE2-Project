@@ -3,6 +3,7 @@
 
 #include "lib/singleton.h"
 #include "lib/tuple.h"
+#include "lib/console.h"
 
 #include "base/config_object.h"
 
@@ -25,6 +26,7 @@
 #define HAL_METAL_SENSOR	::esep::HAL::instance().get<::esep::hal::MetalSensor>()
 #define HAL_MOTOR			::esep::HAL::instance().get<::esep::hal::Motor>()
 #define HAL_SWITCH			::esep::HAL::instance().get<::esep::hal::Switch>()
+#define HAL_CONSOLE			::esep::lib::Console::instance()
 
 namespace esep
 {
@@ -48,6 +50,8 @@ namespace esep
 
 			public:
 				void instantiate(HAL *, base::ConfigObject *);
+				void clear( );
+
 				template<typename T>
 				T& get( )
 				{

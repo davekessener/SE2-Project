@@ -25,4 +25,11 @@ void Holder::instantiate(HAL *hal, base::ConfigObject *config)
 	MXT_LOG("New HAL instance");
 }
 
+void Holder::clear(void)
+{
+	mHALObjects.reset();
+
+	mHAL = nullptr;
+}
+
 }}

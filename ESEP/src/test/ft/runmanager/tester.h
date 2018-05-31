@@ -2,6 +2,7 @@
 #define ESEP_TEST_FN_RUNMANAGER_TEST_H
 
 #include <atomic>
+#include <memory>
 
 #include "lib/utils.h"
 
@@ -9,6 +10,8 @@
 
 #include "base/config_object.h"
 #include "base/handler.h"
+
+#include "hal/hal.h"
 
 namespace esep
 {
@@ -37,6 +40,7 @@ namespace esep
 						void send(msg_t);
 
 					private:
+						std::unique_ptr<hal::HAL> mHAL;
 						base::ConfigObject mConfig;
 						base::Handler mHandler;
 						std::atomic<bool> mRunning, mKeep;

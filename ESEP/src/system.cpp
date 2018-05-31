@@ -34,24 +34,10 @@ typedef hal::Buttons::Button Button;
 
 Impl::Impl(void)
 	: mHAL(new hal::Physical())
-<<<<<<< HEAD
-=======
-	, mHALObjects(
-		hal::Buttons(mHAL),
-		hal::HeightSensor(mHAL, &mConfig),
-		hal::LEDs(mHAL),
-		hal::Switch(mHAL),
-		hal::LightBarriers(mHAL),
-		hal::Lights(mHAL),
-		hal::MetalSensor(mHAL),
-		hal::Motor(mHAL))
->>>>>>> refs/remotes/origin/implement-run-manager
 {
-<<<<<<< HEAD
 	HAL::instance().instantiate(mHAL, &mConfig);
-=======
+
 	MXT_LOG_INFO("Creating system object!");
->>>>>>> refs/remotes/origin/implement-run-manager
 }
 
 Impl::~Impl(void)
