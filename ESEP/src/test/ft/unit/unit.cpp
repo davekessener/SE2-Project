@@ -27,6 +27,7 @@
 #include "test/ut/emp_playback.h"
 #include "test/ut/compound_enum.h"
 #include "test/ut/master_logic.h"
+#include "test/ut/config_object.h"
 
 #include "system.h"
 
@@ -54,6 +55,7 @@ bool runUnitTests(bool verbose)
 		.addTest<unit::EMPPlayback>()
 		.addTest<unit::CompoundEnum>()
 		.addTest<unit::MasterLogic>()
+		.addTest<unit::ConfigObject>()
 		.run();
 
 	uint w = 0;

@@ -14,7 +14,7 @@ namespace esep
 
 			public:
 				HeightSensor(HAL *, ConfigObject *);
-				uint16_t measure( );
+				uint16_t measure(bool normalize = true);
 				bool isValid( );
 
 			private:
