@@ -176,15 +176,20 @@ void Handler::handleError(Message::Error e, Packet_ptr p)
 {
 	MXT_LOG_INFO("Received error message ", e, "!");
 
-	auto m = ErrorManager::create(this, p);
+//	auto m = ErrorManager::create(this, p);
+//
+//	if(!static_cast<bool>(mErrorManager) || m->priority() >= mErrorManager->priority())
+//	{
+//		mCurrentManager->leave();
+//		mErrorManager = std::move(m);
+//		mCurrentManager = mErrorManager.get();
+//		mCurrentManager->enter();
+//	}
+	mCurrentManager->leave();
+	mCurrentManager = mErrorManager.get();
+	mCurrentManager->enter();
+	mCurrentManager->accept(p);
 
-	if(!static_cast<bool>(mErrorManager) || m->priority() >= mErrorManager->priority())
-	{
-		mCurrentManager->leave();
-		mErrorManager = std::move(m);
-		mCurrentManager = mErrorManager.get();
-		mCurrentManager->enter();
-	}
 }
 
 void Handler::handleHAL(Event e)
