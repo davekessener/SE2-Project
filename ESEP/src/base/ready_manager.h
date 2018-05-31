@@ -23,7 +23,6 @@ namespace esep
 
 			private:
 				communication::IRecipient * const mBaseHandler;
-				hal::Buttons& BUTTONS;
 		};
 	 }
 }

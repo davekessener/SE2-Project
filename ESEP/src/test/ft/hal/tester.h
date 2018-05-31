@@ -15,6 +15,8 @@
 #include "hal/motor.h"
 #include "hal/switch.h"
 
+#include "base/config_object.h"
+
 namespace esep
 {
 	namespace test
@@ -54,6 +56,7 @@ namespace esep
 					}
 
 				private:
+					base::ConfigObject mConfig;
 					std::vector<std::pair<std::string, test_fn>> mTests;
 					bool mRunning;
 					std::vector<timer_t> mTimers;

@@ -2,7 +2,7 @@
 
 #include "lib/logger.h"
 
-#include "system.h"
+#include "hal.h"
 
 namespace esep { namespace base {
 

@@ -1,6 +1,6 @@
 #include "base/error/estop.h"
 
-#include "system.h"
+#include "hal.h"
 
 #include "hal/buttons.h"
 #include "hal/leds.h"

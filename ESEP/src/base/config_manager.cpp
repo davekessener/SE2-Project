@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "base/config_manager.h"
-#include "system.h"
+#include "hal.h"
 
 #include "hal/height_sensor.h"
 #include "hal/light_barriers.h"

@@ -10,14 +10,14 @@ namespace esep { namespace test { namespace functional {
 
 HALTester::HALTester(void)
 	: mHAL(new hal::Physical)
-, BUTTONS(mHAL)
-, HEIGHT_SENSOR(mHAL)
-, LEDS(mHAL)
-, SWITCH(mHAL)
-, LIGHT_BARRIERS(mHAL)
-, LIGHTS(mHAL)
-, METAL_SENSOR(mHAL)
-, MOTOR(mHAL)
+	, BUTTONS(mHAL)
+	, HEIGHT_SENSOR(mHAL, &mConfig)
+	, LEDS(mHAL)
+	, SWITCH(mHAL)
+	, LIGHT_BARRIERS(mHAL)
+	, LIGHTS(mHAL)
+	, METAL_SENSOR(mHAL)
+	, MOTOR(mHAL)
 {
 	mRunning = false;
 	mTests.push_back(std::make_pair("T-004", &HALTester::t_004));

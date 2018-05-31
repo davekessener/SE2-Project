@@ -31,7 +31,7 @@ test_fn getTest(const std::string& id)
 
 	if(i == t.end())
 	{
-		throw std::runtime_error(lib::stringify("Unknown test '", id, "'!"));
+		MXT_THROW_E(std::runtime_error, lib::stringify("Unknown test '", id, "'!"));
 	}
 
 	return i->second;

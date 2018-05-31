@@ -4,7 +4,7 @@
 
 namespace esep { namespace hal {
 
-HeightSensor::HeightSensor(HAL *hal)
+HeightSensor::HeightSensor(HAL *hal, base::ConfigObject *)
 	: mHAL(hal)
 {
 }
