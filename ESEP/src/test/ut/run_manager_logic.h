@@ -5,6 +5,7 @@
 #include "test/unit/unit.h"
 #include "base/run_manager.h"
 
+
 namespace esep
 {
 	namespace test
@@ -12,18 +13,24 @@ namespace esep
 		namespace unit
 		{
 
-			class RunManagerLogic // : public TestSuite
+			struct BasicRecipient;
+
+			class RunManagerLogic : public TestSuite
 			{
+				typedef base::ConfigObject config_t;
+
 				public:
 				   RunManagerLogic();
-				   virtual ~RunManagerLogic();
 
 				protected:
-//				   void setup( ) override;
-//				   void teardown( ) override;
-//				   void define( ) override;
+				   void setup( );
+				   void teardown( );
+				   void define( );
 
 				private:
+				   BasicRecipient *mCom;
+				   base::RunManager *mRunManager;
+				   config_t *mConfig;
 
 			};
 
