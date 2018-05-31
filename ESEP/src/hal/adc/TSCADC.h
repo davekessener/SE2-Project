@@ -15,11 +15,12 @@
  *				
  */
 
-#ifndef TSCADC_H_
-#define TSCADC_H_
+#ifndef TSCADC_H
+#define TSCADC_H
 
 #include "tscadc_hw.h"
 
+#include "lib/utils.h"
 
 namespace esep
 {
@@ -169,7 +170,7 @@ namespace esep
 				unsigned int intStatus();
 
 			private:
-				unsigned int baseAdd;
+				uint32_t baseAdd;
 
 			};
 		}

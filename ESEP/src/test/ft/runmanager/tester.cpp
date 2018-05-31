@@ -92,10 +92,6 @@ void Tester::accept(Packet_ptr p)
 				send(Message::Base::CONFIG);
 				break;
 
-			case Message::Master::VALID:
-				send(Message::Base::VALID);
-				break;
-
 			default:
 				break;
 		}
@@ -107,7 +103,7 @@ void Tester::accept(Packet_ptr p)
 				break;
 
 			case Message::Config::DONE:
-				send(Message::Base::VALID);
+				send(Message::Base::IDLE);
 				break;
 
 			default:

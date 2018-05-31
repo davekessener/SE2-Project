@@ -18,9 +18,9 @@ namespace esep { namespace base {
 #define MXT_P_NR_STATES			14
 #define MXT_CAST(t)				static_cast<uint8_t>(t)
 #define MXT_ITEM_DUR			500
-#define MXT_FINISHED			1
-#define MXT_FIRSTTIME			2
-#define MXT_HM					3
+#define MXT_FINISHED			0
+#define MXT_FIRSTTIME			1
+#define MXT_HM					2
 
 RunManager::RunManager(communication::IRecipient* m, ConfigObject * c)
 	:	mMaster(m)
@@ -88,24 +88,22 @@ void RunManager::takeMeasurement()
 	uint64_t hvalStamp = lib::Timer::instance().elapsed();
 
 
-	if(mHeightMapBuffer.empty() || std::get<MXT_FINISHED>(mHeightMapBuffer.back))
+	if(mHeightMapBuffer.empty() || std::get<MXT_FINISHED>(mHeightMapBuffer.back()))
 	{
 		heightMap_ptr hm(new data::HeightMap);
 		mHeightMapBuffer.emplace_back(std::make_tuple(false, hvalStamp, hm));
-		std::get<MXT_HM>(mHeightMapBuffer.back).addHeightValue(0, hval);
+		std::get<MXT_HM>(mHeightMapBuffer.back())->addHeightValue(0, hval);
 	}
 	else
 	{
 		if(hval == 0)
 		{
-			std::get<MXT_FINISHED>(mHeightMapBuffer.back) = true;
+			std::get<MXT_FINISHED>(mHeightMapBuffer.back()) = true;
 		}
 		else
 		{
-			std::get<MXT_HM>(mHeightMapBuffer.back).addHeightValue(timeDiff(std::get<MXT_FIRSTTIME>(mHeightMapBuffer.back), hvalStamp), hval);
+			std::get<MXT_HM>(mHeightMapBuffer.back())->addHeightValue(timeDiff(std::get<MXT_FIRSTTIME>(mHeightMapBuffer.back()), hvalStamp), hval);
 		}
-
-
 	}
 }
 

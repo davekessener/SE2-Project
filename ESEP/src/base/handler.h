@@ -57,7 +57,7 @@ namespace esep
 				ConfigObject * const mConfigData;
 				std::atomic<bool> mRunning;
 				qnx::Connection mConnection;
-				std::unique_ptr<IManager> mConfigManager,  mRunManager, mIdleManager, mValidManager, mReadyManager;
+				std::unique_ptr<IManager> mConfigManager,  mRunManager, mIdleManager, mReadyManager;
 				ErrorManager::Error_ptr mErrorManager;
 				IManager* mCurrentManager;
 				container_t mPacketBuffer;

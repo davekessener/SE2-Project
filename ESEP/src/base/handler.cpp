@@ -8,7 +8,6 @@
 
 #include "base/idle/idle_manager.h"
 #include "base/idle/ready_manager.h"
-#include "base/idle/valid_manager.h"
 
 #include "base/config_manager.h"
 #include "base/error_manager.h"
@@ -26,7 +25,6 @@ Handler::Handler(ConfigObject *co)
 	, mRunning(true)
 {
 	mIdleManager.reset(new IdleManager(this, mConfigData));
-	mValidManager.reset(new ValidManager(this));
 	mReadyManager.reset(new ReadyManager(this));
 	mConfigManager.reset(new ConfigManager(this, mConfigData));
 	mRunManager.reset(new RunManager(this, mConfigData));
@@ -151,11 +149,6 @@ void Handler::switchManager(Message::Base msg)
 	case Message::Base::READY:
 		MXT_LOG_INFO("Switching to Ready");
 		m = mReadyManager.get();
-		break;
-
-	case Message::Base::VALID:
-		MXT_LOG_INFO("Switching to Valid");
-		m = mValidManager.get();
 		break;
 	}
 

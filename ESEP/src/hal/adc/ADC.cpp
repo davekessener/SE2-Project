@@ -101,7 +101,9 @@ ADC::Impl::Impl(void)
 
 void ADC::Impl::registerAdcISR(uint cid, int8_t code)
 {
+#ifndef __X86_64__
 	__asm(" dsb");
+#endif
 
 	/* Clear the status of all interrupts */
 	cleanUpInterrupts();
