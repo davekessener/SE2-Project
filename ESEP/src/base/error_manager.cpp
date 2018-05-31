@@ -1,7 +1,7 @@
-#include <base/error/estop.h>
-#include <base/error/irrecoverable.h>
-#include <base/error/ramp.h>
-#include <base/error/warning.h>
+#include "base/error/estop.h"
+#include "base/error/irrecoverable.h"
+#include "base/error/ramp.h"
+#include "base/error/warning.h"
 #include "base/error_manager.h"
 
 #include "lib/logger.h"
@@ -10,7 +10,6 @@ namespace esep { namespace base {
 
 ErrorManager::ErrorManager(communication::IRecipient * handler)
 	: mHandler(handler)
-	, mCurrentError(nullptr)
 {
 
 }
@@ -96,13 +95,13 @@ void ErrorManager::accept(Packet_ptr packet)
 
 		if(!static_cast<bool>(mCurrentError))
 		{
-			mCurrentError= std::move(m);
+			mCurrentError = std::move(m);
 			mCurrentError->enter();
 		}
 		else if (m->priority() >= mCurrentError->priority())
 		{
 			mCurrentError->leave();
-			mCurrentError= std::move(m);
+			mCurrentError = std::move(m);
 			mCurrentError->enter();
 		}
 	}
