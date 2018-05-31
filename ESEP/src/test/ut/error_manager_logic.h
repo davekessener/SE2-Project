@@ -5,18 +5,23 @@
 #include "test/unit/unit.h"
 
 #include "base/error_manager.h"
+#include "hal/buttons.h"
+#include "hal/light_barriers.h"
 
 namespace esep
 {
 	namespace test
 	{
-		namespace unit
+		namespace ut
 		{
 			struct BasicRecipient;
 
-			class ErrorManagerLogic : public TestSuite
+			class ErrorManagerLogic : public unit::TestSuite
 			{
 				typedef base::ErrorManager::Event Event;
+				typedef hal::HAL::Field Field;
+				typedef hal::Buttons::Button Button;
+				typedef hal::LightBarriers::LightBarrier LightBarrier;
 				typedef communication::Packet Packet;
 				typedef communication::Packet::Location Location;
 				typedef communication::Message Message;

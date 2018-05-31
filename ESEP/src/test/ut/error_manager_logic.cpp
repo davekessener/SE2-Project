@@ -3,7 +3,9 @@
 
 #include "test/unit/assertions.h"
 
-namespace esep { namespace test { namespace unit {
+#include "hal.h"
+
+namespace esep { namespace test { namespace ut {
 
 struct BasicRecipient : public communication::IRecipient
 {
@@ -30,6 +32,8 @@ void ErrorManagerLogic::setup(void)
 {
 	mHandler = new BasicRecipient;
 	mErrManager = new base::ErrorManager(mHandler);
+
+	hal().setCallback( [this](Event e) { mErrManager->handle(e); } );
 }
 
 void ErrorManagerLogic::teardown(void)
@@ -47,17 +51,127 @@ void ErrorManagerLogic::define()
 {
 	UNIT_TEST("can acknowledge estop error")
 	{
+		mErrManager->enter();
 		send(Location::BASE, Message::Error::ESTOP);
 
-		mErrManager->handle(Event::BTN_ESTOP);
-		mErrManager->handle(Event::BTN_RESET);
-		mErrManager->handle(Event::BTN_START);
+		ASSERT_EQUALS(mHandler->packets.size(), 0u);
 
-		//... here hal manipulation
+		hal().setField(Field::GPIO_0, static_cast<uint32_t>(Button::ESTOP));			// this shouldnt work
+		hal().trigger(Event::BTN_ESTOP);
+
+		ASSERT_EQUALS(mHandler->packets.size(), 0u);
+
+		hal().setField(Field::GPIO_0, static_cast<uint32_t>(Button::RESET));
+		hal().trigger(Event::BTN_RESET);
+
+		ASSERT_EQUALS(mHandler->packets.size(), 1u);
+
 		ASSERT_EQUALS(mHandler->packets.front()->source(), Location::BASE);
 		ASSERT_EQUALS(mHandler->packets.front()->target(), Location::MASTER);
 		ASSERT_EQUALS(mHandler->packets.front()->message(), Message::Master::FIXED);
 	};
+
+	UNIT_TEST("can acknowledge ramp error")
+	{
+		mErrManager->enter();
+		send(Location::BASE, Message::Error::RAMP_FULL);
+
+		ASSERT_EQUALS(mHandler->packets.size(), 0u);
+
+		hal().setField(Field::GPIO_0, static_cast<uint32_t>(LightBarrier::LB_RAMP));	// this shouldnt work
+		hal().trigger(Event::LB_RAMP);
+
+		ASSERT_EQUALS(mHandler->packets.size(), 0u);
+
+		hal().setField(Field::GPIO_0, static_cast<uint32_t>(Button::RESET));
+		hal().trigger(Event::BTN_RESET);
+
+		ASSERT_EQUALS(mHandler->packets.size(), 1u);
+
+		ASSERT_EQUALS(mHandler->packets.front()->source(), Location::BASE);
+		ASSERT_EQUALS(mHandler->packets.front()->target(), Location::MASTER);
+		ASSERT_EQUALS(mHandler->packets.front()->message(), Message::Master::FIXED);
+	};
+
+	UNIT_TEST("can set warning error")
+	{
+		mErrManager->enter();
+		send(Location::BASE, Message::Error::WARNING);
+
+		ASSERT_EQUALS(mHandler->packets.size(), 1u);
+
+		ASSERT_EQUALS(mHandler->packets.front()->source(), Location::BASE);
+		ASSERT_EQUALS(mHandler->packets.front()->target(), Location::MASTER);
+		ASSERT_EQUALS(mHandler->packets.front()->message(), Message::Master::FIXED);
+	};
+
+	UNIT_TEST("can switch to higher prioritized error")
+	{
+		mErrManager->enter();
+		send(Location::BASE, Message::Error::WARNING);
+
+		ASSERT_EQUALS(mHandler->packets.size(), 1u);
+
+		send(Location::BASE, Message::Error::RAMP_FULL);
+
+		ASSERT_EQUALS(mHandler->packets.size(), 1u);
+
+		hal().setField(Field::GPIO_0, static_cast<uint32_t>(LightBarrier::LB_RAMP));	// this shouldnt work
+		hal().trigger(Event::LB_RAMP);
+
+		ASSERT_EQUALS(mHandler->packets.size(), 1u);
+
+		hal().setField(Field::GPIO_0, static_cast<uint32_t>(Button::RESET));
+		hal().trigger(Event::BTN_RESET);
+
+		ASSERT_EQUALS(mHandler->packets.size(), 2u);
+	};
+
+	UNIT_TEST("switching to lower prioritized error will not work")
+	{
+		mErrManager->enter();
+		send(Location::BASE, Message::Error::ESTOP);
+
+		ASSERT_EQUALS(mHandler->packets.size(), 0u);
+
+		send(Location::BASE, Message::Error::WARNING);
+
+		ASSERT_EQUALS(mHandler->packets.size(), 0u);
+
+		hal().setField(Field::GPIO_0, static_cast<uint32_t>(Button::ESTOP));			// this shouldnt work
+		hal().trigger(Event::BTN_ESTOP);
+
+
+		hal().setField(Field::GPIO_0, static_cast<uint32_t>(Button::RESET));
+		hal().trigger(Event::BTN_RESET);
+
+		ASSERT_EQUALS(mHandler->packets.size(), 1u);
+
+		send(Location::BASE, Message::Error::WARNING);
+
+		ASSERT_EQUALS(mHandler->packets.size(), 1u);
+
+		mErrManager->leave();
+		mErrManager->enter();
+
+		send(Location::BASE, Message::Error::WARNING);
+
+		ASSERT_EQUALS(mHandler->packets.size(), 2u);
+	};
+
+//	UNIT_TEST("can set (irrecoverable) serial error")
+//	{
+//		mErrManager->enter();
+//		send(Location::BASE, Message::Error::SERIAL);
+//		ASSERT_EQUALS(mHandler->packets.size(), 0u);
+//	};
+//
+//	UNIT_TEST("can set (irrecoverable) config error")
+//	{
+//		mErrManager->enter();
+//		send(Location::BASE, Message::Error::SERIAL);
+//		ASSERT_EQUALS(mHandler->packets.size(), 0u);
+//	};
 }
 
 }}}

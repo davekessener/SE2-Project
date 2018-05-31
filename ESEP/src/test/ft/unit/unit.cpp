@@ -29,6 +29,7 @@
 #include "test/ut/master_logic.h"
 #include "test/ut/config_object.h"
 #include "test/ut/test_hal.h"
+#include "test/ut/error_manager_logic.h"
 
 namespace esep { namespace test { namespace functional {
 
@@ -56,6 +57,7 @@ bool runUnitTests(bool verbose)
 		.addTest<ut::MasterLogic>()
 		.addTest<ut::ConfigObject>()
 		.addTest<ut::TestHAL>()
+		.addTest<ut::ErrorManagerLogic>()
 		.run();
 
 	uint w = 0;
