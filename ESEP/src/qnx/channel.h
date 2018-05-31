@@ -2,9 +2,12 @@
 #define ESEP_QNX_CHANNEL_H
 
 #include "lib/utils.h"
+
 #include "qnx/pulse.h"
 #include "qnx/connection.h"
+
 #include "hal/gpio.h"
+#include "hal/adc/adc.h"
 
 namespace esep
 {
@@ -12,6 +15,8 @@ namespace esep
 	{
 		class Channel
 		{
+			typedef hal::adc::ADC ADC;
+
 			public:
 			MXT_DEFINE_E(TimerRedefinedException);
 
@@ -30,6 +35,8 @@ namespace esep
 				// accepts the int8_t code to be send as well as the callbacks
 				// frequency in ns in a uint64_t
 				void registerTimerListener(Connection&, int8_t, uint64_t);
+
+				void registerADC(Connection&, ADC&, int8_t);
 
 			private:
 				channel_id_t mID;

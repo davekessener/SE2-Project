@@ -5,7 +5,7 @@
 
 #include "base/config_object.h"
 
-#define MXT_NO_OF_VALUES 5
+#define MXT_NO_OF_VALUES 7
 
 namespace esep { namespace base {
 
@@ -50,7 +50,8 @@ ConfigObject::ConfigObject(const std::string& path)
 			mHeightSensorMax = (uint16_t) std::stoi(fileData.back());
 			fileData.pop_back();
 			mHeightSensorMin = (uint16_t) std::stoi(fileData.back());
-			mValid = true;
+			fileData.pop_back();
+			mTimeTolerance = (float) std::stof(fileData.back());
 		}
 	}
 }
@@ -66,7 +67,8 @@ void ConfigObject::save()
 
 	if(confFile.is_open())
 	{
-		confFile << mHeightSensorMin << "\n"
+		confFile << mTimeTolerance << "\n"
+				 << mHeightSensorMin << "\n"
 				 << mHeightSensorMax << "\n"
 				 << mStartToHs    << "\n"
 				 << mHsToSwitch   << "\n"
@@ -87,7 +89,8 @@ bool ConfigObject::isValid()
 			&& mStartToHs > 0
 			&& mHsToSwitch > 0
 			&& mSwitchToEnd > 0
-			&& mSlowFactor > 0));
+			&& mSlowFactor > 0
+			&& mTimeTolerance > 0));
 }
 
 void ConfigObject::setHeightSensorMin(uint16_t val)
@@ -137,7 +140,7 @@ void ConfigObject::setSwitchToEnd(uint32_t val)
 
 void ConfigObject::setSlowFactor(float val)
 {
-	if(val > 1 || val == 0)
+	if(val > 1 || val <= 0)
 	{
 		MXT_THROW_EX(ConfigObject::InvalidDataException);
 	}
@@ -146,7 +149,7 @@ void ConfigObject::setSlowFactor(float val)
 
 void ConfigObject::setTimeTolerance(float val)
 {
-	if(val > 1 || val == 0)
+	if(val > 1 || val <= 0)
 	{
 		MXT_THROW_EX(ConfigObject::InvalidDataException);
 	}

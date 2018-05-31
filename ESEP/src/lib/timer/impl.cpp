@@ -117,6 +117,40 @@ void Impl::unregisterCallback(const Manager& tm)
 	}
 }
 
+void Impl::pauseCallback(Manager& tm)
+{
+	lock_t lock;
+
+	if(!mTimerThread.active())
+	{
+		lock = lock_t(mMutex);
+	}
+
+	auto i = mTimers.find(tm.mID);
+
+	if(i != mTimers.end())
+	{
+		i->second->suspend();
+	}
+}
+
+void Impl::resumeCallback(Manager& tm)
+{
+	lock_t lock;
+
+	if(!mTimerThread.active())
+	{
+		lock = lock_t(mMutex);
+	}
+
+	auto i = mTimers.find(tm.mID);
+
+	if(i != mTimers.end())
+	{
+		i->second->resume();
+	}
+}
+
 Manager Impl::addTimer(Timer_ptr p)
 {
 	auto id = p->ID();
@@ -165,7 +199,10 @@ void Impl::update(void)
 		}
 		else
 		{
-			t.tick();
+			if(!t.isPaused())
+			{
+				t.tick();
+			}
 
 			++i1;
 		}

@@ -54,3 +54,9 @@ void Packet::addDataPoint(std::shared_ptr<data::DataPoint> p)
 }
 
 }}
+
+std::ostream& operator<<(std::ostream& os, const esep::communication::Packet& p)
+{
+	return os << "{" << (int)p.source() << " -> " << (int)p.target() << ": " << esep::lib::hex<sizeof(p.message()) * 8>(p.message()) << "}";
+}
+

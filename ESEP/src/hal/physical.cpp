@@ -38,11 +38,15 @@ Physical::Physical(void)
 
 			mGPIOs[2]->configureForOutput();
 
+			mADC.reset(new adc::ADC);
+
 			qnx::Channel channel;
 
 			mConnection = channel.connect();
 			// Send a Code::INTERRUPT pulse msg when an interrupt in GPIO Block 0 occurs
 			channel.registerInterruptListener(mConnection, *mGPIOs[0], static_cast<int8_t>(Code::INTERRUPT));
+			// Send a Code::ANALOG_SET pulse msg when an interrupt in ADC occurs
+			channel.registerADC(mConnection, *mADC, static_cast<int8_t>(Code::ANALOG_SET));
 
 			updateSensors();
 
@@ -84,6 +88,10 @@ Physical::Physical(void)
 
 				case static_cast<int8_t>(Code::GPIO_2_RESET):
 					onGPIO(2, &GPIO::resetBits, p.value);
+					break;
+
+				case static_cast<int8_t>(Code::ANALOG_SET):
+					updateADC(p.value);
 					break;
 
 				case static_cast<int8_t>(Code::INTERRUPT):
@@ -137,6 +145,15 @@ void Physical::updateSensors(void)
 		mGPIOs[0]->clearInterruptFlags();
 	}
 	MXT_CATCH_ALL_STRAY
+}
+
+void Physical::updateADC(uint32_t v)
+{
+	try
+	{
+		update(Field::ANALOG, v);
+	}
+	MXT_CATCH_ALL_STRAY;
 }
 
 void Physical::onGPIO(uint b, gpio_fn f, uint32_t v)

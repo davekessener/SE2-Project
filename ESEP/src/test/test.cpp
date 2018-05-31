@@ -7,6 +7,9 @@
 #include "test/ft/hal.h"
 #include "test/ft/communication.h"
 #include "test/ft/emp.h"
+#include "test/ft/runmanager.h"
+#include "test/ft/master.h"
+#include "test/ft/heightsensor.h"
 
 #include "lib/logger.h"
 
@@ -25,6 +28,9 @@ test_fn getTest(const std::string& id)
 		t["hal"] = &functional::testHAL;
 		t["com"] = &functional::testCommunicationLayer;
 		t["emp"] = &functional::testEMP;
+		t["run"] = &functional::testRunManager;
+		t["master"] = &functional::testMasterLogic;
+		t["hs"] = &functional::testHeightSensor;
 	}
 
 	auto i = t.find(id);
