@@ -10,7 +10,7 @@
 
 #define MXT_TIMEOUT 20
 
-namespace esep { namespace test { namespace unit {
+namespace esep { namespace test { namespace ut {
 
 namespace
 {

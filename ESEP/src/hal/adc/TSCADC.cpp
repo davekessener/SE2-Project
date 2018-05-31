@@ -29,7 +29,7 @@
 namespace esep { namespace hal { namespace adc {
 
 TSCADC::TSCADC()
-	: 	baseAdd(MAP_DEVICE_FAILED){
+	: 	baseAdd((uint32_t) MAP_DEVICE_FAILED){
 	gainAccess();
 }
 

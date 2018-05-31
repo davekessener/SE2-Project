@@ -12,9 +12,9 @@ namespace esep
 {
 	namespace test
 	{
-		namespace unit
+		namespace ut
 		{
-			class ConfigObject : public TestSuite
+			class ConfigObject : public unit::TestSuite
 			{
 				typedef base::ConfigObject config_t;
 

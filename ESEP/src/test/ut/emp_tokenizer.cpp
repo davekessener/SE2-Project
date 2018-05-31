@@ -4,7 +4,7 @@
 
 #include "emp/tokenizer.h"
 
-namespace esep { namespace test { namespace unit {
+namespace esep { namespace test { namespace ut {
 
 EMPTokenizer::EMPTokenizer(void)
 	: TestSuite("EMP Tokenizer")

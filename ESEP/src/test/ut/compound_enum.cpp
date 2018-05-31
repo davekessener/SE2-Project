@@ -2,7 +2,7 @@
 
 #include "test/unit/assertions.h"
 
-namespace esep { namespace test { namespace unit {
+namespace esep { namespace test { namespace ut {
 
 CompoundEnum::CompoundEnum(void)
 	: TestSuite("Compound Enum")

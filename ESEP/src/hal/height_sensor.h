@@ -4,6 +4,8 @@
 #include "hal/hal.h"
 #include "base/config_object.h"
 
+#include "base/config_object.h"
+
 namespace esep
 {
 	namespace hal

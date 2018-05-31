@@ -6,8 +6,6 @@
 #include "lib/utils.h"
 #include "lib/logger.h"
 
-#include "system.h"
-
 namespace esep { namespace test { namespace unit {
 
 void TestSuite::doTest(void)
@@ -19,11 +17,13 @@ void TestSuite::doTest(void)
 
 	auto onFailure = [this](const std::string& s) {
 		mResults.push_back(std::make_pair(Result::FAILURE, s));
-		HAL_CONSOLE.print("E");
+		std::cout << "E" << std::flush;
 	};
 
 	for(const auto& p : mTests)
 	{
+		mHAL->clear();
+
 		setup();
 
 		try
@@ -34,7 +34,7 @@ void TestSuite::doTest(void)
 
 			mResults.push_back(std::make_pair(Result::SUCCESS, ""));
 
-			HAL_CONSOLE.print(".");
+			std::cout << "." << std::flush;
 		}
 		catch(const std::exception& e)
 		{

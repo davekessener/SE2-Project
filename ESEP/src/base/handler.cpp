@@ -13,7 +13,7 @@
 #include "base/error_manager.h"
 #include "base/run_manager.h"
 
-#include "system.h"
+#include "hal.h"
 
 namespace esep { namespace base {
 

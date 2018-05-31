@@ -6,9 +6,20 @@
 #include "lib/utils.h"
 #include "lib/logger.h"
 
-#include "system.h"
+#include <hal.h> // muss leider sein
 
 namespace esep { namespace test { namespace unit {
+
+Manager::Manager(void)
+	: mConfig("")
+{
+	HAL::instance().instantiate(&mHAL, &mConfig);
+}
+
+Manager::~Manager(void)
+{
+	HAL::instance().clear();
+}
 
 Manager::results_t Manager::run(void)
 {
@@ -19,7 +30,7 @@ Manager::results_t Manager::run(void)
 		MXT_LOG_ERROR("Encountered unexpected exception: ", e);
 	};
 
-	HAL_CONSOLE.print("Running unit test suites: ");
+	std::cout << "Running unit test suites: ";
 	MXT_LOG("Running unit tests ...");
 
 	for(TestSuite *s : mTests)
@@ -46,7 +57,7 @@ Manager::results_t Manager::run(void)
 		}
 	}
 
-	HAL_CONSOLE.println();
+	std::cout << std::endl;
 
 	for(TestSuite *ts : mTests)
 	{

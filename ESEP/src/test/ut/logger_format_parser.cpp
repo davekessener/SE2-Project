@@ -2,7 +2,7 @@
 
 #include "test/ut/logger_format_parser.h"
 
-namespace esep { namespace test { namespace unit {
+namespace esep { namespace test { namespace ut {
 
 typedef log::format::Parser Parser;
 

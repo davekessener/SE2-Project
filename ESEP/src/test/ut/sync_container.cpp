@@ -7,7 +7,7 @@
 
 #include "test/unit/assertions.h"
 
-namespace esep { namespace test { namespace unit {
+namespace esep { namespace test { namespace ut {
 
 SyncContainer::SyncContainer(void)
 	: TestSuite("sync/Container")

@@ -13,7 +13,7 @@
 #define MXT_TIMEOUT 100
 #define MXT_MAXTRIES 100
 
-namespace esep { namespace test { namespace unit {
+namespace esep { namespace test { namespace ut {
 
 CommunicationLayer::CommunicationLayer(void)
 	: TestSuite("Communication Layer")
