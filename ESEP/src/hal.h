@@ -47,6 +47,7 @@ namespace esep
 
 			public:
 			MXT_DEFINE_E(HALNotInstantiatedException);
+			MXT_DEFINE_E(HALAlreadyInstantiatedException);
 
 			public:
 				void instantiate(HAL *, base::ConfigObject *);

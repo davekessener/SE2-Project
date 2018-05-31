@@ -11,6 +11,11 @@ Holder::Holder(void)
 
 void Holder::instantiate(HAL *hal, base::ConfigObject *config)
 {
+	if(mHAL)
+	{
+		MXT_THROW_EX(HALAlreadyInstantiatedException);
+	}
+
 	mHAL = hal;
 	mHALObjects.reset(new hal_t(
 		Buttons(mHAL),
@@ -27,6 +32,11 @@ void Holder::instantiate(HAL *hal, base::ConfigObject *config)
 
 void Holder::clear(void)
 {
+	if(!mHAL)
+	{
+		MXT_THROW_EX(HALNotInstantiatedException);
+	}
+
 	mHALObjects.reset();
 
 	mHAL = nullptr;

@@ -6,7 +6,20 @@
 #include "lib/utils.h"
 #include "lib/logger.h"
 
+#include <hal.h> // muss leider sein
+
 namespace esep { namespace test { namespace unit {
+
+Manager::Manager(void)
+	: mConfig("")
+{
+	HAL::instance().instantiate(&mHAL, &mConfig);
+}
+
+Manager::~Manager(void)
+{
+	HAL::instance().clear();
+}
 
 Manager::results_t Manager::run(void)
 {

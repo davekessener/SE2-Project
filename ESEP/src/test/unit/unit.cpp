@@ -22,6 +22,8 @@ void TestSuite::doTest(void)
 
 	for(const auto& p : mTests)
 	{
+		mHAL->clear();
+
 		setup();
 
 		try
