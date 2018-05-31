@@ -6,6 +6,8 @@
 #include "lib/utils.h"
 #include "lib/logger.h"
 
+#include "system.h"
+
 namespace esep { namespace test { namespace unit {
 
 Manager::results_t Manager::run(void)
@@ -14,18 +16,17 @@ Manager::results_t Manager::run(void)
 
 	auto onError = [&results](const TestSuite *s, const std::string& e) {
 		results[s->name()].second = e;
-		MXT_LOG(lib::stringify("Encountered unexpected exception: ", e));
+		MXT_LOG_ERROR("Encountered unexpected exception: ", e);
 	};
 
-	std::cout << "Running unit test suites: " << std::flush;
-
+	HAL_CONSOLE.print("Running unit test suites: ");
 	MXT_LOG("Running unit tests ...");
 
 	for(TestSuite *s : mTests)
 	{
 		try
 		{
-			MXT_LOG(lib::stringify("Running UT suite '", s->name(), "'"));
+			MXT_LOG("Running UT suite '", s->name(), "'");
 
 			s->doTest();
 
@@ -45,7 +46,7 @@ Manager::results_t Manager::run(void)
 		}
 	}
 
-	std::cout << "\n" << std::flush;
+	HAL_CONSOLE.println();
 
 	for(TestSuite *ts : mTests)
 	{

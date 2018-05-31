@@ -44,7 +44,6 @@ bool Thread::active(void) const
 
 void Thread::logCreation(void)
 {
-//	std::cout << lib::stringify("Just spawned a new thread with ID ", mThread.get_id()) << std::endl;
 }
 
 }}

@@ -26,6 +26,9 @@
 #include "test/ut/emp_parser.h"
 #include "test/ut/emp_playback.h"
 #include "test/ut/compound_enum.h"
+#include "test/ut/master_logic.h"
+
+#include "system.h"
 
 namespace esep { namespace test { namespace functional {
 
@@ -50,12 +53,13 @@ bool runUnitTests(bool verbose)
 		.addTest<unit::EMPParser>()
 		.addTest<unit::EMPPlayback>()
 		.addTest<unit::CompoundEnum>()
+		.addTest<unit::MasterLogic>()
 		.run();
 
 	uint w = 0;
 	bool success = true;
 
-	std::cout << std::endl;
+	HAL_CONSOLE.println();
 
 	for(const auto& t : r)
 	{
@@ -68,7 +72,7 @@ bool runUnitTests(bool verbose)
 
 		if(total == 0)
 		{
-			std::cout << t.first << ": No tests run !!!\n";
+			HAL_CONSOLE.println(t.first, ": No tests run !!!");
 
 			continue;
 		}
@@ -85,21 +89,21 @@ bool runUnitTests(bool verbose)
 
 		if(verbose)
 		{
-			std::cout << std::setw(w) << t.first << ": " << std::setw(3) << p << "% [" << std::setw(2) << succ << " / "
-					  << std::setw(2) << total << "] tests successful\n";
+			HAL_CONSOLE.println(std::setw(w), t.first, ": ", std::setw(3), p, "% [", std::setw(2), succ, " / ", std::setw(2), total,
+					"] tests successful");
 		}
 	}
 
 	if(verbose)
 	{
-		std::cout << "\n";
+		HAL_CONSOLE.println();
 	}
 
 	for(const auto& t : r)
 	{
 		if(!t.second.second.empty())
 		{
-			std::cout << t.first << " has encountered a critical error: " << t.second.second << "!\n";
+			HAL_CONSOLE.println(t.first, " has encountered a critical error: ", t.second.second, "!");
 			success = false;
 		}
 	}
@@ -110,7 +114,7 @@ bool runUnitTests(bool verbose)
 		{
 			if(p.first == unit::TestSuite::Result::FAILURE)
 			{
-				std::cout << "[ERR] " << t.first << ": " << p.second << "\n";
+				HAL_CONSOLE.println("[ERR] ", t.first, ": ", p.second);
 				success = false;
 			}
 		}
@@ -118,7 +122,7 @@ bool runUnitTests(bool verbose)
 
 	if(success)
 	{
-		std::cout << "SUCCESS!\n";
+		HAL_CONSOLE.println("SUCCESS!");
 	}
 
 	return success;

@@ -5,6 +5,7 @@
 #include "lib/arguments.h"
 #include "lib/singleton.h"
 #include "lib/tuple.h"
+#include "lib/console.h"
 
 #include "hal/hal.h"
 #include "hal/buffer.h"
@@ -25,6 +26,8 @@
 #define HAL_METAL_SENSOR	::esep::System::instance().get<::esep::hal::MetalSensor>()
 #define HAL_MOTOR			::esep::System::instance().get<::esep::hal::Motor>()
 #define HAL_SWITCH			::esep::System::instance().get<::esep::hal::Switch>()
+
+#define HAL_CONSOLE			::esep::lib::Console::instance()
 
 namespace esep
 {

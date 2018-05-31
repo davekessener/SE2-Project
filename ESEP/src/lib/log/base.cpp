@@ -51,9 +51,12 @@ void Base::setFormat(const std::string& f)
 	std::swap(mFormat, parser.format);
 }
 
-void Base::log(uint time, tid_t tid, Severity severity, const std::string& message, const Source& source)
+void Base::log(uint time, tid_t tid, Severity severity, const std::string& msg, const Source& source)
 {
 	std::stringstream ss;
+	std::string message(msg);
+
+	std::transform(message.begin(), message.end(), message.begin(), [](const char& c) { return c == '\n' ? '\\' : c; });
 
 	auto i1 = mLiterals.cbegin(), i2 = mLiterals.cend();
 

@@ -1,0 +1,47 @@
+#ifndef ESEP_TEST_UNIT_MASTERLOGIC_H
+#define ESEP_TEST_UNIT_MASTERLOGIC_H
+
+#include "test/unit/unit.h"
+
+#include "master/master.h"
+#include "master/item.h"
+
+namespace esep
+{
+	namespace test
+	{
+		namespace unit
+		{
+			struct BasicRecipient;
+
+			class MasterLogic : public TestSuite
+			{
+				typedef communication::Packet Packet;
+				typedef communication::Message Message;
+				typedef Packet::Location Location;
+				typedef Packet::msg_t msg_t;
+				typedef master::Plugin Plugin;
+				typedef master::Plugin_ptr Plugin_ptr;
+				typedef master::Item Item;
+
+				public:
+					MasterLogic( );
+
+				protected:
+					void setup( ) override;
+					void teardown( ) override;
+					void define( ) override;
+
+				private:
+					void send(Location, msg_t);
+
+				private:
+					BasicRecipient *mCom;
+					master::Master *mMaster;
+					std::vector<Item> mItems;
+			};
+		}
+	}
+}
+
+#endif
