@@ -226,6 +226,23 @@ void ErrorManagerLogic::define()
 		ASSERT_EQUALS(mHandler->packets.size(), 1u);
 	};
 
+	UNIT_TEST("can acknowledge item disappeared error")
+	{
+		mErrManager->enter();
+		send(Location::BASE, Message::Error::ITEM_DISAPPEARED);
+
+		ASSERT_EQUALS(mHandler->packets.size(), 0u);
+
+		hal().setField(Field::GPIO_0, static_cast<uint32_t>(Button::RESET));
+		hal().trigger(Event::BTN_RESET);
+
+		ASSERT_EQUALS(mHandler->packets.size(), 1u);
+
+		ASSERT_EQUALS(mHandler->packets.front()->source(), Location::BASE);
+		ASSERT_EQUALS(mHandler->packets.front()->target(), Location::MASTER);
+		ASSERT_EQUALS(mHandler->packets.front()->message(), Message::Master::FIXED);
+	};
+
 	UNIT_TEST("can switch to higher prioritized error")
 	{
 		mErrManager->enter();
