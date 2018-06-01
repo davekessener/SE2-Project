@@ -7,6 +7,7 @@
 #include "base/error_manager.h"
 #include "hal/buttons.h"
 #include "hal/light_barriers.h"
+#include "data/location_data.h"
 
 namespace esep
 {
@@ -26,6 +27,7 @@ namespace esep
 				typedef communication::Packet::Location Location;
 				typedef communication::Message Message;
 				typedef communication::Packet::msg_t msg_t;
+				typedef data::Location::Type dloc_t;
 
 				public:
 					ErrorManagerLogic( );
@@ -37,6 +39,7 @@ namespace esep
 
 				private:
 					void send(Location, msg_t);
+					void sendl(Location, msg_t, dloc_t);
 
 				private:
 					base::ErrorManager *mErrManager;

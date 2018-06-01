@@ -1,12 +1,20 @@
+
+#include "base/error_manager.h"
+
 #include "base/error/estop.h"
 #include "base/error/irrecoverable.h"
 #include "base/error/ramp.h"
 #include "base/error/warning.h"
-#include "base/error_manager.h"
+#include "base/error/item_appeared.h"
 
 #include "lib/logger.h"
 
 namespace esep { namespace base {
+
+typedef communication::Packet::Location Location;
+typedef communication::Message::Error Error;
+typedef data::Location::Type dloc_t;
+typedef data::DataPoint::Type DataType;
 
 ErrorManager::ErrorManager(communication::IRecipient * handler)
 	: mHandler(handler)
@@ -58,8 +66,6 @@ void ErrorManager::leave()
 
 void ErrorManager::accept(Packet_ptr packet)
 {
-	typedef communication::Packet::Location Location;
-	typedef communication::Message::Error Error;
 
 	if (packet->target() == Location::MASTER)
 	{
@@ -85,6 +91,18 @@ void ErrorManager::accept(Packet_ptr packet)
 
 			case Error::WARNING:
 				m = Error_ptr(new error::Warning(this));
+				break;
+
+			case Error::ITEM_APPEARED:
+				//TODO How to get only one DataPoint?
+				for (auto& p : *packet)
+				{
+					if(p->type() == DataType::LOCATION)
+					{
+						m = Error_ptr(new error::ItemAppeared(this, dynamic_cast<data::Location&>(*p).location()));
+						break;
+					}
+				}
 				break;
 
 			default:

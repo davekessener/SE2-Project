@@ -38,7 +38,7 @@ void Estop::handle(Event e)
 		break;
 
 	default:
-		ResetAck::handle(e);
+		if (state() == State::GONE) ResetAck::handle(e);
 		break;
 	}
 }

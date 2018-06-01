@@ -6,10 +6,7 @@ namespace esep { namespace test { namespace unit {
 
 TestHAL::TestHAL(void)
 {
-	for(uint i = 0 ; i < hal::HAL::N_FIELDS ; ++i)
-	{
-		mBuffer[i] = 0;
-	}
+	resetFields();
 }
 
 uint32_t TestHAL::in(Field f)
@@ -31,11 +28,7 @@ void TestHAL::clear(void)
 	mReads.clear();
 	mWrites.clear();
 	mCallback = nullptr;
-
-	for(uint i = 0 ; i < hal::HAL::N_FIELDS ; ++i)
-	{
-		mBuffer[i] = 0;
-	}
+	resetFields();
 }
 
 void TestHAL::trigger(Event e)
@@ -46,6 +39,23 @@ void TestHAL::trigger(Event e)
 	}
 
 	mCallback(e);
+}
+
+void TestHAL::resetFields(void)
+{
+	setField(Field::GPIO_0,
+		  HAL::getPin(Event::LB_START)
+		| HAL::getPin(Event::LB_HEIGHTSENSOR)
+		| HAL::getPin(Event::LB_SWITCH)
+		| HAL::getPin(Event::LB_RAMP)
+		| HAL::getPin(Event::LB_END)
+		| HAL::getPin(Event::BTN_STOP)
+		| HAL::getPin(Event::BTN_ESTOP)
+	);
+
+	setField(Field::GPIO_1, 0);
+	setField(Field::GPIO_2, 0);
+	setField(Field::ANALOG, 0);
 }
 
 }}}
