@@ -39,6 +39,9 @@ namespace esep
 					void trigger(Event) override;
 
 				private:
+					void resetFields( );
+
+				private:
 					data_t mReads, mWrites;
 					uint32_t mBuffer[hal::HAL::N_FIELDS];
 					callback_fn mCallback;

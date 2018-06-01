@@ -10,6 +10,8 @@ namespace
 {
 	typedef hal::HAL::Field Field;
 	typedef hal::HAL::Event Event;
+	typedef hal::Buttons::Button Button;
+	typedef hal::LightBarriers::LightBarrier LB;
 }
 
 TestHAL::TestHAL(void)
@@ -38,7 +40,7 @@ void TestHAL::define(void)
 
 	UNIT_TEST("doesn't remember old values")
 	{
-		ASSERT_EQUALS(hal().getField(Field::GPIO_0), 0x00000000ul);
+		ASSERT_NOT_EQUAL(hal().getField(Field::GPIO_0), 0x12345678ul);
 	};
 
 	UNIT_TEST("records wrapper usage")
@@ -52,6 +54,8 @@ void TestHAL::define(void)
 
 	UNIT_TEST("writes a record")
 	{
+		uint32_t gpio_0 = hal().getField(Field::GPIO_0);
+
 		ASSERT_EQUALS(hal().reads().size(), 0u);
 		ASSERT_EQUALS(hal().writes().size(), 0u);
 
@@ -66,7 +70,7 @@ void TestHAL::define(void)
 
 		ASSERT_EQUALS(hal().reads().size(), 1u);
 		ASSERT_EQUALS(hal().reads().front().get<Field>(), Field::GPIO_0);
-		ASSERT_EQUALS(hal().reads().front().get<uint32_t>(), 0x00000000ul);
+		ASSERT_EQUALS(hal().reads().front().get<uint32_t>(), gpio_0);
 	};
 
 	UNIT_TEST("doesn't remember record")
@@ -96,6 +100,20 @@ void TestHAL::define(void)
 	UNIT_TEST("deletes callback")
 	{
 		ASSERT_FAILURE(hal().trigger(Event::HEIGHT_SENSOR), unit::Testable::MissingCallbackException);
+	};
+
+	UNIT_TEST("initial state is valid")
+	{
+		ASSERT_TRUE(!HAL_BUTTONS.isPressed(Button::START));
+		ASSERT_TRUE(!HAL_BUTTONS.isPressed(Button::STOP));
+		ASSERT_TRUE(!HAL_BUTTONS.isPressed(Button::RESET));
+		ASSERT_TRUE(!HAL_BUTTONS.isPressed(Button::ESTOP));
+
+		ASSERT_TRUE(!HAL_LIGHT_BARRIERS.isBroken(LB::LB_START));
+		ASSERT_TRUE(!HAL_LIGHT_BARRIERS.isBroken(LB::LB_HEIGHTSENSOR));
+		ASSERT_TRUE(!HAL_LIGHT_BARRIERS.isBroken(LB::LB_SWITCH));
+		ASSERT_TRUE(!HAL_LIGHT_BARRIERS.isBroken(LB::LB_RAMP));
+		ASSERT_TRUE(!HAL_LIGHT_BARRIERS.isBroken(LB::LB_END));
 	};
 }
 
