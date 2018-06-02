@@ -33,6 +33,7 @@ void ConfigObject::define()
 		ASSERT_EQUALS(mConfig->isValid(), false);
 		ASSERT_FAILURE(mConfig->setHeightSensorMax(0), config_t::InvalidDataException);
 		ASSERT_FAILURE(mConfig->setHeightSensorMin(0), config_t::InvalidDataException);
+		ASSERT_FAILURE(mConfig->setMaxHandOverTime(0), config_t::InvalidDataException);
 		ASSERT_FAILURE(mConfig->setStartToHs(0), config_t::InvalidDataException);
 		ASSERT_FAILURE(mConfig->setHsToSwitch(0), config_t::InvalidDataException);
 		ASSERT_FAILURE(mConfig->setSwitchToEnd(0), config_t::InvalidDataException);
@@ -55,6 +56,7 @@ void ConfigObject::define()
 
 		mConfig->setHeightSensorMax(sensMax);
 		mConfig->setHeightSensorMin(sensMin);
+		mConfig->setMaxHandOverTime(tim);
 		mConfig->setStartToHs(tim);
 		mConfig->setHsToSwitch(tim);
 		mConfig->setSwitchToEnd(tim);
@@ -62,6 +64,7 @@ void ConfigObject::define()
 
 		ASSERT_FAILURE(mConfig->heightSensorMax(), config_t::InvalidObjectException);
 		ASSERT_FAILURE(mConfig->heightSensorMin(), config_t::InvalidObjectException);
+		ASSERT_FAILURE(mConfig->maxHandOverTime(), config_t::InvalidObjectException);
 		ASSERT_FAILURE(mConfig->startToHs(), config_t::InvalidObjectException);
 		ASSERT_FAILURE(mConfig->hsToSwitch(), config_t::InvalidObjectException);
 		ASSERT_FAILURE(mConfig->switchToEnd(), config_t::InvalidObjectException);
@@ -73,6 +76,7 @@ void ConfigObject::define()
 
 		ASSERT_EQUALS(mConfig->heightSensorMax(), sensMax);
 		ASSERT_EQUALS(mConfig->heightSensorMin(), sensMin);
+		ASSERT_EQUALS(mConfig->maxHandOverTime(), tim);
 		ASSERT_EQUALS(mConfig->startToHs(), tim);
 		ASSERT_EQUALS(mConfig->hsToSwitch(), tim);
 		ASSERT_EQUALS(mConfig->switchToEnd(), tim);
@@ -90,6 +94,7 @@ void ConfigObject::define()
 
 		mConfig->setHeightSensorMax(sensMax);
 		mConfig->setHeightSensorMin(sensMin);
+		mConfig->setMaxHandOverTime(tim);
 		mConfig->setStartToHs(tim);
 		mConfig->setHsToSwitch(tim);
 		mConfig->setSwitchToEnd(tim);

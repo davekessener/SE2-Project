@@ -30,6 +30,7 @@ void testHeightSensor(const lib::Arguments& args)
 	//Set config params
 	config.setHeightSensorMax(0b10001111);
 	config.setHeightSensorMin(0b11100010);
+	config.setMaxHandOverTime(3000);
 	config.setHsToSwitch(1);
 	config.setSlowFactor(0.5);
 	config.setStartToHs(1);
