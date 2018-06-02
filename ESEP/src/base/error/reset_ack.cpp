@@ -1,6 +1,6 @@
 #include "base/error/reset_ack.h"
 
-#include "system.h"
+#include "hal.h"
 
 namespace esep { namespace base { namespace error {
 

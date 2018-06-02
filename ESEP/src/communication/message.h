@@ -40,6 +40,7 @@ namespace esep
 				SERIAL,
 				ITEM_APPEARED,
 				ITEM_DISAPPEARED,
+				ITEM_STUCK,
 				ESTOP,
 				RAMP_FULL,
 				WARNING

@@ -8,6 +8,8 @@
 
 #include "lib/utils.h"
 
+#include "test/unit/hal.h"
+
 namespace esep
 {
 	namespace test
@@ -39,17 +41,23 @@ namespace esep
 				typedef std::vector<std::pair<Result, std::string>> result_t;
 
 				public:
-					TestSuite(const std::string& name) : mWriter(this), mName(name) { }
+					TestSuite(const std::string& name) : mWriter(this), mName(name), mHAL(nullptr) { }
 					virtual ~TestSuite( ) { }
+					void setHAL(TestHAL *hal) { mHAL = hal; }
 					const std::string& name( ) const { return mName; }
 					const result_t& results( ) const { return mResults; }
 					uint testCount( ) const { return mTests.size(); }
 					void doTest( );
+
 				protected:
 					virtual void setup( ) { }
 					virtual void teardown( ) { }
 					virtual void define( ) = 0;
+
+					Testable& hal( ) { return *mHAL; }
+
 					TestWriter mWriter;
+
 				private:
 					void addTest(const std::string& s, cb_fn f)
 						{ mTests.push_back(std::make_pair(s, f)); }
@@ -58,6 +66,7 @@ namespace esep
 					const std::string mName;
 					std::vector<std::pair<std::string, cb_fn>> mTests;
 					result_t mResults;
+					TestHAL *mHAL;
 
 					friend class TestWriter;
 			};

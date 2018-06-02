@@ -1,5 +1,5 @@
-#ifndef ESEP_TEST_UNIT_COMPOUNDENUM_H
-#define ESEP_TEST_UNIT_COMPOUNDENUM_H
+#ifndef ESEP_TEST_UT_COMPOUNDENUM_H
+#define ESEP_TEST_UT_COMPOUNDENUM_H
 
 #include "test/unit/unit.h"
 
@@ -9,9 +9,9 @@ namespace esep
 {
 	namespace test
 	{
-		namespace unit
+		namespace ut
 		{
-			class CompoundEnum : public TestSuite
+			class CompoundEnum : public unit::TestSuite
 			{
 				enum class Small : uint8_t
 				{

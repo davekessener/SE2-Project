@@ -1,5 +1,5 @@
-#ifndef ESEP_TEST_UNIT_TIMER_H
-#define ESEP_TEST_UNIT_TIMER_H
+#ifndef ESEP_TEST_UT_TIMER_H
+#define ESEP_TEST_UT_TIMER_H
 
 #include <functional>
 
@@ -11,9 +11,9 @@ namespace esep
 {
 	namespace test
 	{
-		namespace unit
+		namespace ut
 		{
-			class Timer : public TestSuite
+			class Timer : public unit::TestSuite
 			{
 				typedef std::function<void(void)> cb_fn;
 

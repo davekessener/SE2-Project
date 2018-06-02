@@ -1,7 +1,7 @@
 #ifndef SRC_BASE_ERROR_ESTOP_ERROR_H
 #define SRC_BASE_ERROR_ESTOP_ERROR_H
 
-#include "base/error/reset_ack.h"
+#include "base/error/recoverable.h"
 
 namespace esep
 {
@@ -9,7 +9,7 @@ namespace esep
 	{
 		namespace error
 		{
-			class Estop : public ResetAck
+			class Estop : public Recoverable
 			{
 				public:
 					Estop(communication::IRecipient *);
@@ -18,6 +18,8 @@ namespace esep
 
 					void enter( ) override;
 					void accept(communication::Packet_ptr) override { };
+
+					int priority( ) const override { return 9; }	//TODO Priority
 			};
 		}
 	}

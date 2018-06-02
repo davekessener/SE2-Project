@@ -1,5 +1,5 @@
-#ifndef ESEP_TEST_UNIT_DUMMYCONNECTION_H
-#define ESEP_TEST_UNIT_DUMMYCONNECTION_H
+#ifndef ESEP_TEST_UT_DUMMYCONNECTION_H
+#define ESEP_TEST_UT_DUMMYCONNECTION_H
 
 #include <deque>
 
@@ -11,9 +11,9 @@ namespace esep
 {
 	namespace test
 	{
-		namespace unit
+		namespace ut
 		{
-			class DummyConnection : public TestSuite
+			class DummyConnection : public unit::TestSuite
 			{
 				public:
 					DummyConnection( );

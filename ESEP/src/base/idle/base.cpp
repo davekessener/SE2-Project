@@ -1,6 +1,6 @@
 #include "base/idle/base.h"
 
-#include "system.h"
+#include "hal.h"
 
 namespace esep { namespace base {
 

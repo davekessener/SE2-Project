@@ -1,12 +1,11 @@
 #include "ready_manager.h"
 
-#include "system.h"
+#include "hal.h"
 
 namespace esep{ namespace base{
 
 ReadyManager::ReadyManager(communication::IRecipient *basehandler)
 	:mBaseHandler(basehandler)
- 	,BUTTONS(System::instance().get<hal::Buttons>())
 {
 }
 
@@ -18,7 +17,7 @@ void ReadyManager::handle(hal::HAL::Event event)
 	typedef hal::HAL::Event Event;
 	typedef hal::Buttons::Button Button;
 
-	if(event == Event::BTN_START && BUTTONS.isPressed(Button::START))
+	if(event == Event::BTN_START && HAL_BUTTONS.isPressed(Button::START))
 	{
 		mBaseHandler->accept(std::make_shared<Packet>(Location::BASE, Location::MASTER, Message::Master::RUN));
 	}

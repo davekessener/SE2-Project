@@ -15,11 +15,10 @@ namespace esep
 {
 	namespace test
 	{
-		namespace unit
+		namespace ut
 		{
 
 			struct BasicRecipient;
-
 
 			class RunManagerLogic : public TestSuite
 			{

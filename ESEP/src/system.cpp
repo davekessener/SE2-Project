@@ -3,6 +3,8 @@
 
 #include "system.h"
 
+#include "hal.h"
+
 #include "hal/physical.h"
 #include "lib/logger.h"
 #include "lib/timer.h"
@@ -32,24 +34,14 @@ typedef hal::Buttons::Button Button;
 
 Impl::Impl(void)
 	: mHAL(new hal::Physical())
-	, mHALObjects(
-		hal::Buttons(mHAL),
-		hal::HeightSensor(mHAL, &mConfig),
-		hal::LEDs(mHAL),
-		hal::Switch(mHAL),
-		hal::LightBarriers(mHAL),
-		hal::Lights(mHAL),
-		hal::MetalSensor(mHAL),
-		hal::Motor(mHAL))
 {
+	HAL::instance().instantiate(mHAL, &mConfig);
+
 	MXT_LOG_INFO("Creating system object!");
 }
 
 Impl::~Impl(void)
 {
-	get<hal::Switch>().close();
-	get<hal::Motor>().stop();
-
 	delete mHAL;
 }
 

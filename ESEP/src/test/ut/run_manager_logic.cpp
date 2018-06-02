@@ -2,7 +2,7 @@
 
 #include "test/unit/assertions.h"
 
-namespace esep { namespace test { namespace unit {
+namespace esep { namespace test { namespace ut {
 
 #define MXT_SLEEP(t)	std::this_thread::sleep_for(std::chrono::milliseconds(t))
 

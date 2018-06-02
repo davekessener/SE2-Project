@@ -1,6 +1,6 @@
 #include "base/error/estop.h"
 
-#include "system.h"
+#include "hal.h"
 
 #include "hal/buttons.h"
 #include "hal/leds.h"
@@ -11,13 +11,13 @@ typedef hal::Buttons::Button Button;
 typedef hal::LEDs::LED LED;
 
 Estop::Estop(communication::IRecipient *handler)
-	: ResetAck(handler)
+	: Recoverable(handler)
 {
 }
 
 void Estop::enter(void)
 {
-	ResetAck::enter();
+	Recoverable::enter();
 
 	if(!HAL_BUTTONS.isPressed(Button::ESTOP))
 	{
@@ -31,14 +31,14 @@ void Estop::handle(Event e)
 	switch(e)
 	{
 	case Event::BTN_ESTOP:
-		if(!HAL_BUTTONS.isPressed(Button::ESTOP))
-		{
-			solve();
-		}
+		if(!HAL_BUTTONS.isPressed(Button::ESTOP)) solve();
+		break;
+
+	case Event::BTN_RESET:
+		if(!HAL_BUTTONS.isPressed(Button::ESTOP) && HAL_BUTTONS.isPressed(Button::RESET)) acknowledge();
 		break;
 
 	default:
-		ResetAck::handle(e);
 		break;
 	}
 }

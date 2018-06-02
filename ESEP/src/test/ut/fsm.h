@@ -1,5 +1,5 @@
-#ifndef ESEP_TEST_UNIT_FSM_H
-#define ESEP_TEST_UNIT_FSM_H
+#ifndef ESEP_TEST_UT_FSM_H
+#define ESEP_TEST_UT_FSM_H
 
 #include <vector>
 
@@ -12,9 +12,9 @@ namespace esep
 {
 	namespace test
 	{
-		namespace unit
+		namespace ut
 		{
-			class FSM : public TestSuite
+			class FSM : public unit::TestSuite
 			{
 				enum class Event
 				{

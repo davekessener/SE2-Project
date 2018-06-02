@@ -7,7 +7,7 @@
 
 #include "lib/logger.h"
 
-namespace esep { namespace test { namespace unit {
+namespace esep { namespace test { namespace ut {
 
 typedef data::Data_ptr Data_ptr;
 typedef data::Location::Type LocationType;

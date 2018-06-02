@@ -8,20 +8,27 @@
 
 #include "data/location_data.h"
 
-#include "system.h"
+#include "hal.h"
 
 namespace esep { namespace test { namespace functional { namespace r {
 
 Tester::Tester(void)
-	: mHandler(&mConfig)
+	: mConfig("")
+	, mHandler(&mConfig)
 	, mRunning(false)
 	, mKeep(false)
 {
+	mHAL.reset(new hal::Physical);
+
+	HAL::instance().instantiate(mHAL.get(), &mConfig);
+
 	std::cout << "=== RUN MANAGER TEST =================================================================================" << std::endl;
 }
 
 Tester::~Tester(void)
 {
+	HAL::instance().clear();
+
 	std::cout << "======================================================================================================" << std::endl;
 }
 
@@ -34,7 +41,7 @@ void Tester::run(void)
 
 	mRunning = true;
 
-	System::instance().HAL().setCallback([this](Event e) {
+	mHAL->setCallback([this](Event e) {
 		if(mRunning.load()) switch(e)
 		{
 		case Event::BTN_STOP:
@@ -64,7 +71,7 @@ void Tester::run(void)
 		lib::Timer::instance().sleep(10);
 	}
 
-	System::instance().HAL().setCallback([](Event) { });
+	mHAL->setCallback([](Event) { });
 }
 
 void Tester::accept(Packet_ptr p)

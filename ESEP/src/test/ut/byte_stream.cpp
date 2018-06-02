@@ -4,7 +4,7 @@
 
 #include "test/ut/byte_stream.h"
 
-namespace esep { namespace test { namespace unit {
+namespace esep { namespace test { namespace ut {
 
 ByteStream::ByteStream(void)
 	: TestSuite("ByteStream")

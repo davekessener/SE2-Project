@@ -17,7 +17,7 @@ namespace esep
 			using HAL::Field;
 
 			public:
-				uint32_t in(Field f) const { return mFields[static_cast<uint>(f)]; }
+				uint32_t in(Field f) { return mFields[static_cast<uint>(f)]; }
 				virtual void setCallback(callback_t f) { mSubscriber = f; }
 
 			protected:

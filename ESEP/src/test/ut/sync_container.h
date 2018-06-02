@@ -1,5 +1,5 @@
-#ifndef ESEP_TEST_UNIT_SYNCCONTAINER_H
-#define ESEP_TEST_UNIT_SYNCCONTAINER_H
+#ifndef ESEP_TEST_UT_SYNCCONTAINER_H
+#define ESEP_TEST_UT_SYNCCONTAINER_H
 
 #include "lib/utils.h"
 #include "lib/sync/container.h"
@@ -10,9 +10,9 @@ namespace esep
 {
 	namespace test
 	{
-		namespace unit
+		namespace ut
 		{
-			class SyncContainer : public TestSuite
+			class SyncContainer : public unit::TestSuite
 			{
 				typedef sync::Container<byte_t> container_t;
 

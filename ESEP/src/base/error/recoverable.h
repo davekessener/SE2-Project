@@ -18,6 +18,7 @@ namespace esep
 				typedef Packet::Location Location;
 
 				static constexpr uint ONE_HZ = 1000;
+
 				enum class State
 				{
 					PENDING,
