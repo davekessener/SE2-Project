@@ -5,7 +5,7 @@
 
 #include "base/config_object.h"
 
-#define MXT_NO_OF_VALUES 7
+#define MXT_NO_OF_VALUES 8
 
 namespace esep { namespace base {
 
@@ -17,6 +17,7 @@ ConfigObject::ConfigObject(const std::string& path)
 	, mStartToHs(0)
 	, mHsToSwitch(0)
 	, mSwitchToEnd(0)
+	, mMaxHandOverTime(0)
 	, mSlowFactor(0)
 	, mTimeTolerance(0)
 {
@@ -47,6 +48,8 @@ ConfigObject::ConfigObject(const std::string& path)
 			fileData.pop_back();
 			mStartToHs = std::stoi(fileData.back());
 			fileData.pop_back();
+			mMaxHandOverTime = std::stoi(fileData.back());
+			fileData.pop_back();
 			mHeightSensorMax = (uint16_t) std::stoi(fileData.back());
 			fileData.pop_back();
 			mHeightSensorMin = (uint16_t) std::stoi(fileData.back());
@@ -70,6 +73,7 @@ void ConfigObject::save()
 		confFile << mTimeTolerance << "\n"
 				 << mHeightSensorMin << "\n"
 				 << mHeightSensorMax << "\n"
+				 << mMaxHandOverTime << "\n"
 				 << mStartToHs    << "\n"
 				 << mHsToSwitch   << "\n"
 				 << mSwitchToEnd  << "\n"
@@ -86,6 +90,7 @@ bool ConfigObject::isValid()
 	return mValid || (mValid =
 			(mHeightSensorMin > 0
 			&& mHeightSensorMax > 0
+			&& mMaxHandOverTime > 0
 			&& mStartToHs > 0
 			&& mHsToSwitch > 0
 			&& mSwitchToEnd > 0
@@ -109,6 +114,15 @@ void ConfigObject::setHeightSensorMax(uint16_t val)
 		MXT_THROW_EX(ConfigObject::InvalidDataException);
 	}
 	mHeightSensorMax = val;
+}
+
+void ConfigObject::setMaxHandOverTime(uint32_t val)
+{
+	if(val == 0)
+	{
+		MXT_THROW_EX(ConfigObject::InvalidDataException);
+	}
+	mMaxHandOverTime = val;
 }
 
 void ConfigObject::setStartToHs(uint32_t val)
@@ -172,6 +186,15 @@ uint16_t ConfigObject::heightSensorMax(void)
 		MXT_THROW_EX(ConfigObject::InvalidObjectException);
 	}
 	return mHeightSensorMax;
+}
+
+uint32_t ConfigObject::maxHandOverTime(void)
+{
+	if(!isValid())
+	{
+		MXT_THROW_EX(ConfigObject::InvalidObjectException);
+	}
+	return mMaxHandOverTime;
 }
 
 uint32_t ConfigObject::startToHs(void)

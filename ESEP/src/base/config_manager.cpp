@@ -26,6 +26,7 @@ ConfigManager::ConfigManager(communication::IRecipient *handler, ConfigObject *c
 	, mTimestamp2(0)
 	, mHeightSensorMin(0)
 	, mHeightSensorMax(0)
+	, mMaxHandOverTime(3000)
 	, mStartToEnd(0)
 	, mStartToEndLong(0)
 	, mStartToEndSlow(0)
@@ -264,6 +265,7 @@ void ConfigManager::handle(hal::HAL::Event event)
 
 				mConfig->setHeightSensorMin(mHeightSensorMin);
 				mConfig->setHeightSensorMax(mHeightSensorMax);
+				mConfig->setMaxHandOverTime(mMaxHandOverTime);
 				mConfig->setStartToHs(mStartToHs);
 				mConfig->setHsToSwitch(mHsToSwitch);
 				mConfig->setSwitchToEnd(mSwitchToEnd);
