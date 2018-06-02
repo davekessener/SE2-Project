@@ -28,6 +28,7 @@
 #include "test/ut/compound_enum.h"
 #include "test/ut/master_logic.h"
 #include "test/ut/config_object.h"
+#include "test/ut/run_manager_time_ctrl.h"
 
 #include "system.h"
 
@@ -56,6 +57,7 @@ bool runUnitTests(bool verbose)
 		.addTest<unit::CompoundEnum>()
 		.addTest<unit::MasterLogic>()
 		.addTest<unit::ConfigObject>()
+		.addTest<unit::RunManagerTimeCtrl>()
 		.run();
 
 	uint w = 0;
