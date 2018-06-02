@@ -19,14 +19,13 @@ namespace esep
 
 				static constexpr uint ONE_HZ = 1000;
 
-				protected:
-					enum class State
-					{
-						PENDING,
-						ACK,
-						GONE,
-						OK
-					};
+				enum class State
+				{
+					PENDING,
+					ACK,
+					GONE,
+					OK
+				};
 
 				public:
 					Recoverable(communication::IRecipient *);
@@ -38,7 +37,6 @@ namespace esep
 				protected:
 					void solve( );
 					void acknowledge( );
-					State state( ) { return mState; };
 
 				private:
 					void OK( );

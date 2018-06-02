@@ -48,8 +48,8 @@ namespace esep
 				bool running( ) const { return mRunning.load(); }
 
 			private:
-				void switchManager(Message::Base);
-				void handleError(Message::Error, Packet_ptr);
+				void handleBase(Message::Base);
+				void doSwitch(IManager *m);
 				void handleHAL(Event);
 
 			private:
@@ -57,8 +57,8 @@ namespace esep
 				ConfigObject * const mConfigData;
 				std::atomic<bool> mRunning;
 				qnx::Connection mConnection;
-				std::unique_ptr<IManager> mConfigManager,  mRunManager, mIdleManager, mReadyManager;
-				ErrorManager::Error_ptr mErrorManager;
+				std::unique_ptr<IManager> mConfigManager,  mRunManager, mIdleManager, mReadyManager, mErrorManager;
+				//ErrorManager::Error_ptr mErrorManager;
 				IManager* mCurrentManager;
 				container_t mPacketBuffer;
 				lib::Thread mHandlerThread;

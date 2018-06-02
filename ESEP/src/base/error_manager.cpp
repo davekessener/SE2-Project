@@ -12,7 +12,9 @@
 
 namespace esep { namespace base {
 
+typedef communication::Packet Packet;
 typedef communication::Packet::Location Location;
+typedef communication::Message Message;
 typedef communication::Message::Error Error;
 typedef data::Location::Type dloc_t;
 typedef data::DataPoint::Type DataType;
@@ -61,15 +63,12 @@ void ErrorManager::accept(Packet_ptr packet)
 				break;
 
 			case Error::ITEM_APPEARED:
-				//TODO How to get only one DataPoint?
 				for (auto& p : *packet)
 				{
 					if(p->type() == DataType::LOCATION)
-					{
-						m = Error_ptr(new error::ItemAppeared(this, dynamic_cast<data::Location&>(*p).location()));
-						break;
-					}
+					m = Error_ptr(new error::ItemAppeared(this, static_cast<data::Location&>(*p).location()));
 				}
+				if (mCurrentError.get() == m.get()) MXT_THROW_EX(ErrorManager::NoLocationInPacket);
 				break;
 			case Error::ITEM_DISAPPEARED:
 				m = Error_ptr(new error::ItemDisappeared(this));
@@ -91,6 +90,10 @@ void ErrorManager::accept(Packet_ptr packet)
 			mCurrentError->leave();
 			mCurrentError = std::move(m);
 			mCurrentError->enter();
+		}
+		else
+		{
+			mHandler->accept(std::make_shared<Packet>(Location::BASE, Location::MASTER, Message::Master::FIXED));
 		}
 	}
 }

@@ -18,6 +18,7 @@ namespace esep
 
 			public:
 				MXT_DEFINE_E(IncorrectMessageException);
+				MXT_DEFINE_E(NoLocationInPacket);
 
 			public:
 				ErrorManager(communication::IRecipient *);

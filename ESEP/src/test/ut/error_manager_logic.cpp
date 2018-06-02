@@ -71,7 +71,7 @@ void ErrorManagerLogic::define()
 
 		ASSERT_EQUALS(mHandler->packets.size(), 0u);
 
-		hal().setField(Field::GPIO_0, static_cast<uint32_t>(Button::RESET));
+		hal().setField(Field::GPIO_0, static_cast<uint32_t>(Button::RESET) | static_cast<uint32_t>(Button::ESTOP));
 		hal().trigger(Event::BTN_RESET);
 
 		ASSERT_EQUALS(mHandler->packets.size(), 1u);
@@ -153,8 +153,7 @@ void ErrorManagerLogic::define()
 		ASSERT_EQUALS(mHandler->packets.front()->target(), Location::MASTER);
 		ASSERT_EQUALS(mHandler->packets.front()->message(), Message::Master::FIXED);
 
-		delete mErrManager;
-		mErrManager = new base::ErrorManager(mHandler);
+		mErrManager->leave();
 
 		// LB_START TEST
 		mErrManager->enter();
@@ -167,8 +166,7 @@ void ErrorManagerLogic::define()
 
 		ASSERT_EQUALS(mHandler->packets.size(), 2u);
 
-		delete mErrManager;
-		mErrManager = new base::ErrorManager(mHandler);
+		mErrManager->leave();
 
 		// LB_SWITCH TEST
 		mErrManager->enter();
@@ -181,8 +179,7 @@ void ErrorManagerLogic::define()
 
 		ASSERT_EQUALS(mHandler->packets.size(), 3u);
 
-		delete mErrManager;
-		mErrManager = new base::ErrorManager(mHandler);
+		mErrManager->leave();
 
 		// LB_RAMP TEST
 		mErrManager->enter();
@@ -195,8 +192,7 @@ void ErrorManagerLogic::define()
 
 		ASSERT_EQUALS(mHandler->packets.size(), 4u);
 
-		delete mErrManager;
-		mErrManager = new base::ErrorManager(mHandler);
+		mErrManager->leave();
 
 		// LB_END TEST
 		mErrManager->enter();
@@ -245,28 +241,29 @@ void ErrorManagerLogic::define()
 
 	UNIT_TEST("can switch to higher prioritized error")
 	{
-		mErrManager->enter();
-		send(Location::BASE, Message::Error::WARNING);
 		hal().setCallback( [this](Event e) { mErrManager->handle(e); } );
-
-		ASSERT_EQUALS(mHandler->packets.size(), 1u);
-
+		mErrManager->enter();
 		send(Location::BASE, Message::Error::RAMP_FULL);
 
-		ASSERT_EQUALS(mHandler->packets.size(), 1u);
+		ASSERT_EQUALS(mHandler->packets.size(), 0u);
 
-		hal().setField(Field::GPIO_0, static_cast<uint32_t>(LightBarrier::LB_RAMP));	// this shouldnt work
-		hal().trigger(Event::LB_RAMP);
+		hal().setField(Field::GPIO_0, !static_cast<uint32_t>(Button::ESTOP));
+		send(Location::BASE, Message::Error::ESTOP);
 
-		ASSERT_EQUALS(mHandler->packets.size(), 1u);
+		ASSERT_EQUALS(mHandler->packets.size(), 0u);
 
-		hal().setField(Field::GPIO_0, static_cast<uint32_t>(Button::RESET));
+		hal().setField(Field::GPIO_0, static_cast<uint32_t>(Button::ESTOP));	// this shouldnt work
+		hal().trigger(Event::BTN_ESTOP);
+
+		ASSERT_EQUALS(mHandler->packets.size(), 0u);
+
+		hal().setField(Field::GPIO_0, static_cast<uint32_t>(Button::RESET) | static_cast<uint32_t>(Button::ESTOP));
 		hal().trigger(Event::BTN_RESET);
 
-		ASSERT_EQUALS(mHandler->packets.size(), 2u);
+		ASSERT_EQUALS(mHandler->packets.size(), 1u);
 	};
 
-	UNIT_TEST("switching to lower prioritized error will not work")
+	UNIT_TEST("will not switch to lower prioritized error")
 	{
 		mErrManager->enter();
 
@@ -275,27 +272,15 @@ void ErrorManagerLogic::define()
 
 		ASSERT_EQUALS(mHandler->packets.size(), 0u);
 
-		send(Location::BASE, Message::Error::WARNING);
+		send(Location::BASE, Message::Error::RAMP_FULL);
 
-		ASSERT_EQUALS(mHandler->packets.size(), 0u);
+		ASSERT_EQUALS(mHandler->packets.size(), 1u);
 
 		hal().setField(Field::GPIO_0, static_cast<uint32_t>(Button::ESTOP));
 		hal().trigger(Event::BTN_ESTOP);
 
-
-		hal().setField(Field::GPIO_0, static_cast<uint32_t>(Button::RESET));
+		hal().setField(Field::GPIO_0, static_cast<uint32_t>(Button::RESET) | static_cast<uint32_t>(Button::ESTOP));
 		hal().trigger(Event::BTN_RESET);
-
-		ASSERT_EQUALS(mHandler->packets.size(), 1u);
-
-		send(Location::BASE, Message::Error::WARNING);
-
-		ASSERT_EQUALS(mHandler->packets.size(), 1u);
-
-		mErrManager->leave();
-		mErrManager->enter();
-
-		send(Location::BASE, Message::Error::WARNING);
 
 		ASSERT_EQUALS(mHandler->packets.size(), 2u);
 	};

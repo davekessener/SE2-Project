@@ -28,6 +28,7 @@ Handler::Handler(ConfigObject *co)
 	mReadyManager.reset(new ReadyManager(this));
 	mConfigManager.reset(new ConfigManager(this, mConfigData));
 	mRunManager.reset(new RunManager(this, mConfigData));
+	mErrorManager.reset(new ErrorManager(this));
 
 	mCurrentManager = mIdleManager.get();
 
@@ -52,11 +53,12 @@ Handler::Handler(ConfigObject *co)
 
 					if(msg.is<Message::Base>())
 					{
-						switchManager(msg.as<Message::Base>());
+						handleBase(msg.as<Message::Base>());
 					}
 					else if(msg.is<Message::Error>())
 					{
-						handleError(msg.as<Message::Error>(), packet);
+						doSwitch(mErrorManager.get());
+						mCurrentManager->accept(packet);
 					}
 					else
 					{
@@ -120,10 +122,8 @@ void Handler::accept(Packet_ptr p)
 	}
 }
 
-void Handler::switchManager(Message::Base msg)
+void Handler::handleBase(Message::Base msg)
 {
-	auto m = mCurrentManager;
-
 	switch(msg)
 	{
 	case Message::Base::SHUTDOWN:
@@ -132,36 +132,36 @@ void Handler::switchManager(Message::Base msg)
 		break;
 
 	case Message::Base::RUN:
-		MXT_LOG_INFO("Switching to Run");
-		m = mRunManager.get();
+		doSwitch(mRunManager.get());
 		break;
 
 	case Message::Base::CONFIG:
-		MXT_LOG_INFO("Switching to Config");
-		m = mConfigManager.get();
+		doSwitch(mConfigManager.get());
 		break;
 
 	case Message::Base::IDLE:
-		MXT_LOG_INFO("Switching to Idle");
-		m = mIdleManager.get();
+		doSwitch(mIdleManager.get());
 		break;
 
 	case Message::Base::READY:
-		MXT_LOG_INFO("Switching to Ready");
-		m = mReadyManager.get();
+		doSwitch(mReadyManager.get());
 		break;
 	}
+}
 
-	if(mCurrentManager != m)
+void Handler::doSwitch(IManager *m)
+{
+	if (m != mCurrentManager)
 	{
+		if (m == mRunManager.get()) { MXT_LOG_INFO("Switching to Run"); }
+		else if (m == mConfigManager.get()) { MXT_LOG_INFO("Switching to Config"); }
+		else if (m == mIdleManager.get()) { MXT_LOG_INFO("Switching to Idle"); }
+		else if (m == mReadyManager.get()) { MXT_LOG_INFO("Switching to Ready"); }
+		else if (m == mErrorManager.get()) { MXT_LOG_INFO("Switching to Error"); }
+
 		mCurrentManager->leave();
 		mCurrentManager = m;
 		mCurrentManager->enter();
-	}
-
-	if(mCurrentManager != mErrorManager.get())
-	{
-		mErrorManager.reset();
 	}
 }
 
@@ -170,26 +170,6 @@ void Handler::handle(Event e)
 	MXT_LOG_INFO("Received HAL event ", lib::hex<32>(e));
 
 	mConnection.sendPulse(static_cast<int8_t>(MessageType::HAL_EVENT), static_cast<uint32_t>(e));
-}
-
-void Handler::handleError(Message::Error e, Packet_ptr p)
-{
-	MXT_LOG_INFO("Received error message ", e, "!");
-
-//	auto m = ErrorManager::create(this, p);
-//
-//	if(!static_cast<bool>(mErrorManager) || m->priority() >= mErrorManager->priority())
-//	{
-//		mCurrentManager->leave();
-//		mErrorManager = std::move(m);
-//		mCurrentManager = mErrorManager.get();
-//		mCurrentManager->enter();
-//	}
-	mCurrentManager->leave();
-	mCurrentManager = mErrorManager.get();
-	mCurrentManager->enter();
-	mCurrentManager->accept(p);
-
 }
 
 void Handler::handleHAL(Event e)
