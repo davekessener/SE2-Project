@@ -1,16 +1,3 @@
-/**
- * @file 		BBBRegisterOperation.h
- * @brief
- * @date 		18.02.2016
- * @author: 	T Jaehnichen
- *				HAW-Hamburg
- *          	Labor f�r technische Informatik
- *          	Berliner Tor  7
- *          	D-20099 Hamburg
- * @version 	
- * @details		
- *				
- */
 
 #ifndef BBBREGISTEROPERATION_H_
 #define BBBREGISTEROPERATION_H_

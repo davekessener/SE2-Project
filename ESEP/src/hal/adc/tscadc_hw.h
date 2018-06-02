@@ -79,8 +79,8 @@
 
 
 
-#ifndef TSCADC_HW_H_
-#define TSCADC_HW_H_
+#ifndef ESEP_HAL_ADC_TSCADC_HW_H
+#define ESEP_HAL_ADC_TSCADC_HW_H
 
 namespace esep
 {
@@ -815,4 +815,4 @@ namespace esep
 	}
 }
 
-#endif /* TSCADC_HW_H_ */
+#endif

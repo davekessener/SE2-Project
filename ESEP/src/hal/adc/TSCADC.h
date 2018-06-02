@@ -1,22 +1,6 @@
-/**
- * @file 		TSCADC.h
- * @brief		This file contains the function prototypes for the device
- *              abstraction layer for Touch Screen. It also contains some
- *              related macro definitions and some files to be included.
- * @date 		17.02.2016
- * @author: 	T Jaehnichen
- *				HAW-Hamburg
- *          	Labor f�r technische Informatik
- *          	Berliner Tor  7
- *          	D-20099 Hamburg
- * @version 	
- * @details
- * @copybrief	Based on the StarterWareFree for AM335X provided by Texas Instrument (copyright notice see below)
- *				
- */
 
-#ifndef TSCADC_H
-#define TSCADC_H
+#ifndef ESEP_HAL_ADC_TSCADC_H
+#define ESEP_HAL_ADC_TSCADC_H
 
 #include "tscadc_hw.h"
 
@@ -177,4 +161,4 @@ namespace esep
 	}
 }
 
-#endif /* TSCADC_H_ */
+#endif

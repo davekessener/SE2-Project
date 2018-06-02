@@ -1,30 +1,13 @@
-/**
- * @file 		TSCADC.cpp
- * @brief
- * @date 		17.02.2016
- * @author: 	T Jaehnichen
- *				HAW-Hamburg
- *          	Labor f�r technische Informatik
- *          	Berliner Tor  7
- *          	D-20099 Hamburg
- * @version 	
- * @details		
- * @copybrief	Based on the StarterWareFree for AM335X provided by Texas Instrument
- *				
- */
 
-
-
-
-
-#include "tscadc_hw.h"
-#include "TSCADC.h"
-#include "Util.h"
-#include "BBBRegisterOperation.h"
+#include "hal/adc/TSCADC.h"
 
 #include <hw/inout.h>
 #include <sys/mman.h>
 #include <sys/neutrino.h>
+
+#include "hal/adc/tscadc_hw.h"
+#include "hal/adc/Util.h"
+#include "hal/adc/BBBRegisterOperation.h"
 
 namespace esep { namespace hal { namespace adc {
 
