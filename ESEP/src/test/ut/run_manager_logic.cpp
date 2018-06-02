@@ -4,38 +4,40 @@
 
 namespace esep { namespace test { namespace unit {
 
+#define MXT_SLEEP(t)	std::this_thread::sleep_for(std::chrono::milliseconds(t))
 
-typedef communication::Packet_ptr Packet_ptr;
 
 struct BasicRecipient : public communication::IRecipient
 {
-	typedef communication::Packet Packet;
 	typedef communication::Packet_ptr Packet_ptr;
 
 	void accept(Packet_ptr p) override
 	{
-		packets.push_back(p);
+		mPackets.push_back(p);
 	}
-
-	std::vector<Packet_ptr> packets;
+	std::vector<Packet_ptr> mPackets;
 };
-
 
 RunManagerLogic::RunManagerLogic()
 	: TestSuite("Run Manager")
 {
 	  mRunManager =nullptr;
 	  mCom = nullptr;
-	  mConfig = nullptr;
+	  mConfig = new config_t("ut.conf");
+	  mConfig->setStartToHs(10);
+	  mConfig->setHsToSwitch(15);
+	  mConfig->setSwitchToEnd(20);
 }
-
-
 
 void RunManagerLogic::setup(void)
 {
 	mCom = new BasicRecipient;
-	mConfig = new config_t("ut.conf");
 	mRunManager = new base::RunManager(mCom, mConfig);
+}
+
+void RunManagerLogic::sendPacket(msg_t msg)
+{
+	mRunManager->accept(std::make_shared<Packet>(Location::MASTER, Location::BASE, msg));
 }
 
 void RunManagerLogic::teardown(void)
@@ -47,6 +49,21 @@ void RunManagerLogic::teardown(void)
 
 void RunManagerLogic::define(void)
 {
+	UNIT_TEST("Can Create RunManager")
+	{
+
+	};
+
+	UNIT_TEST("Item disappeared at LB_START")
+	{
+		mRunManager->enter();
+		sendPacket(runMessage_t::EXPECT_NEW);
+		ASSERT_TRUE(mCom->mPackets.empty());
+
+		//MXT_SLEEP(mConfig->);
+		ASSERT_EQUALS(mCom->mPackets.size(), 1u);
+		ASSERT_EQUALS(mCom->mPackets.front(), runMessage_t::ITEM_DISAPPEARED);
+	};
 
 }
 

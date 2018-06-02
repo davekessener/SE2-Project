@@ -33,6 +33,7 @@ RunManager::RunManager(communication::IRecipient* m, ConfigObject * c)
 
 RunManager::~RunManager()
 {
+
 }
 
 void RunManager::enter()
