@@ -5,9 +5,8 @@
 #include <sys/mman.h>
 #include <sys/neutrino.h>
 
+#include "hal/adc/register_operations.h"
 #include "hal/adc/tscadc_hw.h"
-#include "hal/adc/Util.h"
-#include "hal/adc/BBBRegisterOperation.h"
 
 namespace esep { namespace hal { namespace adc {
 
@@ -24,13 +23,11 @@ TSCADC::~TSCADC() {
 void TSCADC::gainAccess(void){
 	if(baseAdd ==  MAP_DEVICE_FAILED){
 		if (-1 == ThreadCtl(_NTO_TCTL_IO, 0)) {
-			DBG_ERROR("ThreadCtl access failed\n");
-			exit(EXIT_FAILURE);
+			MXT_THROW_EX(ThreadCtlAccesFailed);
 		}
 		baseAdd = mmap_device_io(SIZE, BASE);
 		if(baseAdd ==  MAP_DEVICE_FAILED){
-			DBG_ERROR("allocation of GPIO failed");
-			exit(EXIT_FAILURE);
+			MXT_THROW_EX(GpioAllocFailed);
 		}
 	}
 }
@@ -555,5 +552,6 @@ void TSCADC::fifoIRQThresholdLevelConfig(Fifo FIFOSel, unsigned char numberOfSam
 unsigned int TSCADC::intStatus() {
 	return (in32(baseAdd + IRQSTATUS));
 }
+
 }}}
 

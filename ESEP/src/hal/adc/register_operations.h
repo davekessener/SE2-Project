@@ -1,6 +1,6 @@
 
-#ifndef BBBREGISTEROPERATION_H_
-#define BBBREGISTEROPERATION_H_
+#ifndef ESEP_HAL_ADC_REGISTER_OPERATIONS_H
+#define ESEP_HAL_ADC_REGISTER_OPERATIONS_H
 
 #include <stdint.h>
 
@@ -10,7 +10,6 @@ namespace esep
 	{
 		namespace adc
 		{
-
 			/**
 			 * @brief This API is for setting bits in the given register.
 			 * @param __addr 	Address of the Register to be manipulated
@@ -50,4 +49,4 @@ namespace esep
 	}
 }
 
-#endif /* BBBREGISTEROPERATION_H_ */
+#endif

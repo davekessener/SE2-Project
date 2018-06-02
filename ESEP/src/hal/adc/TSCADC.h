@@ -119,42 +119,44 @@ namespace esep
 
 
 			class TSCADC {
-			public:
-				TSCADC();
-				virtual ~TSCADC();
 
-				void gainAccess();
+				public:
+					MXT_DEFINE_E(ThreadCtlAccesFailed);
+					MXT_DEFINE_E(GpioAllocFailed);
 
-				/*************************************************************************
-						API FUNCTION DEFINITIONS
-				*************************************************************************/
 
-				unsigned int getRevision();
-				void stepConfigProtectionEnable();
-				void stepConfigProtectionDisable();
-				void tsModeConfig(TSMode tsMode);
-				void idleModeSet(IdleMode idleMode);
-				void tsStepModeConfig( unsigned int stepSel, StepMode mode);
-				void intStatusClear(unsigned int intFlag);
-				void eventInterruptEnable(IntFlag event);
-				void eventInterruptDisable(IntFlag event);
-				void tsStepFIFOSelConfig( unsigned int stepSel, Fifo FIFOSel);
-				void tsStepAverageConfig(unsigned int stepSel, AverageSamples average);
-				void tsStepConfig(unsigned int stepSelect, NegativeRef adcNegativeRef, PositiveInput adcPositiveInp, NegativeInput adcNegativeInp, PositiveRef adcPositiveRef);
-				void configureAFEClock( unsigned int moduleClk, unsigned int inputClk);
-				void tsStepOperationModeControl(OperationMode mode, unsigned int stepSelect);
-				void tsStepAnalogSupplyConfig(bool xppsw, bool xnpsw, bool yppsw, unsigned int stepSelect);
-				void tsStepAnalogGroundConfig(bool xnnsw, bool ypnsw, bool ynnsw, bool wpnsw, unsigned int stepSelect);
-				void configureStepEnable(unsigned int stepSel, bool stepEn_Dis);
-				void moduleStateSet(bool enableModule);
-				void stepIDTagConfig(bool enableStepIDTag);
-				unsigned int fifoADCDataRead(Fifo FIFOSel);
-				void tsTransistorConfig(bool enableTSTransistor);
-				void fifoIRQThresholdLevelConfig(Fifo FIFOSel, unsigned char numberOfSamples);
-				unsigned int intStatus();
+				public:
+					TSCADC();
+					virtual ~TSCADC();
 
-			private:
-				uint32_t baseAdd;
+					void gainAccess();
+
+					unsigned int getRevision();
+					void stepConfigProtectionEnable();
+					void stepConfigProtectionDisable();
+					void tsModeConfig(TSMode tsMode);
+					void idleModeSet(IdleMode idleMode);
+					void tsStepModeConfig( unsigned int stepSel, StepMode mode);
+					void intStatusClear(unsigned int intFlag);
+					void eventInterruptEnable(IntFlag event);
+					void eventInterruptDisable(IntFlag event);
+					void tsStepFIFOSelConfig( unsigned int stepSel, Fifo FIFOSel);
+					void tsStepAverageConfig(unsigned int stepSel, AverageSamples average);
+					void tsStepConfig(unsigned int stepSelect, NegativeRef adcNegativeRef, PositiveInput adcPositiveInp, NegativeInput adcNegativeInp, PositiveRef adcPositiveRef);
+					void configureAFEClock( unsigned int moduleClk, unsigned int inputClk);
+					void tsStepOperationModeControl(OperationMode mode, unsigned int stepSelect);
+					void tsStepAnalogSupplyConfig(bool xppsw, bool xnpsw, bool yppsw, unsigned int stepSelect);
+					void tsStepAnalogGroundConfig(bool xnnsw, bool ypnsw, bool ynnsw, bool wpnsw, unsigned int stepSelect);
+					void configureStepEnable(unsigned int stepSel, bool stepEn_Dis);
+					void moduleStateSet(bool enableModule);
+					void stepIDTagConfig(bool enableStepIDTag);
+					unsigned int fifoADCDataRead(Fifo FIFOSel);
+					void tsTransistorConfig(bool enableTSTransistor);
+					void fifoIRQThresholdLevelConfig(Fifo FIFOSel, unsigned char numberOfSamples);
+					unsigned int intStatus();
+
+				private:
+					uint32_t baseAdd;
 
 			};
 		}
