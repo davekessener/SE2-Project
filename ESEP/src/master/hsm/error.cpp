@@ -24,6 +24,7 @@ void Error::handle(Packet_ptr p)
 
 	case Message::Error::ITEM_APPEARED:
 	case Message::Error::ITEM_DISAPPEARED:
+	case Message::Error::ITEM_STUCK:
 		if(p->source() != Location::BASE_M && p->source() != Location::BASE_S)
 		{
 			MXT_LOG_ERROR("Received a mangled packet! ", p);

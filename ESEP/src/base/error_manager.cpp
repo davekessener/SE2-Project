@@ -7,6 +7,7 @@
 #include "base/error/warning.h"
 #include "base/error/item_appeared.h"
 #include "base/error/item_disappeared.h"
+#include "base/error/item_stuck.h"
 
 #include "lib/logger.h"
 
@@ -72,6 +73,14 @@ void ErrorManager::accept(Packet_ptr packet)
 				break;
 			case Error::ITEM_DISAPPEARED:
 				m = Error_ptr(new error::ItemDisappeared(this));
+				break;
+			case Error::ITEM_STUCK:
+				for (auto& p : *packet)
+				{
+					if(p->type() == DataType::LOCATION)
+					m = Error_ptr(new error::ItemStuck(this, static_cast<data::Location&>(*p).location()));
+				}
+				if (mCurrentError.get() == m.get()) MXT_THROW_EX(ErrorManager::NoLocationInPacket);
 				break;
 
 			default:
