@@ -14,10 +14,10 @@ namespace esep
 {
 	namespace test
 	{
-		namespace unit
+		namespace ut
 		{
 
-			class RunManagerTimeCtrl : public TestSuite
+			class RunManagerTimeCtrl : public unit::TestSuite
 			{
 				typedef base::run::State State;
 				typedef base::run::TimeCtrl TimeCtrl;

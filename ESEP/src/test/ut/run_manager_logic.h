@@ -7,7 +7,7 @@
 #include "test/unit/unit.h"
 #include "base/run_manager.h"
 #include "communication/packet.h"
-
+#include "hal/light_barriers.h"
 
 
 
@@ -20,18 +20,20 @@ namespace esep
 
 			struct BasicRecipient;
 
-			class RunManagerLogic : public TestSuite
+			class RunManagerLogic : public unit::TestSuite
 			{
 				typedef base::RunManager::Event Event;
 				typedef base::ConfigObject config_t;
 				typedef base::RunManager RunManager;
+				typedef data::RunManagerTimer::TimerEvent TimerEvent;
 				typedef communication::Packet Packet;
 				typedef communication::Packet::Location Location;
 				typedef communication::Message Message;
 				typedef communication::Packet::msg_t msg_t;
 				typedef communication::Packet_ptr Packet_ptr;
 				typedef communication::Message::Run runMessage_t;
-				typedef data::RunManagerTimer::TimerEvent TimerEvent;
+				typedef hal::LightBarriers::LightBarrier LightBarrier;
+				typedef hal::HAL::Field Field;
 
 
 				public:
@@ -44,6 +46,7 @@ namespace esep
 
 				private:
 				   void sendPacket(msg_t);
+				   uint32_t maxTime(uint32_t);
 
 				private:
 				   BasicRecipient *mCom;

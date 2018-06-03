@@ -1,7 +1,7 @@
 #include "test/ut/run_manager_time_ctrl.h"
 #include "test/unit/assertions.h"
 
-namespace esep { namespace test { namespace unit {
+namespace esep { namespace test { namespace ut {
 
 #define MXT_SLEEP(t)		std::this_thread::sleep_for(std::chrono::milliseconds(t))
 
@@ -143,9 +143,9 @@ void RunManagerTimeCtrl::define()
 			mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 10);
 			ASSERT_EQUALS(mReceiveQ.size(), 0u);
 
-			MXT_SLEEP(8);
+			MXT_SLEEP(7);
 			ASSERT_APPROX_EQUALS(mReceiveQ.size(), 0u);
-			MXT_SLEEP(2);
+			MXT_SLEEP(3);
 			ASSERT_APPROX_EQUALS(mReceiveQ.size(), 9u);
 		};
 
@@ -178,6 +178,13 @@ void RunManagerTimeCtrl::define()
 			ASSERT_EQUALS(mReceiveQ.size(), 10u);
 		};
 
+	UNIT_TEST("negative test - pause and resume")
+	{
+		mTimeCtrl->resumeAllTimer();
+
+		mTimeCtrl->pauseAllTimer();
+	};
+
 	UNIT_TEST("delete timer")
 		{
 			mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 10);
@@ -185,11 +192,8 @@ void RunManagerTimeCtrl::define()
 			mTimeCtrl->setTimer(State::STATE_1, TimerEvent::SWITCH_1, 15);
 			ASSERT_EQUALS(mReceiveQ.size(), 0u);
 
-			MXT_SLEEP(5);
-			ASSERT_EQUALS(mReceiveQ.size(), 0u);
-
 			mTimeCtrl->deleteTimer(State::STATE_1);
-			MXT_SLEEP(5);
+			MXT_SLEEP(10);
 			ASSERT_EQUALS(mReceiveQ.size(), 1u);
 			ASSERT_EQUALS(mReceiveQ.front(), TimerEvent::HS_1);
 			mReceiveQ.pop_front();

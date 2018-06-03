@@ -39,7 +39,7 @@ void RunManager::initLogic()
 			{{MXT_CAST(State::STATE_1), 1}},
 			[this](void)
 			{
-				this->mTimeCtrl.setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, MXT_TIME_FOR_EXPCT_NEW);
+				this->mTimeCtrl.setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, mConfigData->maxHandOverTime());
 			});
 	//TIMER_EXPECT_NEW
 	mLogic.transition(TimerEvent::EXPECT_NEW,

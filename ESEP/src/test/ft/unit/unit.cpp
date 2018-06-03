@@ -29,6 +29,7 @@
 #include "test/ut/master_logic.h"
 #include "test/ut/config_object.h"
 #include "test/ut/run_manager_time_ctrl.h"
+#include "test/ut/run_manager_logic.h"
 #include "test/ut/test_hal.h"
 #include "test/ut/error_manager_logic.h"
 #include "system.h"
@@ -61,6 +62,7 @@ bool runUnitTests(bool verbose)
 		.addTest<ut::TestHAL>()
 		.addTest<ut::ErrorManagerLogic>()
 		.addTest<ut::RunManagerTimeCtrl>()
+		//.addTest<ut::RunManagerLogic>()
 		.run();
 
 	uint w = 0;
