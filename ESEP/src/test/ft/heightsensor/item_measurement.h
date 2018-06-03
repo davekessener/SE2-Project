@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <vector>
 
+#include "lib/utils.h"
+
 namespace esep
 {
 	namespace test
@@ -15,13 +17,16 @@ namespace esep
 			{
 				class ItemMeasurement
 				{
-					enum class State {
-						CONFIG_IDLE,
-						CONFIG_RUNNING,
-						IDLE,
-						MEASURE_IDLE,
-						MEASURE_RUNNING
-					};
+					public:
+						MXT_DEFINE_E(CouldNotOpenFileException);
+
+						enum class State {
+							CONFIG_IDLE,
+							CONFIG_RUNNING,
+							IDLE,
+							MEASURE_IDLE,
+							MEASURE_RUNNING
+						};
 
 					public:
 						void run( );

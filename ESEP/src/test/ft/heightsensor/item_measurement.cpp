@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <atomic>
+#include <fstream>
 
 #include "lib/arguments.h"
 
@@ -40,6 +41,7 @@ void ItemMeasurement::run(void)
 	//Set config params
 //	config.setHeightSensorMax(0b10001111);
 //	config.setHeightSensorMin(0b11100010);
+	config.setMaxHandOverTime(3000);
 	config.setHsToSwitch(1);
 	config.setSlowFactor(0.5);
 	config.setStartToHs(1);
@@ -222,13 +224,26 @@ void ItemMeasurement::measure(uint16_t val)
 
 void ItemMeasurement::save(void)
 {
-	//TODO save profile
+	const std::string path;
+	std::ofstream profileFile(path);
+
+	if(profileFile.is_open())
+	{
+		for(auto const& pair: mProfile)
+		{
+			profileFile << pair.first << " " << pair.second << "\n";
+		}
+	}
+	else
+	{
+		MXT_THROW_EX(CouldNotOpenFileException);
+	}
 
 	// For debugging only
-	for(auto const& pair: mProfile)
-	{
-		std::cout << pair.first << ":" << pair.second << std::endl;
-	}
+//	for(auto const& pair: mProfile)
+//	{
+//		std::cout << pair.first << " " << pair.second << std::endl;
+//	}
 	// -- for debugging only
 
 	clearProfile();
