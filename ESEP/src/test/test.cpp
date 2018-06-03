@@ -10,6 +10,7 @@
 #include "test/ft/runmanager.h"
 #include "test/ft/master.h"
 #include "test/ft/heightsensor.h"
+#include "test/ft/configmanager.h"
 
 #include "lib/logger.h"
 
@@ -31,6 +32,7 @@ test_fn getTest(const std::string& id)
 		t["run"] = &functional::testRunManager;
 		t["master"] = &functional::testMasterLogic;
 		t["hs"] = &functional::testHeightSensor;
+		t["config"] = &functional::testConfigManager;
 	}
 
 	auto i = t.find(id);
