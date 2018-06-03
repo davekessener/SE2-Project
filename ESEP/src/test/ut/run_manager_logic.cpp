@@ -74,6 +74,7 @@ void RunManagerLogic::define(void)
 
 	UNIT_TEST("positive test - from start to end")
 	{
+		//Expect new -> LB_HS
 		mRunManager->enter();
 		sendPacket(runMessage_t::EXPECT_NEW);
 		hal().setField(Field::GPIO_0, static_cast<uint32_t>(LightBarrier::LB_START));
@@ -92,6 +93,8 @@ void RunManagerLogic::define(void)
 		hal().setField(Field::GPIO_0, static_cast<uint32_t>(LightBarrier::LB_HEIGHTSENSOR));
 		hal().trigger(Event::LB_HEIGHTSENSOR);
 
+		//LB_HS -> LB_SWITCH
+
 		hal().setField(Field::GPIO_0, ~static_cast<uint32_t>(LightBarrier::LB_HEIGHTSENSOR));
 		hal().trigger(Event::LB_HEIGHTSENSOR);
 
@@ -109,6 +112,8 @@ void RunManagerLogic::define(void)
 
 		ASSERT_EQUALS(hal().writes().back().get<Field>(), Field::GPIO_0);
 		ASSERT_EQUALS(hal().writes().back().get<uint32_t>(), MXT_BM_SWITCH);
+
+		//LB_SWITCH -> LB_END
 
 		hal().setField(Field::GPIO_0, ~static_cast<uint32_t>(LightBarrier::LB_SWITCH));
 		hal().trigger(Event::LB_SWITCH);
@@ -165,6 +170,8 @@ void RunManagerLogic::define(void)
 		ASSERT_EQUALS(mCom->mPackets.front()->message().as<runMessage_t>(), runMessage_t::ANALYSE);
 		mCom->mPackets.pop_front();
 
+		//til now same as above
+
 		hal().setField(Field::GPIO_0, ~static_cast<uint32_t>(LightBarrier::LB_SWITCH));
 		hal().trigger(Event::LB_SWITCH);
 
@@ -208,6 +215,8 @@ void RunManagerLogic::define(void)
 
 		hal().setField(Field::GPIO_0, static_cast<uint32_t>(LightBarrier::LB_RAMP));
 		hal().trigger(Event::LB_RAMP);
+
+		//til now same as above
 
 		MXT_SLEEP(mConfig->maxHandOverTime());
 
