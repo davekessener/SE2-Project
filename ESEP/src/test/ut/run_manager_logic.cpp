@@ -5,8 +5,9 @@
 
 namespace esep { namespace test { namespace ut {
 
-#define MXT_SLEEP(t)	std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(t)))
-#define MXT_BM_SWITCH 	(1u<<19)
+#define MXT_SLEEP(t)		std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(t)))
+#define MXT_BM_SWITCH 		19
+#define MXT_BM_MOTOR_START	12
 
 
 struct BasicRecipient : public communication::IRecipient
@@ -70,6 +71,17 @@ void RunManagerLogic::define(void)
 	UNIT_TEST("Can Create RunManager")
 	{
 
+	};
+
+	UNIT_TEST("resume and suspend")
+	{
+		sendPacket(runMessage_t::RESUME);
+		ASSERT_EQUALS(hal().writes().back().get<Field>(), Field::GPIO_1);
+		ASSERT_TRUE(hal().writes().back().get<uint32_t>() & (1 << MXT_BM_MOTOR_START));
+
+		sendPacket(runMessage_t::SUSPEND);
+		ASSERT_EQUALS(hal().writes().back().get<Field>(), Field::GPIO_1);
+		ASSERT_FALSE(hal().writes().back().get<uint32_t>() & (0 << MXT_BM_MOTOR_START)); //right comparrison?
 	};
 
 	UNIT_TEST("positive test - from start to end")
