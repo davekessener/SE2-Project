@@ -18,7 +18,6 @@ ConfigObject::ConfigObject(const std::string& path)
 	, mHsToSwitch(0)
 	, mSwitchToEnd(0)
 	, mMaxHandOverTime(0)
-	, mSlowFactor(0)
 	, mTimeTolerance(0)
 {
 	std::ifstream confFile;
@@ -40,8 +39,6 @@ ConfigObject::ConfigObject(const std::string& path)
 		}
 		else
 		{
-			mSlowFactor = std::stof(fileData.back());
-			fileData.pop_back();
 			mSwitchToEnd = std::stoi(fileData.back());
 			fileData.pop_back();
 			mHsToSwitch = std::stoi(fileData.back());
@@ -76,8 +73,7 @@ void ConfigObject::save()
 				 << mMaxHandOverTime << "\n"
 				 << mStartToHs    << "\n"
 				 << mHsToSwitch   << "\n"
-				 << mSwitchToEnd  << "\n"
-				 << mSlowFactor;
+				 << mSwitchToEnd;
 	}
 	else
 	{
@@ -94,7 +90,6 @@ bool ConfigObject::isValid()
 			&& mStartToHs > 0
 			&& mHsToSwitch > 0
 			&& mSwitchToEnd > 0
-			&& mSlowFactor > 0
 			&& mTimeTolerance > 0));
 }
 
@@ -150,15 +145,6 @@ void ConfigObject::setSwitchToEnd(uint32_t val)
 		MXT_THROW_EX(ConfigObject::InvalidDataException);
 	}
 	mSwitchToEnd = val;
-}
-
-void ConfigObject::setSlowFactor(float val)
-{
-	if(val > 1 || val <= 0)
-	{
-		MXT_THROW_EX(ConfigObject::InvalidDataException);
-	}
-	mSlowFactor = val;
 }
 
 void ConfigObject::setTimeTolerance(float val)
@@ -222,15 +208,6 @@ uint32_t ConfigObject::switchToEnd(void)
 		MXT_THROW_EX(ConfigObject::InvalidObjectException);
 	}
 	return mSwitchToEnd;
-}
-
-float ConfigObject::slowFactor(void)
-{
-	if(!isValid())
-	{
-		MXT_THROW_EX(ConfigObject::InvalidObjectException);
-	}
-	return mSlowFactor;
 }
 
 float ConfigObject::timeTolerance(void)

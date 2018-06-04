@@ -86,7 +86,6 @@ void testConfigManager(const lib::Arguments&)
 				std::cout << "Start to HS     " << config.startToHs() << "s" << std::endl;
 				std::cout << "HS to Switch    " << config.hsToSwitch() << "s" << std::endl;
 				std::cout << "Switch to End:  " << config.switchToEnd() << "s" << std::endl;
-				std::cout << "Slow factor:    " << config.slowFactor() << std::endl;
 				std::cout << "Time Tolerance: " << config.timeTolerance() << std::endl;
 				std::cout << "----------------------------------" << std::endl;
 				std::cout << "Press [START] for another Measurement..." << std::endl;

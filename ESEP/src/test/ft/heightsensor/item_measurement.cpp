@@ -43,7 +43,6 @@ void ItemMeasurement::run(void)
 //	config.setHeightSensorMin(0b11100010);
 	config.setMaxHandOverTime(3000);
 	config.setHsToSwitch(1);
-	config.setSlowFactor(0.5);
 	config.setStartToHs(1);
 	config.setSwitchToEnd(1);
 	config.setTimeTolerance(0.5);

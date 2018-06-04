@@ -31,7 +31,6 @@ namespace esep
 				uint32_t hsToSwitch();
 				uint32_t switchToEnd();
 				uint32_t maxHandOverTime();
-				float slowFactor();
 				float timeTolerance();
 
 				void setHeightSensorMin(uint16_t);
@@ -40,7 +39,6 @@ namespace esep
 				void setHsToSwitch(uint32_t);
 				void setSwitchToEnd(uint32_t);
 				void setMaxHandOverTime(uint32_t);
-				void setSlowFactor(float);
 				void setTimeTolerance(float);
 
 			private:
@@ -52,7 +50,6 @@ namespace esep
 				uint32_t mHsToSwitch;			// Time between LB_HeightSensor and LB_Switch [ms]
 				uint32_t mSwitchToEnd;			// Time between LB_Switch and LB_End [ms]
 				uint32_t mMaxHandOverTime;	// Max Time for handing over an ITEM
-				float mSlowFactor;				// Slow speed factor [%]
 				float mTimeTolerance;			// TimeTolerance depending on ITEM going either the short or the long way [%]
 		};
 
