@@ -31,7 +31,6 @@ namespace esep
 				typedef communication::Message Message;
 				typedef communication::Packet::msg_t msg_t;
 				typedef communication::Packet_ptr Packet_ptr;
-				typedef communication::Message::Run runMessage_t;
 				typedef hal::LightBarriers::LightBarrier LightBarrier;
 				typedef hal::HAL::Field Field;
 
@@ -47,6 +46,8 @@ namespace esep
 				private:
 				   void sendPacket(msg_t);
 				   uint32_t maxTime(uint32_t);
+				   void blockLB(LightBarrier);
+				   void freeLB(LightBarrier);
 
 				private:
 				   BasicRecipient *mCom;

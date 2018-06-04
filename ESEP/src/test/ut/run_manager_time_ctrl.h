@@ -33,9 +33,6 @@ namespace esep
 				   void define( ) override;
 
 				private:
-				   void takeCallback(TimerEvent);
-
-				private:
 				   TimeCtrl * mTimeCtrl;
 				   std::deque<TimerEvent> mReceiveQ;
 			};

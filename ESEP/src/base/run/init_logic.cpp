@@ -34,7 +34,7 @@ void RunManager::initLogic()
 {
 	//--------- Eingabe bis zur Hoehenmessung
 	//EXPECT_NEW
-	mLogic.transition(runMessage_t::EXPECT_NEW,
+	mLogic.transition(Message::Run::EXPECT_NEW,
 			{},
 			{{MXT_CAST(State::STATE_1), 1}},
 			[this](void)
@@ -48,7 +48,7 @@ void RunManager::initLogic()
 			[this](void)
 			{
 				this->mTimeCtrl.deleteTimer(State::STATE_1);
-				this->sendMessageWithData(Location::MASTER, runMessage_t::ITEM_DISAPPEARED, MXT_SHARE(data::Location, data::Location::Type::LB_START));
+				this->sendMessageWithData(Location::MASTER, Message::Run::ITEM_DISAPPEARED, MXT_SHARE(data::Location, data::Location::Type::LB_START));
 			});
 	//LB_START_1
 	mLogic.transition(run::HalEvent::LB_START,
@@ -56,7 +56,7 @@ void RunManager::initLogic()
 			{{MXT_CAST(State::STATE_2), 1}},
 			[this](void)
 			{
-				this->sendMasterMessage(runMessage_t::NEW_ITEM);
+				this->sendMasterMessage(Message::Run::NEW_ITEM);
 				this->mTimeCtrl.deleteTimer(State::STATE_1);
 				//this->mTimeCtrl.setTimer(State::STATE_2, TimerEvent::START_1, MXT_TIME_IN_LB);
 			});
@@ -66,7 +66,7 @@ void RunManager::initLogic()
 			{{MXT_CAST(State::STATE_2), 1}},
 			[this](void)
 			{
-				this->sendMasterMessage(runMessage_t::NEW_ITEM);
+				this->sendMasterMessage(Message::Run::NEW_ITEM);
 				//this->mTimeCtrl.setTimer(State::STATE_2, TimerEvent::START_1, MXT_TIME_IN_LB);
 			});
 	//TIMER_START_1
@@ -110,7 +110,7 @@ void RunManager::initLogic()
 			[this](void)
 			{
 				this->mTimeCtrl.deleteTimer(State::STATE_4);
-				this->sendMessageWithData(Location::MASTER, runMessage_t::ITEM_DISAPPEARED, MXT_SHARE(data::Location, data::Location::Type::LB_HEIGHTSENSOR));
+				this->sendMessageWithData(Location::MASTER, Message::Run::ITEM_DISAPPEARED, MXT_SHARE(data::Location, data::Location::Type::LB_HEIGHTSENSOR));
 			});
 	//LB_HS
 	mLogic.transition(run::HalEvent::LB_HS,
@@ -127,7 +127,7 @@ void RunManager::initLogic()
 			{},
 			[this](void)
 			{
-				this->sendMessageWithData(Location::MASTER, runMessage_t::ITEM_APPEARED, MXT_SHARE(data::Location, data::Location::Type::LB_HEIGHTSENSOR));
+				this->sendMessageWithData(Location::MASTER, Message::Run::ITEM_APPEARED, MXT_SHARE(data::Location, data::Location::Type::LB_HEIGHTSENSOR));
 			});
 
 
@@ -170,7 +170,7 @@ void RunManager::initLogic()
 			[this](void)
 			{
 				this->mTimeCtrl.deleteTimer(State::STATE_7);
-				this->sendMessageWithData(Location::MASTER, runMessage_t::ITEM_DISAPPEARED, MXT_SHARE(data::Location, data::Location::Type::LB_SWITCH));
+				this->sendMessageWithData(Location::MASTER, Message::Run::ITEM_DISAPPEARED, MXT_SHARE(data::Location, data::Location::Type::LB_SWITCH));
 			});
 	//LB_SWITCH
 	mLogic.transition(run::HalEvent::LB_SWITCH,
@@ -198,14 +198,14 @@ void RunManager::initLogic()
 			{},
 			[this](void)
 			{
-				this->sendMessageWithData(Location::MASTER, runMessage_t::ITEM_APPEARED, MXT_SHARE(data::Location, data::Location::Type::LB_SWITCH));
+				this->sendMessageWithData(Location::MASTER, Message::Run::ITEM_APPEARED, MXT_SHARE(data::Location, data::Location::Type::LB_SWITCH));
 			});
 
 
 
 	//--------- Switch und Rampe
 	//KEEP_NEXT
-	mLogic.transition(runMessage_t::KEEP_NEXT,
+	mLogic.transition(Message::Run::KEEP_NEXT,
 			{{MXT_CAST(State::STATE_8), 1}},
 			{{MXT_CAST(State::STATE_11), 1}},
 			[this](void)
@@ -244,7 +244,7 @@ void RunManager::initLogic()
 			{},
 			[this](void)
 			{
-				this->sendMessageWithData(Location::MASTER, runMessage_t::ITEM_APPEARED, MXT_SHARE(data::Location, data::Location::Type::LB_RAMP));
+				this->sendMessageWithData(Location::MASTER, Message::Run::ITEM_APPEARED, MXT_SHARE(data::Location, data::Location::Type::LB_RAMP));
 			});
 	//TIMER_RAMP
 	mLogic.transition(TimerEvent::RAMP,
@@ -253,7 +253,7 @@ void RunManager::initLogic()
 			[this](void)
 			{
 				this->mTimeCtrl.deleteTimer(State::STATE_10);
-				this->sendMasterMessage(runMessage_t::RAMP_FULL);
+				this->sendMasterMessage(Message::Run::RAMP_FULL);
 			});
 	//!LB_RAMP
 	mLogic.transition(run::HalEvent::I_LB_RAMP,
@@ -263,7 +263,7 @@ void RunManager::initLogic()
 			{
 				this->mTimeCtrl.deleteTimer(State::STATE_10);
 				//send item is successfully removed
-				this->sendMasterMessage(runMessage_t::ITEM_REMOVED);
+				this->sendMasterMessage(Message::Run::ITEM_REMOVED);
 			});
 
 
@@ -304,7 +304,7 @@ void RunManager::initLogic()
 			[this](void)
 			{
 				this->mTimeCtrl.deleteTimer(State::STATE_13);
-				this->sendMessageWithData(Location::MASTER, runMessage_t::ITEM_DISAPPEARED, MXT_SHARE(data::Location, data::Location::Type::LB_END));
+				this->sendMessageWithData(Location::MASTER, Message::Run::ITEM_DISAPPEARED, MXT_SHARE(data::Location, data::Location::Type::LB_END));
 			});
 	//LB_END
 	mLogic.transition(run::HalEvent::LB_END,
@@ -313,7 +313,7 @@ void RunManager::initLogic()
 			[this](void)
 			{
 				this->mTimeCtrl.deleteTimer(State::STATE_13);
-				this->sendMasterMessage(runMessage_t::REACHED_END);
+				this->sendMasterMessage(Message::Run::REACHED_END);
 			});
 	//!LB_END
 	mLogic.transition(run::HalEvent::I_LB_END,
@@ -321,7 +321,7 @@ void RunManager::initLogic()
 			{},
 			[this](void)
 			{
-				this->sendMasterMessage(runMessage_t::END_FREE);
+				this->sendMasterMessage(Message::Run::END_FREE);
 			});
 }
 

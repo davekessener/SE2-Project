@@ -33,12 +33,12 @@ namespace esep
 			typedef communication::Packet Packet;
 			typedef communication::Packet_ptr Packet_ptr;
 			typedef communication::Packet::msg_t msg_t;
-			typedef communication::Message::Run runMessage_t;
+			typedef communication::Message Message;
 			typedef communication::Packet::Location Location;
 			typedef data::RunManagerTimer::TimerEvent TimerEvent;
 			typedef hal::LightBarriers::LightBarrier LightBarrier;
 			typedef run::State State;
-			typedef tml::MakeCompoundEnum<run::HalEvent, runMessage_t, TimerEvent, Auto> petriEvents_t;
+			typedef tml::MakeCompoundEnum<run::HalEvent, Message::Run, TimerEvent, Auto> petriEvents_t;
 			typedef lib::PetriNet<petriEvents_t> petri_t;
 			typedef lib::Timer Timer;
 			typedef uint64_t timeStamp_t;
@@ -61,8 +61,8 @@ namespace esep
 			   uint32_t computeMaxTime(uint32_t time);
 			   void takeMeasurement();
 			   uint64_t timeDiff(uint64_t old, uint64_t curr);
-			   void sendMasterMessage(runMessage_t msg);
-			   void sendMessageWithData(Location target, runMessage_t msg, data::Data_ptr data);
+			   void sendMasterMessage(Message::Run msg);
+			   void sendMessageWithData(Location target, Message::Run msg, data::Data_ptr data);
 			   void sendItemInfo(data::Data_ptr, data::Data_ptr);
 
 			private:

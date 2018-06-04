@@ -6,8 +6,8 @@
 namespace esep { namespace test { namespace ut {
 
 #define MXT_SLEEP(t)		std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(t)))
-#define MXT_BM_SWITCH 		19
-#define MXT_BM_MOTOR_START	12
+#define MXT_BM_SWITCH 		(1u << 19)
+#define MXT_BM_MOTOR_START	(1u << 12)
 
 
 struct BasicRecipient : public communication::IRecipient
@@ -26,11 +26,7 @@ RunManagerLogic::RunManagerLogic()
 {
 	  mRunManager =nullptr;
 	  mCom = nullptr;
-	  mConfig = new config_t("ut.conf");
-	  mConfig->setStartToHs(10);
-	  mConfig->setHsToSwitch(15);
-	  mConfig->setSwitchToEnd(20);
-	  mConfig->setMaxHandOverTime(5);
+	  mConfig = nullptr;
 }
 
 void RunManagerLogic::setup(void)
@@ -51,9 +47,9 @@ void RunManagerLogic::setup(void)
 
 void RunManagerLogic::teardown(void)
 {
-		delete mConfig; mConfig = nullptr;
-		delete mCom; mCom = nullptr;
-		delete mRunManager; mRunManager = nullptr;
+	delete mConfig; mConfig = nullptr;
+	delete mCom; mCom = nullptr;
+	delete mRunManager; mRunManager = nullptr;
 }
 
 void RunManagerLogic::sendPacket(msg_t msg)
@@ -66,6 +62,16 @@ uint32_t RunManagerLogic::maxTime(uint32_t t)
 	return t *= (1 + mConfig->TOLERANCE);
 }
 
+void RunManagerLogic::blockLB(LightBarrier lb)
+{
+	hal().setField(Field::GPIO_0, hal().getField(Field::GPIO_0) & ~static_cast<uint32_t>(lb));
+}
+
+void RunManagerLogic::freeLB(LightBarrier lb)
+{
+	hal().setField(Field::GPIO_0, hal().getField(Field::GPIO_0) | static_cast<uint32_t>(lb));
+}
+
 void RunManagerLogic::define(void)
 {
 	UNIT_TEST("Can Create RunManager")
@@ -75,178 +81,177 @@ void RunManagerLogic::define(void)
 
 	UNIT_TEST("resume and suspend")
 	{
-		sendPacket(runMessage_t::RESUME);
+		sendPacket(Message::Run::RESUME);
 		ASSERT_EQUALS(hal().writes().back().get<Field>(), Field::GPIO_1);
-		ASSERT_TRUE(hal().writes().back().get<uint32_t>() & (1 << MXT_BM_MOTOR_START));
+		ASSERT_TRUE(hal().writes().back().get<uint32_t>() & MXT_BM_MOTOR_START);
 
-		sendPacket(runMessage_t::SUSPEND);
+		sendPacket(Message::Run::SUSPEND);
 		ASSERT_EQUALS(hal().writes().back().get<Field>(), Field::GPIO_1);
-		ASSERT_FALSE(hal().writes().back().get<uint32_t>() & (0 << MXT_BM_MOTOR_START)); //right comparrison?
+		ASSERT_FALSE(hal().writes().back().get<uint32_t>() & MXT_BM_MOTOR_START); //right comparrison?
 	};
 
 	UNIT_TEST("positive test - from start to end")
 	{
 		//Expect new -> LB_HS
 		mRunManager->enter();
-		sendPacket(runMessage_t::EXPECT_NEW);
-		hal().setField(Field::GPIO_0, static_cast<uint32_t>(LightBarrier::LB_START));
+		sendPacket(Message::Run::EXPECT_NEW);
+		blockLB(LightBarrier::LB_START);
 		hal().trigger(Event::LB_START);
 
 		ASSERT_EQUALS(mCom->mPackets.size(), 1u);
-		ASSERT_TRUE(mCom->mPackets.front()->message().is<runMessage_t>());
-		ASSERT_EQUALS(mCom->mPackets.front()->message().as<runMessage_t>(), runMessage_t::NEW_ITEM);
+		ASSERT_EQUALS(mCom->mPackets.front()->message(), Message::Run::NEW_ITEM);
 		mCom->mPackets.pop_front();
 
-		hal().setField(Field::GPIO_0, ~static_cast<uint32_t>(LightBarrier::LB_START));
+		freeLB(LightBarrier::LB_START);
 		hal().trigger(Event::LB_START);
 
 		MXT_SLEEP(mConfig->startToHs());
 
-		hal().setField(Field::GPIO_0, static_cast<uint32_t>(LightBarrier::LB_HEIGHTSENSOR));
+		blockLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
 
 		//LB_HS -> LB_SWITCH
 
-		hal().setField(Field::GPIO_0, ~static_cast<uint32_t>(LightBarrier::LB_HEIGHTSENSOR));
+		freeLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
 
 		MXT_SLEEP(mConfig->hsToSwitch());
 
-		hal().setField(Field::GPIO_0, static_cast<uint32_t>(LightBarrier::LB_SWITCH));
+		blockLB(LightBarrier::LB_SWITCH);
 		hal().trigger(Event::LB_SWITCH);
 
 		ASSERT_EQUALS(mCom->mPackets.size(), 1u);
-		ASSERT_TRUE(mCom->mPackets.front()->message().is<runMessage_t>());
-		ASSERT_EQUALS(mCom->mPackets.front()->message().as<runMessage_t>(), runMessage_t::ANALYSE);
+		ASSERT_EQUALS(mCom->mPackets.front()->message(), Message::Run::ANALYSE);
 		mCom->mPackets.pop_front();
 
-		sendPacket(runMessage_t::KEEP_NEXT);
+		sendPacket(Message::Run::KEEP_NEXT);
 
 		ASSERT_EQUALS(hal().writes().back().get<Field>(), Field::GPIO_0);
-		ASSERT_EQUALS(hal().writes().back().get<uint32_t>(), MXT_BM_SWITCH);
+		ASSERT_EQUALS(hal().writes().back().get<uint32_t>() & MXT_BM_SWITCH, MXT_BM_SWITCH);
 
 		//LB_SWITCH -> LB_END
 
-		hal().setField(Field::GPIO_0, ~static_cast<uint32_t>(LightBarrier::LB_SWITCH));
+		freeLB(LightBarrier::LB_SWITCH);
 		hal().trigger(Event::LB_SWITCH);
 
 		MXT_SLEEP(mConfig->switchToEnd());
 
-		hal().setField(Field::GPIO_0, static_cast<uint32_t>(LightBarrier::LB_END));
+		blockLB(LightBarrier::LB_END);
 		hal().trigger(Event::LB_END);
 
 		ASSERT_EQUALS(mCom->mPackets.size(), 1u);
-		ASSERT_TRUE(mCom->mPackets.front()->message().is<runMessage_t>());
-		ASSERT_EQUALS(mCom->mPackets.front()->message().as<runMessage_t>(), runMessage_t::REACHED_END);
+		ASSERT_EQUALS(mCom->mPackets.front()->message(), Message::Run::REACHED_END);
 		mCom->mPackets.pop_front();
 
-		hal().setField(Field::GPIO_0, ~static_cast<uint32_t>(LightBarrier::LB_END));
+		freeLB(LightBarrier::LB_END);
 		hal().trigger(Event::LB_END);
 
 		ASSERT_EQUALS(mCom->mPackets.size(), 1u);
-		ASSERT_TRUE(mCom->mPackets.front()->message().is<runMessage_t>());
-		ASSERT_EQUALS(mCom->mPackets.front()->message().as<runMessage_t>(), runMessage_t::END_FREE);
+		ASSERT_EQUALS(mCom->mPackets.front()->message(), Message::Run::END_FREE);
 		mCom->mPackets.pop_front();
 	};
 
 	UNIT_TEST("positive test - from start to ramp")
 	{
 		mRunManager->enter();
-		sendPacket(runMessage_t::EXPECT_NEW);
-		hal().setField(Field::GPIO_0, static_cast<uint32_t>(LightBarrier::LB_START));
+		sendPacket(Message::Run::EXPECT_NEW);
+		blockLB(LightBarrier::LB_START);
 		hal().trigger(Event::LB_START);
 
 		ASSERT_EQUALS(mCom->mPackets.size(), 1u);
-		ASSERT_TRUE(mCom->mPackets.front()->message().is<runMessage_t>());
-		ASSERT_EQUALS(mCom->mPackets.front()->message().as<runMessage_t>(), runMessage_t::NEW_ITEM);
+		ASSERT_EQUALS(mCom->mPackets.front()->message(), Message::Run::NEW_ITEM);
 		mCom->mPackets.pop_front();
 
-		hal().setField(Field::GPIO_0, ~static_cast<uint32_t>(LightBarrier::LB_START));
+		freeLB(LightBarrier::LB_START);
 		hal().trigger(Event::LB_START);
 
 		MXT_SLEEP(mConfig->startToHs());
 
-		hal().setField(Field::GPIO_0, static_cast<uint32_t>(LightBarrier::LB_HEIGHTSENSOR));
+		blockLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
 
-		hal().setField(Field::GPIO_0, ~static_cast<uint32_t>(LightBarrier::LB_HEIGHTSENSOR));
+		freeLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
 
 		MXT_SLEEP(mConfig->hsToSwitch());
 
-		hal().setField(Field::GPIO_0, static_cast<uint32_t>(LightBarrier::LB_SWITCH));
+		blockLB(LightBarrier::LB_SWITCH);
 		hal().trigger(Event::LB_SWITCH);
 
 		ASSERT_EQUALS(mCom->mPackets.size(), 1u);
-		ASSERT_TRUE(mCom->mPackets.front()->message().is<runMessage_t>());
-		ASSERT_EQUALS(mCom->mPackets.front()->message().as<runMessage_t>(), runMessage_t::ANALYSE);
+		ASSERT_EQUALS(mCom->mPackets.front()->message(), Message::Run::ANALYSE);
 		mCom->mPackets.pop_front();
 
 		//til now same as above
 
-		hal().setField(Field::GPIO_0, ~static_cast<uint32_t>(LightBarrier::LB_SWITCH));
+		freeLB(LightBarrier::LB_SWITCH);
 		hal().trigger(Event::LB_SWITCH);
 
-		hal().setField(Field::GPIO_0, static_cast<uint32_t>(LightBarrier::LB_RAMP));
+		blockLB(LightBarrier::LB_RAMP);
 		hal().trigger(Event::LB_RAMP);
 
-		hal().setField(Field::GPIO_0, ~static_cast<uint32_t>(LightBarrier::LB_RAMP));
+		freeLB(LightBarrier::LB_RAMP);
 		hal().trigger(Event::LB_RAMP);
 
 		ASSERT_EQUALS(mCom->mPackets.size(), 1u);
-		ASSERT_TRUE(mCom->mPackets.front()->message().is<runMessage_t>());
-		ASSERT_EQUALS(mCom->mPackets.front()->message().as<runMessage_t>(), runMessage_t::ITEM_REMOVED);
+		ASSERT_EQUALS(mCom->mPackets.front()->message(), Message::Run::ITEM_REMOVED);
 		mCom->mPackets.pop_front();
 	};
 
 	UNIT_TEST("ramp full")
 	{
 		mRunManager->enter();
-		sendPacket(runMessage_t::EXPECT_NEW);
-		hal().setField(Field::GPIO_0, static_cast<uint32_t>(LightBarrier::LB_START));
+		sendPacket(Message::Run::EXPECT_NEW);
+		blockLB(LightBarrier::LB_START);
 		hal().trigger(Event::LB_START);
 
-		hal().setField(Field::GPIO_0, ~static_cast<uint32_t>(LightBarrier::LB_START));
+		ASSERT_EQUALS(mCom->mPackets.size(), 1u);
+		ASSERT_EQUALS(mCom->mPackets.front()->message(), Message::Run::NEW_ITEM);
+		mCom->mPackets.pop_front();
+
+		freeLB(LightBarrier::LB_START);
 		hal().trigger(Event::LB_START);
 
 		MXT_SLEEP(mConfig->startToHs());
 
-		hal().setField(Field::GPIO_0, static_cast<uint32_t>(LightBarrier::LB_HEIGHTSENSOR));
+		blockLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
 
-		hal().setField(Field::GPIO_0, ~static_cast<uint32_t>(LightBarrier::LB_HEIGHTSENSOR));
+		freeLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
 
 		MXT_SLEEP(mConfig->hsToSwitch());
 
-		hal().setField(Field::GPIO_0, static_cast<uint32_t>(LightBarrier::LB_SWITCH));
+		blockLB(LightBarrier::LB_SWITCH);
 		hal().trigger(Event::LB_SWITCH);
 
-		hal().setField(Field::GPIO_0, ~static_cast<uint32_t>(LightBarrier::LB_SWITCH));
+		ASSERT_EQUALS(mCom->mPackets.size(), 1u);
+		ASSERT_EQUALS(mCom->mPackets.front()->message(), Message::Run::ANALYSE);
+		mCom->mPackets.pop_front();
+
+		freeLB(LightBarrier::LB_SWITCH);
 		hal().trigger(Event::LB_SWITCH);
 
-		hal().setField(Field::GPIO_0, static_cast<uint32_t>(LightBarrier::LB_RAMP));
+		blockLB(LightBarrier::LB_RAMP);
 		hal().trigger(Event::LB_RAMP);
 
 		//til now same as above
 
 		MXT_SLEEP(mConfig->maxHandOverTime());
 
-		ASSERT_TRUE(mCom->mPackets.back()->message().is<runMessage_t>());
-		ASSERT_EQUALS(mCom->mPackets.back()->message().as<runMessage_t>(), runMessage_t::RAMP_FULL);
+		ASSERT_EQUALS(mCom->mPackets.back()->message(), Message::Run::RAMP_FULL);
 		mCom->mPackets.pop_front();
 	};
 
 	UNIT_TEST("Item disappeared by handing over")
 	{
 		mRunManager->enter();
-		sendPacket(runMessage_t::EXPECT_NEW);
+		sendPacket(Message::Run::EXPECT_NEW);
 		ASSERT_TRUE(mCom->mPackets.empty());
 
-		MXT_SLEEP(maxTime(mConfig->maxHandOverTime()));
+		MXT_SLEEP(mConfig->maxHandOverTime());
 		ASSERT_EQUALS(mCom->mPackets.size(), 1u);
-		ASSERT_TRUE(mCom->mPackets.front()->message().is<runMessage_t>());
-		ASSERT_EQUALS(mCom->mPackets.front()->message().as<runMessage_t>(), runMessage_t::ITEM_DISAPPEARED);
+		ASSERT_EQUALS(mCom->mPackets.front()->message(), Message::Run::ITEM_DISAPPEARED);
 
 		MXT_SLEEP(mConfig->maxHandOverTime());
 		ASSERT_EQUALS(mCom->mPackets.size(), 1u);

@@ -62,7 +62,7 @@ bool runUnitTests(bool verbose)
 		.addTest<ut::TestHAL>()
 		.addTest<ut::ErrorManagerLogic>()
 		.addTest<ut::RunManagerTimeCtrl>()
-		//.addTest<ut::RunManagerLogic>()
+		.addTest<ut::RunManagerLogic>()
 		.run();
 
 	uint w = 0;
