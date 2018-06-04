@@ -55,6 +55,7 @@ void Tester::run(void)
 			if(HAL_BUTTONS.isPressed(Button::RESET))
 			{
 				mKeep = !mKeep.load();
+				HAL_CONSOLE.println("Mode: \tAll items are " (mKeep.load() ? "accepted!" : "sorted out!"));
 			}
 			break;
 
@@ -76,7 +77,7 @@ void Tester::run(void)
 
 void Tester::accept(Packet_ptr p)
 {
-	HAL_CONSOLE.println("Received", p);
+	HAL_CONSOLE.println("Received ", p);
 
 	if(mRunning.load())
 	{
@@ -126,13 +127,19 @@ void Tester::accept(Packet_ptr p)
 			case Message::Run::REACHED_END:
 			case Message::Run::ITEM_REMOVED:
 				send(Message::Run::SUSPEND);
+				HAL_CONSOLE.println("Message: \t"(p->message() == Message::Run::REACHED_END ? "REACHED_END" : "ITEM_REMOVED"));
 				break;
 
 			case Message::Run::ITEM_APPEARED:
 			case Message::Run::ITEM_DISAPPEARED:
-				HAL_CONSOLE.println("Item ", (p->message() == Message::Run::ITEM_APPEARED ? "appeared" : "disappeared"), " in ",
+				send(Message::Run::SUSPEND);
+				HAL_CONSOLE.println("Error: \tITEM_", (p->message() == Message::Run::ITEM_APPEARED ? "APPEARED" : "DISAPPEARED"), " in ",
 						static_cast<data::Location&>(**p->begin()).location());
-				send(Message::Error::SERIAL);
+				break;
+
+			case Message::Run::RAMP_FULL:
+				send(Message::Run::SUSPEND);
+				HAL_CONSOLE.println("Error: \tRAMP_FULL");
 				break;
 
 			case Message::Run::ANALYSE:
@@ -140,6 +147,10 @@ void Tester::accept(Packet_ptr p)
 				{
 					send(Message::Run::KEEP_NEXT);
 				}
+				break;
+
+			case Message::Run::END_FREE:
+				HAL_CONSOLE.println("Message: \tEND_FREE");
 				break;
 
 			default:
