@@ -50,10 +50,10 @@ void ItemMeasurement::run(void)
 
 	std::atomic<bool> running(true);
 	State curState = State::IDLE;
-	uint32_t measure_min;
-	uint32_t samples_min;
-	uint32_t measure_max;
-	uint32_t samples_max;
+	uint64_t measure_min;
+	uint64_t samples_min;
+	uint64_t measure_max;
+	uint64_t samples_max;
 
 	std::cout << "Press 'reset' for configuration or 'start' for measuring." << std::endl;
 	hal.setCallback([&](Event e) {
@@ -99,26 +99,30 @@ void ItemMeasurement::run(void)
 			switch (e)
 			{
 			case Event::HEIGHT_SENSOR:
-				measure_min += height.measure(false);
-				samples_min++;
-				break;
-			case Event::LB_HEIGHTSENSOR:
 				if (lightbarriers.isBroken(LightBarrier::LB_HEIGHTSENSOR))
 				{
-					samples_max = 3;
-					uint32_t i;
-					for (i = 0; i < samples_max; i++)
-					{
-						measure_max += height.measure(false);
-						//lib::Timer::instance().sleep(10);
-					}
+					measure_min += height.measure(false);
+					samples_min++;
 				}
 				else
 				{
-					measure_max /= samples_max;
-					measure_min /= samples_min;
-					config.setHeightSensorMin((uint16_t) 5); // TODO set sensor max
-					config.setHeightSensorMax((uint16_t) 5); // TODO set sensor min
+					measure_max += height.measure(false);
+					samples_max++;
+				};
+				break;
+			case Event::LB_HEIGHTSENSOR:
+				if (!lightbarriers.isBroken(LightBarrier::LB_HEIGHTSENSOR))
+				{
+					uint16_t max = (uint16_t) (measure_max / samples_max);
+					uint16_t min = (uint16_t) (measure_min / samples_min);
+
+					std::cout << "MAX = " << (measure_max) << std::endl;
+					std::cout << "MIN = " << (measure_min) << std::endl;
+					config.setHeightSensorMin(min); // TODO set sensor max
+					config.setHeightSensorMax(max); // TODO set sensor min
+					std::cout << "Done measuring!." << std::endl;
+					std::cout << "MAX = 0x" << lib::hex<16>(max) << " (" << samples_max << " Samples)" << std::endl;
+					std::cout << "MIN = 0x" << lib::hex<16>(min) << " (" << samples_min << " Samples)" << std::endl;
 					curState = State::IDLE;
 					lights.turnOff(Light::YELLOW);
 					motor.stop();
@@ -157,12 +161,12 @@ void ItemMeasurement::run(void)
 				curState = State::IDLE;
 				lights.turnOff(Light::GREEN);
 				motor.stop();
-				std::cout << "Done measuring! You can now see the results in 'ft_profile.m'." << std::endl;
+				std::cout << "Done measuring! You can now see the results in 'ft_profile.txt'." << std::endl;
 				save();
 			}
 			else if (e == Event::HEIGHT_SENSOR)
 			{
-				// TODO create profile
+				// create profile
 				measure(height.measure());
 			}
 			break;
@@ -224,7 +228,7 @@ void ItemMeasurement::measure(uint16_t val)
 
 void ItemMeasurement::save(void)
 {
-	const std::string path;
+	const std::string path = "ft_profile.txt";
 	std::ofstream profileFile(path);
 
 	if(profileFile.is_open())
