@@ -40,11 +40,11 @@ void testConfigManager(const lib::Arguments&)
 	base::ConfigObject config("configmanager-ft.conf");
 	BasicRecipient handler;
 	base::ConfigManager manager(&handler,&config);
-
-	HAL::instance().clear();
 	HAL::instance().instantiate(&hal, &config);
 
 	std::cout << "=== CONFIGMANAGER TEST ======================================================================" << std::endl;
+
+	std::cout << "Press [START] for measure or [STOP] for quit" << std::endl;
 
 	hal.setCallback([&](Event e) {
 
@@ -81,11 +81,11 @@ void testConfigManager(const lib::Arguments&)
 			if (handler.packets.front()->message() == Message::Config::DONE)
 			{
 				manager.leave();
-				std::cout << "Measured Data:" << std::endl;
+				std::cout << "The following calibration data was measured:" << std::endl;
 				std::cout << "----------------------------------" << std::endl;
-				std::cout << "Start to HS     0x" << lib::hex<16>(config.startToHs()) << std::endl;
-				std::cout << "HS to Switch    0x" << lib::hex<16>(config.hsToSwitch()) << std::endl;
-				std::cout << "Switch to End:  0x" << lib::hex<16>(config.switchToEnd()) << std::endl;
+				std::cout << "Start to HS     " << config.startToHs() << "s" << std::endl;
+				std::cout << "HS to Switch    " << config.hsToSwitch() << "s" << std::endl;
+				std::cout << "Switch to End:  " << config.switchToEnd() << "s" << std::endl;
 				std::cout << "Slow factor:    " << config.slowFactor() << std::endl;
 				std::cout << "Time Tolerance: " << config.timeTolerance() << std::endl;
 				std::cout << "----------------------------------" << std::endl;
