@@ -21,8 +21,6 @@
 
 namespace esep { namespace test { namespace functional { namespace h {
 
-static uint16_t minConfVal = 0;
-
 void ItemMeasurement::run(void)
 {
 	typedef hal::HAL::Event Event;
@@ -51,10 +49,10 @@ void ItemMeasurement::run(void)
 
 	std::atomic<bool> running(true);
 	State curState = State::IDLE;
-	uint64_t measure_min = 0;
-	uint64_t samples_min = 0;
-	uint64_t measure_max = 0;
-	uint64_t samples_max = 0;
+	uint32_t measure_min = 0;
+	uint32_t samples_min = 0;
+	uint32_t measure_max = 0;
+	uint32_t samples_max = 0;
 
 	std::cout << "Press 'reset' for configuration or 'start' for measuring." << std::endl;
 	hal.setCallback([&](Event e) {
@@ -72,11 +70,14 @@ void ItemMeasurement::run(void)
 		case State::CONFIG_IDLE:
 			switch (e)
 			{
-			case Event::LB_START:
-				motor.right();
-				motor.start();
-				curState = State::CONFIG_RUNNING;
-				lights.flash(Light::YELLOW, 1000);
+			case Event::BTN_RESET:
+				if (btns.isPressed(Button::RESET))
+				{
+					motor.right();
+					motor.start();
+					curState = State::CONFIG_MIN;
+					lights.flash(Light::YELLOW, 1000);
+				}
 				break;
 			case Event::BTN_START:
 				if (btns.isPressed(Button::START) && config.isValid())
@@ -96,6 +97,23 @@ void ItemMeasurement::run(void)
 			}
 			break;
 
+		case State::CONFIG_MIN:
+			switch (e)
+			{
+			case Event::HEIGHT_SENSOR:
+				measure_min += height.measure(false);
+				samples_min++;
+				break;
+			case Event::LB_START:
+				if (!lightbarriers.isBroken(LightBarrier::LB_START))
+				{
+					curState = State::CONFIG_RUNNING;
+				}
+				break;
+			default:
+				break;
+			}
+			break;
 		case State::CONFIG_RUNNING:
 			switch (e)
 			{
@@ -105,11 +123,6 @@ void ItemMeasurement::run(void)
 					measure_max += height.measure(false);
 					samples_max++;
 				}
-				else
-				{
-					measure_min += height.measure(false);
-					samples_min++;
-				};
 				break;
 			case Event::LB_HEIGHTSENSOR:
 				if (!lightbarriers.isBroken(LightBarrier::LB_HEIGHTSENSOR))
@@ -118,6 +131,7 @@ void ItemMeasurement::run(void)
 					uint16_t min = (uint16_t) (measure_min / samples_min);
 					config.setHeightSensorMin(min);
 					config.setHeightSensorMax(max);
+					config.save();
 					std::cout << "Done measuring!." << std::endl;
 					std::cout << "MAX = 0x" << lib::hex<16>(max) << " (" << samples_max << " Samples)" << std::endl;
 					std::cout << "MIN = 0x" << lib::hex<16>(min) << " (" << samples_min << " Samples)" << std::endl;
