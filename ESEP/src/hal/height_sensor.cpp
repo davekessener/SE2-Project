@@ -32,7 +32,7 @@ uint16_t HeightSensor::measureNormalized(uint16_t val)
 {
 	uint16_t min_sensor = mConfig->heightSensorMin(); min_sensor = -min_sensor;
 	uint16_t max_sensor = mConfig->heightSensorMax(); max_sensor = -max_sensor;
-	uint16_t range = max_sensor - min_sensor, d = range / 2;
+	uint16_t range = max_sensor - min_sensor, d = range / 5;
 
 	min_sensor = min_sensor <= MXT_MAX - d ? min_sensor + d : MXT_MAX;
 	max_sensor = max_sensor <= MXT_MAX - d ? max_sensor + d : MXT_MAX;
