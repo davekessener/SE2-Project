@@ -70,12 +70,12 @@ void ItemMeasurement::run(void)
 		case State::CONFIG_IDLE:
 			switch (e)
 			{
-			case Event::BTN_RESET:
-				if (btns.isPressed(Button::RESET))
+			case Event::LB_START:
+				if (lightbarriers.isBroken(LightBarrier::LB_START))
 				{
 					motor.right();
 					motor.start();
-					curState = State::CONFIG_MIN;
+					curState = State::CONFIG_RUNNING;
 					lights.flash(Light::YELLOW, 1000);
 				}
 				break;
@@ -97,44 +97,22 @@ void ItemMeasurement::run(void)
 			}
 			break;
 
-		case State::CONFIG_MIN:
-			switch (e)
-			{
-			case Event::HEIGHT_SENSOR:
-				measure_min += height.measure(false);
-				samples_min++;
-				break;
-			case Event::LB_START:
-				if (!lightbarriers.isBroken(LightBarrier::LB_START))
-				{
-					curState = State::CONFIG_RUNNING;
-				}
-				break;
-			default:
-				break;
-			}
-			break;
 		case State::CONFIG_RUNNING:
 			switch (e)
 			{
-			case Event::HEIGHT_SENSOR:
-				if (lightbarriers.isBroken(LightBarrier::LB_HEIGHTSENSOR))
-				{
-					measure_max += height.measure(false);
-					samples_max++;
-				}
-				break;
 			case Event::LB_HEIGHTSENSOR:
 				if (!lightbarriers.isBroken(LightBarrier::LB_HEIGHTSENSOR))
 				{
+					measure_min += height.measure(false);
+					samples_min++;
 					uint16_t max = (uint16_t) (measure_max / samples_max);
 					uint16_t min = (uint16_t) (measure_min / samples_min);
 					config.setHeightSensorMin(min);
 					config.setHeightSensorMax(max);
 					config.save();
 					std::cout << "Done measuring!." << std::endl;
-					std::cout << "MAX = 0x" << lib::hex<16>(max) << " (" << samples_max << " Samples)" << std::endl;
-					std::cout << "MIN = 0x" << lib::hex<16>(min) << " (" << samples_min << " Samples)" << std::endl;
+					std::cout << "MAX = 0x" << lib::hex<16>(max) << " (" << samples_max << " Sample/s)" << std::endl;
+					std::cout << "MIN = 0x" << lib::hex<16>(min) << " (" << samples_min << " Sample/s)" << std::endl;
 					samples_min = 0;
 					samples_max = 0;
 					measure_min = 0;
@@ -142,6 +120,11 @@ void ItemMeasurement::run(void)
 					curState = State::IDLE;
 					lights.turnOff(Light::YELLOW);
 					motor.stop();
+				}
+				else
+				{
+					measure_max += height.measure(false);
+					samples_max++;
 				}
 				break;
 			default:

@@ -25,8 +25,7 @@ namespace esep
 							CONFIG_RUNNING,
 							IDLE,
 							MEASURE_IDLE,
-							MEASURE_RUNNING,
-							CONFIG_MIN
+							MEASURE_RUNNING
 						};
 
 					public:
