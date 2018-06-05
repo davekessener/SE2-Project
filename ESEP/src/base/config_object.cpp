@@ -5,7 +5,7 @@
 
 #include "base/config_object.h"
 
-#define MXT_NO_OF_VALUES 8
+#define MXT_NO_OF_VALUES 7
 
 namespace esep { namespace base {
 
@@ -53,6 +53,7 @@ ConfigObject::ConfigObject(const std::string& path)
 			fileData.pop_back();
 			mTimeTolerance = (float) std::stof(fileData.back());
 		}
+		confFile.close();
 	}
 }
 
@@ -74,6 +75,7 @@ void ConfigObject::save()
 				 << mStartToHs    << "\n"
 				 << mHsToSwitch   << "\n"
 				 << mSwitchToEnd;
+		confFile.close();
 	}
 	else
 	{
