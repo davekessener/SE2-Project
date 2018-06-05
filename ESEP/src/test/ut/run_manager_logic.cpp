@@ -123,7 +123,7 @@ void RunManagerLogic::define(void)
 		sendPacket(runMessage_t::KEEP_NEXT);
 
 		ASSERT_EQUALS(hal().writes().back().get<Field>(), Field::GPIO_0);
-		ASSERT_EQUALS(hal().writes().back().get<uint32_t>(), MXT_BM_SWITCH);
+		ASSERT_TRUE(hal().writes().back().get<uint32_t>() & (1u << MXT_BM_SWITCH));
 
 		//LB_SWITCH -> LB_END
 

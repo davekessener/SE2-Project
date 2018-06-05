@@ -23,6 +23,16 @@ namespace esep
 			static constexpr bool IsMember = true;
 		};
 
+		template<typename R, typename C, typename ... A>
+		struct FunctionTraits<R(C::*)(A...)>
+		{
+			static const uint arg_count = sizeof...(A);
+			typedef R return_type;
+			typedef C class_type;
+			typedef tml::MakeTypeList<A...> argument_types;
+			static constexpr bool IsMember = true;
+		};
+
 		template<typename R, typename ... A>
 		struct FunctionTraits<R(*)(A...)>
 		{
