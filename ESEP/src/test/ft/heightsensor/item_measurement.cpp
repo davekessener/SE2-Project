@@ -21,6 +21,8 @@
 
 namespace esep { namespace test { namespace functional { namespace h {
 
+static uint16_t minConfVal = 0;
+
 void ItemMeasurement::run(void)
 {
 	typedef hal::HAL::Event Event;
@@ -49,10 +51,10 @@ void ItemMeasurement::run(void)
 
 	std::atomic<bool> running(true);
 	State curState = State::IDLE;
-	uint64_t measure_min;
-	uint64_t samples_min;
-	uint64_t measure_max;
-	uint64_t samples_max;
+	uint64_t measure_min = 0;
+	uint64_t samples_min = 0;
+	uint64_t measure_max = 0;
+	uint64_t samples_max = 0;
 
 	std::cout << "Press 'reset' for configuration or 'start' for measuring." << std::endl;
 	hal.setCallback([&](Event e) {
@@ -100,13 +102,13 @@ void ItemMeasurement::run(void)
 			case Event::HEIGHT_SENSOR:
 				if (lightbarriers.isBroken(LightBarrier::LB_HEIGHTSENSOR))
 				{
-					measure_min += height.measure(false);
-					samples_min++;
+					measure_max += height.measure(false);
+					samples_max++;
 				}
 				else
 				{
-					measure_max += height.measure(false);
-					samples_max++;
+					measure_min += height.measure(false);
+					samples_min++;
 				};
 				break;
 			case Event::LB_HEIGHTSENSOR:
@@ -114,14 +116,15 @@ void ItemMeasurement::run(void)
 				{
 					uint16_t max = (uint16_t) (measure_max / samples_max);
 					uint16_t min = (uint16_t) (measure_min / samples_min);
-
-					std::cout << "MAX = " << (measure_max) << std::endl;
-					std::cout << "MIN = " << (measure_min) << std::endl;
-					config.setHeightSensorMin(min); // TODO set sensor max
-					config.setHeightSensorMax(max); // TODO set sensor min
+					config.setHeightSensorMin(min);
+					config.setHeightSensorMax(max);
 					std::cout << "Done measuring!." << std::endl;
 					std::cout << "MAX = 0x" << lib::hex<16>(max) << " (" << samples_max << " Samples)" << std::endl;
 					std::cout << "MIN = 0x" << lib::hex<16>(min) << " (" << samples_min << " Samples)" << std::endl;
+					samples_min = 0;
+					samples_max = 0;
+					measure_min = 0;
+					measure_max = 0;
 					curState = State::IDLE;
 					lights.turnOff(Light::YELLOW);
 					motor.stop();
@@ -241,13 +244,6 @@ void ItemMeasurement::save(void)
 	{
 		MXT_THROW_EX(CouldNotOpenFileException);
 	}
-
-	// For debugging only
-//	for(auto const& pair: mProfile)
-//	{
-//		std::cout << pair.first << " " << pair.second << std::endl;
-//	}
-	// -- for debugging only
 
 	clearProfile();
 }
