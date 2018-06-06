@@ -1,7 +1,10 @@
+
+#include <iostream>
 #include "test/ut/run_manager_logic.h"
 
 #include "test/unit/assertions.h"
 #include "test/unit/hal.h"
+
 
 namespace esep { namespace test { namespace ut {
 
@@ -10,7 +13,7 @@ namespace esep { namespace test { namespace ut {
 #define MXT_BM_MOTOR_START	(1u << 12)
 
 
-struct BasicRecipient : public communication::IRecipient
+struct RunManagerLogic::BasicRecipient : public communication::IRecipient
 {
 	typedef communication::Packet_ptr Packet_ptr;
 
@@ -47,6 +50,7 @@ void RunManagerLogic::setup(void)
 
 void RunManagerLogic::teardown(void)
 {
+	hal().setCallback([](Event) { });
 	delete mConfig; mConfig = nullptr;
 	delete mCom; mCom = nullptr;
 	delete mRunManager; mRunManager = nullptr;
@@ -59,7 +63,7 @@ void RunManagerLogic::sendPacket(msg_t msg)
 
 uint32_t RunManagerLogic::maxTime(uint32_t t)
 {
-	return t *= (1 + mConfig->TOLERANCE);
+	return t * (1 + mConfig->TOLERANCE);
 }
 
 void RunManagerLogic::blockLB(LightBarrier lb)
@@ -92,6 +96,7 @@ void RunManagerLogic::define(void)
 
 	UNIT_TEST("positive test - from start to end")
 	{
+		auto s = mCom->mPackets.size();
 		//Expect new -> LB_HS
 		mRunManager->enter();
 		sendPacket(Message::Run::EXPECT_NEW);

@@ -52,6 +52,7 @@ void RunManager::leave()
 
 void RunManager::handle(Event e)
 {
+//	printf("got halevent to handle: %d\n", e);
 	run::HalEvent he;
 
 	switch(e)
@@ -120,25 +121,28 @@ uint64_t RunManager::timeDiff(uint64_t oldstamp, uint64_t currstamp)
 void RunManager::accept(Packet_ptr p)
 {
 	msg_t m = p->message();
-
 	if(m.is<Message::Run>())
 	{
 		//takes only messages of the type Run
 		Message::Run runM = m.as<Message::Run>();
+
 		switch(MXT_CAST(runM))
 		{
 		case(MXT_CAST(Message::Run::RESUME)):
+//				printf("got packet: resume!\n");
 				HAL_MOTOR.right();
 				HAL_MOTOR.start();
 				mTimeCtrl.resumeAllTimer();
 				break;
 
 		case(MXT_CAST(Message::Run::SUSPEND)):
+//				printf("got packet: suspend!\n");
 				HAL_MOTOR.stop();
 				mTimeCtrl.pauseAllTimer();
 				break;
 
 		case(MXT_CAST(Message::Run::TIMER)):
+//				printf("got packet: timer!\n");
 				for (data::Data_ptr d : *p)
 				{
 					if(d->type() == data::DataPoint::Type::RUN_MANAGER_TIMER)
@@ -151,6 +155,7 @@ void RunManager::accept(Packet_ptr p)
 
 		//if its not resume or suspend, proceed this msg to logic
 		default:
+//				printf("got packet for logic : %d!\n", runM);
 				mLogic.process(runM);
 		}
 	}
@@ -162,11 +167,13 @@ void RunManager::accept(Packet_ptr p)
 
 void RunManager::sendMasterMessage(Message::Run msg)
 {
+//	printf("send packet: %d!\n", msg);
 	mMaster->accept(std::make_shared<communication::Packet>(Location::BASE, Location::MASTER, msg));
 }
 
 void RunManager::sendMessageWithData(Location target, Message::Run msg, data::Data_ptr data)
 {
+//	printf("send packet: %d!\n", msg);
 	auto packet = std::make_shared<communication::Packet>(Location::BASE, target, msg);
 	packet->addDataPoint(data);
 	mMaster->accept(packet);
@@ -174,6 +181,7 @@ void RunManager::sendMessageWithData(Location target, Message::Run msg, data::Da
 
 void RunManager::sendItemInfo(data::Data_ptr hm, data::Data_ptr metal)
 {
+//	printf("send packet: %d!\n", Message::Run::ANALYSE);
 	auto packet = std::make_shared<communication::Packet>(Location::BASE, Location::MASTER, Message::Run::ANALYSE);
 	packet->addDataPoint(hm);
 	packet->addDataPoint(metal);

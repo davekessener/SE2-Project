@@ -12,10 +12,10 @@ namespace esep
 	{
 		namespace ut
 		{
-			struct BasicRecipient;
-
 			class MasterLogic : public unit::TestSuite
 			{
+				struct BasicRecipient;
+
 				typedef communication::Packet Packet;
 				typedef communication::Message Message;
 				typedef Packet::Location Location;

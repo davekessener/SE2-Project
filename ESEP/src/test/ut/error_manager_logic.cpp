@@ -12,7 +12,7 @@ typedef communication::Packet Packet;
 typedef communication::Packet_ptr Packet_ptr;
 typedef data::Data_ptr Data_ptr;
 
-struct BasicRecipient : public communication::IRecipient
+struct ErrorManagerLogic::BasicRecipient : public communication::IRecipient
 {
 	void accept(Packet_ptr p) override
 	{

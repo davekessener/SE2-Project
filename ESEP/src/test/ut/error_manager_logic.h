@@ -15,10 +15,10 @@ namespace esep
 	{
 		namespace ut
 		{
-			struct BasicRecipient;
-
 			class ErrorManagerLogic : public unit::TestSuite
 			{
+				struct BasicRecipient;
+
 				typedef base::ErrorManager::Event Event;
 				typedef hal::HAL::Field Field;
 				typedef hal::Buttons::Button Button;
