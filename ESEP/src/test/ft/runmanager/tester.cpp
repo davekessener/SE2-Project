@@ -55,7 +55,7 @@ void Tester::run(void)
 			if(HAL_BUTTONS.isPressed(Button::RESET))
 			{
 				mKeep = !mKeep.load();
-				HAL_CONSOLE.println("Mode: \tAll items are " (mKeep.load() ? "accepted!" : "sorted out!"));
+				HAL_CONSOLE.println("Mode: \tAll items are ", (mKeep.load() ? "accepted!" : "sorted out!"));
 			}
 			break;
 
@@ -127,7 +127,7 @@ void Tester::accept(Packet_ptr p)
 			case Message::Run::REACHED_END:
 			case Message::Run::ITEM_REMOVED:
 				send(Message::Run::SUSPEND);
-				HAL_CONSOLE.println("Message: \t"(p->message() == Message::Run::REACHED_END ? "REACHED_END" : "ITEM_REMOVED"));
+				HAL_CONSOLE.println("Message: \t", (p->message() == Message::Run::REACHED_END ? "REACHED_END" : "ITEM_REMOVED"));
 				break;
 
 			case Message::Run::ITEM_APPEARED:
