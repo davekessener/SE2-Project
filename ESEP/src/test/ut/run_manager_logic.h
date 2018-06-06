@@ -17,11 +17,10 @@ namespace esep
 	{
 		namespace ut
 		{
-
-			struct BasicRecipient;
-
 			class RunManagerLogic : public unit::TestSuite
 			{
+				struct BasicRecipient;
+
 				typedef base::RunManager::Event Event;
 				typedef base::ConfigObject config_t;
 				typedef base::RunManager RunManager;

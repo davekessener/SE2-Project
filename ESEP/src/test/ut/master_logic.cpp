@@ -13,7 +13,7 @@ typedef data::Data_ptr Data_ptr;
 typedef data::Location::Type LocationType;
 typedef communication::Packet_ptr Packet_ptr;
 
-struct BasicRecipient : public communication::IRecipient
+struct MasterLogic::BasicRecipient : public communication::IRecipient
 {
 	typedef communication::Packet Packet;
 	typedef communication::Packet_ptr Packet_ptr;
@@ -26,15 +26,18 @@ struct BasicRecipient : public communication::IRecipient
 	std::vector<Packet_ptr> packets;
 };
 
-struct SimplePlugin : master::Plugin
+namespace
 {
-	SimplePlugin(Action a, float c = 1.0) : Plugin(Type::DEFAULT), action(a), chance(c) { }
-	float match(const data_t&) override { return chance; }
-	Action decide(const history_t&) override { return action; }
+	struct SimplePlugin : master::Plugin
+	{
+		SimplePlugin(Action a, float c = 1.0) : Plugin(Type::DEFAULT), action(a), chance(c) { }
+		float match(const data_t&) override { return chance; }
+		Action decide(const history_t&) override { return action; }
 
-	const Action action;
-	const float chance;
-};
+		const Action action;
+		const float chance;
+	};
+}
 
 MasterLogic::MasterLogic(void)
 	: TestSuite("Master Logic")

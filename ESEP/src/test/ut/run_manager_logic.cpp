@@ -13,7 +13,7 @@ namespace esep { namespace test { namespace ut {
 #define MXT_BM_MOTOR_START	(1u << 12)
 
 
-struct BasicRecipient : public communication::IRecipient
+struct RunManagerLogic::BasicRecipient : public communication::IRecipient
 {
 	typedef communication::Packet_ptr Packet_ptr;
 
@@ -50,6 +50,7 @@ void RunManagerLogic::setup(void)
 
 void RunManagerLogic::teardown(void)
 {
+	hal().setCallback([](Event) { });
 	delete mConfig; mConfig = nullptr;
 	delete mCom; mCom = nullptr;
 	delete mRunManager; mRunManager = nullptr;
@@ -62,7 +63,7 @@ void RunManagerLogic::sendPacket(msg_t msg)
 
 uint32_t RunManagerLogic::maxTime(uint32_t t)
 {
-	return t *= (1 + mConfig->TOLERANCE);
+	return t * (1 + mConfig->TOLERANCE);
 }
 
 void RunManagerLogic::blockLB(LightBarrier lb)
@@ -77,35 +78,30 @@ void RunManagerLogic::freeLB(LightBarrier lb)
 
 void RunManagerLogic::define(void)
 {
-//	UNIT_TEST("Can Create RunManager")
-//	{
-//
-//	};
-//
-//	UNIT_TEST("resume and suspend")
-//	{
-//		sendPacket(Message::Run::RESUME);
-//		ASSERT_EQUALS(hal().writes().back().get<Field>(), Field::GPIO_1);
-//		ASSERT_TRUE(hal().writes().back().get<uint32_t>() & MXT_BM_MOTOR_START);
-//
-//		sendPacket(Message::Run::SUSPEND);
-//		ASSERT_EQUALS(hal().writes().back().get<Field>(), Field::GPIO_1);
-//		ASSERT_FALSE(hal().writes().back().get<uint32_t>() & MXT_BM_MOTOR_START); //right comparrison?
-//	};
+	UNIT_TEST("Can Create RunManager")
+	{
+
+	};
+
+	UNIT_TEST("resume and suspend")
+	{
+		sendPacket(Message::Run::RESUME);
+		ASSERT_EQUALS(hal().writes().back().get<Field>(), Field::GPIO_1);
+		ASSERT_TRUE(hal().writes().back().get<uint32_t>() & MXT_BM_MOTOR_START);
+
+		sendPacket(Message::Run::SUSPEND);
+		ASSERT_EQUALS(hal().writes().back().get<Field>(), Field::GPIO_1);
+		ASSERT_FALSE(hal().writes().back().get<uint32_t>() & MXT_BM_MOTOR_START); //right comparrison?
+	};
 
 	UNIT_TEST("positive test - from start to end")
 	{
+		auto s = mCom->mPackets.size();
 		//Expect new -> LB_HS
 		mRunManager->enter();
 		sendPacket(Message::Run::EXPECT_NEW);
 		blockLB(LightBarrier::LB_START);
 		hal().trigger(Event::LB_START);
-
-		std::cout << "mCom:" << mCom << std::endl;
-		if(!mCom->mPackets.empty())
-		{
-
-		}
 
 		ASSERT_EQUALS(mCom->mPackets.size(), 1u);
 		ASSERT_EQUALS(mCom->mPackets.front()->message(), Message::Run::NEW_ITEM);
@@ -160,111 +156,111 @@ void RunManagerLogic::define(void)
 		mCom->mPackets.pop_front();
 	};
 
-//	UNIT_TEST("positive test - from start to ramp")
-//	{
-//		mRunManager->enter();
-//		sendPacket(Message::Run::EXPECT_NEW);
-//		blockLB(LightBarrier::LB_START);
-//		hal().trigger(Event::LB_START);
-//
-//		ASSERT_EQUALS(mCom->mPackets.size(), 1u);
-//		ASSERT_EQUALS(mCom->mPackets.front()->message(), Message::Run::NEW_ITEM);
-//		mCom->mPackets.pop_front();
-//
-//		freeLB(LightBarrier::LB_START);
-//		hal().trigger(Event::LB_START);
-//
-//		MXT_SLEEP(mConfig->startToHs());
-//
-//		blockLB(LightBarrier::LB_HEIGHTSENSOR);
-//		hal().trigger(Event::LB_HEIGHTSENSOR);
-//
-//		freeLB(LightBarrier::LB_HEIGHTSENSOR);
-//		hal().trigger(Event::LB_HEIGHTSENSOR);
-//
-//		MXT_SLEEP(mConfig->hsToSwitch());
-//
-//		blockLB(LightBarrier::LB_SWITCH);
-//		hal().trigger(Event::LB_SWITCH);
-//
-//		ASSERT_EQUALS(mCom->mPackets.size(), 1u);
-//		ASSERT_EQUALS(mCom->mPackets.front()->message(), Message::Run::ANALYSE);
-//		mCom->mPackets.pop_front();
-//
-//		//til now same as above
-//
-//		freeLB(LightBarrier::LB_SWITCH);
-//		hal().trigger(Event::LB_SWITCH);
-//
-//		blockLB(LightBarrier::LB_RAMP);
-//		hal().trigger(Event::LB_RAMP);
-//
-//		freeLB(LightBarrier::LB_RAMP);
-//		hal().trigger(Event::LB_RAMP);
-//
-//		ASSERT_EQUALS(mCom->mPackets.size(), 1u);
-//		ASSERT_EQUALS(mCom->mPackets.front()->message(), Message::Run::ITEM_REMOVED);
-//		mCom->mPackets.pop_front();
-//	};
-//
-//	UNIT_TEST("ramp full")
-//	{
-//		mRunManager->enter();
-//		sendPacket(Message::Run::EXPECT_NEW);
-//		blockLB(LightBarrier::LB_START);
-//		hal().trigger(Event::LB_START);
-//
-//		ASSERT_EQUALS(mCom->mPackets.size(), 1u);
-//		ASSERT_EQUALS(mCom->mPackets.front()->message(), Message::Run::NEW_ITEM);
-//		mCom->mPackets.pop_front();
-//
-//		freeLB(LightBarrier::LB_START);
-//		hal().trigger(Event::LB_START);
-//
-//		MXT_SLEEP(mConfig->startToHs());
-//
-//		blockLB(LightBarrier::LB_HEIGHTSENSOR);
-//		hal().trigger(Event::LB_HEIGHTSENSOR);
-//
-//		freeLB(LightBarrier::LB_HEIGHTSENSOR);
-//		hal().trigger(Event::LB_HEIGHTSENSOR);
-//
-//		MXT_SLEEP(mConfig->hsToSwitch());
-//
-//		blockLB(LightBarrier::LB_SWITCH);
-//		hal().trigger(Event::LB_SWITCH);
-//
-//		ASSERT_EQUALS(mCom->mPackets.size(), 1u);
-//		ASSERT_EQUALS(mCom->mPackets.front()->message(), Message::Run::ANALYSE);
-//		mCom->mPackets.pop_front();
-//
-//		freeLB(LightBarrier::LB_SWITCH);
-//		hal().trigger(Event::LB_SWITCH);
-//
-//		blockLB(LightBarrier::LB_RAMP);
-//		hal().trigger(Event::LB_RAMP);
-//
-//		//til now same as above
-//
-//		MXT_SLEEP(mConfig->maxHandOverTime());
-//
-//		ASSERT_EQUALS(mCom->mPackets.back()->message(), Message::Run::RAMP_FULL);
-//		mCom->mPackets.pop_front();
-//	};
-//
-//	UNIT_TEST("Item disappeared by handing over")
-//	{
-//		mRunManager->enter();
-//		sendPacket(Message::Run::EXPECT_NEW);
-//		ASSERT_TRUE(mCom->mPackets.empty());
-//
-//		MXT_SLEEP(mConfig->maxHandOverTime());
-//		ASSERT_EQUALS(mCom->mPackets.size(), 1u);
-//		ASSERT_EQUALS(mCom->mPackets.front()->message(), Message::Run::ITEM_DISAPPEARED);
-//
-//		MXT_SLEEP(mConfig->maxHandOverTime());
-//		ASSERT_EQUALS(mCom->mPackets.size(), 1u);
-//	};
+	UNIT_TEST("positive test - from start to ramp")
+	{
+		mRunManager->enter();
+		sendPacket(Message::Run::EXPECT_NEW);
+		blockLB(LightBarrier::LB_START);
+		hal().trigger(Event::LB_START);
+
+		ASSERT_EQUALS(mCom->mPackets.size(), 1u);
+		ASSERT_EQUALS(mCom->mPackets.front()->message(), Message::Run::NEW_ITEM);
+		mCom->mPackets.pop_front();
+
+		freeLB(LightBarrier::LB_START);
+		hal().trigger(Event::LB_START);
+
+		MXT_SLEEP(mConfig->startToHs());
+
+		blockLB(LightBarrier::LB_HEIGHTSENSOR);
+		hal().trigger(Event::LB_HEIGHTSENSOR);
+
+		freeLB(LightBarrier::LB_HEIGHTSENSOR);
+		hal().trigger(Event::LB_HEIGHTSENSOR);
+
+		MXT_SLEEP(mConfig->hsToSwitch());
+
+		blockLB(LightBarrier::LB_SWITCH);
+		hal().trigger(Event::LB_SWITCH);
+
+		ASSERT_EQUALS(mCom->mPackets.size(), 1u);
+		ASSERT_EQUALS(mCom->mPackets.front()->message(), Message::Run::ANALYSE);
+		mCom->mPackets.pop_front();
+
+		//til now same as above
+
+		freeLB(LightBarrier::LB_SWITCH);
+		hal().trigger(Event::LB_SWITCH);
+
+		blockLB(LightBarrier::LB_RAMP);
+		hal().trigger(Event::LB_RAMP);
+
+		freeLB(LightBarrier::LB_RAMP);
+		hal().trigger(Event::LB_RAMP);
+
+		ASSERT_EQUALS(mCom->mPackets.size(), 1u);
+		ASSERT_EQUALS(mCom->mPackets.front()->message(), Message::Run::ITEM_REMOVED);
+		mCom->mPackets.pop_front();
+	};
+
+	UNIT_TEST("ramp full")
+	{
+		mRunManager->enter();
+		sendPacket(Message::Run::EXPECT_NEW);
+		blockLB(LightBarrier::LB_START);
+		hal().trigger(Event::LB_START);
+
+		ASSERT_EQUALS(mCom->mPackets.size(), 1u);
+		ASSERT_EQUALS(mCom->mPackets.front()->message(), Message::Run::NEW_ITEM);
+		mCom->mPackets.pop_front();
+
+		freeLB(LightBarrier::LB_START);
+		hal().trigger(Event::LB_START);
+
+		MXT_SLEEP(mConfig->startToHs());
+
+		blockLB(LightBarrier::LB_HEIGHTSENSOR);
+		hal().trigger(Event::LB_HEIGHTSENSOR);
+
+		freeLB(LightBarrier::LB_HEIGHTSENSOR);
+		hal().trigger(Event::LB_HEIGHTSENSOR);
+
+		MXT_SLEEP(mConfig->hsToSwitch());
+
+		blockLB(LightBarrier::LB_SWITCH);
+		hal().trigger(Event::LB_SWITCH);
+
+		ASSERT_EQUALS(mCom->mPackets.size(), 1u);
+		ASSERT_EQUALS(mCom->mPackets.front()->message(), Message::Run::ANALYSE);
+		mCom->mPackets.pop_front();
+
+		freeLB(LightBarrier::LB_SWITCH);
+		hal().trigger(Event::LB_SWITCH);
+
+		blockLB(LightBarrier::LB_RAMP);
+		hal().trigger(Event::LB_RAMP);
+
+		//til now same as above
+
+		MXT_SLEEP(mConfig->maxHandOverTime());
+
+		ASSERT_EQUALS(mCom->mPackets.back()->message(), Message::Run::RAMP_FULL);
+		mCom->mPackets.pop_front();
+	};
+
+	UNIT_TEST("Item disappeared by handing over")
+	{
+		mRunManager->enter();
+		sendPacket(Message::Run::EXPECT_NEW);
+		ASSERT_TRUE(mCom->mPackets.empty());
+
+		MXT_SLEEP(mConfig->maxHandOverTime());
+		ASSERT_EQUALS(mCom->mPackets.size(), 1u);
+		ASSERT_EQUALS(mCom->mPackets.front()->message(), Message::Run::ITEM_DISAPPEARED);
+
+		MXT_SLEEP(mConfig->maxHandOverTime());
+		ASSERT_EQUALS(mCom->mPackets.size(), 1u);
+	};
 
 }
 
