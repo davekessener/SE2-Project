@@ -39,6 +39,7 @@ void RunManager::initLogic()
 			{{MXT_CAST(State::STATE_1), 1}},
 			[this](void)
 			{
+				printf("set timer! expect new\n");
 				this->mTimeCtrl.setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, mConfigData->maxHandOverTime());
 			});
 	//TIMER_EXPECT_NEW
@@ -83,6 +84,7 @@ void RunManager::initLogic()
 			{{MXT_CAST(State::STATE_3), 1}},
 			[this](void)
 			{
+				printf("set timer! start 1\n");
 				//this->mTimeCtrl.deleteTimer(State::STATE_2);
 				auto minTimeStartToHs = computeMinTime(MXT_CONFIG->startToHs());
 				minTimeStartToHs *= (1 - MXT_CONFIG->timeTolerance());
@@ -94,6 +96,7 @@ void RunManager::initLogic()
 			{{MXT_CAST(State::STATE_4), 1}},
 			[this](void)
 			{
+				printf("set timer! start 2\n");
 				this->mTimeCtrl.deleteTimer(State::STATE_3);
 
 				auto minTimeStartToHs = computeMinTime(MXT_CONFIG->startToHs());
@@ -148,6 +151,7 @@ void RunManager::initLogic()
 			{{MXT_CAST(State::STATE_6), 1}},
 			[this](void)
 			{
+				printf("set timer! hs 1\n");
 				//this->mTimeCtrl.deleteTimer(State::STATE_5);
 				this->mTimeCtrl.setTimer(State::STATE_6, TimerEvent::ITEM_READY_SWITCH, computeMinTime(MXT_CONFIG->hsToSwitch()));
 			});
@@ -158,6 +162,7 @@ void RunManager::initLogic()
 			{{MXT_CAST(State::STATE_7), 1}},
 			[this](void)
 			{
+				printf("set timer! hs 2\n");
 				this->mTimeCtrl.deleteTimer(State::STATE_6);
 				auto maxTimeDiff = computeMaxTime(MXT_CONFIG->hsToSwitch()) - computeMinTime(MXT_CONFIG->hsToSwitch());
 				this->mTimeCtrl.setTimer(State::STATE_7, TimerEvent::HS_2, maxTimeDiff);
@@ -236,6 +241,7 @@ void RunManager::initLogic()
 			{{MXT_CAST(State::STATE_10), 1}},
 			[this](void)
 			{
+				printf("set timer! ramp\n");
 				this->mTimeCtrl.setTimer(State::STATE_10, TimerEvent::RAMP, MXT_TIME_IN_LB);
 			});
 	//LB_RAMP_E
@@ -283,6 +289,7 @@ void RunManager::initLogic()
 			{{MXT_CAST(State::STATE_12), 1}},
 			[this](void)
 			{
+				printf("set timer! switch 1\n");
 				HAL_SWITCH.close();
 				//this->mTimeCtrl.deleteTimer(State::STATE_11);
 				this->mTimeCtrl.setTimer(State::STATE_12, TimerEvent::ITEM_READY_END, computeMinTime(MXT_CONFIG->switchToEnd()));
@@ -293,6 +300,7 @@ void RunManager::initLogic()
 			{{MXT_CAST(State::STATE_13), 1}},
 			[this](void)
 			{
+				printf("set timer! switch 2\n");
 				this->mTimeCtrl.deleteTimer(State::STATE_12);
 				auto maxTimeDiff = computeMaxTime(MXT_CONFIG->switchToEnd()) - computeMinTime(MXT_CONFIG->switchToEnd());
 				this->mTimeCtrl.setTimer(State::STATE_13, TimerEvent::SWITCH_3, maxTimeDiff);
