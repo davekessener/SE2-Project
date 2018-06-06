@@ -7,8 +7,8 @@ namespace esep
 {
 	namespace analyse
 	{
-		float sqrt(float x) { return std::sqrt(x); }
-		double sqrt(double x) { return std::sqrt(x); }
+		inline float sqrt(float x) { return std::sqrt(x); }
+		inline double sqrt(double x) { return std::sqrt(x); }
 	}
 }
 

@@ -29,7 +29,7 @@ namespace esep
 			static constexpr id_t VISITED = 0xFF;
 
 			public:
-				BDSCAN(primitive_t e, size_t n) : mEpsilon(e * e), mNeighborhood(n) { }
+				BDSCAN(primitive_t e = 0.015, size_t n = 7) : mEpsilon(e * e), mNeighborhood(n) { }
 
 				container_type operator()(const container_type& a)
 				{
