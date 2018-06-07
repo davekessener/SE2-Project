@@ -217,6 +217,14 @@ void ConfigManager::handle(hal::HAL::Event event)
 				MXT_LOG_INFO("TimeTolerance is ", mTimeTolerance);
 				MXT_LOG_INFO("MaxHandOverTime is ", mMaxHandOverTime);
 
+				MXT_LOG_WARN("HS min is ", mHeightSensorMin);
+				MXT_LOG_WARN("HS max is ", mHeightSensorMax);
+				MXT_LOG_WARN("Start to HS is ", mStartToHs);
+				MXT_LOG_WARN("HS to switch is ", mHsToSwitch);
+				MXT_LOG_WARN("switch to end is ", mSwitchToEnd);
+				MXT_LOG_WARN("TimeTolerance is ", mTimeTolerance);
+				MXT_LOG_WARN("MaxHandOverTime is ", mMaxHandOverTime);
+
 
 				mConfig->setHeightSensorMin(mHeightSensorMin);
 				mConfig->setHeightSensorMax(mHeightSensorMax);

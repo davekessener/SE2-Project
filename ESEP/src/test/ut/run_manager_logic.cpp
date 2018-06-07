@@ -67,7 +67,6 @@ void RunManagerLogic::setup(void)
 	mConfig->setMaxHandOverTime(5);
 	mConfig->setHeightSensorMax(10);
 	mConfig->setHeightSensorMin(10);
-	mConfig->setSlowFactor(1);
 	mConfig->setTimeTolerance(0.2);
 
 	mHandlerDummy = new HandlerDummy;
