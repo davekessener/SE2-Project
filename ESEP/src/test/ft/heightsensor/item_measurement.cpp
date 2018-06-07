@@ -49,10 +49,10 @@ void ItemMeasurement::run(void)
 
 	std::atomic<bool> running(true);
 	State curState = State::IDLE;
-	uint64_t measure_min;
-	uint64_t samples_min;
-	uint64_t measure_max;
-	uint64_t samples_max;
+	uint32_t measure_min = 0;
+	uint32_t samples_min = 0;
+	uint32_t measure_max = 0;
+	uint32_t samples_max = 0;
 
 	std::cout << "Press 'reset' for configuration or 'start' for measuring." << std::endl;
 	hal.setCallback([&](Event e) {
@@ -71,10 +71,13 @@ void ItemMeasurement::run(void)
 			switch (e)
 			{
 			case Event::LB_START:
-				motor.right();
-				motor.start();
-				curState = State::CONFIG_RUNNING;
-				lights.flash(Light::YELLOW, 1000);
+				if (lightbarriers.isBroken(LightBarrier::LB_START))
+				{
+					motor.right();
+					motor.start();
+					curState = State::CONFIG_RUNNING;
+					lights.flash(Light::YELLOW, 1000);
+				}
 				break;
 			case Event::BTN_START:
 				if (btns.isPressed(Button::START) && config.isValid())
@@ -97,34 +100,31 @@ void ItemMeasurement::run(void)
 		case State::CONFIG_RUNNING:
 			switch (e)
 			{
-			case Event::HEIGHT_SENSOR:
-				if (lightbarriers.isBroken(LightBarrier::LB_HEIGHTSENSOR))
+			case Event::LB_HEIGHTSENSOR:
+				if (!lightbarriers.isBroken(LightBarrier::LB_HEIGHTSENSOR))
 				{
 					measure_min += height.measure(false);
 					samples_min++;
+					uint16_t max = (uint16_t) (measure_max / samples_max);
+					uint16_t min = (uint16_t) (measure_min / samples_min);
+					config.setHeightSensorMin(min);
+					config.setHeightSensorMax(max);
+					config.save();
+					std::cout << "Done measuring!." << std::endl;
+					std::cout << "MAX = 0x" << lib::hex<16>(max) << " (" << samples_max << " Sample/s)" << std::endl;
+					std::cout << "MIN = 0x" << lib::hex<16>(min) << " (" << samples_min << " Sample/s)" << std::endl;
+					samples_min = 0;
+					samples_max = 0;
+					measure_min = 0;
+					measure_max = 0;
+					curState = State::IDLE;
+					lights.turnOff(Light::YELLOW);
+					motor.stop();
 				}
 				else
 				{
 					measure_max += height.measure(false);
 					samples_max++;
-				};
-				break;
-			case Event::LB_HEIGHTSENSOR:
-				if (!lightbarriers.isBroken(LightBarrier::LB_HEIGHTSENSOR))
-				{
-					uint16_t max = (uint16_t) (measure_max / samples_max);
-					uint16_t min = (uint16_t) (measure_min / samples_min);
-
-					std::cout << "MAX = " << (measure_max) << std::endl;
-					std::cout << "MIN = " << (measure_min) << std::endl;
-					config.setHeightSensorMin(min); // TODO set sensor max
-					config.setHeightSensorMax(max); // TODO set sensor min
-					std::cout << "Done measuring!." << std::endl;
-					std::cout << "MAX = 0x" << lib::hex<16>(max) << " (" << samples_max << " Samples)" << std::endl;
-					std::cout << "MIN = 0x" << lib::hex<16>(min) << " (" << samples_min << " Samples)" << std::endl;
-					curState = State::IDLE;
-					lights.turnOff(Light::YELLOW);
-					motor.stop();
 				}
 				break;
 			default:
@@ -241,13 +241,6 @@ void ItemMeasurement::save(void)
 	{
 		MXT_THROW_EX(CouldNotOpenFileException);
 	}
-
-	// For debugging only
-//	for(auto const& pair: mProfile)
-//	{
-//		std::cout << pair.first << " " << pair.second << std::endl;
-//	}
-	// -- for debugging only
 
 	clearProfile();
 }

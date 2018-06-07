@@ -30,17 +30,23 @@ bool HeightSensor::isValid(void)
 
 uint16_t HeightSensor::measureNormalized(uint16_t val)
 {
-	uint16_t min_sensor = mConfig->heightSensorMax();
-	uint16_t max_sensor = mConfig->heightSensorMin();
+	uint16_t min_sensor = mConfig->heightSensorMin(); min_sensor = -min_sensor;
+	uint16_t max_sensor = mConfig->heightSensorMax(); max_sensor = -max_sensor;
+	uint16_t range = max_sensor - min_sensor, d = range / 5;
 
-	uint16_t range = max_sensor - min_sensor;
+	min_sensor = min_sensor <= MXT_MAX - d ? min_sensor + d : MXT_MAX;
+	max_sensor = max_sensor <= MXT_MAX - d ? max_sensor + d : MXT_MAX;
+	range = max_sensor - min_sensor;
+
 	uint16_t r = 0;
 
-	if (val < min_sensor - range / 4)
+	val = -val;
+
+	if (val < min_sensor)
 	{
 		r = 0;
 	}
-	else if (val > max_sensor - range / 4)
+	else if (val > max_sensor)
 	{
 		r = MXT_MAX;
 	}
@@ -49,8 +55,7 @@ uint16_t HeightSensor::measureNormalized(uint16_t val)
 		r = (val - min_sensor) * MXT_MAX / range ;
 	}
 
-	return ~r;
-
+	return r;
 }
 
 }}
