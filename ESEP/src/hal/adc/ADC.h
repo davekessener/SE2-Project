@@ -1,5 +1,6 @@
-#ifndef ADC_H_
-#define ADC_H_
+
+#ifndef ESEP_HAL_ADC_ADC_H
+#define ESEP_HAL_ADC_ADC_H
 
 #include "TSCADC.h"
 #include "lib/utils.h"
@@ -33,4 +34,4 @@ namespace esep
 	}
 }
 
-#endif /* ADC_H_ */
+#endif

@@ -37,9 +37,6 @@ void ConfigObject::define()
 		ASSERT_FAILURE(mConfig->setStartToHs(0), config_t::InvalidDataException);
 		ASSERT_FAILURE(mConfig->setHsToSwitch(0), config_t::InvalidDataException);
 		ASSERT_FAILURE(mConfig->setSwitchToEnd(0), config_t::InvalidDataException);
-		ASSERT_FAILURE(mConfig->setSlowFactor(0), config_t::InvalidDataException);
-		ASSERT_FAILURE(mConfig->setSlowFactor(1.3), config_t::InvalidDataException);
-		ASSERT_FAILURE(mConfig->setSlowFactor(-1), config_t::InvalidDataException);
 		ASSERT_FAILURE(mConfig->setTimeTolerance(-1), config_t::InvalidDataException);
 		ASSERT_FAILURE(mConfig->setTimeTolerance(1.3), config_t::InvalidDataException);
 	};
@@ -49,7 +46,6 @@ void ConfigObject::define()
 		uint16_t sensMax = 12345;
 		uint16_t sensMin = 54321;
 		uint32_t tim = 123456;
-		float slowFact = 0.5;
 		float timTol = 0.5;
 
 		ASSERT_EQUALS(mConfig->isValid(), false);
@@ -60,7 +56,6 @@ void ConfigObject::define()
 		mConfig->setStartToHs(tim);
 		mConfig->setHsToSwitch(tim);
 		mConfig->setSwitchToEnd(tim);
-		mConfig->setSlowFactor(slowFact);
 
 		ASSERT_FAILURE(mConfig->heightSensorMax(), config_t::InvalidObjectException);
 		ASSERT_FAILURE(mConfig->heightSensorMin(), config_t::InvalidObjectException);
@@ -68,7 +63,6 @@ void ConfigObject::define()
 		ASSERT_FAILURE(mConfig->startToHs(), config_t::InvalidObjectException);
 		ASSERT_FAILURE(mConfig->hsToSwitch(), config_t::InvalidObjectException);
 		ASSERT_FAILURE(mConfig->switchToEnd(), config_t::InvalidObjectException);
-		ASSERT_FAILURE(mConfig->slowFactor(), config_t::InvalidObjectException);
 
 		mConfig->setTimeTolerance(timTol);
 
@@ -80,7 +74,6 @@ void ConfigObject::define()
 		ASSERT_EQUALS(mConfig->startToHs(), tim);
 		ASSERT_EQUALS(mConfig->hsToSwitch(), tim);
 		ASSERT_EQUALS(mConfig->switchToEnd(), tim);
-		ASSERT_EQUALS(mConfig->slowFactor(), slowFact);
 		ASSERT_EQUALS(mConfig->timeTolerance(), timTol);
 	};
 
@@ -89,7 +82,6 @@ void ConfigObject::define()
 		uint16_t sensMax = 12345;
 		uint16_t sensMin = 54321;
 		uint32_t tim = 123456;
-		float slowFact = 0.5;
 		float timTol = 0.5;
 
 		mConfig->setHeightSensorMax(sensMax);
@@ -98,7 +90,6 @@ void ConfigObject::define()
 		mConfig->setStartToHs(tim);
 		mConfig->setHsToSwitch(tim);
 		mConfig->setSwitchToEnd(tim);
-		mConfig->setSlowFactor(slowFact);
 		mConfig->setTimeTolerance(timTol);
 
 		mConfig->save();

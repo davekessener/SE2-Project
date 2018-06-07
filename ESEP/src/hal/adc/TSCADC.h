@@ -1,22 +1,6 @@
-/**
- * @file 		TSCADC.h
- * @brief		This file contains the function prototypes for the device
- *              abstraction layer for Touch Screen. It also contains some
- *              related macro definitions and some files to be included.
- * @date 		17.02.2016
- * @author: 	T Jaehnichen
- *				HAW-Hamburg
- *          	Labor f�r technische Informatik
- *          	Berliner Tor  7
- *          	D-20099 Hamburg
- * @version 	
- * @details
- * @copybrief	Based on the StarterWareFree for AM335X provided by Texas Instrument (copyright notice see below)
- *				
- */
 
-#ifndef TSCADC_H
-#define TSCADC_H
+#ifndef ESEP_HAL_ADC_TSCADC_H
+#define ESEP_HAL_ADC_TSCADC_H
 
 #include "tscadc_hw.h"
 
@@ -135,46 +119,48 @@ namespace esep
 
 
 			class TSCADC {
-			public:
-				TSCADC();
-				virtual ~TSCADC();
 
-				void gainAccess();
+				public:
+					MXT_DEFINE_E(ThreadCtlAccesFailed);
+					MXT_DEFINE_E(GpioAllocFailed);
 
-				/*************************************************************************
-						API FUNCTION DEFINITIONS
-				*************************************************************************/
 
-				unsigned int getRevision();
-				void stepConfigProtectionEnable();
-				void stepConfigProtectionDisable();
-				void tsModeConfig(TSMode tsMode);
-				void idleModeSet(IdleMode idleMode);
-				void tsStepModeConfig( unsigned int stepSel, StepMode mode);
-				void intStatusClear(unsigned int intFlag);
-				void eventInterruptEnable(IntFlag event);
-				void eventInterruptDisable(IntFlag event);
-				void tsStepFIFOSelConfig( unsigned int stepSel, Fifo FIFOSel);
-				void tsStepAverageConfig(unsigned int stepSel, AverageSamples average);
-				void tsStepConfig(unsigned int stepSelect, NegativeRef adcNegativeRef, PositiveInput adcPositiveInp, NegativeInput adcNegativeInp, PositiveRef adcPositiveRef);
-				void configureAFEClock( unsigned int moduleClk, unsigned int inputClk);
-				void tsStepOperationModeControl(OperationMode mode, unsigned int stepSelect);
-				void tsStepAnalogSupplyConfig(bool xppsw, bool xnpsw, bool yppsw, unsigned int stepSelect);
-				void tsStepAnalogGroundConfig(bool xnnsw, bool ypnsw, bool ynnsw, bool wpnsw, unsigned int stepSelect);
-				void configureStepEnable(unsigned int stepSel, bool stepEn_Dis);
-				void moduleStateSet(bool enableModule);
-				void stepIDTagConfig(bool enableStepIDTag);
-				unsigned int fifoADCDataRead(Fifo FIFOSel);
-				void tsTransistorConfig(bool enableTSTransistor);
-				void fifoIRQThresholdLevelConfig(Fifo FIFOSel, unsigned char numberOfSamples);
-				unsigned int intStatus();
+				public:
+					TSCADC();
+					virtual ~TSCADC();
 
-			private:
-				uint32_t baseAdd;
+					void gainAccess();
+
+					unsigned int getRevision();
+					void stepConfigProtectionEnable();
+					void stepConfigProtectionDisable();
+					void tsModeConfig(TSMode tsMode);
+					void idleModeSet(IdleMode idleMode);
+					void tsStepModeConfig( unsigned int stepSel, StepMode mode);
+					void intStatusClear(unsigned int intFlag);
+					void eventInterruptEnable(IntFlag event);
+					void eventInterruptDisable(IntFlag event);
+					void tsStepFIFOSelConfig( unsigned int stepSel, Fifo FIFOSel);
+					void tsStepAverageConfig(unsigned int stepSel, AverageSamples average);
+					void tsStepConfig(unsigned int stepSelect, NegativeRef adcNegativeRef, PositiveInput adcPositiveInp, NegativeInput adcNegativeInp, PositiveRef adcPositiveRef);
+					void configureAFEClock( unsigned int moduleClk, unsigned int inputClk);
+					void tsStepOperationModeControl(OperationMode mode, unsigned int stepSelect);
+					void tsStepAnalogSupplyConfig(bool xppsw, bool xnpsw, bool yppsw, unsigned int stepSelect);
+					void tsStepAnalogGroundConfig(bool xnnsw, bool ypnsw, bool ynnsw, bool wpnsw, unsigned int stepSelect);
+					void configureStepEnable(unsigned int stepSel, bool stepEn_Dis);
+					void moduleStateSet(bool enableModule);
+					void stepIDTagConfig(bool enableStepIDTag);
+					unsigned int fifoADCDataRead(Fifo FIFOSel);
+					void tsTransistorConfig(bool enableTSTransistor);
+					void fifoIRQThresholdLevelConfig(Fifo FIFOSel, unsigned char numberOfSamples);
+					unsigned int intStatus();
+
+				private:
+					uint32_t baseAdd;
 
 			};
 		}
 	}
 }
 
-#endif /* TSCADC_H_ */
+#endif
