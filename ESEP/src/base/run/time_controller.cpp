@@ -38,7 +38,7 @@ void TimeCtrl::resumeAllTimer()
 void TimeCtrl::setTimer(State state, TimerEvent e, uint r, uint p)
 {
 	uint8_t s = MXT_CAST(state);
-	if(s <= MXT_P_NR_STATES)
+	if(s < MXT_P_NR_STATES)
 	{
 		auto f = [this, e](void) { mCallback(e); };
 		MXT_LOG_INFO("Registering timer for ", state, " on ", e, " in ", r);
@@ -53,7 +53,7 @@ void TimeCtrl::setTimer(State state, TimerEvent e, uint r, uint p)
 void TimeCtrl::deleteTimer(State state)
 {
 	uint8_t s = MXT_CAST(state);
-	if(!mTimer[s].empty() && s <= MXT_P_NR_STATES)
+	if(!mTimer[s].empty() && s < MXT_P_NR_STATES)
 	{
 		mTimer[s].pop_front();
 	}

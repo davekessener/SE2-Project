@@ -61,13 +61,13 @@ void RunManagerLogic::setup(void)
 {
 	mConfig = new config_t("ut.conf");
 	mConfig->setStartToHs(1000);
-	mConfig->setHsToSwitch(1500);
-	mConfig->setSwitchToEnd(2000);
+	mConfig->setHsToSwitch(1000);
+	mConfig->setSwitchToEnd(1000);
 	mConfig->setMaxHandOverTime(500);
 	mConfig->setHeightSensorMax(10);
 	mConfig->setHeightSensorMin(10);
 	mConfig->setSlowFactor(1);
-	mConfig->setTimeTolerance(1);
+	mConfig->setTimeTolerance(0.2);
 
 	mHandlerDummy = new HandlerDummy;
 	mRunManager = new base::RunManager(mHandlerDummy, mConfig);
@@ -287,7 +287,7 @@ void RunManagerLogic::define(void)
 		//til now same as above
 
 		//TODO: i need a new conf time, for the ramp to trigger a full ramp
-		MXT_SLEEP(mConfig->maxHandOverTime());
+		MXT_SLEEP(mConfig->maxHandOverTime() * (1 + mConfig->TOLERANCE));
 
 		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.back()->message(), Message::Run::RAMP_FULL);
@@ -300,11 +300,11 @@ void RunManagerLogic::define(void)
 		sendPacket(Message::Run::EXPECT_NEW);
 		ASSERT_TRUE(mHandlerDummy->mPackets.empty());
 
-		MXT_SLEEP(mConfig->maxHandOverTime());
+		MXT_SLEEP(mConfig->maxHandOverTime() * (1 + mConfig->TOLERANCE));
 		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.front()->message(), Message::Run::ITEM_DISAPPEARED);
 
-		MXT_SLEEP(mConfig->maxHandOverTime());
+		MXT_SLEEP(mConfig->maxHandOverTime() * (1 + mConfig->TOLERANCE));
 		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
 	};
 

@@ -192,6 +192,19 @@ void RunManagerTimeCtrl::define()
 		mReceiveQ.pop_front();
 	};
 
+	UNIT_TEST("delete timer")
+	{
+		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 10);
+		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::HS_1, 10);
+		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::SWITCH_1, 20);
+		ASSERT_EQUALS(mReceiveQ.size(), 0u);
+
+		mTimeCtrl->deleteTimer(State::STATE_1);
+		mTimeCtrl->deleteTimer(State::STATE_1);
+		mTimeCtrl->deleteTimer(State::STATE_1);
+
+	};
+
 	UNIT_TEST("delete timer, negative test")
 	{
 		ASSERT_FAILURE(mTimeCtrl->deleteTimer(State::STATE_1), TimeCtrl::TimerAccessException);

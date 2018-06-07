@@ -173,7 +173,9 @@ void RunManager::initLogic()
 			{},
 			[this](void)
 			{
+				MXT_LOG_WARN("RUN: deleted timer event in state 7");
 				this->mTimeCtrl.deleteTimer(State::STATE_7);
+				MXT_LOG_WARN("RUN: deleted timer event 6");
 				this->sendMessageWithData(Location::MASTER, Message::Run::ITEM_DISAPPEARED, MXT_SHARE(data::Location, data::Location::Type::LB_SWITCH));
 			});
 	//LB_SWITCH
@@ -182,6 +184,7 @@ void RunManager::initLogic()
 			{{MXT_CAST(State::STATE_8), 1}},
 			[this](void)
 			{
+				MXT_LOG_WARN("RUN: deleted timer event in state 7");
 				this->mTimeCtrl.deleteTimer(State::STATE_7);
 				MXT_LOG_WARN("RUN: deleted timer event 6");
 				//check if there is measured date to send
@@ -311,6 +314,7 @@ void RunManager::initLogic()
 			{},
 			[this](void)
 			{
+				MXT_LOG_WARN("RUN: deleted timer: SWITCH_3");
 				this->mTimeCtrl.deleteTimer(State::STATE_13);
 				this->sendMessageWithData(Location::MASTER, Message::Run::ITEM_DISAPPEARED, MXT_SHARE(data::Location, data::Location::Type::LB_END));
 			});
@@ -320,6 +324,7 @@ void RunManager::initLogic()
 			{{MXT_CAST(State::STATE_14), 1}},
 			[this](void)
 			{
+				MXT_LOG_WARN("RUN: deleted timer: SWITCH_3");
 				this->mTimeCtrl.deleteTimer(State::STATE_13);
 				this->sendMasterMessage(Message::Run::REACHED_END);
 			});
