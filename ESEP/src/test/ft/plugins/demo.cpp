@@ -4,6 +4,9 @@
 #include "lib/timer.h"
 #include "lib/processor.h"
 #include "lib/process_tree.h"
+#include "lib/writer.h"
+
+#include "lib/io/file_writer.h"
 
 #include "lib/analyse/analyser.h"
 #include "lib/analyse/bdscan.h"
@@ -152,6 +155,7 @@ void Demo::run(void)
 	HAL::instance().instantiate(&hal, &config);
 
 	std::unique_ptr<data::HeightMap> hm;
+	lib::Writer_ptr fout;
 
 	State state = State::IDLE;
 	std::atomic<bool> running(true);
@@ -184,6 +188,7 @@ void Demo::run(void)
 			if(e == Event::HEIGHT_SENSOR && HAL_HEIGHT_SENSOR.measure())
 			{
 				hm.reset(new data::HeightMap);
+				fout.reset(new lib::FileWriter("item.hm"));
 				state = State::IN_HS;
 				HAL_LIGHTS.turnOn(Light::RED);
 				ts = lib::Timer::instance().elapsed();
@@ -194,10 +199,14 @@ void Demo::run(void)
 		case State::IN_HS:
 			if(uint16_t v = HAL_HEIGHT_SENSOR.measure())
 			{
-				hm->addHeightValue(lib::Timer::instance().elapsed() - ts, v);
+				uint16_t t = lib::Timer::instance().elapsed() - ts;
+				hm->addHeightValue(t, v);
+				fout->writeLine(lib::stringify(t, " ", lib::hex<16>(v)));
 			}
 			else
 			{
+				fout.reset();
+
 				process(p.processor(hm.get()).get<Station::CLUSTER>());
 
 				HAL_MOTOR.left();

@@ -43,7 +43,7 @@ void RunManagerLogic::setup(void)
 	mConfig->setMaxHandOverTime(5);
 	mConfig->setHeightSensorMax(10);
 	mConfig->setHeightSensorMin(10);
-	mConfig->setSlowFactor(1);
+//	mConfig->setSlowFactor(1);
 	mConfig->setTimeTolerance(1);
 	mRunManager = new base::RunManager(mCom, mConfig);
 	hal().setCallback( [this](Event e) { mRunManager->handle(e); } );
