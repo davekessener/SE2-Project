@@ -47,7 +47,7 @@ test_fn getTest(const std::string& id)
 
 bool main(const lib::Arguments& args)
 {
-	bool ut = true;//functional::runUnitTests(args.has("verbose"));
+	bool ut = functional::runUnitTests(args.has("verbose"));
 
 	if(ut && args.has("test"))
 	{

@@ -713,7 +713,7 @@ namespace
 			385, 27432
 	};
 
-#define CURRENT ITEM_010_1
+#define CURRENT ITEM_110_2
 }
 
 uint16_t Analyser::RAW_DATA(size_t i) { return CURRENT[i]; }
