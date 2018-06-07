@@ -139,6 +139,7 @@ void RunManagerLogic::define(void)
 		blockLB(LightBarrier::LB_START);
 		hal().trigger(Event::LB_START);
 
+		MXT_SLEEP(1);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.front()->message(), Message::Run::NEW_ITEM);
 		mHandlerDummy->mPackets.pop_front();
@@ -146,7 +147,7 @@ void RunManagerLogic::define(void)
 		freeLB(LightBarrier::LB_START);
 		hal().trigger(Event::LB_START);
 
-		MXT_SLEEP(mConfig->startToHs() * (1 - mConfig->TOLERANCE));
+		MXT_SLEEP(mConfig->startToHs());
 
 		blockLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
@@ -158,11 +159,12 @@ void RunManagerLogic::define(void)
 		freeLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
 
-		MXT_SLEEP(mConfig->hsToSwitch() * (1 - mConfig->TOLERANCE));
+		MXT_SLEEP(mConfig->hsToSwitch());
 
 		blockLB(LightBarrier::LB_SWITCH);
 		hal().trigger(Event::LB_SWITCH);
 
+		MXT_SLEEP(1);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.front()->message(), Message::Run::ANALYSE);
 		mHandlerDummy->mPackets.pop_front();
@@ -177,11 +179,12 @@ void RunManagerLogic::define(void)
 		freeLB(LightBarrier::LB_SWITCH);
 		hal().trigger(Event::LB_SWITCH);
 
-		MXT_SLEEP(mConfig->switchToEnd() * (1 - mConfig->TOLERANCE));
+		MXT_SLEEP(mConfig->switchToEnd());
 
 		blockLB(LightBarrier::LB_END);
 		hal().trigger(Event::LB_END);
 
+		MXT_SLEEP(1);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.front()->message(), Message::Run::REACHED_END);
 		mHandlerDummy->mPackets.pop_front();
@@ -189,6 +192,7 @@ void RunManagerLogic::define(void)
 		freeLB(LightBarrier::LB_END);
 		hal().trigger(Event::LB_END);
 
+		MXT_SLEEP(1);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.front()->message(), Message::Run::END_FREE);
 		mHandlerDummy->mPackets.pop_front();
@@ -201,6 +205,7 @@ void RunManagerLogic::define(void)
 		blockLB(LightBarrier::LB_START);
 		hal().trigger(Event::LB_START);
 
+		MXT_SLEEP(1);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.front()->message(), Message::Run::NEW_ITEM);
 		mHandlerDummy->mPackets.pop_front();
@@ -208,7 +213,7 @@ void RunManagerLogic::define(void)
 		freeLB(LightBarrier::LB_START);
 		hal().trigger(Event::LB_START);
 
-		MXT_SLEEP(mConfig->startToHs() * (1 - mConfig->TOLERANCE));
+		MXT_SLEEP(mConfig->startToHs());
 
 		blockLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
@@ -219,11 +224,12 @@ void RunManagerLogic::define(void)
 		freeLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
 
-		MXT_SLEEP(mConfig->hsToSwitch() * (1 - mConfig->TOLERANCE));
+		MXT_SLEEP(mConfig->hsToSwitch());
 
 		blockLB(LightBarrier::LB_SWITCH);
 		hal().trigger(Event::LB_SWITCH);
 
+		MXT_SLEEP(1);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.front()->message(), Message::Run::ANALYSE);
 		mHandlerDummy->mPackets.pop_front();
@@ -239,6 +245,7 @@ void RunManagerLogic::define(void)
 		freeLB(LightBarrier::LB_RAMP);
 		hal().trigger(Event::LB_RAMP);
 
+		MXT_SLEEP(1);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.front()->message(), Message::Run::ITEM_REMOVED);
 		mHandlerDummy->mPackets.pop_front();
@@ -251,6 +258,7 @@ void RunManagerLogic::define(void)
 		blockLB(LightBarrier::LB_START);
 		hal().trigger(Event::LB_START);
 
+		MXT_SLEEP(1);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.front()->message(), Message::Run::NEW_ITEM);
 		mHandlerDummy->mPackets.pop_front();
@@ -258,7 +266,7 @@ void RunManagerLogic::define(void)
 		freeLB(LightBarrier::LB_START);
 		hal().trigger(Event::LB_START);
 
-		MXT_SLEEP(mConfig->startToHs() * (1 - mConfig->TOLERANCE));
+		MXT_SLEEP(mConfig->startToHs());
 
 		blockLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
@@ -269,11 +277,12 @@ void RunManagerLogic::define(void)
 		freeLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
 
-		MXT_SLEEP(mConfig->hsToSwitch() * (1 - mConfig->TOLERANCE));
+		MXT_SLEEP(mConfig->hsToSwitch());
 
 		blockLB(LightBarrier::LB_SWITCH);
 		hal().trigger(Event::LB_SWITCH);
 
+		MXT_SLEEP(1);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.front()->message(), Message::Run::ANALYSE);
 		mHandlerDummy->mPackets.pop_front();
@@ -289,6 +298,7 @@ void RunManagerLogic::define(void)
 		//TODO: i need a new conf time, for the ramp to trigger a full ramp
 		MXT_SLEEP(mConfig->maxHandOverTime() * (1 + mConfig->TOLERANCE));
 
+		MXT_SLEEP(1);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.back()->message(), Message::Run::RAMP_FULL);
 		mHandlerDummy->mPackets.pop_front();
