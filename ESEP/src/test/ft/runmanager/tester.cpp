@@ -13,7 +13,7 @@
 namespace esep { namespace test { namespace functional { namespace r {
 
 Tester::Tester(void)
-	: mConfig("")
+	: mConfig("runtest.conf")
 	, mHandler(&mConfig)
 	, mRunning(false)
 	, mKeep(false)

@@ -6,6 +6,7 @@
 #include "lib/logger.h"
 #include "lib/enum.h"
 #include "communication/message.h"
+#include "lib/timer.h"
 
 namespace esep
 {
@@ -14,7 +15,7 @@ namespace test
 namespace ut
 {
 
-#define MXT_SLEEP(t)		std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(t)))
+#define MXT_SLEEP(t)		lib::Timer::instance().sleep(t)
 #define MXT_BM_SWITCH 		(1u << 19)
 #define MXT_BM_MOTOR_START	(1u << 12)
 
@@ -60,10 +61,10 @@ RunManagerLogic::RunManagerLogic()
 void RunManagerLogic::setup(void)
 {
 	mConfig = new config_t("ut.conf");
-	mConfig->setStartToHs(1000);
-	mConfig->setHsToSwitch(1000);
-	mConfig->setSwitchToEnd(1000);
-	mConfig->setMaxHandOverTime(500);
+	mConfig->setStartToHs(10);
+	mConfig->setHsToSwitch(10);
+	mConfig->setSwitchToEnd(10);
+	mConfig->setMaxHandOverTime(5);
 	mConfig->setHeightSensorMax(10);
 	mConfig->setHeightSensorMin(10);
 	mConfig->setSlowFactor(1);
@@ -311,6 +312,8 @@ void RunManagerLogic::define(void)
 		ASSERT_TRUE(mHandlerDummy->mPackets.empty());
 
 		MXT_SLEEP(mConfig->maxHandOverTime() * (1 + mConfig->TOLERANCE));
+
+		MXT_SLEEP(1);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.front()->message(), Message::Run::ITEM_DISAPPEARED);
 
