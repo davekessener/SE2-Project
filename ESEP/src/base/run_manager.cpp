@@ -52,7 +52,10 @@ void RunManager::leave()
 
 void RunManager::handle(Event e)
 {
-	MXT_LOG_WARN("RUN: got hal event!: ", e);
+	if(e != Event::HEIGHT_SENSOR)
+	{
+//		MXT_LOG_WARN("RUN: got hal event!: ", e);
+	}
 	run::HalEvent he;
 
 	switch(e)
@@ -93,18 +96,24 @@ void RunManager::takeMeasurement()
 	uint16_t hval = HAL_HEIGHT_SENSOR.measure();
 	uint64_t hvalStamp = lib::Timer::instance().elapsed();
 
-
 	if(mHeightMapBuffer.empty() || std::get<MXT_FINISHED>(mHeightMapBuffer.back()))
 	{
-		heightMap_ptr hm(new data::HeightMap);
-		mHeightMapBuffer.emplace_back(std::make_tuple(false, hvalStamp, hm));
-		std::get<MXT_HM>(mHeightMapBuffer.back())->addHeightValue(0, hval);
+		if(hval)
+		{
+			heightMap_ptr hm(new data::HeightMap);
+			mHeightMapBuffer.emplace_back(std::make_tuple(false, hvalStamp, hm));
+			std::get<MXT_HM>(mHeightMapBuffer.back())->addHeightValue(0, hval);
+
+			MXT_LOG_INFO("Starting height map record.");
+		}
 	}
 	else
 	{
 		if(hval == 0)
 		{
 			std::get<MXT_FINISHED>(mHeightMapBuffer.back()) = true;
+
+			MXT_LOG_INFO("Finished height map.");
 		}
 		else
 		{
@@ -143,8 +152,16 @@ void RunManager::accept(Packet_ptr p)
 				{
 					if(d->type() == data::DataPoint::Type::RUN_MANAGER_TIMER)
 					{
-						data::RunManagerTimer * data = dynamic_cast<data::RunManagerTimer *>(d.get());
-						mLogic.process(data->event());
+						switch(auto te = static_cast<data::RunManagerTimer&>(*d).event())
+						{
+						case data::RunManagerTimer::TimerEvent::CLOSE_SWITCH:
+							HAL_SWITCH.close();
+							break;
+
+						default:
+							mLogic.process(te);
+							break;
+						}
 					}
 				}
 				break;

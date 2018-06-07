@@ -25,6 +25,7 @@ namespace esep
 				STATE_12,
 				STATE_13,
 				STATE_14,
+				SWITCH
 			};
 
 			enum class HalEvent : uint8_t

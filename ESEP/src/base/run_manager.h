@@ -72,8 +72,6 @@ namespace esep
 			   run::TimeCtrl mTimeCtrl;
 			   petri_t mLogic;
 			   buffer_t mHeightMapBuffer;
-
-
 		};
 	}
 }

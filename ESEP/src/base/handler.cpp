@@ -40,7 +40,7 @@ Handler::Handler(ConfigObject *co)
 
 			mConnection = channel.connect();
 
-			while(mRunning.load())
+			while(mRunning.load()) try
 			{
 				qnx::pulse_t pulse = channel.receivePulse(); //wait for pulse message
 
@@ -79,6 +79,10 @@ Handler::Handler(ConfigObject *co)
 					MXT_LOG_WARN("Received unexpected pulse {", lib::hex<8>(pulse.code), ", ", lib::hex<32>(pulse.value), "}");
 					break;
 				}
+			}
+			catch(const std::exception& e)
+			{
+				MXT_LOG_WARN("Caught an exception from manager: ", e.what());
 			}
 
 			mCurrentManager->leave();

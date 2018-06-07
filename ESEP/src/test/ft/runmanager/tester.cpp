@@ -151,6 +151,7 @@ void Tester::accept(Packet_ptr p)
 
 			case Message::Run::END_FREE:
 				HAL_CONSOLE.println("Message: \tEND_FREE");
+				send(Message::Run::RESUME);
 				break;
 
 			default:

@@ -15,13 +15,12 @@ namespace esep
 		class ConfigObject
 		{
 			public:
-				static constexpr float TOLERANCE = 0.05; // Tolerance for all sensor values
 				MXT_DEFINE_E(InvalidObjectException);
 				MXT_DEFINE_E(CouldNotOpenFileException);
 				MXT_DEFINE_E(InvalidDataException);
 
 			public:
-				ConfigObject(const std::string& path = "system.conf");
+				ConfigObject(const std::string& path = "system.conf", float ft = TOLERANCE);
 				void save();
 				bool isValid();
 
@@ -32,6 +31,7 @@ namespace esep
 				uint32_t switchToEnd();
 				uint32_t maxHandOverTime();
 				float timeTolerance();
+				float tolerance( ) const { return mFlatTolerance; }
 
 				void setHeightSensorMin(uint16_t);
 				void setHeightSensorMax(uint16_t);
@@ -51,6 +51,9 @@ namespace esep
 				uint32_t mSwitchToEnd;			// Time between LB_Switch and LB_End [ms]
 				uint32_t mMaxHandOverTime;	// Max Time for handing over an ITEM
 				float mTimeTolerance;			// TimeTolerance depending on ITEM going either the short or the long way [%]
+				const float mFlatTolerance;
+
+				static constexpr float TOLERANCE = 0.1; // Tolerance for all sensor values
 		};
 
 }

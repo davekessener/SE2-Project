@@ -9,7 +9,7 @@
 
 namespace esep { namespace base {
 
-ConfigObject::ConfigObject(const std::string& path)
+ConfigObject::ConfigObject(const std::string& path, float ft)
 	: mPath(path)
 	, mValid(false)
 	, mHeightSensorMin(0)
@@ -19,6 +19,7 @@ ConfigObject::ConfigObject(const std::string& path)
 	, mSwitchToEnd(0)
 	, mMaxHandOverTime(0)
 	, mTimeTolerance(0)
+	, mFlatTolerance(ft)
 {
 	std::ifstream confFile;
 	confFile.open(mPath);
@@ -200,6 +201,7 @@ uint32_t ConfigObject::hsToSwitch(void)
 	{
 		MXT_THROW_EX(ConfigObject::InvalidObjectException);
 	}
+
 	return mHsToSwitch;
 }
 

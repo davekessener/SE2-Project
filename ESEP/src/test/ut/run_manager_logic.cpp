@@ -97,7 +97,7 @@ void RunManagerLogic::sendPacket(msg_t msg)
 
 uint32_t RunManagerLogic::maxTime(uint32_t t)
 {
-	return t * (1 + mConfig->TOLERANCE);
+	return t * (1 + mConfig->tolerance());
 }
 
 void RunManagerLogic::blockLB(LightBarrier lb)
@@ -152,7 +152,9 @@ void RunManagerLogic::define(void)
 		hal().trigger(Event::LB_HEIGHTSENSOR);
 
 		//LB_HS -> LB_SWITCH
+		hal().setField(Field::ANALOG, 1);
 		hal().trigger(Event::HEIGHT_SENSOR);
+		hal().setField(Field::ANALOG, 0);
 		hal().trigger(Event::HEIGHT_SENSOR);
 
 		freeLB(LightBarrier::LB_HEIGHTSENSOR);
@@ -164,6 +166,10 @@ void RunManagerLogic::define(void)
 		hal().trigger(Event::LB_SWITCH);
 
 		MXT_SLEEP(1);
+		for(const auto& p : mHandlerDummy->mPackets)
+		{
+			MXT_LOG_WARN(p);
+		}
 		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.front()->message(), Message::Run::ANALYSE);
 		mHandlerDummy->mPackets.pop_front();
@@ -217,7 +223,9 @@ void RunManagerLogic::define(void)
 		blockLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
 
+		hal().setField(Field::ANALOG, 1);
 		hal().trigger(Event::HEIGHT_SENSOR);
+		hal().setField(Field::ANALOG, 0);
 		hal().trigger(Event::HEIGHT_SENSOR);
 
 		freeLB(LightBarrier::LB_HEIGHTSENSOR);
@@ -270,7 +278,9 @@ void RunManagerLogic::define(void)
 		blockLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
 
+		hal().setField(Field::ANALOG, 1);
 		hal().trigger(Event::HEIGHT_SENSOR);
+		hal().setField(Field::ANALOG, 0);
 		hal().trigger(Event::HEIGHT_SENSOR);
 
 		freeLB(LightBarrier::LB_HEIGHTSENSOR);
@@ -295,7 +305,7 @@ void RunManagerLogic::define(void)
 		//til now same as above
 
 		//TODO: i need a new conf time, for the ramp to trigger a full ramp
-		MXT_SLEEP(mConfig->maxHandOverTime() * (1 + mConfig->TOLERANCE));
+		MXT_SLEEP(mConfig->maxHandOverTime() * (1 + mConfig->tolerance()));
 
 		MXT_SLEEP(1);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
@@ -309,13 +319,13 @@ void RunManagerLogic::define(void)
 		sendPacket(Message::Run::EXPECT_NEW);
 		ASSERT_TRUE(mHandlerDummy->mPackets.empty());
 
-		MXT_SLEEP(mConfig->maxHandOverTime() * (1 + mConfig->TOLERANCE));
+		MXT_SLEEP(mConfig->maxHandOverTime() * (1 + mConfig->tolerance()));
 
 		MXT_SLEEP(1);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
 		ASSERT_EQUALS(mHandlerDummy->mPackets.front()->message(), Message::Run::ITEM_DISAPPEARED);
 
-		MXT_SLEEP(mConfig->maxHandOverTime() * (1 + mConfig->TOLERANCE));
+		MXT_SLEEP(mConfig->maxHandOverTime() * (1 + mConfig->tolerance()));
 		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
 	};
 

@@ -125,8 +125,6 @@ void ConfigManager::handle(hal::HAL::Event event)
 			MXT_LOG_INFO("HeightSensor measured ", lib::hex<16>(HAL_HEIGHT_SENSOR.measure()));
 			mHeightSensorMin = HAL_HEIGHT_SENSOR.measure(false);
 
-			mHeightSensorMin = HAL_HEIGHT_SENSOR.measure(false);
-
 			mState = State::STATE_4;
 		};
 	break;
@@ -158,8 +156,6 @@ void ConfigManager::handle(hal::HAL::Event event)
 
 			//measure HEIGHTSENSOR MAXIMUM
 			MXT_LOG_INFO("HeightSensor measured ", lib::hex<16>(HAL_HEIGHT_SENSOR.measure()));
-			mHeightSensorMax = HAL_HEIGHT_SENSOR.measure(false);
-
 			mHeightSensorMax = HAL_HEIGHT_SENSOR.measure(false);
 
 			mState = State::STATE_7;
@@ -217,15 +213,6 @@ void ConfigManager::handle(hal::HAL::Event event)
 				MXT_LOG_INFO("switch to end is ", mSwitchToEnd);
 				MXT_LOG_INFO("TimeTolerance is ", mTimeTolerance);
 				MXT_LOG_INFO("MaxHandOverTime is ", mMaxHandOverTime);
-
-				MXT_LOG_WARN("HS min is ", mHeightSensorMin);
-				MXT_LOG_WARN("HS max is ", mHeightSensorMax);
-				MXT_LOG_WARN("Start to HS is ", mStartToHs);
-				MXT_LOG_WARN("HS to switch is ", mHsToSwitch);
-				MXT_LOG_WARN("switch to end is ", mSwitchToEnd);
-				MXT_LOG_WARN("TimeTolerance is ", mTimeTolerance);
-				MXT_LOG_WARN("MaxHandOverTime is ", mMaxHandOverTime);
-
 
 				mConfig->setHeightSensorMin(mHeightSensorMin);
 				mConfig->setHeightSensorMax(mHeightSensorMax);

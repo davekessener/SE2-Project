@@ -26,6 +26,7 @@ namespace esep
 				SWITCH_2,
 				ITEM_READY_END,
 				SWITCH_3,
+				CLOSE_SWITCH
 			};
 
 				RunManagerTimer(TimerEvent v) : DataPoint(DataPoint::Type::RUN_MANAGER_TIMER), mEvent(v) { }

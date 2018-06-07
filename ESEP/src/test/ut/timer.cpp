@@ -162,6 +162,27 @@ void Timer::define(void)
 		lib::Timer::instance().reset();
 		ASSERT_APPROX_EQUALS(lib::Timer::instance().elapsed(), 0ull);
 	};
+
+	UNIT_TEST("can pause/resume")
+	{
+		auto t = mTimer->registerCallback(mIncrementer, 300);
+
+		mTimer->sleep(290);
+
+		mTimer->pauseCallback(t);
+
+		ASSERT_EQUALS(mCounter, 0u);
+
+		mTimer->sleep(200);
+
+		ASSERT_EQUALS(mCounter, 0u);
+
+		mTimer->resumeCallback(t);
+
+		mTimer->sleep(25);
+
+		ASSERT_EQUALS(mCounter, 1u);
+	};
 }
 
 }}}

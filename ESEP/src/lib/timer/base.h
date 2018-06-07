@@ -1,6 +1,8 @@
 #ifndef ESEP_TIMER_BASE_H
 #define ESEP_TIMER_BASE_H
 
+#include <atomic>
+
 #include "lib/utils.h"
 #include "lib/timer/types.h"
 
@@ -16,9 +18,9 @@ namespace esep
 				virtual void tick( );
 				virtual void suspend() { mPaused = true; }
 				virtual void resume() { mPaused = false; }
-				virtual bool isPaused() const { return mPaused; }
+				virtual bool isPaused() const { return mPaused.load(); }
 				virtual void shutdown( ) { mActive = false; }
-				virtual bool done( ) const { return !mActive; }
+				virtual bool done( ) const { return !mActive.load(); }
 
 				id_t ID( ) const { return mID; }
 
@@ -29,8 +31,7 @@ namespace esep
 				const id_t mID;
 				uint mRemaining;
 				const uint mPeriod;
-				bool mActive;
-				bool mPaused;
+				std::atomic<bool> mActive, mPaused;
 		};
 	}
 }
