@@ -10,7 +10,7 @@
 
 #include "lib/io/container_reader.h"
 
-namespace esep { namespace test { namespace unit {
+namespace esep { namespace test { namespace ut {
 
 typedef std::unique_ptr<hal::HAL> HAL_ptr;
 typedef std::deque<std::string> buf_t;

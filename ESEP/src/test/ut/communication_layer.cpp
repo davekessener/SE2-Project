@@ -10,10 +10,10 @@
 
 #include "lib/logger.h"
 
-#define MXT_TIMEOUT 50
+#define MXT_TIMEOUT 100
 #define MXT_MAXTRIES 100
 
-namespace esep { namespace test { namespace unit {
+namespace esep { namespace test { namespace ut {
 
 CommunicationLayer::CommunicationLayer(void)
 	: TestSuite("Communication Layer")
@@ -56,6 +56,8 @@ void CommunicationLayer::setup(void)
 	mSlaveCom = new communication::Slave(mBaseS, std::move(c1));
 
 	mMasterCom->setMaster(mMaster);
+
+	lib::Timer::instance().sleep(MXT_TIMEOUT / 10);
 }
 
 void CommunicationLayer::teardown(void)

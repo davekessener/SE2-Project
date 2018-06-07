@@ -38,8 +38,9 @@ namespace esep
 			{
 				CONFIG,
 				SERIAL,
-				ITEM_APPEARED,  // (Base -> Master)
-				ITEM_DISAPPEARED,  // (Base -> Master)
+				ITEM_APPEARED,
+				ITEM_DISAPPEARED,
+				ITEM_STUCK,
 				ESTOP,
 				RAMP_FULL,
 				WARNING
@@ -50,10 +51,17 @@ namespace esep
 				NEW_ITEM,
 				REACHED_END,
 				RAMP_FULL,
+				IN_HEIGHTSENSOR,
 				ANALYSE,  // analyse item at switch (Base -> Master)
 				RESUME, // start motor (Master -> Base)
 				SUSPEND, // stop motor (Master -> Base)
-				KEEP_NEXT  // open switch (Master -> Base)
+				KEEP_NEXT,  // open switch (Master -> Base
+				END_FREE,
+				EXPECT_NEW,
+				ITEM_APPEARED,
+				ITEM_DISAPPEARED,
+				TIMER,
+				ITEM_REMOVED
 			};
 
 			private:

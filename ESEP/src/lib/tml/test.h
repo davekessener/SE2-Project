@@ -33,7 +33,6 @@ namespace tml_test
 		static_assert(!IsValueType<void>::Value, "");
 		static_assert(!IsValueType<Type2Type<void>>::Value, "");
 
-		static_assert(!IsTypeType<True>::Value, "");
 		static_assert(!IsTypeType<void>::Value, "");
 		static_assert( IsTypeType<Type2Type<void>>::Value, "");
 
@@ -113,6 +112,30 @@ namespace tml_test
 		static_assert(DoGet<apply_list_t, 0>::Value == DoGet<size_list_t, 0>::Value, "");
 		static_assert(DoGet<apply_list_t, 1>::Value == DoGet<size_list_t, 1>::Value, "");
 		static_assert(DoGet<apply_list_t, 2>::Value == DoGet<size_list_t, 2>::Value, "");
+
+		static_assert(Equals<DoAppend<MakeTypeList<int, double>, void>, MakeTypeList<int, double, void>>::Value, "");
+		static_assert(Equals<DoAppend<MakeTypeList<int, double>, MakeTypeList<void, char>>, MakeTypeList<int, double, void, char>>::Value, "");
+
+		static_assert(Equals<DoFlatten<MakeTypeList<void>>, MakeTypeList<void>>::Value, "");
+		static_assert(Equals<DoFlatten<MakeTypeList<
+			MakeTypeList<int, MakeTypeList<
+				char, double>,
+				MakeTypeList<void>>,
+				float *>>,
+			MakeTypeList<int, char, double, void, float *>>::Value, "");
+
+		template<size_t V>
+		struct HasSize
+		{
+			template<typename T>
+			struct Apply
+			{
+				typedef Bool2Type<sizeof(T) == V> Type;
+			};
+		};
+
+		static_assert(Equals<DoFindFirst<MakeTypeList<long, int, short, char, float, double>, HasSize<1>>, char>::Value, "");
+		static_assert(Equals<DoReverse<MakeTypeList<char, short, int, long>>, MakeTypeList<long, int, short, char>>::Value, "");
 	}
 
 	namespace if_test

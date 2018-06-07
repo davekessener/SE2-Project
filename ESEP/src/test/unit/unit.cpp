@@ -22,15 +22,18 @@ void TestSuite::doTest(void)
 
 	for(const auto& p : mTests)
 	{
+		mHAL->clear();
+
 		setup();
 
 		try
 		{
-			MXT_LOG(lib::stringify("Executing UT '", p.first, "'"));
+			MXT_LOG("Executing UT '", p.first, "'");
 
 			p.second();
 
 			mResults.push_back(std::make_pair(Result::SUCCESS, ""));
+
 			std::cout << "." << std::flush;
 		}
 		catch(const std::exception& e)

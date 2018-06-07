@@ -7,6 +7,12 @@
 #include "test/ft/hal.h"
 #include "test/ft/communication.h"
 #include "test/ft/emp.h"
+#include "test/ft/runmanager.h"
+#include "test/ft/master.h"
+#include "test/ft/heightsensor.h"
+#include "test/ft/configmanager.h"
+#include "test/ft/plugins.h"
+#include "test/ft/configmanager.h"
 
 #include "lib/logger.h"
 
@@ -21,17 +27,22 @@ test_fn getTest(const std::string& id)
 
 	if(t.empty())
 	{
-		t["serial"] = &functional::testSerialConnection;
-		t["hal"] = &functional::testHAL;
-		t["com"] = &functional::testCommunicationLayer;
-		t["emp"] = &functional::testEMP;
+		t["serial"]  = &functional::testSerialConnection;
+		t["hal"]     = &functional::testHAL;
+		t["com"]     = &functional::testCommunicationLayer;
+		t["emp"]     = &functional::testEMP;
+		t["run"]     = &functional::testRunManager;
+		t["master"]  = &functional::testMasterLogic;
+		t["hs"]      = &functional::testHeightSensor;
+		t["plugins"] = &functional::testPlugins;
+		t["config"]  = &functional::testConfigManager;
 	}
 
 	auto i = t.find(id);
 
 	if(i == t.end())
 	{
-		throw std::runtime_error(lib::stringify("Unknown test '", id, "'!"));
+		MXT_THROW_E(std::runtime_error, lib::stringify("Unknown test '", id, "'!"));
 	}
 
 	return i->second;

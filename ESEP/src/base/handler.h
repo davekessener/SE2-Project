@@ -40,7 +40,7 @@ namespace esep
 			MXT_DEFINE_E(UndefinedMasterException);
 
 			public:
-				Handler( ); //requires the IRecipient of the higher comm. layer
+				Handler(ConfigObject *); //requires the IRecipient of the higher comm. layer
 				~Handler();
 				void setMaster(communication::IRecipient *p) { mMaster = p; }
 				void handle(Event); //for event listening registration
@@ -48,20 +48,20 @@ namespace esep
 				bool running( ) const { return mRunning.load(); }
 
 			private:
-				void switchManager(Message::Base);
-				void handleError(Message::Error, Packet_ptr);
+				void handleBase(Message::Base);
+				void doSwitch(IManager *m);
 				void handleHAL(Event);
 
 			private:
-				communication::IRecipient* mMaster;
-				lib::Thread mHandlerThread;
+				communication::IRecipient * mMaster;
+				ConfigObject * const mConfigData;
 				std::atomic<bool> mRunning;
 				qnx::Connection mConnection;
-				ConfigObject mConfigData;
-				std::unique_ptr<IManager> mConfigManager,  mRunManager, mIdleManager, mReadyManager;
-				ErrorManager::Error_ptr mErrorManager;
+				std::unique_ptr<IManager> mConfigManager,  mRunManager, mIdleManager, mReadyManager, mErrorManager;
+				//ErrorManager::Error_ptr mErrorManager;
 				IManager* mCurrentManager;
 				container_t mPacketBuffer;
+				lib::Thread mHandlerThread;
 		};
 	}
 }

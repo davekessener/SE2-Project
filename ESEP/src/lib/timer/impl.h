@@ -32,6 +32,8 @@ namespace esep
 				Manager registerCallback(callback_fn, uint, uint = 0);
 				Manager registerAsync(callback_fn, uint, uint = 0);
 				void unregisterCallback(const Manager&);
+				void pauseCallback(Manager&);
+				void resumeCallback(Manager&);
 
 				// Elapsed time in ms since last reset()/Timer construction
 				uint64_t elapsed( );

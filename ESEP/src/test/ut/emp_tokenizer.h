@@ -1,5 +1,5 @@
-#ifndef ESEP_TEST_UNIT_EMPTOKENIZER_H
-#define ESEP_TEST_UNIT_EMPTOKENIZER_H
+#ifndef ESEP_TEST_UT_EMPTOKENIZER_H
+#define ESEP_TEST_UT_EMPTOKENIZER_H
 
 #include "test/unit/unit.h"
 
@@ -7,9 +7,9 @@ namespace esep
 {
 	namespace test
 	{
-		namespace unit
+		namespace ut
 		{
-			class EMPTokenizer : public TestSuite
+			class EMPTokenizer : public unit::TestSuite
 			{
 				public:
 					EMPTokenizer( );

@@ -1,5 +1,5 @@
-#ifndef ESEP_TEST_UNIT_WATCHDOG_H
-#define ESEP_TEST_UNIT_WATCHDOG_H
+#ifndef ESEP_TEST_UT_WATCHDOG_H
+#define ESEP_TEST_UT_WATCHDOG_H
 
 #include "test/unit/unit.h"
 
@@ -12,9 +12,9 @@ namespace esep
 {
 	namespace test
 	{
-		namespace unit
+		namespace ut
 		{
-			class Watchdog : public TestSuite
+			class Watchdog : public unit::TestSuite
 			{
 				public:
 					Watchdog( );

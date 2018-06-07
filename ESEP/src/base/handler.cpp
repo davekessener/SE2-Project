@@ -6,24 +6,29 @@
 
 #include "lib/logger.h"
 
-#include "base/config_manager.h"
-#include "base/idle_manager.h"
-#include "base/ready_manager.h"
-#include "base/error_manager.h"
+#include "base/idle/idle_manager.h"
+#include "base/idle/ready_manager.h"
 
-#include "system.h"
+#include "base/config_manager.h"
+#include "base/error_manager.h"
+#include "base/run_manager.h"
+
+#include "hal.h"
 
 namespace esep { namespace base {
 
 typedef hal::Buttons::Button Button;
 
-Handler::Handler( )
+Handler::Handler(ConfigObject *co)
 	: mMaster(nullptr)
+	, mConfigData(co)
 	, mRunning(true)
 {
-	mIdleManager.reset(new IdleManager(this));
+	mIdleManager.reset(new IdleManager(this, mConfigData));
 	mReadyManager.reset(new ReadyManager(this));
-	mConfigManager.reset(new ConfigManager(this, &mConfigData));
+	mConfigManager.reset(new ConfigManager(this, mConfigData));
+	mRunManager.reset(new RunManager(this, mConfigData));
+	mErrorManager.reset(new ErrorManager(this));
 
 	mCurrentManager = mIdleManager.get();
 
@@ -35,7 +40,7 @@ Handler::Handler( )
 
 			mConnection = channel.connect();
 
-			while(mRunning.load())
+			while(mRunning.load()) try
 			{
 				qnx::pulse_t pulse = channel.receivePulse(); //wait for pulse message
 
@@ -48,11 +53,12 @@ Handler::Handler( )
 
 					if(msg.is<Message::Base>())
 					{
-						switchManager(msg.as<Message::Base>());
+						handleBase(msg.as<Message::Base>());
 					}
 					else if(msg.is<Message::Error>())
 					{
-						handleError(msg.as<Message::Error>(), packet);
+						doSwitch(mErrorManager.get());
+						mCurrentManager->accept(packet);
 					}
 					else
 					{
@@ -73,6 +79,10 @@ Handler::Handler( )
 					MXT_LOG_WARN("Received unexpected pulse {", lib::hex<8>(pulse.code), ", ", lib::hex<32>(pulse.value), "}");
 					break;
 				}
+			}
+			catch(const std::exception& e)
+			{
+				MXT_LOG_WARN("Caught an exception from manager: ", e.what());
 			}
 
 			mCurrentManager->leave();
@@ -116,10 +126,8 @@ void Handler::accept(Packet_ptr p)
 	}
 }
 
-void Handler::switchManager(Message::Base msg)
+void Handler::handleBase(Message::Base msg)
 {
-	auto m = mCurrentManager;
-
 	switch(msg)
 	{
 	case Message::Base::SHUTDOWN:
@@ -128,37 +136,36 @@ void Handler::switchManager(Message::Base msg)
 		break;
 
 	case Message::Base::RUN:
-		MXT_LOG_WARN("RunManager not implemented yet!");
-		mRunning = false;
-//		m = mRunManager.get(); TODO
+		doSwitch(mRunManager.get());
 		break;
 
 	case Message::Base::CONFIG:
-		MXT_LOG_INFO("Switching to ConfigManager");
-		m = mConfigManager.get();
+		doSwitch(mConfigManager.get());
 		break;
 
 	case Message::Base::IDLE:
-		MXT_LOG_INFO("Switching to Idle");
-		m = mIdleManager.get();
+		doSwitch(mIdleManager.get());
 		break;
 
 	case Message::Base::READY:
-		MXT_LOG_INFO("Switching to Ready");
-		m = mReadyManager.get();
+		doSwitch(mReadyManager.get());
 		break;
 	}
+}
 
-	if(mCurrentManager != m)
+void Handler::doSwitch(IManager *m)
+{
+	if (m != mCurrentManager)
 	{
+		if (m == mRunManager.get()) { MXT_LOG_INFO("Switching to Run"); }
+		else if (m == mConfigManager.get()) { MXT_LOG_INFO("Switching to Config"); }
+		else if (m == mIdleManager.get()) { MXT_LOG_INFO("Switching to Idle"); }
+		else if (m == mReadyManager.get()) { MXT_LOG_INFO("Switching to Ready"); }
+		else if (m == mErrorManager.get()) { MXT_LOG_INFO("Switching to Error"); }
+
 		mCurrentManager->leave();
 		mCurrentManager = m;
 		mCurrentManager->enter();
-	}
-
-	if(mCurrentManager != mErrorManager.get())
-	{
-		mErrorManager.reset();
 	}
 }
 
@@ -167,21 +174,6 @@ void Handler::handle(Event e)
 	MXT_LOG_INFO("Received HAL event ", lib::hex<32>(e));
 
 	mConnection.sendPulse(static_cast<int8_t>(MessageType::HAL_EVENT), static_cast<uint32_t>(e));
-}
-
-void Handler::handleError(Message::Error e, Packet_ptr p)
-{
-	MXT_LOG_INFO("Received error message ", e, "!");
-
-	auto m = ErrorManager::create(this, p);
-
-	if(!static_cast<bool>(mErrorManager) || m->priority() >= mErrorManager->priority())
-	{
-		mCurrentManager->leave();
-		mErrorManager = std::move(m);
-		mCurrentManager = mErrorManager.get();
-		mCurrentManager->enter();
-	}
 }
 
 void Handler::handleHAL(Event e)

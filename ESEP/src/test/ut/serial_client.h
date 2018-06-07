@@ -1,5 +1,5 @@
-#ifndef ESEP_TEST_UNIT_SERIALCLIENT_H
-#define ESEP_TEST_UNIT_SERIALCLIENT_H
+#ifndef ESEP_TEST_UT_SERIALCLIENT_H
+#define ESEP_TEST_UT_SERIALCLIENT_H
 
 #include "lib/utils.h"
 #include "serial/connection.h"
@@ -12,9 +12,9 @@ namespace esep
 {
 	namespace test
 	{
-		namespace unit
+		namespace ut
 		{
-			class SerialClient : public TestSuite
+			class SerialClient : public unit::TestSuite
 			{
 				public:
 					SerialClient( );

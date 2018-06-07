@@ -1,5 +1,5 @@
-#ifndef ESEP_TEST_UNIT_BYTESTREAM_H
-#define ESEP_TEST_UNIT_BYTESTREAM_H
+#ifndef ESEP_TEST_UT_BYTESTREAM_H
+#define ESEP_TEST_UT_BYTESTREAM_H
 
 #include "test/unit/unit.h"
 
@@ -7,9 +7,9 @@ namespace esep
 {
 	namespace test
 	{
-		namespace unit
+		namespace ut
 		{
-			class ByteStream : public TestSuite
+			class ByteStream : public unit::TestSuite
 			{
 				public:
 					ByteStream( );

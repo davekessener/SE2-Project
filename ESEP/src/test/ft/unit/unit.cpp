@@ -26,6 +26,20 @@
 #include "test/ut/emp_parser.h"
 #include "test/ut/emp_playback.h"
 #include "test/ut/compound_enum.h"
+#include "test/ut/master_logic.h"
+#include "test/ut/config_object.h"
+#include "test/ut/run_manager_time_ctrl.h"
+#include "test/ut/run_manager_logic.h"
+#include "test/ut/test_hal.h"
+#include "test/ut/error_manager_logic.h"
+#include "test/ut/process_tree.h"
+#include "test/ut/processor.h"
+#include "test/ut/overflow_buffer.h"
+#include "test/ut/fun_chain.h"
+#include "test/ut/bdscan.h"
+#include "test/ut/stream.h"
+#include "test/ut/analyser_expand.h"
+#include "system.h"
 
 namespace esep { namespace test { namespace functional {
 
@@ -34,22 +48,35 @@ bool runUnitTests(bool verbose)
 	lib::Timer::instance().sleep(5);
 
 	auto r = unit::Manager()
-		.addTest<unit::CRC32>()
-		.addTest<unit::LoggerFormatParser>()
-		.addTest<unit::FSM>()
-		.addTest<unit::ByteStream>()
-		.addTest<unit::QNXConnections>()
-		.addTest<unit::SyncContainer>()
-		.addTest<unit::Timer>()
-		.addTest<unit::DummyConnection>()
-		.addTest<unit::SerialClient>()
-		.addTest<unit::Watchdog>()
-		.addTest<unit::CommunicationLayer>()
-		.addTest<unit::HWLocation>()
-		.addTest<unit::EMPTokenizer>()
-		.addTest<unit::EMPParser>()
-		.addTest<unit::EMPPlayback>()
-		.addTest<unit::CompoundEnum>()
+		.addTest<ut::CRC32>()
+		.addTest<ut::LoggerFormatParser>()
+		.addTest<ut::FSM>()
+		.addTest<ut::ByteStream>()
+		.addTest<ut::QNXConnections>()
+		.addTest<ut::SyncContainer>()
+		.addTest<ut::Timer>()
+		.addTest<ut::DummyConnection>()
+		.addTest<ut::SerialClient>()
+		.addTest<ut::Watchdog>()
+		.addTest<ut::CommunicationLayer>()
+		.addTest<ut::HWLocation>()
+		.addTest<ut::EMPTokenizer>()
+		.addTest<ut::EMPParser>()
+		.addTest<ut::EMPPlayback>()
+		.addTest<ut::CompoundEnum>()
+		.addTest<ut::MasterLogic>()
+		.addTest<ut::ConfigObject>()
+		.addTest<ut::TestHAL>()
+		.addTest<ut::ErrorManagerLogic>()
+//		.addTest<ut::RunManagerTimeCtrl>()
+//		.addTest<ut::RunManagerLogic>()
+		.addTest<ut::ProcessTree>()
+		.addTest<ut::Processor>()
+		.addTest<ut::OverflowBuffer>()
+		.addTest<ut::FunChain>()
+		.addTest<ut::BDSCAN>()
+		.addTest<ut::Stream>()
+		.addTest<ut::AnalyserExpand>()
 		.run();
 
 	uint w = 0;
@@ -68,7 +95,7 @@ bool runUnitTests(bool verbose)
 
 		if(total == 0)
 		{
-			std::cout << t.first << ": No tests run !!!\n";
+			std::cout << t.first << ": No tests run !!!" << std::endl;
 
 			continue;
 		}
@@ -85,21 +112,23 @@ bool runUnitTests(bool verbose)
 
 		if(verbose)
 		{
-			std::cout << std::setw(w) << t.first << ": " << std::setw(3) << p << "% [" << std::setw(2) << succ << " / "
-					  << std::setw(2) << total << "] tests successful\n";
+			std::cout << std::setw(w) << t.first << ": " << std::setw(3) << p << "% ["
+					  << std::setw(2) << succ << " / " << std::setw(2) << total
+					  << "] tests successful" << std::endl;
 		}
 	}
 
 	if(verbose)
 	{
-		std::cout << "\n";
+		std::cout << std::endl;
 	}
 
 	for(const auto& t : r)
 	{
 		if(!t.second.second.empty())
 		{
-			std::cout << t.first << " has encountered a critical error: " << t.second.second << "!\n";
+			std::cout << t.first << " has encountered a critical error: " << t.second.second << "!" << std::endl;
+
 			success = false;
 		}
 	}
@@ -110,7 +139,8 @@ bool runUnitTests(bool verbose)
 		{
 			if(p.first == unit::TestSuite::Result::FAILURE)
 			{
-				std::cout << "[ERR] " << t.first << ": " << p.second << "\n";
+				std::cout << "[ERR] " << t.first << ": " << p.second << std::endl;
+
 				success = false;
 			}
 		}
@@ -118,7 +148,7 @@ bool runUnitTests(bool verbose)
 
 	if(success)
 	{
-		std::cout << "SUCCESS!\n";
+		std::cout << "SUCCESS!" << std::endl;
 	}
 
 	return success;

@@ -3,13 +3,14 @@
 #include <vector>
 
 #include "base/config_manager.h"
-#include "system.h"
+#include "hal.h"
 
 #include "hal/height_sensor.h"
 #include "hal/light_barriers.h"
 #include "hal/lights.h"
 #include "hal/motor.h"
 #include "hal/switch.h"
+#include "hal/height_sensor.h"
 
 namespace esep { namespace base {
 
@@ -25,13 +26,13 @@ ConfigManager::ConfigManager(communication::IRecipient *handler, ConfigObject *c
 	, mTimestamp2(0)
 	, mHeightSensorMin(0)
 	, mHeightSensorMax(0)
+	, mMaxHandOverTime(3000)
 	, mStartToEnd(0)
 	, mStartToEndLong(0)
 	, mStartToEndSlow(0)
 	, mStartToHs(0)
 	, mHsToSwitch(0)
 	, mSwitchToEnd(0)
-	, mSlowFactor(0)
 	, mTimeTolerance(0)
 {
 
@@ -93,6 +94,10 @@ void ConfigManager::handle(hal::HAL::Event event)
 		{
 			mTimestamp  = ELAPSED;
 
+			//measure HEIGHTSENSOR MINIMUM [1]
+			MXT_LOG_INFO("HeightSensor measured ", lib::hex<16>(HAL_HEIGHT_SENSOR.measure()));
+			mHeightSensorMin = HAL_HEIGHT_SENSOR.measure(false);
+
 			mState = State::STATE_2;
 		};
 	break;
@@ -101,6 +106,9 @@ void ConfigManager::handle(hal::HAL::Event event)
 		if(event == Event::LB_SWITCH && HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_SWITCH))
 		{
 			HAL_SWITCH.open();
+
+			//measure HEIGHTSENSOR MINIMUM [2]
+			MXT_LOG_INFO("HeightSensor measured ", lib::hex<16>(HAL_HEIGHT_SENSOR.measure()));
 
 			mState = State::STATE_3;
 		};
@@ -112,6 +120,10 @@ void ConfigManager::handle(hal::HAL::Event event)
 			actualTime  = ELAPSED;
 			mStartToEndLong = (uint32_t) actualTime - mTimestamp;
 			HAL_MOTOR.left();
+
+			//measure HEIGHTSENSOR MINIMUM [3]
+			MXT_LOG_INFO("HeightSensor measured ", lib::hex<16>(HAL_HEIGHT_SENSOR.measure()));
+			mHeightSensorMin = HAL_HEIGHT_SENSOR.measure(false);
 
 			mState = State::STATE_4;
 		};
@@ -141,6 +153,10 @@ void ConfigManager::handle(hal::HAL::Event event)
 		{
 			actualTime = ELAPSED;
 			mStartToHs = (uint32_t) actualTime - mTimestamp2;
+
+			//measure HEIGHTSENSOR MAXIMUM
+			MXT_LOG_INFO("HeightSensor measured ", lib::hex<16>(HAL_HEIGHT_SENSOR.measure()));
+			mHeightSensorMax = HAL_HEIGHT_SENSOR.measure(false);
 
 			mState = State::STATE_7;
 		};
@@ -179,65 +195,31 @@ void ConfigManager::handle(hal::HAL::Event event)
 		if(event == Event::LB_END && HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_END))
 		{
 			actualTime = ELAPSED;
-			mSwitchToEnd = (uint32_t) actualTime - mTimestamp2;
-			mStartToEnd = (uint32_t) actualTime - mTimestamp;
-			HAL_MOTOR.left();
-
-			mState = State::STATE_11;
-		};
-	break;
-
-	case State::STATE_11 :
-		if(event == Event::LB_SWITCH && !HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_SWITCH))
-		{
-			HAL_SWITCH.close();
-
-			mState = State::STATE_12;
-		};
-	break;
-
-	case State::STATE_12 :
-		if(event == Event::LB_START && HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_START))
-		{
-			HAL_MOTOR.slow();
-			HAL_MOTOR.right();
-			mTimestamp = ELAPSED;
-
-			mState = State::STATE_13;
-		};
-	break;
-
-	case State::STATE_13 :
-		if(event == Event::LB_SWITCH && HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_SWITCH))
-		{
-			HAL_SWITCH.open();
-			//TODO measure HEIGHTSENSOR
-
-			mState = State::STATE_14;
-		};
-	break;
-
-	case State::STATE_14 :
-		if(event == Event::LB_END && HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_END))
-		{
-			actualTime = ELAPSED;
 			HAL_SWITCH.close();
 			HAL_MOTOR.stop();
-			mStartToEndSlow = (uint32_t) actualTime - mTimestamp;
-			mSlowFactor = mStartToEnd / (float) mStartToEndSlow;
-			mTimeTolerance = 1 - ((mStartToEnd / (float) mStartToEndLong) + (mStartToEnd / (float) mStartToEndLong) * ConfigObject::TOLERANCE);
+			mSwitchToEnd = (uint32_t) actualTime - mTimestamp2;
+			mStartToEnd = (uint32_t) actualTime - mTimestamp;
+			mTimeTolerance = 1 - (mStartToEnd / (float) mStartToEndLong);
 
 			// Save config and send message to handler
 			auto msg = std::make_shared<communication::Packet>(Location::BASE, Location::MASTER, Message::Config::FAILED);
 
 			try
 			{
-				mConfig->setHeightSensorMin(1); // TODO measure HEIGHTSENSOR value without ITEM
-				mConfig->setHeightSensorMax(1); // TODO measure HEIGHTSENSOR value with ITEM
+				MXT_LOG_INFO("HS min is ", mHeightSensorMin);
+				MXT_LOG_INFO("HS max is ", mHeightSensorMax);
+				MXT_LOG_INFO("Start to HS is ", mStartToHs);
+				MXT_LOG_INFO("HS to switch is ", mHsToSwitch);
+				MXT_LOG_INFO("switch to end is ", mSwitchToEnd);
+				MXT_LOG_INFO("TimeTolerance is ", mTimeTolerance);
+				MXT_LOG_INFO("MaxHandOverTime is ", mMaxHandOverTime);
+
+				mConfig->setHeightSensorMin(mHeightSensorMin);
+				mConfig->setHeightSensorMax(mHeightSensorMax);
+				mConfig->setMaxHandOverTime(mMaxHandOverTime);
 				mConfig->setStartToHs(mStartToHs);
 				mConfig->setHsToSwitch(mHsToSwitch);
 				mConfig->setSwitchToEnd(mSwitchToEnd);
-				mConfig->setSlowFactor(mSlowFactor);
 				mConfig->setTimeTolerance(mTimeTolerance);
 				mConfig->save();
 
@@ -245,15 +227,16 @@ void ConfigManager::handle(hal::HAL::Event event)
 			}
 			catch(ConfigObject::InvalidDataException const& e)
 			{
+				MXT_LOG_WARN("Failed configuration: ", e.what());
 			}
 
 			mHandler->accept(msg);
 
-			mState = State::STATE_15;
+			mState = State::STATE_11;
 		};
 		break;
 
-	case State::STATE_15:
+	case State::STATE_11:
 		break;
 	}
 #undef ELAPSED

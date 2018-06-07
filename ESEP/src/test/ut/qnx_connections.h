@@ -1,5 +1,5 @@
-#ifndef ESEP_TEST_UNIT_QNXCONNECTIONS_H
-#define ESEP_TEST_UNIT_QNXCONNECTIONS_H
+#ifndef ESEP_TEST_UT_QNXCONNECTIONS_H
+#define ESEP_TEST_UT_QNXCONNECTIONS_H
 
 #include "lib/utils.h"
 #include "qnx/channel.h"
@@ -11,9 +11,9 @@ namespace esep
 {
 	namespace test
 	{
-		namespace unit
+		namespace ut
 		{
-			class QNXConnections : public TestSuite
+			class QNXConnections : public unit::TestSuite
 			{
 				public:
 					QNXConnections( );

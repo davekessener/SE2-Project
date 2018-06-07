@@ -10,9 +10,9 @@ namespace esep
 {
 	namespace test
 	{
-		namespace unit
+		namespace ut
 		{
-			class CRC32 : public TestSuite
+			class CRC32 : public unit::TestSuite
 			{
 				typedef lib::crc::Generator<uint32_t> gen_t;
 

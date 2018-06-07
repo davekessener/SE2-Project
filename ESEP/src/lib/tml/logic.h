@@ -5,8 +5,47 @@ namespace esep
 {
 	namespace tml
 	{
-		struct True  { static constexpr bool Value = true;  };
-		struct False { static constexpr bool Value = false; };
+		struct True  : Bool2Type<true>  { typedef True  Type; };
+		struct False : Bool2Type<false> { typedef False Type; };
+
+		template<typename T> struct IsConst : False { };
+		template<typename T> struct IsConst<const T> : True { };
+
+		template<typename T> struct IsVolatile : False { };
+		template<typename T> struct IsVolatile<volatile T> : True { };
+
+		template<typename T> struct IsPointer : False { };
+		template<typename T> struct IsPointer<T *> : True { };
+
+		template<typename> struct IsIntegral : False { };
+		template<> struct IsIntegral<char> : True { };
+		template<> struct IsIntegral<unsigned char> : True { };
+		template<> struct IsIntegral<short> : True { };
+		template<> struct IsIntegral<unsigned short> : True { };
+		template<> struct IsIntegral<int> : True { };
+		template<> struct IsIntegral<unsigned int> : True { };
+		template<> struct IsIntegral<long> : True { };
+		template<> struct IsIntegral<unsigned long> : True { };
+		template<> struct IsIntegral<long long> : True { };
+		template<> struct IsIntegral<unsigned long long> : True { };
+
+		template<typename T> struct IsNumeric : IsIntegral<T> { };
+		template<> struct IsNumeric<float> : True { };
+		template<> struct IsNumeric<double> : True { };
+
+		template<typename T1, typename T2>
+		struct Promotion
+		{
+			typedef decltype(std::declval<T1>() + std::declval<T2>()) Type;
+		};
+
+		template<typename T1, typename T2>
+		using DoPromotion = typename Promotion<T1, T2>::Type;
+
+		namespace impl
+		{
+			template<typename T> struct IsPrimitive : False { };
+		}
 
 		template<typename T>
 		struct IsUnsigned
@@ -86,6 +125,8 @@ namespace esep
 #undef MXT_MAX
 			};
 		}
+
+		template<typename T> struct IsPrimitive : logic::Or<IsPointer<T>, IsNumeric<T>> { };
 	}
 }
 

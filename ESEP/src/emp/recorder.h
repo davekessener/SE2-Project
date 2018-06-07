@@ -23,7 +23,7 @@ namespace esep
 			public:
 				Recorder(Writer_ptr, hal::HAL_ptr);
 
-				uint32_t in(Field f) const override { return mHAL->in(f); }
+				uint32_t in(Field f) override { return mHAL->in(f); }
 				void out(Field f, uint32_t v) override { mHAL->out(f, v); }
 				void set(Field f, bitmask_t v) override { mHAL->set(f, v); }
 				void reset(Field f, bitmask_t v) override { mHAL->reset(f, v); }

@@ -2,7 +2,7 @@
 
 #include "test/ut/crc32.h"
 
-namespace esep { namespace test { namespace unit {
+namespace esep { namespace test { namespace ut {
 
 CRC32::CRC32(void)
 	: TestSuite("CRC32 Generator")

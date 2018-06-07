@@ -1,5 +1,5 @@
-#ifndef ESEP_TEST_UNIT_HWLOCATION_H
-#define ESEP_TEST_UNIT_HWLOCATION_H
+#ifndef ESEP_TEST_UT_HWLOCATION_H
+#define ESEP_TEST_UT_HWLOCATION_H
 
 #include "test/unit/unit.h"
 
@@ -7,9 +7,9 @@ namespace esep
 {
 	namespace test
 	{
-		namespace unit
+		namespace ut
 		{
-			class HWLocation : public TestSuite
+			class HWLocation : public unit::TestSuite
 			{
 				public:
 					HWLocation( );
