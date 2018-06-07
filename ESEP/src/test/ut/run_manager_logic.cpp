@@ -73,8 +73,7 @@ void RunManagerLogic::setup(void)
 	mRunManager = new base::RunManager(mHandlerDummy, mConfig);
 	mHandlerDummy->mBase = this->mRunManager;
 
-	hal().setCallback([this](Event e)
-	{	mRunManager->handle(e);});
+	hal().setCallback([this](Event e) { mRunManager->handle(e);});
 }
 
 void RunManagerLogic::teardown(void)

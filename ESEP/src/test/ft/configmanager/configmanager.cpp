@@ -90,7 +90,7 @@ void testConfigManager(const lib::Arguments&)
 				std::cout << "----------------------------------" << std::endl;
 				std::cout << "Press [START] for another Measurement..." << std::endl;
 			}
-			else if (handler.packets.front()->message() == Message::Config::FAILED)
+			else if (handler.packets.back()->message() == Message::Config::FAILED)
 			{
 				manager.leave();
 				std::cout << "Failed Configuration!" << std::endl;

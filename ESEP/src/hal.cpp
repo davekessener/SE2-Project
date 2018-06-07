@@ -32,14 +32,12 @@ void Holder::instantiate(HAL *hal, base::ConfigObject *config)
 
 void Holder::clear(void)
 {
-	if(!mHAL)
+	if(mHAL)
 	{
-		MXT_THROW_EX(HALNotInstantiatedException);
+		mHALObjects.reset();
+
+		mHAL = nullptr;
 	}
-
-	mHALObjects.reset();
-
-	mHAL = nullptr;
 }
 
 }}

@@ -44,8 +44,8 @@ namespace esep
 			private:
 				const std::string mPath;
 				bool mValid;
-				uint16_t mHeightSensorMin;		// Minimal height value [int value]
-				uint16_t mHeightSensorMax;		// Maximal height value [int value]
+				uint16_t mHeightSensorMin;		// Minimal height value (its the Value from the floor) [int value]
+				uint16_t mHeightSensorMax;		// Maximal height value (its the Value from the top of the highest ITEM)[int value]
 				uint32_t mStartToHs;			// Time between LB_Start and LB_HeightSensor [ms]
 				uint32_t mHsToSwitch;			// Time between LB_HeightSensor and LB_Switch [ms]
 				uint32_t mSwitchToEnd;			// Time between LB_Switch and LB_End [ms]

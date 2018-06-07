@@ -5,8 +5,8 @@
 #include "lib/logger.h"
 
 #define ADC_TSC_GENINT 	 	16
-#define MXT_BUFSIZE 		50
-#define MXT_FREQ 			100
+#define MXT_BUFSIZE 		100
+#define MXT_FREQ 			10000
 #define MXT_CLOCK 			(MXT_FREQ * MXT_BUFSIZE)
 
 namespace esep { namespace hal { namespace adc {
@@ -36,7 +36,7 @@ class ADC::Impl
 
 const struct sigevent* ADC::Impl::adcISR(void* arg, int id)
 {
-	static byte_t buf[MXT_BUFSIZE] = { 0 };
+	static uint16_t buf[MXT_BUFSIZE] = { 0 };
 	static uint idx = 0;
 
 	ADC::Impl* adc = (ADC::Impl*)arg;
@@ -49,7 +49,7 @@ const struct sigevent* ADC::Impl::adcISR(void* arg, int id)
 
 	if(status & END_OF_SEQUENCE_INT)
 	{
-		buf[idx] = adc->tscadc.fifoADCDataRead(Fifo::FIFO_0) >> 4;
+		buf[idx] = adc->tscadc.fifoADCDataRead(Fifo::FIFO_0);
 
 		idx = (idx + 1) % MXT_BUFSIZE;
 
