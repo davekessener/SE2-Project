@@ -6,7 +6,7 @@ namespace esep { namespace data {
 
 void HeightMap::doSerialize(lib::ByteStream& bs) const
 {
-	for(const auto& p : mHeightValue)
+	for(const auto& p : *this)
 	{
 		bs << p.first;
 		bs << p.second;
@@ -15,24 +15,26 @@ void HeightMap::doSerialize(lib::ByteStream& bs) const
 
 void HeightMap::addHeightValue(time_t time, height_t height)
 {
-	mHeightValue.emplace_back(std::make_pair(time, height));
+	mHeightValues.emplace_back(value_type(time, height));
 }
 
 Data_ptr HeightMap::deserialize(lib::ByteStream& bs)
 {
 	if(bs.empty())
-		{
-			MXT_THROW_EX(DataManager::UnexpectedEOSException);
-		}
+	{
+		MXT_THROW_EX(DataManager::UnexpectedEOSException);
+	}
 
 	std::unique_ptr<HeightMap> hm(new HeightMap);
 
 	while(!bs.empty())
 	{
-		uint32_t time;
+		time_t time;
+		height_t height;
+
 		bs >> time;
-		uint16_t height;
 		bs >> height;
+
 		hm->addHeightValue(time, height);
 	}
 

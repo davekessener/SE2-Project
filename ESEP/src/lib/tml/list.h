@@ -70,6 +70,15 @@ namespace esep
 
 // # -----------------------------------------------------------------
 
+			template<typename L> struct Last;
+			template<typename H, typename T> struct Last<TypeList<H, T>> : Last<T> { };
+			template<typename T> struct Last<TypeList<T, Nil>> { typedef T Type; };
+
+			template<typename L>
+			using GetLast = typename Last<L>::Type;
+
+// # -----------------------------------------------------------------
+
 			template
 			<
 				typename L,
@@ -94,6 +103,34 @@ namespace esep
 			struct Contains : Any<L, Bind<Fun2Type<Equals>, 0, T>>
 			{
 			};
+
+// # -----------------------------------------------------------------
+
+			template<typename L, typename F>
+			struct FindFirst
+			{
+				template<bool, typename H, typename T>
+				struct Impl : Impl<DoCall<F, Car<T>>::Value, Car<T>, Cdr<T>>
+				{
+				};
+
+				template<typename H, typename T>
+				struct Impl<true, H, T>
+				{
+					typedef H Type;
+				};
+
+				template<typename H>
+				struct Impl<false, H, Nil>
+				{
+//					static_assert(false, "Not found in list!");
+				};
+
+				typedef typename Impl<false, Nil, L>::Type Type;
+			};
+
+			template<typename L, typename F>
+			using DoFindFirst = typename FindFirst<L, F>::Type;
 
 // # -----------------------------------------------------------------
 
@@ -188,14 +225,71 @@ namespace esep
 				typename L,
 				typename ... T
 			>
-			struct Flatten : Flatten<R, Cdr<L>, T..., Car<L>>
+			struct ToVariadic : ToVariadic<R, Cdr<L>, T..., Car<L>>
 			{
 			};
 
 			template<typename R, typename ... T>
-			struct Flatten<R, Nil, T...> : Call<R, T...>
+			struct ToVariadic<R, Nil, T...> : Call<R, T...>
 			{
 			};
+
+// # -----------------------------------------------------------------
+
+			template<typename L, typename T>
+			struct Append
+			{
+				typedef TypeList<Car<L>, typename Append<Cdr<L>, T>::Type> Type;
+			};
+
+			template<typename T>
+			struct Append<Nil, T>
+			{
+				typedef TypeList<T, Nil> Type;
+			};
+
+			template<typename L>
+			struct Append<L, Nil>
+			{
+				typedef L Type;
+			};
+
+			template<>
+			struct Append<Nil, Nil>
+			{
+				typedef Nil Type;
+			};
+
+			template<typename H, typename T>
+			struct Append<Nil, TypeList<H, T>>
+			{
+				typedef TypeList<H, T> Type;
+			};
+
+			template<typename L, typename T>
+			using DoAppend = typename Append<L, T>::Type;
+
+// # -----------------------------------------------------------------
+
+			template<typename T>
+			struct Flatten
+			{
+				typedef TypeList<T, Nil> Type;
+			};
+
+			template<>
+			struct Flatten<Nil>
+			{
+				typedef Nil Type;
+			};
+
+			template<typename H, typename T>
+			struct Flatten<TypeList<H, T>> : Append<typename Flatten<H>::Type, typename Flatten<T>::Type>
+			{
+			};
+
+			template<typename T>
+			using DoFlatten = typename Flatten<T>::Type;
 
 // # -----------------------------------------------------------------
 
@@ -229,6 +323,28 @@ namespace esep
 
 			template<typename L, typename F>
 			using DoApplyWithIndex = typename ApplyWithIndex<L, F>::Type;
+
+// # -----------------------------------------------------------------
+
+			template<typename T>
+			struct Reverse
+			{
+				template<typename L, typename R>
+				struct Impl : Impl<Cdr<L>, TypeList<Car<L>, R>>
+				{
+				};
+
+				template<typename R>
+				struct Impl<Nil, R>
+				{
+					typedef R Type;
+				};
+
+				typedef typename Impl<T, Nil>::Type Type;
+			};
+
+			template<typename L>
+			using DoReverse = typename Reverse<L>::Type;
 		}
 	}
 }

@@ -74,7 +74,7 @@ namespace esep
 			};
 
 			typedef L value_types;
-			typedef typename tml::list::Flatten<
+			typedef typename tml::list::ToVariadic<
 				tml::Fun2Type<Helper>,
 				tml::list::DoApplyWithIndex<
 					value_types,
