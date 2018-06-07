@@ -11,6 +11,7 @@
 #include "test/ft/master.h"
 #include "test/ft/heightsensor.h"
 #include "test/ft/plugins.h"
+#include "test/ft/configmanager.h"
 
 #include "lib/logger.h"
 
@@ -33,6 +34,7 @@ test_fn getTest(const std::string& id)
 		t["master"]  = &functional::testMasterLogic;
 		t["hs"]      = &functional::testHeightSensor;
 		t["plugins"] = &functional::testPlugins;
+		t["config"]  = &functional::testConfigManager;
 	}
 
 	auto i = t.find(id);
