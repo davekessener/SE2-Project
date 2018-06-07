@@ -60,6 +60,7 @@ namespace esep
 			   uint32_t computeMinTime(uint32_t time);
 			   uint32_t computeMaxTime(uint32_t time);
 			   void takeMeasurement();
+			   void takeTimerEvent(TimerEvent);
 			   uint64_t timeDiff(uint64_t old, uint64_t curr);
 			   void sendMasterMessage(Message::Run msg);
 			   void sendMessageWithData(Location target, Message::Run msg, data::Data_ptr data);
@@ -67,7 +68,7 @@ namespace esep
 
 			private:
 			   communication::IRecipient * mMaster;
-			   ConfigObject * mConfigData;
+			   ConfigObject * mConfig;
 			   run::TimeCtrl mTimeCtrl;
 			   petri_t mLogic;
 			   buffer_t mHeightMapBuffer;

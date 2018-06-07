@@ -46,7 +46,7 @@ void TimeCtrl::setTimer(State state, TimerEvent e, uint r, uint p)
 	}
 	else
 	{
-		MXT_THROW_E(TimerAccessException, lib::stringify("There is no state with number ",s));
+		MXT_THROW_E(TimerAccessException, lib::stringify("There is no state with number ", MXT_CAST(s)+1));
 	}
 }
 
@@ -59,7 +59,7 @@ void TimeCtrl::deleteTimer(State state)
 	}
 	else
 	{
-		MXT_THROW_E(TimerAccessException, lib::stringify("There is no timer to delete in state ", s));
+		MXT_THROW_E(TimerAccessException, lib::stringify("There is no timer to delete in state ", MXT_CAST(s)+1));
 	}
 }
 

@@ -8,6 +8,7 @@
 #include "base/run_manager.h"
 #include "communication/packet.h"
 #include "hal/light_barriers.h"
+#include "lib/logger.h"
 
 
 
@@ -19,7 +20,7 @@ namespace esep
 		{
 			class RunManagerLogic : public unit::TestSuite
 			{
-				struct BasicRecipient;
+				struct HandlerDummy;
 
 				typedef base::RunManager::Event Event;
 				typedef base::ConfigObject config_t;
@@ -49,7 +50,7 @@ namespace esep
 				   void freeLB(LightBarrier);
 
 				private:
-				   BasicRecipient *mCom;
+				   HandlerDummy *mHandlerDummy;
 				   RunManager *mRunManager;
 				   config_t *mConfig;
 			};

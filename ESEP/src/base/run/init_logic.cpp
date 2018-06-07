@@ -9,7 +9,7 @@
 #include "communication/message.h"
 
 #include "base/run/types.h"
-
+#include "lib/logger.h"
 #include "data/data_point.h"
 #include "data/location_data.h"
 #include "data/heightmap_data.h"
@@ -25,7 +25,6 @@ namespace esep { namespace base {
 #define MXT_TIME_FOR_EXPCT_NEW	3000
 #define MXT_TIME_IN_LB			3000
 #define MXT_CAST(t)				static_cast<uint8_t>(t)
-#define MXT_CONFIG				this->mConfigData
 #define MXT_SHARE(T, V)			data::Data_ptr(new T(V))
 #define MXT_HM					2
 #define MXT_FINISHED			0
@@ -39,8 +38,8 @@ void RunManager::initLogic()
 			{{MXT_CAST(State::STATE_1), 1}},
 			[this](void)
 			{
-				printf("set timer! expect new\n");
-				this->mTimeCtrl.setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, mConfigData->maxHandOverTime());
+				MXT_LOG_WARN("RUN: set timer: EXPECT_NEW");
+				this->mTimeCtrl.setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, mConfig->maxHandOverTime());
 			});
 	//TIMER_EXPECT_NEW
 	mLogic.transition(TimerEvent::EXPECT_NEW,
@@ -84,10 +83,10 @@ void RunManager::initLogic()
 			{{MXT_CAST(State::STATE_3), 1}},
 			[this](void)
 			{
-				printf("set timer! start 1\n");
+				MXT_LOG_WARN("RUN: set timer: ITEM_READY_HS");
 				//this->mTimeCtrl.deleteTimer(State::STATE_2);
-				auto minTimeStartToHs = computeMinTime(MXT_CONFIG->startToHs());
-				minTimeStartToHs *= (1 - MXT_CONFIG->timeTolerance());
+				auto minTimeStartToHs = computeMinTime(mConfig->startToHs());
+				minTimeStartToHs *= (1 - mConfig->timeTolerance());
 				this->mTimeCtrl.setTimer(State::STATE_3, TimerEvent::ITEM_READY_HS, minTimeStartToHs);
 			});
 	//ITEM_READY_HS
@@ -96,14 +95,14 @@ void RunManager::initLogic()
 			{{MXT_CAST(State::STATE_4), 1}},
 			[this](void)
 			{
-				printf("set timer! start 2\n");
+				MXT_LOG_WARN("RUN: set timer: START_2");
 				this->mTimeCtrl.deleteTimer(State::STATE_3);
 
-				auto minTimeStartToHs = computeMinTime(MXT_CONFIG->startToHs());
-				minTimeStartToHs *= 1 - MXT_CONFIG->timeTolerance();
+				auto minTimeStartToHs = computeMinTime(mConfig->startToHs());
+				minTimeStartToHs *= 1 - mConfig->timeTolerance();
 
-				auto maxTimeStartToHs = computeMaxTime(MXT_CONFIG->startToHs());
-				maxTimeStartToHs *= 1 + MXT_CONFIG->timeTolerance();
+				auto maxTimeStartToHs = computeMaxTime(mConfig->startToHs());
+				maxTimeStartToHs *= 1 + mConfig->timeTolerance();
 				this->mTimeCtrl.setTimer(State::STATE_4, TimerEvent::START_2, maxTimeStartToHs-minTimeStartToHs);
 			});
 	//TIMER_START_2
@@ -151,9 +150,9 @@ void RunManager::initLogic()
 			{{MXT_CAST(State::STATE_6), 1}},
 			[this](void)
 			{
-				printf("set timer! hs 1\n");
+				MXT_LOG_WARN("RUN: set timer: ITEM_READY_SWITCH");
 				//this->mTimeCtrl.deleteTimer(State::STATE_5);
-				this->mTimeCtrl.setTimer(State::STATE_6, TimerEvent::ITEM_READY_SWITCH, computeMinTime(MXT_CONFIG->hsToSwitch()));
+				this->mTimeCtrl.setTimer(State::STATE_6, TimerEvent::ITEM_READY_SWITCH, computeMinTime(mConfig->hsToSwitch()));
 			});
 
 	//ITEM_READY_SWITCH
@@ -162,9 +161,9 @@ void RunManager::initLogic()
 			{{MXT_CAST(State::STATE_7), 1}},
 			[this](void)
 			{
-				printf("set timer! hs 2\n");
+				MXT_LOG_WARN("RUN: set timer: HS_2");
 				this->mTimeCtrl.deleteTimer(State::STATE_6);
-				auto maxTimeDiff = computeMaxTime(MXT_CONFIG->hsToSwitch()) - computeMinTime(MXT_CONFIG->hsToSwitch());
+				auto maxTimeDiff = computeMaxTime(mConfig->hsToSwitch()) - computeMinTime(mConfig->hsToSwitch());
 				this->mTimeCtrl.setTimer(State::STATE_7, TimerEvent::HS_2, maxTimeDiff);
 			});
 
@@ -184,7 +183,7 @@ void RunManager::initLogic()
 			[this](void)
 			{
 				this->mTimeCtrl.deleteTimer(State::STATE_7);
-
+				MXT_LOG_WARN("RUN: deleted timer event 6");
 				//check if there is measured date to send
 				if(mHeightMapBuffer.empty() || !std::get<MXT_FINISHED>(mHeightMapBuffer.front()))
 				{
@@ -241,8 +240,9 @@ void RunManager::initLogic()
 			{{MXT_CAST(State::STATE_10), 1}},
 			[this](void)
 			{
-				printf("set timer! ramp\n");
-				this->mTimeCtrl.setTimer(State::STATE_10, TimerEvent::RAMP, MXT_TIME_IN_LB);
+				MXT_LOG_WARN("RUN: set timer: RAMP");
+				//TODO i need a new time, for the ramp to trigger a full ramp
+				this->mTimeCtrl.setTimer(State::STATE_10, TimerEvent::RAMP, mConfig->maxHandOverTime());
 			});
 	//LB_RAMP_E
 	mLogic.transition(run::HalEvent::LB_RAMP,
@@ -289,10 +289,10 @@ void RunManager::initLogic()
 			{{MXT_CAST(State::STATE_12), 1}},
 			[this](void)
 			{
-				printf("set timer! switch 1\n");
+				MXT_LOG_WARN("RUN: set timer: ITEM_READY_END");
 				HAL_SWITCH.close();
 				//this->mTimeCtrl.deleteTimer(State::STATE_11);
-				this->mTimeCtrl.setTimer(State::STATE_12, TimerEvent::ITEM_READY_END, computeMinTime(MXT_CONFIG->switchToEnd()));
+				this->mTimeCtrl.setTimer(State::STATE_12, TimerEvent::ITEM_READY_END, computeMinTime(mConfig->switchToEnd()));
 			});
 	//ITEM_READY_END
 	mLogic.transition(TimerEvent::ITEM_READY_END,
@@ -300,9 +300,9 @@ void RunManager::initLogic()
 			{{MXT_CAST(State::STATE_13), 1}},
 			[this](void)
 			{
-				printf("set timer! switch 2\n");
+				MXT_LOG_WARN("RUN: set timer: SWITCH_3");
 				this->mTimeCtrl.deleteTimer(State::STATE_12);
-				auto maxTimeDiff = computeMaxTime(MXT_CONFIG->switchToEnd()) - computeMinTime(MXT_CONFIG->switchToEnd());
+				auto maxTimeDiff = computeMaxTime(mConfig->switchToEnd()) - computeMinTime(mConfig->switchToEnd());
 				this->mTimeCtrl.setTimer(State::STATE_13, TimerEvent::SWITCH_3, maxTimeDiff);
 			});
 	//TIMER_SWITCH_3
@@ -335,12 +335,12 @@ void RunManager::initLogic()
 
 uint32_t RunManager::computeMinTime(uint32_t time)
 {
-	return time * (1 - mConfigData->TOLERANCE);
+	return time * (1 - mConfig->TOLERANCE);
 }
 
 uint32_t RunManager::computeMaxTime(uint32_t time)
 {
-	return time * (1 + mConfigData->TOLERANCE);
+	return time * (1 + mConfig->TOLERANCE);
 }
 
 }}

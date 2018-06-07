@@ -28,7 +28,7 @@ namespace esep { namespace base {
 
 RunManager::RunManager(communication::IRecipient* m, ConfigObject * c)
 	:	mMaster(m)
-	,	mConfigData(c)
+	,	mConfig(c)
 	,	mTimeCtrl([this](TimerEvent e){ this->sendMessageWithData(Location::BASE, Message::Run::TIMER, std::make_shared<data::RunManagerTimer>(e)); })
 	,	mLogic(MXT_P_NR_STATES, Auto::FIRE)
 {
@@ -52,7 +52,7 @@ void RunManager::leave()
 
 void RunManager::handle(Event e)
 {
-//	printf("got halevent to handle: %d\n", e);
+	MXT_LOG_WARN("RUN: got hal event!: ", e);
 	run::HalEvent he;
 
 	switch(e)
@@ -67,7 +67,7 @@ void RunManager::handle(Event e)
 
 		case(Event::HEIGHT_SENSOR):
 			takeMeasurement();
-			break;
+			return;
 
 		case(Event::LB_SWITCH):
 			he = HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_SWITCH) ? run::HalEvent::LB_SWITCH : run::HalEvent::I_LB_SWITCH;
@@ -124,25 +124,21 @@ void RunManager::accept(Packet_ptr p)
 	if(m.is<Message::Run>())
 	{
 		//takes only messages of the type Run
-		Message::Run runM = m.as<Message::Run>();
 
-		switch(MXT_CAST(runM))
+		switch(auto runM = m.as<Message::Run>())
 		{
-		case(MXT_CAST(Message::Run::RESUME)):
-//				printf("got packet: resume!\n");
+		case Message::Run::RESUME:
 				HAL_MOTOR.right();
 				HAL_MOTOR.start();
 				mTimeCtrl.resumeAllTimer();
 				break;
 
-		case(MXT_CAST(Message::Run::SUSPEND)):
-//				printf("got packet: suspend!\n");
+		case Message::Run::SUSPEND:
 				HAL_MOTOR.stop();
 				mTimeCtrl.pauseAllTimer();
 				break;
 
-		case(MXT_CAST(Message::Run::TIMER)):
-//				printf("got packet: timer!\n");
+		case Message::Run::TIMER:
 				for (data::Data_ptr d : *p)
 				{
 					if(d->type() == data::DataPoint::Type::RUN_MANAGER_TIMER)
@@ -161,19 +157,17 @@ void RunManager::accept(Packet_ptr p)
 	}
 	else
 	{
-		MXT_LOG_WARN("Received unexpected packet { Source:", lib::hex<8>(p->source()), ", Target:", lib::hex<8>(p->target()), ", Msg: ", lib::hex<8>(m.as<Message::Run>()), "}");
+		MXT_LOG_WARN("Received unexpected packet: ", p);
 	}
 }
 
 void RunManager::sendMasterMessage(Message::Run msg)
 {
-//	printf("send packet: %d!\n", msg);
 	mMaster->accept(std::make_shared<communication::Packet>(Location::BASE, Location::MASTER, msg));
 }
 
 void RunManager::sendMessageWithData(Location target, Message::Run msg, data::Data_ptr data)
 {
-//	printf("send packet: %d!\n", msg);
 	auto packet = std::make_shared<communication::Packet>(Location::BASE, target, msg);
 	packet->addDataPoint(data);
 	mMaster->accept(packet);
@@ -181,7 +175,6 @@ void RunManager::sendMessageWithData(Location target, Message::Run msg, data::Da
 
 void RunManager::sendItemInfo(data::Data_ptr hm, data::Data_ptr metal)
 {
-//	printf("send packet: %d!\n", Message::Run::ANALYSE);
 	auto packet = std::make_shared<communication::Packet>(Location::BASE, Location::MASTER, Message::Run::ANALYSE);
 	packet->addDataPoint(hm);
 	packet->addDataPoint(metal);
