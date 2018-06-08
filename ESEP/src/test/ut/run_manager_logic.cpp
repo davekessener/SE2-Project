@@ -64,7 +64,7 @@ void RunManagerLogic::setup(void)
 	mConfig->setStartToHs(10);
 	mConfig->setHsToSwitch(10);
 	mConfig->setSwitchToEnd(10);
-	mConfig->setMaxHandOverTime(5);
+	mConfig->setItemInLB(400);
 	mConfig->setHeightSensorMax(10);
 	mConfig->setHeightSensorMin(10);
 	mConfig->setTimeTolerance(0.2);

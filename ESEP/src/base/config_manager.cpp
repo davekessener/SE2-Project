@@ -26,7 +26,7 @@ ConfigManager::ConfigManager(communication::IRecipient *handler, ConfigObject *c
 	, mTimestamp2(0)
 	, mHeightSensorMin(0)
 	, mHeightSensorMax(0)
-	, mMaxHandOverTime(3000)
+	, mItemInLB(0)
 	, mStartToEnd(0)
 	, mStartToEndLong(0)
 	, mStartToEndSlow(0)
@@ -176,6 +176,9 @@ void ConfigManager::handle(hal::HAL::Event event)
 		{
 			actualTime = ELAPSED;
 			mHsToSwitch = (uint32_t) actualTime - mTimestamp2;
+
+			mTimestamp2 = ELAPSED;
+
 			HAL_SWITCH.open();
 
 			mState = State::STATE_9;
@@ -185,6 +188,9 @@ void ConfigManager::handle(hal::HAL::Event event)
 	case State::STATE_9 :
 		if(event == Event::LB_SWITCH && !HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_SWITCH))
 		{
+			actualTime = ELAPSED;
+			mItemInLB = (uint32_t) actualTime - mTimestamp2;
+
 			mTimestamp2 = ELAPSED;
 
 			mState = State::STATE_10;
@@ -212,11 +218,11 @@ void ConfigManager::handle(hal::HAL::Event event)
 				MXT_LOG_INFO("HS to switch is ", mHsToSwitch);
 				MXT_LOG_INFO("switch to end is ", mSwitchToEnd);
 				MXT_LOG_INFO("TimeTolerance is ", mTimeTolerance);
-				MXT_LOG_INFO("MaxHandOverTime is ", mMaxHandOverTime);
+				MXT_LOG_INFO("ItemInLB is ", mItemInLB);
 
 				mConfig->setHeightSensorMin(mHeightSensorMin);
 				mConfig->setHeightSensorMax(mHeightSensorMax);
-				mConfig->setMaxHandOverTime(mMaxHandOverTime);
+				mConfig->setItemInLB(mItemInLB);
 				mConfig->setStartToHs(mStartToHs);
 				mConfig->setHsToSwitch(mHsToSwitch);
 				mConfig->setSwitchToEnd(mSwitchToEnd);

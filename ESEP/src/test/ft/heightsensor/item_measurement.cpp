@@ -41,7 +41,7 @@ void ItemMeasurement::run(void)
 	//Set config params
 //	config.setHeightSensorMax(0b10001111);
 //	config.setHeightSensorMin(0b11100010);
-	config.setMaxHandOverTime(3000);
+	config.setItemInLB(400);
 	config.setHsToSwitch(1);
 	config.setStartToHs(1);
 	config.setSwitchToEnd(1);

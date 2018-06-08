@@ -41,7 +41,7 @@ namespace esep
 				uint64_t mTimestamp2;
 				uint16_t mHeightSensorMin;
 				uint16_t mHeightSensorMax;
-				uint32_t mMaxHandOverTime;
+				uint32_t mItemInLB;
 				uint32_t mStartToEnd;
 				uint32_t mStartToEndLong;
 				uint32_t mStartToEndSlow;
