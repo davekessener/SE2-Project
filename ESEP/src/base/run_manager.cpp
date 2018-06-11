@@ -163,7 +163,6 @@ void RunManager::accept(Packet_ptr p)
 
 		//if its not resume or suspend, proceed this msg to logic
 		default:
-//				printf("got packet for logic : %d!\n", runM);
 				mLogic.process(runM);
 		}
 	}

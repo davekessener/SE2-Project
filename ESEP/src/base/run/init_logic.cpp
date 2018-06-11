@@ -24,6 +24,7 @@ namespace esep { namespace base {
 
 #define MXT_CAST(t)				static_cast<uint8_t>(t)
 #define MXT_SHARE(T, V)			data::Data_ptr(new T(V))
+#define MXT_TOLERANCE_MULT		1.5
 #define MXT_HM					2
 #define MXT_FINISHED			0
 
@@ -54,7 +55,7 @@ void RunManager::initLogic()
 			[this](void)
 			{
 				sendMasterMessage(Message::Run::NEW_ITEM);
-				mTimeCtrl.setTimer(State::IN_LB_START, TimerEvent::START_1, mConfig->itemInLB());
+				mTimeCtrl.setTimer(State::IN_LB_START, TimerEvent::START_1, computeMaxTime(mConfig->itemInLB()));
 			});
 	//LB_START_2
 	mLogic.transition(run::HalEvent::LB_START,
@@ -115,7 +116,7 @@ void RunManager::initLogic()
 			[this](void)
 			{
 				mTimeCtrl.deleteTimer(State::BF_LB_HS);
-				mTimeCtrl.setTimer(State::IN_LB_HS, TimerEvent::HS_1, mConfig->itemInLB());
+				mTimeCtrl.setTimer(State::IN_LB_HS, TimerEvent::HS_1, computeMaxTime(mConfig->itemInLB()));
 			});
 	//LB_HS_E
 	mLogic.transition(run::HalEvent::LB_HS,
@@ -186,7 +187,7 @@ void RunManager::initLogic()
 				sendItemInfo(data::Data_ptr(std::get<MXT_HM>(mHeightMapBuffer.front())), MXT_SHARE(data::MetalSensor, HAL_METAL_SENSOR.isMetal()));
 				// delete the old hightmap
 				mHeightMapBuffer.pop_front();
-				mTimeCtrl.setTimer(State::IN_LB_SWITCH, TimerEvent::SWITCH_1, mConfig->itemInLB());
+				mTimeCtrl.setTimer(State::IN_LB_SWITCH, TimerEvent::SWITCH_1, computeMaxTime(mConfig->itemInLB()));
 			});
 	//LB_SWITCH_E
 	mLogic.transition(run::HalEvent::LB_SWITCH,
@@ -207,6 +208,7 @@ void RunManager::initLogic()
 			[this](void)
 			{
 				HAL_SWITCH.open();
+				sendMasterMessage(Message::Run::KEEP_NEXT);
 			});
 	//TIMER_SWITCH_1
 	mLogic.transition(TimerEvent::SWITCH_1,
@@ -338,7 +340,7 @@ uint32_t RunManager::computeMinTime(uint32_t time)
 
 uint32_t RunManager::computeMaxTime(uint32_t time)
 {
-	return time * (1 + 1.5 * mConfig->tolerance());
+	return time * (1 + MXT_TOLERANCE_MULT * mConfig->tolerance());
 }
 
 }}
