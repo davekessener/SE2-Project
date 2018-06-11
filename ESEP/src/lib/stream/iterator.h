@@ -18,6 +18,7 @@ namespace esep
 			{
 				typedef Iterator<T> Self;
 				typedef std::shared_ptr<Self> Iterator_ptr;
+				typedef T value_type;
 
 				virtual ~Iterator( ) { }
 

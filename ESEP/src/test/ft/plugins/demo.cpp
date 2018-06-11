@@ -1,3 +1,4 @@
+#include <lib/analyse/clustering.h>
 #include "test/ft/plugins/demo.h"
 
 #include "lib/utils.h"
@@ -8,7 +9,6 @@
 
 #include "lib/io/file_writer.h"
 
-#include "lib/analyse/analyser.h"
 #include "lib/analyse/bdscan.h"
 
 #include "data/heightmap_data.h"
@@ -129,10 +129,10 @@ void Demo::run(void)
 	typedef analyse::V<double, 2> vec2;
 	typedef ProcessTree<data::HeightMap *,
 		Source<
-			Tag<Station::NORMALIZED_MAP, analyse::Analyser>,
+			Tag<Station::NORMALIZED_MAP, analyse::Clustering>,
 			Tag<Station::CLUSTER, analyse::BDSCAN<vec2>>>>
 	process_t;
-	typedef lib::Processor<data::HeightMap *, process_t> processor_t;
+//	typedef lib::Processor<data::HeightMap *, process_t> processor_t;
 
 	typedef hal::HAL::Event Event;
 	typedef hal::LightBarriers::LightBarrier LB;
@@ -150,7 +150,6 @@ void Demo::run(void)
 	HAL::instance().clear();
 
 	hal::Physical hal;
-	processor_t p;
 
 	HAL::instance().instantiate(&hal, &config);
 
@@ -207,7 +206,8 @@ void Demo::run(void)
 			{
 				fout.reset();
 
-				process(p.processor(hm.get()).get<Station::CLUSTER>());
+				process((process_t{hm.get()}).get<Station::CLUSTER>());
+//				process(p.processor(hm.get()).get<Station::CLUSTER>());
 
 				HAL_MOTOR.left();
 				HAL_LIGHTS.turnOff(Light::RED);

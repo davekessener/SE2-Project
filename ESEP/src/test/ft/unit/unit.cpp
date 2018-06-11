@@ -33,12 +33,12 @@
 #include "test/ut/test_hal.h"
 #include "test/ut/error_manager_logic.h"
 #include "test/ut/process_tree.h"
-#include "test/ut/processor.h"
 #include "test/ut/overflow_buffer.h"
 #include "test/ut/fun_chain.h"
 #include "test/ut/bdscan.h"
 #include "test/ut/stream.h"
 #include "test/ut/analyser_expand.h"
+#include "test/ut/plugins.h"
 #include "system.h"
 
 namespace esep { namespace test { namespace functional {
@@ -71,12 +71,12 @@ bool runUnitTests(bool verbose)
 //		.addTest<ut::RunManagerTimeCtrl>()
 //		.addTest<ut::RunManagerLogic>()
 		.addTest<ut::ProcessTree>()
-		.addTest<ut::Processor>()
 		.addTest<ut::OverflowBuffer>()
 		.addTest<ut::FunChain>()
 		.addTest<ut::BDSCAN>()
 		.addTest<ut::Stream>()
 		.addTest<ut::AnalyserExpand>()
+		.addTest<ut::Plugins>()
 		.run();
 
 	uint w = 0;

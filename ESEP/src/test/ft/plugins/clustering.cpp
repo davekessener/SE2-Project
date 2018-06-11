@@ -1,9 +1,9 @@
+#include <lib/analyse/clustering.h>
 #include "test/ft/plugins/analyser.h"
 
 #include "lib/processor.h"
 #include "lib/process_tree.h"
 
-#include "lib/analyse/analyser.h"
 #include "lib/analyse/bdscan.h"
 
 #include "hal.h"
@@ -43,12 +43,12 @@ void Analyser::run(void)
 	typedef analyse::V<double, 2> vec2;
 	typedef ProcessTree<data::HeightMap *,
 		Source<
-			Tag<Station::NORMALIZED_MAP, analyse::Analyser>,
+			Tag<Station::NORMALIZED_MAP, analyse::Clustering>,
 			Tag<Station::CLUSTER, analyse::BDSCAN<vec2>>>>
 	process_t;
-	typedef lib::Processor<data::HeightMap *, process_t> processor_t;
+//	typedef lib::Processor<data::HeightMap *, process_t> processor_t;
 
-	processor_t p;
+//	processor_t p;
 	data::HeightMap hm;
 
 	for(uint i = 0 ; i < N_DATA() ; ++i)
@@ -58,7 +58,8 @@ void Analyser::run(void)
 
 	HAL_CONSOLE.println("Processing ", N_DATA(), " datapoints.");
 
-	auto c = p.processor(&hm).get<Station::CLUSTER>();
+	auto c = (process_t{&hm}).get<Station::CLUSTER>();
+//	auto c = p.processor(&hm).get<Station::CLUSTER>();
 
 	HAL_CONSOLE.println("Found ", c.size(), " cluster.");
 

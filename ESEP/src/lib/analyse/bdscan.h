@@ -3,16 +3,12 @@
 
 #include <vector>
 
+#include "lib/analyse/algorithm.h"
+
 namespace esep
 {
 	namespace analyse
 	{
-		namespace impl
-		{
-			template<bool IsBasic, typename T> struct ValTraits { typedef typename T::value_type value_type; };
-			template<typename T> struct ValTraits<true, T> { typedef T value_type; };
-		}
-
 		template
 		<
 			typename T,

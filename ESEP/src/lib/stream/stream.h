@@ -28,6 +28,8 @@ namespace esep
 				public:
 					Stream( ) : mBuf(nullptr) { }
 
+					explicit Stream(Iterator_ptr<T> i) : mI(i), mBuf(nullptr) { }
+
 					template<typename I>
 						Stream(I&& i1, I&& i2) : mI(new ContainerIterator<T, tml::DoDecay<I>>(std::forward<I>(i1), std::forward<I>(i2))), mBuf(nullptr) { }
 
@@ -38,6 +40,12 @@ namespace esep
 
 					template<size_t N>
 						explicit Stream(const T (&a)[N]) : mI(new ContainerIterator<T, T *>(a, a + N)), mBuf(nullptr) { }
+
+					template<typename I, typename ... A>
+					static Stream<T> from(A&& ... a)
+					{
+						return Stream<T>(Iterator_ptr<T>(new I(std::forward<A>(a)...)));
+					}
 
 					Stream(const Self& s) : mBuf(nullptr)
 					{
@@ -140,8 +148,6 @@ namespace esep
 					void push_back(const T& o)  { emplace_back(T(o));  }
 
 				private:
-					Stream(Iterator_ptr<T> i) : mI(i), mBuf(nullptr) { }
-
 					buffer_t *getBuffer( )
 					{
 						if(!mBuf)
@@ -155,9 +161,6 @@ namespace esep
 				private:
 					Iterator_ptr<T> mI;
 					buffer_t *mBuf;
-
-					template<typename TT>
-					friend class Stream;
 			};
 		}
 	}
