@@ -17,6 +17,7 @@ Tester::Tester(void)
 	, mHandler(&mConfig)
 	, mRunning(false)
 	, mKeep(false)
+	, mItemCount(0)
 {
 	mHAL.reset(new hal::Physical);
 
@@ -38,7 +39,6 @@ void Tester::run(void)
 	typedef hal::Buttons::Button Button;
 
 	mHandler.setMaster(this);
-
 	mRunning = true;
 
 	mHAL->setCallback([this](Event e) {
@@ -122,24 +122,37 @@ void Tester::accept(Packet_ptr p)
 		{
 			case Message::Run::NEW_ITEM:
 				send(Message::Run::RESUME);
+				mItemCount++;
 				break;
 
 			case Message::Run::REACHED_END:
 			case Message::Run::ITEM_REMOVED:
 				send(Message::Run::SUSPEND);
+				mItemCount--;
 				HAL_CONSOLE.println("Message: \t", (p->message() == Message::Run::REACHED_END ? "REACHED_END" : "ITEM_REMOVED"));
 				break;
 
 			case Message::Run::ITEM_APPEARED:
+				send(Message::Run::SUSPEND);
+				HAL_CONSOLE.println("Error: \tITEM_APPEARED", " in ",static_cast<data::Location&>(**p->begin()).location());
+				break;
+
 			case Message::Run::ITEM_DISAPPEARED:
 				send(Message::Run::SUSPEND);
 				HAL_CONSOLE.println("Error: \tITEM_", (p->message() == Message::Run::ITEM_APPEARED ? "APPEARED" : "DISAPPEARED"), " in ",
 						static_cast<data::Location&>(**p->begin()).location());
+				mItemCount--;
 				break;
 
 			case Message::Run::RAMP_FULL:
 				send(Message::Run::SUSPEND);
 				HAL_CONSOLE.println("Error: \tRAMP_FULL");
+				break;
+
+			case Message::Run::ITEM_STUCK:
+				send(Message::Run::SUSPEND);
+				mItemCount--;
+				HAL_CONSOLE.println("Error: \tITEM_STUCK in ", static_cast<data::Location&>(**p->begin()).location());
 				break;
 
 			case Message::Run::ANALYSE:
@@ -151,11 +164,14 @@ void Tester::accept(Packet_ptr p)
 
 			case Message::Run::END_FREE:
 				HAL_CONSOLE.println("Message: \tEND_FREE");
-				send(Message::Run::RESUME);
+				if(mItemCount > 0)
+					send(Message::Run::RESUME);
 				break;
 
 			default:
+				HAL_CONSOLE.println("Items on module: ", mItemCount);
 				break;
+
 		}
 	}
 }

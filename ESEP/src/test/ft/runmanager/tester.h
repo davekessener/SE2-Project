@@ -44,6 +44,7 @@ namespace esep
 						base::ConfigObject mConfig;
 						base::Handler mHandler;
 						std::atomic<bool> mRunning, mKeep;
+						uint32_t mItemCount;
 				};
 			}
 		}

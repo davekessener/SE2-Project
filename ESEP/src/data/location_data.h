@@ -13,10 +13,10 @@ namespace esep
 				enum class Type : byte_t
 				{
 					LB_START,
-					LB_END,
 					LB_HEIGHTSENSOR,
+					LB_SWITCH,
+					LB_END,
 					LB_RAMP,
-					LB_SWITCH
 				};
 
 				Location(Type v) : DataPoint(DataPoint::Type::LOCATION), mLocation(v) { }

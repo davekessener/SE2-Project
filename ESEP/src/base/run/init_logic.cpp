@@ -24,7 +24,7 @@ namespace esep { namespace base {
 
 #define MXT_CAST(t)				static_cast<uint8_t>(t)
 #define MXT_SHARE(T, V)			data::Data_ptr(new T(V))
-#define MXT_TOLERANCE_MULT		1.5
+#define MXT_TOLERANCE_MULT		4
 #define MXT_HM					2
 #define MXT_FINISHED			0
 
@@ -187,6 +187,7 @@ void RunManager::initLogic()
 				sendItemInfo(data::Data_ptr(std::get<MXT_HM>(mHeightMapBuffer.front())), MXT_SHARE(data::MetalSensor, HAL_METAL_SENSOR.isMetal()));
 				// delete the old hightmap
 				mHeightMapBuffer.pop_front();
+				MXT_LOG_WARN("Set timer for itemInLB: ", computeMaxTime(mConfig->itemInLB()));
 				mTimeCtrl.setTimer(State::IN_LB_SWITCH, TimerEvent::SWITCH_1, computeMaxTime(mConfig->itemInLB()));
 			});
 	//LB_SWITCH_E

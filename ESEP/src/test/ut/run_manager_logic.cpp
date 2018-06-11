@@ -98,7 +98,7 @@ void RunManagerLogic::sendPacket(msg_t msg)
 
 uint32_t RunManagerLogic::maxTime(uint32_t t)
 {
-	return t * (1 + 1.5  * mConfig->tolerance());
+	return t * (1 + 2  * mConfig->tolerance());
 }
 
 void RunManagerLogic::blockLB(LightBarrier lb)
