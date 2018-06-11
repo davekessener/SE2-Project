@@ -104,8 +104,10 @@ void RunManager::takeMeasurement()
 			heightMap_ptr hm(new data::HeightMap);
 			mHeightMapBuffer.emplace_back(std::make_tuple(false, hvalStamp, hm));
 			std::get<MXT_HM>(mHeightMapBuffer.back())->addHeightValue(0, hval);
-
 			MXT_LOG_INFO("Starting height map record.");
+
+			// new item is in HeightSensor! let master know
+			sendMasterMessage(Message::Run::IN_HEIGHTSENSOR);
 		}
 	}
 	else
@@ -153,16 +155,8 @@ void RunManager::accept(Packet_ptr p)
 				{
 					if(d->type() == data::DataPoint::Type::RUN_MANAGER_TIMER)
 					{
-						switch(auto te = static_cast<data::RunManagerTimer&>(*d).event())
-						{
-						case data::RunManagerTimer::TimerEvent::CLOSE_SWITCH:
-
-							break;
-
-						default:
-							mLogic.process(te);
-							break;
-						}
+						auto te = static_cast<data::RunManagerTimer&>(*d).event();
+						mLogic.process(te);
 					}
 				}
 				break;

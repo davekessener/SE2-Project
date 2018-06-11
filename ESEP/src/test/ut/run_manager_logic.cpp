@@ -206,6 +206,10 @@ void RunManagerLogic::define(void)
 		hal().setField(Field::ANALOG, 0);
 		hal().trigger(Event::HEIGHT_SENSOR);
 
+		MXT_SLEEP(1);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::IN_HEIGHTSENSOR);
+
 		freeLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
 
@@ -269,6 +273,10 @@ void RunManagerLogic::define(void)
 		hal().setField(Field::ANALOG, 0);
 		hal().trigger(Event::HEIGHT_SENSOR);
 
+		MXT_SLEEP(1);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::IN_HEIGHTSENSOR);
+
 		freeLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
 
@@ -319,6 +327,10 @@ void RunManagerLogic::define(void)
 		hal().trigger(Event::HEIGHT_SENSOR);
 		hal().setField(Field::ANALOG, 0);
 		hal().trigger(Event::HEIGHT_SENSOR);
+
+		MXT_SLEEP(1);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::IN_HEIGHTSENSOR);
 
 		freeLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
@@ -487,6 +499,10 @@ void RunManagerLogic::define(void)
 		hal().setField(Field::ANALOG, 0);
 		hal().trigger(Event::HEIGHT_SENSOR);
 
+		MXT_SLEEP(1);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::IN_HEIGHTSENSOR);
+
 		freeLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
 
@@ -535,6 +551,10 @@ void RunManagerLogic::define(void)
 		hal().trigger(Event::HEIGHT_SENSOR);
 		hal().setField(Field::ANALOG, 0);
 		hal().trigger(Event::HEIGHT_SENSOR);
+
+		MXT_SLEEP(1);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::IN_HEIGHTSENSOR);
 
 		freeLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
