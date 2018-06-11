@@ -18,6 +18,7 @@ namespace esep
 			class Plugins : public unit::TestSuite
 			{
 				typedef master::Plugin::Type PluginType;
+				typedef std::unique_ptr<master::Plugin> Plugin_ptr;
 				typedef master::plugin::Hausdorff::processor_t Processor;
 
 				public:
@@ -30,7 +31,7 @@ namespace esep
 
 				private:
 					std::unique_ptr<Processor> mProcessor;
-					std::vector<std::unique_ptr<master::Plugin>> mPlugins;
+					std::vector<Plugin_ptr> mPlugins;
 			};
 		}
 	}

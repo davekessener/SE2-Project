@@ -57,7 +57,7 @@ namespace
 				case 3:
 				case 5:
 				case 6:
-					return (code & (1 << ((s - 1) / 2))) ? MXT_HIGH : MXT_LOW;
+					return (code & (1 << (2 - (s - 1) / 2))) ? MXT_HIGH : MXT_LOW;
 
 				default:
 					throw 0; // TODO

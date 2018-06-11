@@ -37,7 +37,7 @@ namespace esep
 			using Stream = lib::stream::Stream<TT>;
 
 			static constexpr primitive_t NORMALIZE = static_cast<height_t>(~0);
-			static constexpr primitive_t LOWPASS_DEFAULT = 0.75;
+			static constexpr primitive_t LOWPASS_DEFAULT = 0.95;
 			static constexpr size_t SEGMENTS = 100;
 			static constexpr size_t N_LOWPASS = 2;
 			static constexpr size_t M_LOWPASS = 3;
@@ -113,7 +113,12 @@ namespace esep
 						s = s.map(Filter{});
 					}
 
-					s.collect([&](const out_type& v) { r.push_back(v); });
+					double y_max = (decltype(s){s})
+						.map([](const out_type& v) { return v.y(); })
+						.select([](double a, double b) { return b > a; });
+
+					s.map([&y_max](const out_type& v) { return out_type(v.x(), v.y() / y_max); })
+					 .collect([&](const out_type& v) { r.push_back(v); });
 				}
 
 		};

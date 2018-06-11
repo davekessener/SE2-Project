@@ -26,6 +26,8 @@ namespace esep
 					return *mProcessor.second;
 				}
 
+				void clear( ) { mProcessor.second.reset(); }
+
 			private:
 				container_type mProcessor;
 		};

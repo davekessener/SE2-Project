@@ -16,6 +16,15 @@
 #include "hal.h"
 #include "hal/physical.h"
 
+#include "master/plugin/hausdorff_item.h"
+#include "master/plugin/sortable.h"
+
+#include "lib/utils/storage.h"
+#include "lib/logger.h"
+
+#include "lib/analyse/hausdorff.h"
+#include "lib/analyse/profiles.h"
+
 namespace esep { namespace test { namespace functional { namespace plugins {
 
 namespace
@@ -29,88 +38,63 @@ namespace
 		READY
 	};
 
-	enum class Station
+	typedef analyse::Profiles::Item ItemProfile;
+	typedef master::Plugin::Type PluginType;
+
+	struct SamplePlugin : public master::plugin::Hausdorff
 	{
-		NORMALIZED_MAP,
-		CLUSTER
+		typedef master::plugin::Hausdorff::processor_t processor_t;
+
+		SamplePlugin(PluginType t, processor_t *p, ItemProfile i) : Plugin(t), Hausdorff(p, t, i) { }
+
+		Action decide(const history_t&) override { return Action::KEEP; }
 	};
 
-	template<Station S, typename T>
-	using Tag = lib::data::Tagger<Station>::Tag<S, T>;
-
-	template<typename S, typename ... T>
-	using Source = lib::data::Source<S, T...>;
-
-	template<typename T1, typename T2>
-	using ProcessTree = lib::data::ProcessTree<Station, T1, T2>;
-
-	template<typename C>
-	void process(C&& c)
+	std::string ITEM_NAME(PluginType t)
 	{
-		std::vector<double> t;
-
-		HAL_CONSOLE.println("Found ", c.size(), " cluster.");
-
-		for(uint i = 0 ; i < (c.size() + 1) / 2 ; ++i)
+		switch(t)
 		{
-			double y = (c[i][1] + c[c.size() - i - 1][1]) / 2;
+		case PluginType::FLAT:
+			return "FLAT";
 
-			if(y < 0.875)
-			{
-				t.push_back(y);
-			}
+		case PluginType::HOLLOW:
+			return "HOLLOW";
+
+		case PluginType::HOLLOW_METAL:
+			return "HOLLOW (M)";
+
+		case PluginType::CODED_000:
+			return "CODED 000";
+
+		case PluginType::CODED_001:
+			return "CODED 001";
+
+		case PluginType::CODED_010:
+			return "CODED 010";
+
+		case PluginType::CODED_011:
+			return "CODED 011";
+
+		case PluginType::CODED_100:
+			return "CODED 100";
+
+		case PluginType::CODED_101:
+			return "CODED 101";
+
+		case PluginType::CODED_110:
+			return "CODED 110";
+
+		case PluginType::CODED_111:
+			return "CODED 111";
+
+		case PluginType::UNKNOWN:
+			return "UNKOWN";
+
+		case PluginType::DEFAULT:
+			return "DEFAULT";
 		}
 
-		double min = 1.0, max = 0.0;
-		for(double y : t) { if(y < min) min = y; if(y > max) max = y; }
-		for(double& y : t) { y = (y - min) / (max - min); }
-
-		std::vector<int> r;
-		for(uint i = 1 ; i < t.size() ; ++i) r.push_back(1.5 * (t[i] - t[i-1]));
-
-		if(r.size() == 2)
-		{
-			switch((r[0] + 1) * 3 + (r[1] + 1))
-			{
-			case 0:
-				HAL_CONSOLE.println("Invalid: ", r[0], " ", r[1], "!");
-				break;
-			case 1:
-				HAL_CONSOLE.println("100");
-				break;
-			case 2:
-				HAL_CONSOLE.println("101");
-				break;
-			case 3:
-				HAL_CONSOLE.println("110");
-				break;
-			case 4:
-				HAL_CONSOLE.println((min + max) / 2 >= 0.66 ? "000" : "111");
-				break;
-			case 5:
-				HAL_CONSOLE.println("001");
-				break;
-			case 6:
-				HAL_CONSOLE.println("010");
-				break;
-			case 7:
-				HAL_CONSOLE.println("011");
-				break;
-			case 8:
-				HAL_CONSOLE.println("Invalid: ", r[0], " ", r[1], "!");
-				break;
-			default:
-				HAL_CONSOLE.println("Invalid: ", r[0], " ", r[1], "!");
-				break;
-			}
-		}
-		else
-		{
-			HAL_CONSOLE.println("Results inconclusive: ");
-			for(auto e : r) HAL_CONSOLE.println(e);
-		}
-
-		HAL_CONSOLE.println("----------");
+		throw t;
 	}
 }
 
@@ -126,18 +110,19 @@ Demo::~Demo(void)
 
 void Demo::run(void)
 {
-	typedef analyse::V<double, 2> vec2;
-	typedef ProcessTree<data::HeightMap *,
-		Source<
-			Tag<Station::NORMALIZED_MAP, analyse::Clustering>,
-			Tag<Station::CLUSTER, analyse::BDSCAN<vec2>>>>
-	process_t;
-//	typedef lib::Processor<data::HeightMap *, process_t> processor_t;
-
 	typedef hal::HAL::Event Event;
 	typedef hal::LightBarriers::LightBarrier LB;
 	typedef hal::Lights::Light Light;
 	typedef hal::Buttons::Button Button;
+
+	master::plugin::Hausdorff::processor_t processor;
+	std::vector<std::unique_ptr<master::Plugin>> plugins;
+
+	plugins.emplace_back(new SamplePlugin(PluginType::FLAT, &processor, ItemProfile::FLAT));
+	plugins.emplace_back(new SamplePlugin(PluginType::HOLLOW, &processor, ItemProfile::HOLLOW));
+	plugins.emplace_back(new SamplePlugin(PluginType::CODED_101, &processor, ItemProfile::CODED_101));
+	plugins.emplace_back(new SamplePlugin(PluginType::CODED_010, &processor, ItemProfile::CODED_010));
+	plugins.emplace_back(new SamplePlugin(PluginType::CODED_110, &processor, ItemProfile::CODED_110));
 
 	base::ConfigObject config;
 
@@ -155,6 +140,27 @@ void Demo::run(void)
 
 	std::unique_ptr<data::HeightMap> hm;
 	lib::Writer_ptr fout;
+
+	auto do_analysis = [&](data::Data_ptr p) {
+		std::vector<data::Data_ptr> d;
+
+		d.push_back(p);
+		float m = 0.0;
+		PluginType t;
+
+		for(auto& p : plugins)
+		{
+			float r = p->match(d);
+
+			if(r > m)
+			{
+				m = r;
+				t = p->type();
+			}
+		}
+
+		HAL_CONSOLE.println("Found a ", ITEM_NAME(t), " item! (~ ", (int)(m * 100), "%)");
+	};
 
 	State state = State::IDLE;
 	std::atomic<bool> running(true);
@@ -206,8 +212,9 @@ void Demo::run(void)
 			{
 				fout.reset();
 
-				process((process_t{hm.get()}).get<Station::CLUSTER>());
-//				process(p.processor(hm.get()).get<Station::CLUSTER>());
+				do_analysis(data::Data_ptr(hm.release()));
+
+				processor.clear();
 
 				HAL_MOTOR.left();
 				HAL_LIGHTS.turnOff(Light::RED);

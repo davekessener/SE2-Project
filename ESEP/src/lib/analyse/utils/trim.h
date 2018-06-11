@@ -49,8 +49,8 @@ namespace esep
 
 				auto i = i2;
 
-				while(i1 != i2) while(i1->second < max) ++i1;
-				while(i1 != i2) while((--i)->second < max) i2 = i;
+				while(i1 != i2 && i1->second < max) ++i1;
+				while(i1 != i2 && (--i)->second < max) i2 = i;
 			}
 		}
 	}

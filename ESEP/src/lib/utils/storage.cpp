@@ -28,7 +28,7 @@ namespace esep { namespace lib { namespace utils { namespace storage {
 
 namespace
 {
-	data::HeightMap *generate(const uint16_t *raw, size_t n)
+	data::Data_ptr generate(const uint16_t *raw, size_t n)
 	{
 		std::unique_ptr<data::HeightMap> hm(new data::HeightMap);
 
@@ -40,7 +40,7 @@ namespace
 			hm->addHeightValue(t, v);
 		}
 
-		return hm.release();
+		return data::Data_ptr(hm.release());
 	}
 }
 
