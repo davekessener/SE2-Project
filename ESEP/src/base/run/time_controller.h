@@ -28,7 +28,7 @@ namespace esep
 		{
 			class TimeCtrl
 			{
-				static constexpr size_t N_STATES = 15;
+				static constexpr size_t N_STATES = 16;
 				typedef data::RunManagerTimer::TimerEvent TimerEvent;
 				typedef std::function<void(TimerEvent)> callback_fn;
 				typedef std::array<std::deque<timer::Manager>, N_STATES> timerArray_t;

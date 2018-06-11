@@ -34,7 +34,7 @@ void RunManagerTimeCtrl::define()
 
 	UNIT_TEST("register and receive one callback")
 	{
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 10);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 10);
 		ASSERT_EQUALS(mReceiveQ.size(), 0u);
 
 		MXT_SLEEP(8);
@@ -47,10 +47,10 @@ void RunManagerTimeCtrl::define()
 
 	UNIT_TEST("register many timer on different states")
 	{
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 5);
-		mTimeCtrl->setTimer(State::STATE_2, TimerEvent::START_1, 10);
-		mTimeCtrl->setTimer(State::STATE_3, TimerEvent::HS_1, 15);
-		mTimeCtrl->setTimer(State::STATE_4, TimerEvent::SWITCH_1, 20);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 5);
+		mTimeCtrl->setTimer(State::IN_LB_START, TimerEvent::START_1, 10);
+		mTimeCtrl->setTimer(State::BW_START_HS, TimerEvent::HS_1, 15);
+		mTimeCtrl->setTimer(State::BF_LB_HS, TimerEvent::SWITCH_1, 20);
 		ASSERT_EQUALS(mReceiveQ.size(), 0u);
 
 		MXT_SLEEP(4);
@@ -87,10 +87,10 @@ void RunManagerTimeCtrl::define()
 
 	UNIT_TEST("register many timer on same state")
 	{
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 5);
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::START_1, 10);
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::HS_1, 15);
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::SWITCH_1, 20);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 5);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::START_1, 10);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::HS_1, 15);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::SWITCH_1, 20);
 		ASSERT_EQUALS(mReceiveQ.size(), 0u);
 
 		MXT_SLEEP(4);
@@ -127,15 +127,15 @@ void RunManagerTimeCtrl::define()
 
 	UNIT_TEST("register many timer on same time")
 	{
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 10);
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 10);
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 10);
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 10);
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 10);
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 10);
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 10);
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 10);
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 10);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 10);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 10);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 10);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 10);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 10);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 10);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 10);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 10);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 10);
 		ASSERT_EQUALS(mReceiveQ.size(), 0u);
 
 		MXT_SLEEP(5);
@@ -146,16 +146,16 @@ void RunManagerTimeCtrl::define()
 
 	UNIT_TEST("pause and resume timer")
 	{
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 10);
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 10);
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 10);
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 10);
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 10);
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 15);
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 15);
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 15);
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 15);
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 15);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 10);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 10);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 10);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 10);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 10);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 15);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 15);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 15);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 15);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 15);
 		ASSERT_EQUALS(mReceiveQ.size(), 0u);
 
 		MXT_SLEEP(5);
@@ -175,12 +175,12 @@ void RunManagerTimeCtrl::define()
 
 	UNIT_TEST("delete timer")
 	{
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 10);
-		mTimeCtrl->setTimer(State::STATE_2, TimerEvent::HS_1, 10);
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::SWITCH_1, 20);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 10);
+		mTimeCtrl->setTimer(State::IN_LB_START, TimerEvent::HS_1, 10);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::SWITCH_1, 20);
 		ASSERT_EQUALS(mReceiveQ.size(), 0u);
 
-		mTimeCtrl->deleteTimer(State::STATE_1);
+		mTimeCtrl->deleteTimer(State::BF_LB_START);
 		MXT_SLEEP(15);
 		ASSERT_EQUALS(mReceiveQ.size(), 1u);
 		ASSERT_EQUALS(mReceiveQ.front(), TimerEvent::HS_1);
@@ -194,20 +194,20 @@ void RunManagerTimeCtrl::define()
 
 	UNIT_TEST("delete timer")
 	{
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::EXPECT_NEW, 10);
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::HS_1, 10);
-		mTimeCtrl->setTimer(State::STATE_1, TimerEvent::SWITCH_1, 20);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 10);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::HS_1, 10);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::SWITCH_1, 20);
 		ASSERT_EQUALS(mReceiveQ.size(), 0u);
 
-		mTimeCtrl->deleteTimer(State::STATE_1);
-		mTimeCtrl->deleteTimer(State::STATE_1);
-		mTimeCtrl->deleteTimer(State::STATE_1);
+		mTimeCtrl->deleteTimer(State::BF_LB_START);
+		mTimeCtrl->deleteTimer(State::BF_LB_START);
+		mTimeCtrl->deleteTimer(State::BF_LB_START);
 
 	};
 
 	UNIT_TEST("delete timer, negative test")
 	{
-		ASSERT_FAILURE(mTimeCtrl->deleteTimer(State::STATE_1), TimeCtrl::TimerAccessException);
+		ASSERT_FAILURE(mTimeCtrl->deleteTimer(State::BF_LB_START), TimeCtrl::TimerAccessException);
 	};
 }
 

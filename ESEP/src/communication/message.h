@@ -60,6 +60,7 @@ namespace esep
 				EXPECT_NEW,
 				ITEM_APPEARED,
 				ITEM_DISAPPEARED,
+				ITEM_STUCK,
 				TIMER,
 				ITEM_REMOVED
 			};

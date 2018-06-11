@@ -19,9 +19,8 @@
 
 namespace esep { namespace base {
 
-#define MXT_P_NR_STATES			14
+#define MXT_P_NR_STATES			16
 #define MXT_CAST(t)				static_cast<uint8_t>(t)
-#define MXT_ITEM_DUR			500
 #define MXT_FINISHED			0
 #define MXT_FIRSTTIME			1
 #define MXT_HM					2
@@ -42,12 +41,14 @@ RunManager::~RunManager()
 
 void RunManager::enter()
 {
+	HAL_LIGHTS.turnOn(Light::GREEN);
 	mTimeCtrl.resumeAllTimer();
 }
 
 void RunManager::leave()
 {
 	mTimeCtrl.pauseAllTimer();
+	HAL_LIGHTS.turnOff(Light::GREEN);
 }
 
 void RunManager::handle(Event e)
@@ -155,7 +156,7 @@ void RunManager::accept(Packet_ptr p)
 						switch(auto te = static_cast<data::RunManagerTimer&>(*d).event())
 						{
 						case data::RunManagerTimer::TimerEvent::CLOSE_SWITCH:
-							HAL_SWITCH.close();
+
 							break;
 
 						default:
