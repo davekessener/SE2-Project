@@ -4,6 +4,7 @@
 
 #include "base/config_manager.h"
 #include "hal.h"
+#include "lib/utils.h"
 
 #include "hal/height_sensor.h"
 #include "hal/light_barriers.h"
@@ -80,9 +81,12 @@ void ConfigManager::handle(hal::HAL::Event event)
 		if(event == Event::LB_START && HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_START))
 		{
 			HAL_LIGHTS.turnOn(Light::YELLOW);
-			HAL_MOTOR.right();
-			HAL_MOTOR.start();
+			mTimer = lib::Timer::instance().registerAsync([this](void) {
+				HAL_MOTOR.right();
+				HAL_MOTOR.start();
+			}, T_PERIOD);
 
+			//HAL_MOTOR.start();
 			mHandler->accept(std::make_shared<Packet>(Location::BASE, Location::MASTER, Message::Config::START));
 
 			mState = State::STATE_1;

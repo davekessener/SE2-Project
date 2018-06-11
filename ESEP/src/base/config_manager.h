@@ -4,7 +4,7 @@
 #include "base/IManager.h"
 #include "base/config_object.h"
 
-#include "hal/hal.h"
+#include "lib/timer.h"
 
 namespace esep
 {
@@ -48,6 +48,7 @@ namespace esep
 				uint32_t mStartToHs;
 				uint32_t mHsToSwitch;
 				uint32_t mSwitchToEnd;
+				timer::Manager mTimer;
 				float mTimeTolerance;
 		};
 }
