@@ -39,7 +39,7 @@ namespace esep
 	}
 }
 
-std::ostream& operator<<(std::ostream& os, const esep::data::Data_ptr& p)
+inline std::ostream& operator<<(std::ostream& os, const esep::data::Data_ptr& p)
 {
 	return os << p->to_s();
 }

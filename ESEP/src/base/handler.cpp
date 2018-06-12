@@ -82,7 +82,7 @@ Handler::Handler(ConfigObject *co)
 			}
 			catch(const std::exception& e)
 			{
-				MXT_LOG_WARN("Caught an exception from manager: ", e.what());
+				MXT_LOG_WARN(e.what());
 			}
 
 			mCurrentManager->leave();
@@ -113,7 +113,7 @@ void Handler::accept(Packet_ptr p)
 		MXT_THROW_EX(UndefinedMasterException);
 	}
 
-	MXT_LOG("Received packet {", (int)p->source(), " -> ", (int)p->target(), ", msg: ", lib::hex<16>(p->message()), "}");
+	MXT_LOG("Received packet ", p);
 
 	if(p->target() == Location::MASTER)
 	{

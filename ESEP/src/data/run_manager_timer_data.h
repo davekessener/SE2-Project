@@ -32,6 +32,8 @@ namespace esep
 				RunManagerTimer(TimerEvent v) : DataPoint(DataPoint::Type::RUN_MANAGER_TIMER), mEvent(v) { }
 				TimerEvent event( ) const { return mEvent; }
 
+				std::string to_s( ) const override { return lib::stringify("T", lib::hex<sizeof(mEvent) * 8>(mEvent)); }
+
 				static Data_ptr deserialize(lib::ByteStream&);
 
 			protected:

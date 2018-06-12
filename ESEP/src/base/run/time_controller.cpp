@@ -44,7 +44,7 @@ void TimeCtrl::resumeAllTimerDelayed(uint delay)
 
 void TimeCtrl::setTimer(State state, TimerEvent e, uint r, uint p)
 {
-	uint8_t s = static_cast<uint8_t>(state);
+	uint s = static_cast<uint8_t>(state);
 
 	if(s < N_STATES)
 	{
@@ -70,7 +70,7 @@ void TimeCtrl::setTimer(State state, TimerEvent e, uint r, uint p)
 
 void TimeCtrl::deleteTimer(State state)
 {
-	uint8_t s = static_cast<uint8_t>(state);
+	uint s = static_cast<uint8_t>(state);
 
 	if(!mTimer[s].empty() && s < N_STATES)
 	{
