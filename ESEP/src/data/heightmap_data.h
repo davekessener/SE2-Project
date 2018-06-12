@@ -23,6 +23,8 @@ namespace esep
 				iterator begin( ) const { return mHeightValues.begin(); }
 				iterator end( ) const { return mHeightValues.end(); }
 
+				std::string to_s( ) const override { return lib::stringify("HM [", mHeightValues.size(), "]"); }
+
 				static Data_ptr deserialize(lib::ByteStream&);
 
 			protected:

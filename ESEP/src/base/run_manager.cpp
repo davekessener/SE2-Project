@@ -42,7 +42,7 @@ RunManager::~RunManager()
 void RunManager::enter()
 {
 	HAL_LIGHTS.turnOn(Light::GREEN);
-	mTimeCtrl.resumeAllTimer();
+	mTimeCtrl.resumeAllTimerDelayed(200);
 }
 
 void RunManager::leave()
@@ -142,7 +142,7 @@ void RunManager::accept(Packet_ptr p)
 		case Message::Run::RESUME:
 				HAL_MOTOR.right();
 				HAL_MOTOR.start();
-				mTimeCtrl.resumeAllTimer();
+				mTimeCtrl.resumeAllTimerDelayed(200);
 				break;
 
 		case Message::Run::SUSPEND:

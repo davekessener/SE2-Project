@@ -42,10 +42,13 @@ namespace esep
 					void deleteTimer(State);
 					void pauseAllTimer();
 					void resumeAllTimer();
+					void resumeAllTimerDelayed(uint);
 
 				private:
 					timerArray_t mTimer;
 					callback_fn mCallback;
+					std::atomic<bool> mPaused;
+					timer::Manager mDelayTimer;
 			};
 		}
 	}

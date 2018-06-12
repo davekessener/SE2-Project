@@ -20,7 +20,7 @@ ConfigObject::ConfigObject(const std::string& path, float ft, uint32_t rt, uint3
 	, mMaxHandOverTime(ho)
 	, mRampTime(rt)
 	, mItemInLB(0)
-	, mTimeTolerance(0)
+	, mTimeTolerance(-1)
 	, mFlatTolerance(ft)
 {
 	std::ifstream confFile;
@@ -95,7 +95,7 @@ bool ConfigObject::isValid()
 			&& mStartToHs > 0
 			&& mHsToSwitch > 0
 			&& mSwitchToEnd > 0
-			&& mTimeTolerance > 0
+			&& mTimeTolerance >= 0
 			&& mItemInLB > 0));
 }
 
@@ -155,7 +155,7 @@ void ConfigObject::setSwitchToEnd(uint32_t val)
 
 void ConfigObject::setTimeTolerance(float val)
 {
-	if(val > 1 || val <= 0)
+	if(val < 0 || val > 1)
 	{
 		MXT_THROW_EX(ConfigObject::InvalidDataException);
 	}

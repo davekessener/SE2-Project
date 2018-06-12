@@ -171,7 +171,10 @@ void Handler::doSwitch(IManager *m)
 
 void Handler::handle(Event e)
 {
-	MXT_LOG_INFO("Received HAL event ", lib::hex<32>(e));
+	if(e != hal::HAL::Event::HEIGHT_SENSOR)
+	{
+		MXT_LOG_INFO("Received HAL event ", lib::hex<32>(e));
+	}
 
 	mConnection.sendPulse(static_cast<int8_t>(MessageType::HAL_EVENT), static_cast<uint32_t>(e));
 }
@@ -181,6 +184,10 @@ void Handler::handleHAL(Event e)
 	if(e == Event::BTN_ESTOP && HAL_BUTTONS.isPressed(Button::ESTOP))
 	{
 		mMaster->accept(std::make_shared<Packet>(Location::BASE, Location::MASTER, Message::Error::ESTOP));
+	}
+	else if(e == Event::BTN_STOP && HAL_BUTTONS.isPressed(Button::STOP))
+	{
+		mMaster->accept(std::make_shared<Packet>(Location::BASE, Location::BASE, Message::Base::SHUTDOWN));
 	}
 	else
 	{

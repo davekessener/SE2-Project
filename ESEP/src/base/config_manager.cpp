@@ -207,6 +207,8 @@ void ConfigManager::handle(hal::HAL::Event event)
 			mStartToEnd = (uint32_t) actualTime - mTimestamp;
 			mTimeTolerance = 1 - (mStartToEnd / (float) mStartToEndLong);
 
+			if(mTimeTolerance < 0.0) mTimeTolerance = 0;
+
 			// Save config and send message to handler
 			auto msg = std::make_shared<communication::Packet>(Location::BASE, Location::MASTER, Message::Config::FAILED);
 

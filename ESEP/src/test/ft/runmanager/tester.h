@@ -42,7 +42,7 @@ namespace esep
 					private:
 						std::unique_ptr<hal::HAL> mHAL;
 						base::ConfigObject mConfig;
-						base::Handler mHandler;
+						std::unique_ptr<base::Handler> mHandler;
 						std::atomic<bool> mRunning, mKeep;
 						uint32_t mItemCount;
 				};

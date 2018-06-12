@@ -12,6 +12,8 @@
 #include "base/dummy_master.h"
 #include "base/handler.h"
 
+#include "master/master.h"
+
 #include "communication/base.h"
 #include "communication/master.h"
 #include "communication/slave.h"
@@ -29,6 +31,17 @@
 #define MXT_SERIAL_TIMEOUT 60
 
 namespace esep { namespace system {
+
+namespace
+{
+	class SimplePlugin : public master::Plugin
+	{
+		public:
+			SimplePlugin( ) : Plugin(Type::UNKNOWN) { }
+			float match(const data_t&) override { return 1.0; }
+			Action decide(const history_t&) override { return Action::KEEP; }
+	};
+}
 
 typedef hal::Buttons::Button Button;
 
@@ -82,7 +95,7 @@ void Impl::run(const lib::Arguments& args)
 
 	lib::Timer::instance().reset();
 
-	std::unique_ptr<communication::IRecipient> master;
+	std::unique_ptr<master::Master> master;
 	std::unique_ptr<communication::Base> com;
 	base::Handler handler(&mConfig);
 
@@ -118,7 +131,11 @@ void Impl::run(const lib::Arguments& args)
 		auto m = new communication::Master(&handler, std::move(serial));
 
 		com.reset(m);
-		master.reset(new base::DummyMaster(com.get()));
+		master.reset(new master::Master(com.get(), [](const master::Item& item) {
+			HAL_CONSOLE.println(item.ID());
+		}));
+
+		master->add(master::Plugin_ptr(new SimplePlugin));
 
 		m->setMaster(master.get());
 	}

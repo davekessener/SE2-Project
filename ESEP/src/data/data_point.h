@@ -26,6 +26,8 @@ namespace esep
 				void serialize(lib::ByteStream&) const;
 				Type type( ) const { return mType; }
 
+				virtual std::string to_s( ) const = 0;
+
 			protected:
 				virtual void doSerialize(lib::ByteStream&) const = 0;
 
@@ -37,6 +39,9 @@ namespace esep
 	}
 }
 
-
+std::ostream& operator<<(std::ostream& os, const esep::data::Data_ptr& p)
+{
+	return os << p->to_s();
+}
 
 #endif /* SRC_DATA_DATA_POINT_H */

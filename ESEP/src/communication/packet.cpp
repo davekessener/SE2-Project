@@ -1,17 +1,56 @@
-/*
- * message.cpp
- *
- *  Created on: 26.04.2018
- *      Author: ace991
- */
-
-
-
-
 #include "communication/packet.h"
 #include "data/data_manager.h"
 
 namespace esep { namespace communication {
+
+namespace
+{
+	typedef communication::Packet Packet;
+	typedef communication::Message Message;
+	typedef Packet::Location Location;
+
+	std::string location_to_s(Location l)
+	{
+		switch(l)
+		{
+		case Location::MASTER:
+			return "MASTER";
+
+		case Location::BASE:
+			return "BASE";
+
+		case Location::BASE_M:
+			return "B(M)";
+
+		case Location::BASE_S:
+			return "B(S)";
+		}
+
+		return "ERR";
+	}
+
+	std::string msg_to_s(Packet::msg_t m)
+	{
+		if(m.is<Message::Master>())
+			switch(m.as<Message::Master>())
+		{
+		}
+		else if(m.is<Message::Base>())
+			switch(m.as<Message::Base>())
+		{
+		}
+		else if(m.is<Message::Config>())
+			switch(m.as<Message::Config>())
+		{
+		}
+		else if(m.is<Message::Error>())
+			switch(m.as<Message::Error>())
+		{
+		}
+
+		return "ERR";
+	}
+}
 
 Packet::Packet(Location src, Location trg, msg_t msg)
 	: mMessage(msg)

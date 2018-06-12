@@ -22,6 +22,8 @@ namespace esep
 				Location(Type v) : DataPoint(DataPoint::Type::LOCATION), mLocation(v) { }
 				Type location( ) const { return mLocation; }
 
+				std::string to_s( ) const override { return lib::stringify("@", mLocation); }
+
 				static Data_ptr deserialize(lib::ByteStream&);
 
 			protected:

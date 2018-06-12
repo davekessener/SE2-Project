@@ -48,6 +48,8 @@ namespace esep
 		    typedef typename C::iterator iterator;
 		    typedef typename C::const_iterator const_iterator;
 
+		    MXT_DEFINE_E(ByteStreamEmptyException);
+
 		    public:
 		        size_t size( ) const { return mSize; }
 		        bool empty( ) const { return mSize == 0; }
@@ -100,11 +102,13 @@ namespace esep
 		class In_ByteStream : public virtual Base_ByteStream<C>
 		{
 		    public:
+			typedef typename Base_ByteStream<C>::ByteStreamEmptyException ByteStreamEmptyException;
 		    typedef typename Base_ByteStream<C>::container_type container_type;
 		    typedef std::function<byte_t(container_type&)> remove_fn;
 
 		    using Base_ByteStream<C>::getContainer;
 		    using Base_ByteStream<C>::decrement;
+		    using Base_ByteStream<C>::empty;
 
 		    public:
 		        In_ByteStream(
@@ -112,6 +116,11 @@ namespace esep
 		                : mRemove(rem) { }
 		            byte_t remove( )
 		            {
+		            	if(empty())
+		            	{
+		            		MXT_THROW_EX(ByteStreamEmptyException);
+		            	}
+
 		            	decrement();
 		                return mRemove(getContainer());
 		            }

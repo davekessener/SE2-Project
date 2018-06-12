@@ -13,6 +13,8 @@ namespace esep
 				MetalSensor(bool v) : DataPoint(Type::METAL_SENSOR), mIsMetal(v) { }
 				bool isMetal( ) const { return mIsMetal; }
 
+				std::string to_s( ) const override { return mIsMetal ? "METAL" : "PLASTIC"; }
+
 				static Data_ptr deserialize(lib::ByteStream&);
 
 			protected:

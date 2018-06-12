@@ -13,8 +13,8 @@
 namespace esep { namespace test { namespace functional { namespace r {
 
 Tester::Tester(void)
-	: mConfig("runtest.conf")
-	, mHandler(&mConfig)
+	: mConfig("runtest.conf", 0.1, 500)
+	, mHandler(new base::Handler(&mConfig))
 	, mRunning(false)
 	, mKeep(false)
 	, mItemCount(0)
@@ -28,6 +28,7 @@ Tester::Tester(void)
 
 Tester::~Tester(void)
 {
+	mHandler.reset();
 	HAL::instance().clear();
 
 	std::cout << "======================================================================================================" << std::endl;
@@ -38,12 +39,13 @@ void Tester::run(void)
 	typedef hal::HAL::Event Event;
 	typedef hal::Buttons::Button Button;
 
-	mHandler.setMaster(this);
+	mHandler->setMaster(this);
 	mRunning = true;
 
 	mHAL->setCallback([this](Event e) {
 		if(mRunning.load()) switch(e)
 		{
+
 		case Event::BTN_STOP:
 			if(HAL_BUTTONS.isPressed(Button::STOP))
 			{
@@ -60,7 +62,7 @@ void Tester::run(void)
 			break;
 
 		default:
-			mHandler.handle(e);
+			mHandler->handle(e);
 			break;
 		}
 	});
@@ -178,7 +180,7 @@ void Tester::accept(Packet_ptr p)
 
 void Tester::send(msg_t msg)
 {
-	mHandler.accept(std::make_shared<Packet>(Location::MASTER, Location::BASE, msg));
+	mHandler->accept(std::make_shared<Packet>(Location::MASTER, Location::BASE, msg));
 }
 
 }}}}

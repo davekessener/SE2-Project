@@ -34,18 +34,6 @@ namespace esep
 				FAILED
 			};
 
-			enum class Error : uint8_t
-			{
-				CONFIG,
-				SERIAL,
-				ITEM_APPEARED,
-				ITEM_DISAPPEARED,
-				ITEM_STUCK,
-				ESTOP,
-				RAMP_FULL,
-				WARNING
-			};
-
 			enum class Run : uint8_t
 			{
 				NEW_ITEM,
@@ -63,6 +51,18 @@ namespace esep
 				ITEM_STUCK,
 				TIMER,
 				ITEM_REMOVED
+			};
+
+			enum class Error : uint8_t
+			{
+				CONFIG,
+				SERIAL,
+				ITEM_APPEARED,
+				ITEM_DISAPPEARED,
+				ITEM_STUCK,
+				ESTOP,
+				RAMP_FULL,
+				WARNING
 			};
 
 			private:
