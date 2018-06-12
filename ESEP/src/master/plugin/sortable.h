@@ -19,7 +19,7 @@ namespace esep
 				template<Type H, typename T>
 				struct Cons
 				{
-					static constexpr Type Car;
+					static constexpr Type Car = H;
 					typedef T Cdr;
 				};
 
@@ -121,10 +121,16 @@ namespace esep
 				{
 				};
 
-				template<typename L>
-				struct Skip<0, L>
+				template<Type T, typename R>
+				struct Skip<0, Cons<T, R>>
 				{
-					typedef L type;
+					typedef Cons<T, R> Type;
+				};
+
+				template<>
+				struct Skip<0, Nil>
+				{
+					typedef Nil Type;
 				};
 
 				template<typename L>
@@ -141,7 +147,7 @@ namespace esep
 				};
 
 				template<>
-				struct StartsWith<Empty>
+				struct StartsWith<Nil>
 				{
 					template<typename C>
 					static bool eval(const C&, size_t = 0)
@@ -168,7 +174,7 @@ namespace esep
 								result.push_back(Get<list_t>::eval(arg.size()));
 							}
 
-							eval<C1, C2, I - 1>(result, arg);
+							eval<C1, C2, (I > 0 ? I - 1 : 0)>(result, arg);
 						}
 					}
 				};
@@ -199,7 +205,7 @@ namespace esep
 					}
 
 				private:
-					static bool contained(Type t) { return Includes<types_t>::eval(t); }
+					static bool contained(Type t) { return impl::Includes<types_t>::eval(t); }
 
 					Type predictNext(const history_t& h) const
 					{
@@ -210,6 +216,11 @@ namespace esep
 						{
 							if(contained(t)) history.push_front(t);
 							if(history.size() == SIZE) break;
+						}
+
+						if(history.empty())
+						{
+							return type();
 						}
 
 						impl::Find<types_t>::eval(possibilities, history);

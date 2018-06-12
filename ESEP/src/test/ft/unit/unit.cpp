@@ -40,6 +40,7 @@
 #include "test/ut/analyser_expand.h"
 #include "test/ut/any.h"
 #include "test/ut/plugins.h"
+#include "test/ut/plugins_sortable.h"
 #include "system.h"
 
 namespace esep { namespace test { namespace functional {
@@ -79,6 +80,7 @@ bool runUnitTests(bool verbose)
 //		.addTest<ut::AnalyserExpand>()
 		.addTest<ut::Any>()
 		.addTest<ut::Plugins>()
+		.addTest<ut::PluginSortable>()
 		.run();
 
 	uint w = 0;
