@@ -75,6 +75,13 @@ namespace esep
 					const profile_t& mProfile;
 					processor_t * const mProcessor;
 			};
+
+			template<analyse::Profiles::Item T>
+			class Profiled : public Hausdorff
+			{
+				public:
+					Profiled(processor_t *p, Type t) : Hausdorff(p, t, T) { }
+			};
 		}
 	}
 }
