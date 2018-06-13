@@ -11,7 +11,7 @@ namespace esep
 	{
 		class Any
 		{
-			struct Base { };
+			struct Base { virtual ~Base( ) { } };
 
 			template<typename T>
 			struct Holder : Base
@@ -33,7 +33,7 @@ namespace esep
 				Any(const Any& o) : mObj(o.mObj) { }
 				Any(Any&& o) : mObj(std::move(o.mObj)) { }
 
-				template<typename T>
+				template<typename T, typename tml::EnableIf<tml::Not<tml::Equals<tml::DoDecay<T>, Any>>> * = nullptr>
 				Any& operator=(T&& o)
 				{
 					mObj.reset(new Holder<tml::DoDecay<T>>(std::forward<T>(o)));
@@ -65,7 +65,7 @@ namespace esep
 				explicit operator bool( ) const { return static_cast<bool>(mObj); }
 
 				template<typename T>
-				T& get( )
+				T& as( )
 				{
 					typedef Holder<tml::DoDecay<T>> holder_t;
 

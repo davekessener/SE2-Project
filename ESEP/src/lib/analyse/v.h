@@ -43,6 +43,14 @@ namespace esep
 				value_type abs_sqr( ) const { T r = 0; for(uint i = 0 ; i < N ; ++i) r += mV[i] * mV[i]; return r; }
 				value_type abs( ) const { return sqrt(abs_sqr()); }
 
+				value_type& x( ) { return mV[0]; }
+				value_type& y( ) { return mV[1]; }
+				value_type& z( ) { return mV[2]; }
+
+				const value_type& x( ) const { return mV[0]; }
+				const value_type& y( ) const { return mV[1]; }
+				const value_type& z( ) const { return mV[2]; }
+
 				template<typename TT>
 				Self& operator+=(const V<TT, N>& v) { for(uint i = 0 ; i < N ; ++i) mV[i] += v[i]; return *this; }
 
@@ -90,6 +98,9 @@ namespace esep
 
 			return r -= v2;
 		}
+
+		typedef V<double, 2> vec2;
+		typedef V<double, 3> vec3;
 	}
 }
 

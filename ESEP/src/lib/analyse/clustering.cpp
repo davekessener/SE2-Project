@@ -1,9 +1,9 @@
-#include "lib/analyse/analyser.h"
-
+#include <lib/analyse/clustering.h>
 #include "lib/stream/stream.h"
 
 #include "lib/analyse/expand.h"
-#include "lib/analyse/low_pass.h"
+
+#include "lib/analyse/utils/low_pass.h"
 
 #define MXT_THRESHOLD (((::esep::data::HeightMap::height_t)-1)*3/4)
 #define MXT_FILTER_N 5
@@ -11,11 +11,11 @@
 
 namespace esep { namespace analyse {
 
-Analyser::result_type Analyser::operator()(const data::HeightMap *hm)
+Clustering::result_type Clustering::operator()(const data::HeightMap *hm)
 {
 	typedef lib::stream::Stream<in_type> stream_t;
 	typedef Expand<in_type> exp_t;
-	typedef LowPass<double, MXT_FILTER_N> lp_t;
+	typedef utils::LowPass<double, MXT_FILTER_N> lp_t;
 
 	result_type r;
 
