@@ -12,6 +12,14 @@ Ramp::Ramp(communication::IRecipient *handler)
 {
 }
 
+void Ramp::enter(void)
+{
+	HAL_CONSOLE.println("Error: Ramp is full!");
+	MXT_LOG_ERROR("Error: Ramp is full!");
+
+	ResetAck::enter();
+}
+
 void Ramp::handle(Event e)
 {
 	switch(e)

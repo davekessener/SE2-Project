@@ -18,6 +18,7 @@ namespace esep
 
 				public:
 					ItemStuck(communication::IRecipient *, Location);
+					void enter() override;
 					void handle(Event) override;
 					void accept(Packet_ptr) override { };
 
