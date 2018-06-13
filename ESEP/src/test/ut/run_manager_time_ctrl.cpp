@@ -173,6 +173,67 @@ void RunManagerTimeCtrl::define()
 		ASSERT_EQUALS(mReceiveQ.size(), 10u);
 	};
 
+	UNIT_TEST("resume timer with delay")
+	{
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 10);
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 10);
+		ASSERT_EQUALS(mReceiveQ.size(), 0u);
+
+		mTimeCtrl->pauseAllTimer();
+
+		MXT_SLEEP(10);
+		ASSERT_EQUALS(mReceiveQ.size(), 0u);
+
+		mTimeCtrl->resumeAllTimerDelayed(5);
+		MXT_SLEEP(10);
+		ASSERT_EQUALS(mReceiveQ.size(), 0u);
+
+		MXT_SLEEP(10);
+		ASSERT_EQUALS(mReceiveQ.size(), 2u);
+	};
+
+	UNIT_TEST("pause and add timer, resume with delay")
+	{
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 10);
+		ASSERT_EQUALS(mReceiveQ.size(), 0u);
+
+		mTimeCtrl->pauseAllTimer();
+
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 10);
+
+		MXT_SLEEP(10);
+		ASSERT_EQUALS(mReceiveQ.size(), 0u);
+
+		mTimeCtrl->resumeAllTimerDelayed(5);
+		MXT_SLEEP(10);
+		ASSERT_EQUALS(mReceiveQ.size(), 0u);
+
+		MXT_SLEEP(10);
+		ASSERT_EQUALS(mReceiveQ.size(), 2u);
+	};
+
+	UNIT_TEST("pause and delete timer, resume with delay")
+	{
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 10);
+		ASSERT_EQUALS(mReceiveQ.size(), 0u);
+
+		mTimeCtrl->pauseAllTimer();
+
+		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 10);
+
+		mTimeCtrl->deleteTimer(State::BF_LB_START);
+		mTimeCtrl->deleteTimer(State::BF_LB_START);
+		MXT_SLEEP(10);
+		ASSERT_EQUALS(mReceiveQ.size(), 0u);
+
+		mTimeCtrl->resumeAllTimerDelayed(5);
+		MXT_SLEEP(10);
+		ASSERT_EQUALS(mReceiveQ.size(), 0u);
+
+		MXT_SLEEP(10);
+		ASSERT_EQUALS(mReceiveQ.size(), 0u);
+	};
+
 	UNIT_TEST("delete timer")
 	{
 		mTimeCtrl->setTimer(State::BF_LB_START, TimerEvent::EXPECT_NEW, 10);
