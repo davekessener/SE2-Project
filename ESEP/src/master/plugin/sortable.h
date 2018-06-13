@@ -142,7 +142,7 @@ namespace esep
 					template<typename C>
 					static bool eval(const C& c, size_t i = 0)
 					{
-						return (i > c.size()) || (c.at(i) == T && StartsWith<R>::eval(c, i + 1));
+						return (i >= c.size()) || (c.at(i) == T && StartsWith<R>::eval(c, i + 1));
 					}
 				};
 

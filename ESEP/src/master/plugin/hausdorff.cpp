@@ -1,4 +1,4 @@
-#include "master/plugin/hausdorff_item.h"
+#include "master/plugin/hausdorff.h"
 
 namespace esep { namespace master { namespace plugin {
 

@@ -16,6 +16,7 @@ namespace esep
 			{
 				FLAT,
 				HOLLOW,
+				UPSIDEDOWN,
 				CODED_000,
 				CODED_001,
 				CODED_010,
