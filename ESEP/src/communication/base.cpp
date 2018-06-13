@@ -50,6 +50,8 @@ Base::Base(IRecipient *b, Client_ptr c)
 				{
 					lib::ByteStream bs(lib::byte_stream::from_container(mSerial->read()));
 
+					MXT_LOG_INFO("Received ", bs.size(), " bytes of data.");
+
 					mBuffer.insert(Packet::deserialize(bs));
 				}
 			}
@@ -101,6 +103,8 @@ void Base::send(Packet_ptr p)
 		lib::ByteStream bs;
 
 		p->serialize(bs);
+
+		MXT_LOG_INFO("Sending ", bs.size(), " bytes of data.");
 
 		mSerial->write(serial::Client::buffer_t(bs.cbegin(), bs.cend()));
 	}

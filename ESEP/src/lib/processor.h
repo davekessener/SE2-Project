@@ -1,46 +1,35 @@
-#ifndef ESEP_LIB_PROCESSOR_H
-#define ESEP_LIB_PROCESSOR_H
+#ifndef ESEP_LIB_PROCESSOR
+#define ESEP_LIB_PROCESSOR
 
-#include "lib/overflow_buffer.h"
+#include <memory>
 
 namespace esep
 {
 	namespace lib
 	{
-		template
-		<
-			typename T,
-			typename P,
-			size_t N = 10
-		>
+		template<typename K, typename P>
 		class Processor
 		{
-			typedef T key_type;
+			typedef K key_type;
 			typedef P value_type;
-			typedef std::unique_ptr<value_type> handle_t;
-			typedef std::pair<key_type, handle_t> entry_t;
-			typedef OverflowBuffer<entry_t, N> container_type;
+			typedef std::pair<key_type, std::unique_ptr<value_type>> container_type;
 
 			public:
-				value_type& processor(const key_type& k)
+				value_type& use(const key_type& k)
 				{
-					for(auto& e : mBuf)
+					if(!static_cast<bool>(mProcessor.second) || mProcessor.first != k)
 					{
-						if(e.first == k)
-						{
-							return *e.second;
-						}
+						mProcessor.first = k;
+						mProcessor.second.reset(new value_type(k));
 					}
 
-					value_type *v = new value_type(k);
-
-					mBuf.insert(std::make_pair(k, handle_t(v)));
-
-					return *v;
+					return *mProcessor.second;
 				}
 
+				void clear( ) { mProcessor.second.reset(); }
+
 			private:
-				container_type mBuf;
+				container_type mProcessor;
 		};
 	}
 }

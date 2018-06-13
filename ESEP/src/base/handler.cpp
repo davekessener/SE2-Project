@@ -53,7 +53,7 @@ Handler::Handler(ConfigObject *co)
 
 					if(msg.is<Message::Base>())
 					{
-						handleBase(msg.as<Message::Base>());
+						processBase(msg.as<Message::Base>());
 					}
 					else if(msg.is<Message::Error>())
 					{
@@ -68,7 +68,7 @@ Handler::Handler(ConfigObject *co)
 				break;
 
 				case(static_cast<int8_t>(MessageType::HAL_EVENT)):
-					handleHAL(static_cast<hal::HAL::Event>(pulse.value));
+					processHAL(static_cast<hal::HAL::Event>(pulse.value));
 					break;
 
 				case(static_cast<int8_t>(MessageType::STOP_RUNNING)):
@@ -82,7 +82,7 @@ Handler::Handler(ConfigObject *co)
 			}
 			catch(const std::exception& e)
 			{
-				MXT_LOG_WARN("Caught an exception from manager: ", e.what());
+				MXT_LOG_WARN(e.what());
 			}
 
 			mCurrentManager->leave();
@@ -95,7 +95,7 @@ Handler::Handler(ConfigObject *co)
 
 Handler::~Handler()
 {
-	try
+	if(mRunning.load()) try
 	{
 		mConnection.sendPulse(static_cast<int8_t>(MessageType::STOP_RUNNING));
 	}
@@ -113,7 +113,7 @@ void Handler::accept(Packet_ptr p)
 		MXT_THROW_EX(UndefinedMasterException);
 	}
 
-	MXT_LOG("Received packet {", (int)p->source(), " -> ", (int)p->target(), ", msg: ", lib::hex<16>(p->message()), "}");
+	MXT_LOG("Received packet ", p);
 
 	if(p->target() == Location::MASTER)
 	{
@@ -121,12 +121,40 @@ void Handler::accept(Packet_ptr p)
 	}
 	else
 	{
-		mPacketBuffer.insert(p);
-		mConnection.sendPulse(MessageType::PACKET_IN_BUFFER);
+		if(mRunning.load())
+		{
+			mPacketBuffer.insert(p);
+			mConnection.sendPulse(MessageType::PACKET_IN_BUFFER);
+		}
 	}
 }
 
-void Handler::handleBase(Message::Base msg)
+void Handler::handle(Event e)
+{
+	if(e != hal::HAL::Event::HEIGHT_SENSOR)
+	{
+		MXT_LOG_INFO("Received HAL event ", lib::hex<32>(e));
+	}
+
+	if(mRunning.load())
+	{
+		mConnection.sendPulse(static_cast<int8_t>(MessageType::HAL_EVENT), static_cast<uint32_t>(e));
+	}
+}
+
+// # ---------------------------------------------------------------------------------------------------
+
+void Handler::doSwitch(IManager *m)
+{
+	if (m != mCurrentManager)
+	{
+		mCurrentManager->leave();
+		mCurrentManager = m;
+		mCurrentManager->enter();
+	}
+}
+
+void Handler::processBase(Message::Base msg)
 {
 	switch(msg)
 	{
@@ -153,34 +181,15 @@ void Handler::handleBase(Message::Base msg)
 	}
 }
 
-void Handler::doSwitch(IManager *m)
-{
-	if (m != mCurrentManager)
-	{
-		if (m == mRunManager.get()) { MXT_LOG_INFO("Switching to Run"); }
-		else if (m == mConfigManager.get()) { MXT_LOG_INFO("Switching to Config"); }
-		else if (m == mIdleManager.get()) { MXT_LOG_INFO("Switching to Idle"); }
-		else if (m == mReadyManager.get()) { MXT_LOG_INFO("Switching to Ready"); }
-		else if (m == mErrorManager.get()) { MXT_LOG_INFO("Switching to Error"); }
-
-		mCurrentManager->leave();
-		mCurrentManager = m;
-		mCurrentManager->enter();
-	}
-}
-
-void Handler::handle(Event e)
-{
-	MXT_LOG_INFO("Received HAL event ", lib::hex<32>(e));
-
-	mConnection.sendPulse(static_cast<int8_t>(MessageType::HAL_EVENT), static_cast<uint32_t>(e));
-}
-
-void Handler::handleHAL(Event e)
+void Handler::processHAL(Event e)
 {
 	if(e == Event::BTN_ESTOP && HAL_BUTTONS.isPressed(Button::ESTOP))
 	{
 		mMaster->accept(std::make_shared<Packet>(Location::BASE, Location::MASTER, Message::Error::ESTOP));
+	}
+	else if(e == Event::BTN_STOP && HAL_BUTTONS.isPressed(Button::STOP))
+	{
+		mMaster->accept(std::make_shared<Packet>(Location::BASE, Location::BASE, Message::Base::SHUTDOWN));
 	}
 	else
 	{

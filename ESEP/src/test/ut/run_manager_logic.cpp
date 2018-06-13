@@ -1,6 +1,8 @@
 #include <iostream>
-#include "test/ut/run_manager_logic.h"
+#include <mutex>
 
+#include "test/ut/run_manager_logic.h"
+#include "lib/sync/container.h"
 #include "test/unit/assertions.h"
 #include "test/unit/hal.h"
 #include "lib/logger.h"
@@ -16,38 +18,37 @@ namespace ut
 {
 
 #define MXT_SLEEP(t)		lib::Timer::instance().sleep(t)
+#define MXT_BM_LIGHT_G 		(1u << 18)
 #define MXT_BM_SWITCH 		(1u << 19)
 #define MXT_BM_MOTOR_START	(1u << 12)
 
 struct RunManagerLogic::HandlerDummy: public communication::IRecipient
 {
-	typedef communication::Packet_ptr Packet_ptr;
-
-	HandlerDummy() : mBase(nullptr) { }
+	//typedef communication::Packet_ptr Packet_ptr;
 
 	void accept(Packet_ptr p) override
 	{
-		if (p->target() == communication::Packet::Location::BASE)
-		{
-			for (data::Data_ptr d : *p)
-			{
-				if(d->type() == data::DataPoint::Type::RUN_MANAGER_TIMER)
-				{
-					data::RunManagerTimer * data = dynamic_cast<data::RunManagerTimer *>(d.get());
-					MXT_LOG_WARN("DUMMY: redirect timer event: ", data->event());
-				}
-			}
-
-			(mBase != nullptr) ? mBase->accept(p) : MXT_LOG_WARN("HandlerDummy needs a valid pointer to base!");
-		}
-		else
-		{
-			MXT_LOG_WARN("DUMMY: got packet: ", p," MSG: ", p->message().as<Message::Run>());
-			mPackets.push_back(p);
-		}
+		std::lock_guard<std::mutex> lock(mPacketMutex);
+		mMasterMsgs.emplace_back(p);
 	}
-	std::deque<Packet_ptr> mPackets;
-	communication::IRecipient * mBase;
+
+	Packet_ptr takeFirstPacket()
+	{
+		std::lock_guard<std::mutex> lock(mPacketMutex);
+
+		Packet_ptr p = mMasterMsgs.front();
+		mMasterMsgs.pop_front();
+		return p;
+	}
+
+	uint queueSize()
+	{
+		std::lock_guard<std::mutex> lock(mPacketMutex);
+		return mMasterMsgs.size();
+	}
+
+	std::mutex mPacketMutex;
+	std::deque<Packet_ptr> mMasterMsgs;
 };
 
 RunManagerLogic::RunManagerLogic()
@@ -60,18 +61,18 @@ RunManagerLogic::RunManagerLogic()
 
 void RunManagerLogic::setup(void)
 {
-	mConfig = new config_t("ut.conf");
+	mConfig = new config_t("ut.conf", 0.2, 5, 5);
 	mConfig->setStartToHs(10);
 	mConfig->setHsToSwitch(10);
 	mConfig->setSwitchToEnd(10);
-	mConfig->setMaxHandOverTime(5);
+	mConfig->setItemInLB(5);
 	mConfig->setHeightSensorMax(10);
 	mConfig->setHeightSensorMin(10);
 	mConfig->setTimeTolerance(0.2);
 
+
 	mHandlerDummy = new HandlerDummy;
 	mRunManager = new base::RunManager(mHandlerDummy, mConfig);
-	mHandlerDummy->mBase = this->mRunManager;
 
 	hal().setCallback([this](Event e) { mRunManager->handle(e);});
 }
@@ -97,7 +98,7 @@ void RunManagerLogic::sendPacket(msg_t msg)
 
 uint32_t RunManagerLogic::maxTime(uint32_t t)
 {
-	return t * (1 + mConfig->tolerance());
+	return t * (1 + 2  * mConfig->tolerance());
 }
 
 void RunManagerLogic::blockLB(LightBarrier lb)
@@ -121,32 +122,49 @@ void RunManagerLogic::define(void)
 
 	UNIT_TEST("resume and suspend")
 	{
+		mRunManager->enter();
+		ASSERT_EQUALS(hal().writes().back().get<Field>(), Field::GPIO_1);
+		ASSERT_EQUALS(hal().writes().back().get<uint32_t>() & MXT_BM_LIGHT_G, MXT_BM_LIGHT_G);
+
 		sendPacket(Message::Run::RESUME);
 		ASSERT_EQUALS(hal().writes().back().get<Field>(), Field::GPIO_1);
 		ASSERT_TRUE(hal().writes().back().get<uint32_t>() & MXT_BM_MOTOR_START);
 
+
 		sendPacket(Message::Run::SUSPEND);
 		ASSERT_EQUALS(hal().writes().back().get<Field>(), Field::GPIO_1);
-		ASSERT_FALSE(hal().writes().back().get<uint32_t>() & MXT_BM_MOTOR_START); //right comparrison?
+		ASSERT_FALSE(hal().writes().back().get<uint32_t>() & MXT_BM_MOTOR_START);
+
+		mRunManager->leave();
+		ASSERT_EQUALS(hal().writes().back().get<Field>(), Field::GPIO_1);
+		ASSERT_EQUALS(hal().writes().back().get<uint32_t>() & MXT_BM_LIGHT_G, 0u);
 	};
 
 	UNIT_TEST("positive test - from start to end")
 	{
 		//Expect new -> LB_HS
 		mRunManager->enter();
+
+		ASSERT_EQUALS(hal().writes().back().get<Field>(), Field::GPIO_1);
+		ASSERT_EQUALS(hal().writes().back().get<uint32_t>() & MXT_BM_LIGHT_G, MXT_BM_LIGHT_G);
+
 		sendPacket(Message::Run::EXPECT_NEW);
 		blockLB(LightBarrier::LB_START);
 		hal().trigger(Event::LB_START);
 
 		MXT_SLEEP(1);
-		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
-		ASSERT_EQUALS(mHandlerDummy->mPackets.front()->message(), Message::Run::NEW_ITEM);
-		mHandlerDummy->mPackets.pop_front();
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::NEW_ITEM);
 
 		freeLB(LightBarrier::LB_START);
 		hal().trigger(Event::LB_START);
 
 		MXT_SLEEP(mConfig->startToHs());
+
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		Packet_ptr packet = mHandlerDummy->takeFirstPacket();
+		ASSERT_EQUALS(packet->message(), Message::Run::TIMER);
+		mRunManager->accept(packet);
 
 		blockLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
@@ -157,24 +175,30 @@ void RunManagerLogic::define(void)
 		hal().setField(Field::ANALOG, 0);
 		hal().trigger(Event::HEIGHT_SENSOR);
 
+		MXT_SLEEP(1);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::IN_HEIGHTSENSOR);
+
 		freeLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
 
 		MXT_SLEEP(mConfig->hsToSwitch());
 
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		packet = mHandlerDummy->takeFirstPacket();
+		ASSERT_EQUALS(packet->message(), Message::Run::TIMER);
+		mRunManager->accept(packet);
+
 		blockLB(LightBarrier::LB_SWITCH);
 		hal().trigger(Event::LB_SWITCH);
 
 		MXT_SLEEP(1);
-		for(const auto& p : mHandlerDummy->mPackets)
-		{
-			MXT_LOG_WARN(p);
-		}
-		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
-		ASSERT_EQUALS(mHandlerDummy->mPackets.front()->message(), Message::Run::ANALYSE);
-		mHandlerDummy->mPackets.pop_front();
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::ANALYSE);
 
 		sendPacket(Message::Run::KEEP_NEXT);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::KEEP_NEXT);
 
 		ASSERT_EQUALS(hal().writes().back().get<Field>(), Field::GPIO_1);
 		ASSERT_EQUALS(hal().writes().back().get<uint32_t>() & MXT_BM_SWITCH, MXT_BM_SWITCH);
@@ -186,21 +210,24 @@ void RunManagerLogic::define(void)
 
 		MXT_SLEEP(mConfig->switchToEnd());
 
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		packet = mHandlerDummy->takeFirstPacket();
+		ASSERT_EQUALS(packet->message(), Message::Run::TIMER);
+		mRunManager->accept(packet);
+
 		blockLB(LightBarrier::LB_END);
 		hal().trigger(Event::LB_END);
 
 		MXT_SLEEP(1);
-		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
-		ASSERT_EQUALS(mHandlerDummy->mPackets.front()->message(), Message::Run::REACHED_END);
-		mHandlerDummy->mPackets.pop_front();
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::REACHED_END);
 
 		freeLB(LightBarrier::LB_END);
 		hal().trigger(Event::LB_END);
 
 		MXT_SLEEP(1);
-		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
-		ASSERT_EQUALS(mHandlerDummy->mPackets.front()->message(), Message::Run::END_FREE);
-		mHandlerDummy->mPackets.pop_front();
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::END_FREE);
 	};
 
 	UNIT_TEST("positive test - from start to ramp")
@@ -211,14 +238,18 @@ void RunManagerLogic::define(void)
 		hal().trigger(Event::LB_START);
 
 		MXT_SLEEP(1);
-		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
-		ASSERT_EQUALS(mHandlerDummy->mPackets.front()->message(), Message::Run::NEW_ITEM);
-		mHandlerDummy->mPackets.pop_front();
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::NEW_ITEM);
 
 		freeLB(LightBarrier::LB_START);
 		hal().trigger(Event::LB_START);
 
 		MXT_SLEEP(mConfig->startToHs());
+
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		Packet_ptr packet = mHandlerDummy->takeFirstPacket();
+		ASSERT_EQUALS(packet->message(), Message::Run::TIMER);
+		mRunManager->accept(packet);
 
 		blockLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
@@ -228,18 +259,26 @@ void RunManagerLogic::define(void)
 		hal().setField(Field::ANALOG, 0);
 		hal().trigger(Event::HEIGHT_SENSOR);
 
+		MXT_SLEEP(1);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::IN_HEIGHTSENSOR);
+
 		freeLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
 
 		MXT_SLEEP(mConfig->hsToSwitch());
 
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		packet = mHandlerDummy->takeFirstPacket();
+		ASSERT_EQUALS(packet->message(), Message::Run::TIMER);
+		mRunManager->accept(packet);
+
 		blockLB(LightBarrier::LB_SWITCH);
 		hal().trigger(Event::LB_SWITCH);
 
 		MXT_SLEEP(1);
-		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
-		ASSERT_EQUALS(mHandlerDummy->mPackets.front()->message(), Message::Run::ANALYSE);
-		mHandlerDummy->mPackets.pop_front();
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::ANALYSE);
 
 		//til now same as above
 
@@ -253,27 +292,29 @@ void RunManagerLogic::define(void)
 		hal().trigger(Event::LB_RAMP);
 
 		MXT_SLEEP(1);
-		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
-		ASSERT_EQUALS(mHandlerDummy->mPackets.front()->message(), Message::Run::ITEM_REMOVED);
-		mHandlerDummy->mPackets.pop_front();
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::ITEM_REMOVED);
 	};
 
 	UNIT_TEST("ramp full")
 	{
 		mRunManager->enter();
-		sendPacket(Message::Run::EXPECT_NEW);
 		blockLB(LightBarrier::LB_START);
 		hal().trigger(Event::LB_START);
 
 		MXT_SLEEP(1);
-		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
-		ASSERT_EQUALS(mHandlerDummy->mPackets.front()->message(), Message::Run::NEW_ITEM);
-		mHandlerDummy->mPackets.pop_front();
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::NEW_ITEM);
 
 		freeLB(LightBarrier::LB_START);
 		hal().trigger(Event::LB_START);
 
 		MXT_SLEEP(mConfig->startToHs());
+
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		Packet_ptr packet = mHandlerDummy->takeFirstPacket();
+		ASSERT_EQUALS(packet->message(), Message::Run::TIMER);
+		mRunManager->accept(packet);
 
 		blockLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
@@ -283,18 +324,26 @@ void RunManagerLogic::define(void)
 		hal().setField(Field::ANALOG, 0);
 		hal().trigger(Event::HEIGHT_SENSOR);
 
+		MXT_SLEEP(1);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::IN_HEIGHTSENSOR);
+
 		freeLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
 
 		MXT_SLEEP(mConfig->hsToSwitch());
 
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		packet = mHandlerDummy->takeFirstPacket();
+		ASSERT_EQUALS(packet->message(), Message::Run::TIMER);
+		mRunManager->accept(packet);
+
 		blockLB(LightBarrier::LB_SWITCH);
 		hal().trigger(Event::LB_SWITCH);
 
 		MXT_SLEEP(1);
-		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
-		ASSERT_EQUALS(mHandlerDummy->mPackets.front()->message(), Message::Run::ANALYSE);
-		mHandlerDummy->mPackets.pop_front();
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::ANALYSE);
 
 		freeLB(LightBarrier::LB_SWITCH);
 		hal().trigger(Event::LB_SWITCH);
@@ -304,31 +353,291 @@ void RunManagerLogic::define(void)
 
 		//til now same as above
 
-		//TODO: i need a new conf time, for the ramp to trigger a full ramp
-		MXT_SLEEP(mConfig->maxHandOverTime() * (1 + mConfig->tolerance()));
+		MXT_SLEEP(mConfig->rampTime());
+
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		packet = mHandlerDummy->takeFirstPacket();
+		ASSERT_EQUALS(packet->message(), Message::Run::TIMER);
+		mRunManager->accept(packet);
 
 		MXT_SLEEP(1);
-		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
-		ASSERT_EQUALS(mHandlerDummy->mPackets.back()->message(), Message::Run::RAMP_FULL);
-		mHandlerDummy->mPackets.pop_front();
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::RAMP_FULL);
 	};
 
 	UNIT_TEST("Item disappeared by handing over")
 	{
 		mRunManager->enter();
 		sendPacket(Message::Run::EXPECT_NEW);
-		ASSERT_TRUE(mHandlerDummy->mPackets.empty());
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 0u);
 
 		MXT_SLEEP(mConfig->maxHandOverTime() * (1 + mConfig->tolerance()));
+
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		Packet_ptr packet = mHandlerDummy->takeFirstPacket();
+		ASSERT_EQUALS(packet->message(), Message::Run::TIMER);
+		mRunManager->accept(packet);
 
 		MXT_SLEEP(1);
-		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
-		ASSERT_EQUALS(mHandlerDummy->mPackets.front()->message(), Message::Run::ITEM_DISAPPEARED);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::ITEM_DISAPPEARED);
 
 		MXT_SLEEP(mConfig->maxHandOverTime() * (1 + mConfig->tolerance()));
-		ASSERT_EQUALS(mHandlerDummy->mPackets.size(), 1u);
+
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 0u);
 	};
 
+	UNIT_TEST("Item appearing")
+	{
+		mRunManager->enter();
+
+		blockLB(LightBarrier::LB_HEIGHTSENSOR);
+		hal().trigger(Event::LB_HEIGHTSENSOR);
+
+		MXT_SLEEP(1);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::ITEM_APPEARED);
+
+		freeLB(LightBarrier::LB_HEIGHTSENSOR);
+		hal().trigger(Event::LB_HEIGHTSENSOR);
+
+		blockLB(LightBarrier::LB_SWITCH);
+		hal().trigger(Event::LB_SWITCH);
+
+		MXT_SLEEP(1);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::ITEM_APPEARED);
+
+		freeLB(LightBarrier::LB_SWITCH);
+		hal().trigger(Event::LB_SWITCH);
+
+		blockLB(LightBarrier::LB_RAMP);
+		hal().trigger(Event::LB_RAMP);
+
+		MXT_SLEEP(1);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::ITEM_APPEARED);
+
+		freeLB(LightBarrier::LB_RAMP);
+		hal().trigger(Event::LB_RAMP);
+
+		blockLB(LightBarrier::LB_END);
+		hal().trigger(Event::LB_END);
+
+		MXT_SLEEP(1);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::ITEM_APPEARED);
+
+		freeLB(LightBarrier::LB_END);
+		hal().trigger(Event::LB_END);
+
+	};
+
+	UNIT_TEST("Item stuck in LB_START")
+	{
+		mRunManager->enter();
+		blockLB(LightBarrier::LB_START);
+		hal().trigger(Event::LB_START);
+
+		MXT_SLEEP(1);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::NEW_ITEM);
+
+		MXT_SLEEP(maxTime(mConfig->itemInLB()));
+
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		Packet_ptr packet = mHandlerDummy->takeFirstPacket();
+		ASSERT_EQUALS(packet->message(), Message::Run::TIMER);
+		mRunManager->accept(packet);
+
+		MXT_SLEEP(1);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::ITEM_STUCK);
+	};
+
+	UNIT_TEST("Item stuck in LB_HS")
+	{
+		//Expect new -> LB_HS
+		mRunManager->enter();
+
+		ASSERT_EQUALS(hal().writes().back().get<Field>(), Field::GPIO_1);
+		ASSERT_EQUALS(hal().writes().back().get<uint32_t>() & MXT_BM_LIGHT_G, MXT_BM_LIGHT_G);
+
+		sendPacket(Message::Run::EXPECT_NEW);
+		blockLB(LightBarrier::LB_START);
+		hal().trigger(Event::LB_START);
+
+		MXT_SLEEP(1);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::NEW_ITEM);
+
+		freeLB(LightBarrier::LB_START);
+		hal().trigger(Event::LB_START);
+
+		MXT_SLEEP(mConfig->startToHs());
+
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		Packet_ptr packet = mHandlerDummy->takeFirstPacket();
+		ASSERT_EQUALS(packet->message(), Message::Run::TIMER);
+		mRunManager->accept(packet);
+
+		blockLB(LightBarrier::LB_HEIGHTSENSOR);
+		hal().trigger(Event::LB_HEIGHTSENSOR);
+
+		MXT_SLEEP(maxTime(mConfig->itemInLB()));
+
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		packet = mHandlerDummy->takeFirstPacket();
+		ASSERT_EQUALS(packet->message(), Message::Run::TIMER);
+		mRunManager->accept(packet);
+
+		MXT_SLEEP(1);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::ITEM_STUCK);
+	};
+
+	UNIT_TEST("Item stuck in LB_SWITCH")
+	{
+		//Expect new -> LB_HS
+		mRunManager->enter();
+
+		ASSERT_EQUALS(hal().writes().back().get<Field>(), Field::GPIO_1);
+		ASSERT_EQUALS(hal().writes().back().get<uint32_t>() & MXT_BM_LIGHT_G, MXT_BM_LIGHT_G);
+
+		sendPacket(Message::Run::EXPECT_NEW);
+		blockLB(LightBarrier::LB_START);
+		hal().trigger(Event::LB_START);
+
+		MXT_SLEEP(1);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::NEW_ITEM);
+
+		freeLB(LightBarrier::LB_START);
+		hal().trigger(Event::LB_START);
+
+		MXT_SLEEP(mConfig->startToHs());
+
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		Packet_ptr packet = mHandlerDummy->takeFirstPacket();
+		ASSERT_EQUALS(packet->message(), Message::Run::TIMER);
+		mRunManager->accept(packet);
+
+		blockLB(LightBarrier::LB_HEIGHTSENSOR);
+		hal().trigger(Event::LB_HEIGHTSENSOR);
+
+		//LB_HS -> LB_SWITCH
+		hal().setField(Field::ANALOG, 1);
+		hal().trigger(Event::HEIGHT_SENSOR);
+		hal().setField(Field::ANALOG, 0);
+		hal().trigger(Event::HEIGHT_SENSOR);
+
+		MXT_SLEEP(1);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::IN_HEIGHTSENSOR);
+
+		freeLB(LightBarrier::LB_HEIGHTSENSOR);
+		hal().trigger(Event::LB_HEIGHTSENSOR);
+
+		MXT_SLEEP(mConfig->hsToSwitch());
+
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		packet = mHandlerDummy->takeFirstPacket();
+		ASSERT_EQUALS(packet->message(), Message::Run::TIMER);
+		mRunManager->accept(packet);
+
+		blockLB(LightBarrier::LB_SWITCH);
+		hal().trigger(Event::LB_SWITCH);
+
+		MXT_SLEEP(1);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::ANALYSE);
+
+		MXT_SLEEP(maxTime(mConfig->itemInLB()));
+
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		packet = mHandlerDummy->takeFirstPacket();
+		ASSERT_EQUALS(packet->message(), Message::Run::TIMER);
+		mRunManager->accept(packet);
+
+		MXT_SLEEP(1);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::ITEM_STUCK);
+	};
+
+	UNIT_TEST("Item stuck in LB_SWITCH after KEEP_NEXT")
+	{
+		//Expect new -> LB_HS
+		mRunManager->enter();
+
+		ASSERT_EQUALS(hal().writes().back().get<Field>(), Field::GPIO_1);
+		ASSERT_EQUALS(hal().writes().back().get<uint32_t>() & MXT_BM_LIGHT_G, MXT_BM_LIGHT_G);
+
+		sendPacket(Message::Run::EXPECT_NEW);
+		blockLB(LightBarrier::LB_START);
+		hal().trigger(Event::LB_START);
+
+		MXT_SLEEP(1);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::NEW_ITEM);
+
+		freeLB(LightBarrier::LB_START);
+		hal().trigger(Event::LB_START);
+
+		MXT_SLEEP(mConfig->startToHs());
+
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		Packet_ptr packet = mHandlerDummy->takeFirstPacket();
+		ASSERT_EQUALS(packet->message(), Message::Run::TIMER);
+		mRunManager->accept(packet);
+
+		blockLB(LightBarrier::LB_HEIGHTSENSOR);
+		hal().trigger(Event::LB_HEIGHTSENSOR);
+
+		//LB_HS -> LB_SWITCH
+		hal().setField(Field::ANALOG, 1);
+		hal().trigger(Event::HEIGHT_SENSOR);
+		hal().setField(Field::ANALOG, 0);
+		hal().trigger(Event::HEIGHT_SENSOR);
+
+		MXT_SLEEP(1);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::IN_HEIGHTSENSOR);
+
+		freeLB(LightBarrier::LB_HEIGHTSENSOR);
+		hal().trigger(Event::LB_HEIGHTSENSOR);
+
+		MXT_SLEEP(mConfig->hsToSwitch());
+
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		packet = mHandlerDummy->takeFirstPacket();
+		ASSERT_EQUALS(packet->message(), Message::Run::TIMER);
+		mRunManager->accept(packet);
+
+		blockLB(LightBarrier::LB_SWITCH);
+		hal().trigger(Event::LB_SWITCH);
+
+		MXT_SLEEP(1);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::ANALYSE);
+
+		sendPacket(Message::Run::KEEP_NEXT);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::KEEP_NEXT);
+
+		ASSERT_EQUALS(hal().writes().back().get<Field>(), Field::GPIO_1);
+		ASSERT_EQUALS(hal().writes().back().get<uint32_t>() & MXT_BM_SWITCH, MXT_BM_SWITCH);
+
+		MXT_SLEEP(maxTime(mConfig->itemInLB()));
+
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		packet = mHandlerDummy->takeFirstPacket();
+		ASSERT_EQUALS(packet->message(), Message::Run::TIMER);
+		mRunManager->accept(packet);
+
+		MXT_SLEEP(1);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::ITEM_STUCK);
+	};
 }
 
 }

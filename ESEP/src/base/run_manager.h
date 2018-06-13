@@ -13,9 +13,11 @@
 #include "run/time_controller.h"
 #include "run/types.h"
 #include "hal/light_barriers.h"
+#include "hal/lights.h"
 #include "data/data_point.h"
 #include "data/location_data.h"
 #include "data/heightmap_data.h"
+
 
 namespace esep
 {
@@ -37,6 +39,7 @@ namespace esep
 			typedef communication::Packet::Location Location;
 			typedef data::RunManagerTimer::TimerEvent TimerEvent;
 			typedef hal::LightBarriers::LightBarrier LightBarrier;
+			typedef hal::Lights::Light Light;
 			typedef run::State State;
 			typedef tml::MakeCompoundEnum<run::HalEvent, Message::Run, TimerEvent, Auto> petriEvents_t;
 			typedef lib::PetriNet<petriEvents_t> petri_t;

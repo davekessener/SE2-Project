@@ -27,6 +27,8 @@ void Master::accept(Packet_ptr p)
 {
 	event_t e = Event::fromPacket(p);
 
+	MXT_LOG_INFO("Master received ", p);
+
 	if(p->message().is<Message::Error>())
 	{
 		e = Event::ERROR;

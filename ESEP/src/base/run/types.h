@@ -9,23 +9,27 @@ namespace esep
 	{
 		namespace run
 		{
+			/*
+			 * Enumeration for the location of the token
+			 */
 			enum class State : uint8_t
 			{
-				STATE_1,
-				STATE_2,
-				STATE_3,
-				STATE_4,
-				STATE_5,
-				STATE_6,
-				STATE_7,
-				STATE_8,
-				STATE_9,
-				STATE_10,
-				STATE_11,
-				STATE_12,
-				STATE_13,
-				STATE_14,
-				SWITCH
+				IN_LB_START,
+				BF_LB_START,
+				BW_START_HS,
+				BF_LB_HS,
+				IN_LB_HS,
+				BW_HS_SWITCH,
+				BF_LB_SWITCH,
+				IN_SWITCH,
+				BF_LB_RAMP,
+				IN_LB_RAMP,
+				IN_SWITCH_KEEP,
+				BW_SWITCH_END,
+				BF_END,
+				IN_LB_END,
+				SWITCH_CTRL,
+				IN_LB_SWITCH
 			};
 
 			enum class HalEvent : uint8_t

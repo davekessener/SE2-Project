@@ -27,12 +27,15 @@ ErrorManager::ErrorManager(communication::IRecipient * handler)
 
 void ErrorManager::enter()
 {
+	MXT_LOG_INFO("Entering ErrorManager.");
 }
 
 void ErrorManager::leave()
 {
 	mCurrentError->leave();
 	mCurrentError.reset();
+
+	MXT_LOG_INFO("Leaving ErrorManager.");
 }
 
 void ErrorManager::accept(Packet_ptr packet)
@@ -40,6 +43,10 @@ void ErrorManager::accept(Packet_ptr packet)
 	if (packet->target() == Location::MASTER)
 	{
 		mHandler->accept(packet);
+	}
+	else if(!packet->message().is<Error>())
+	{
+		MXT_LOG_WARN("Received erroneous message: ", packet);
 	}
 	else
 	{

@@ -6,7 +6,7 @@ namespace esep { namespace master { namespace hsm {
 
 void Base::handle(Packet_ptr p)
 {
-	MXT_LOG_INFO("Received packet {", p->source(), ", ", lib::hex<16>(p->message()), "}!");
+	MXT_LOG_INFO("Received packet ", p, "!");
 }
 
 }}}

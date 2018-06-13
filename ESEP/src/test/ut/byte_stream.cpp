@@ -76,6 +76,20 @@ void ByteStream::define(void)
 
 		ASSERT_EACH_EQUALS(r, cmp);
 	};
+
+	UNIT_TEST("prevents reading from empty buffer")
+	{
+		lib::ByteStream bs;
+		const byte_t cmp[] = { 0xFF, 0x00, 0xFF };
+
+		bs << lib::byte_stream::insert_all(cmp, cmp + sizeof(cmp));
+
+		bs.remove();
+		bs.remove();
+		bs.remove();
+
+		ASSERT_FAILURE(bs.remove(), lib::ByteStream::ByteStreamEmptyException);
+	};
 }
 
 }}}

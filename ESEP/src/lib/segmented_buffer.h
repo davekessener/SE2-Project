@@ -5,6 +5,8 @@
 
 #include "lib/utils.h"
 
+#include "lib/logger.h"
+
 namespace esep
 {
 	namespace lib
@@ -80,7 +82,11 @@ namespace esep
 
 			++mSizes[s];
 
-			while(mSizes[NO_SEGMENTS] > mBuffer) mRemove(mContainer);
+			while(mSizes[NO_SEGMENTS] > mBuffer)
+			{
+				--mSizes[NO_SEGMENTS];
+				mRemove(mContainer);
+			}
 		}
 
 		template<typename T, size_t N, typename C>

@@ -9,7 +9,7 @@
 
 namespace esep { namespace base {
 
-ConfigObject::ConfigObject(const std::string& path, float ft)
+ConfigObject::ConfigObject(const std::string& path, float ft, uint32_t rt, uint32_t ho)
 	: mPath(path)
 	, mValid(false)
 	, mHeightSensorMin(0)
@@ -17,8 +17,10 @@ ConfigObject::ConfigObject(const std::string& path, float ft)
 	, mStartToHs(0)
 	, mHsToSwitch(0)
 	, mSwitchToEnd(0)
-	, mMaxHandOverTime(0)
-	, mTimeTolerance(0)
+	, mMaxHandOverTime(ho)
+	, mRampTime(rt)
+	, mItemInLB(0)
+	, mTimeTolerance(-1)
 	, mFlatTolerance(ft)
 {
 	std::ifstream confFile;
@@ -46,13 +48,13 @@ ConfigObject::ConfigObject(const std::string& path, float ft)
 			fileData.pop_back();
 			mStartToHs = std::stoi(fileData.back());
 			fileData.pop_back();
-			mMaxHandOverTime = std::stoi(fileData.back());
-			fileData.pop_back();
 			mHeightSensorMax = (uint16_t) std::stoi(fileData.back());
 			fileData.pop_back();
 			mHeightSensorMin = (uint16_t) std::stoi(fileData.back());
 			fileData.pop_back();
 			mTimeTolerance = (float) std::stof(fileData.back());
+			fileData.pop_back();
+			mItemInLB = (float) std::stof(fileData.back());
 		}
 		confFile.close();
 	}
@@ -69,10 +71,10 @@ void ConfigObject::save()
 
 	if(confFile.is_open())
 	{
-		confFile << mTimeTolerance << "\n"
+		confFile << mItemInLB << "\n"
+				 << mTimeTolerance << "\n"
 				 << mHeightSensorMin << "\n"
 				 << mHeightSensorMax << "\n"
-				 << mMaxHandOverTime << "\n"
 				 << mStartToHs    << "\n"
 				 << mHsToSwitch   << "\n"
 				 << mSwitchToEnd;
@@ -93,7 +95,8 @@ bool ConfigObject::isValid()
 			&& mStartToHs > 0
 			&& mHsToSwitch > 0
 			&& mSwitchToEnd > 0
-			&& mTimeTolerance > 0));
+			&& mTimeTolerance >= 0
+			&& mItemInLB > 0));
 }
 
 void ConfigObject::setHeightSensorMin(uint16_t val)
@@ -114,13 +117,13 @@ void ConfigObject::setHeightSensorMax(uint16_t val)
 	mHeightSensorMax = val;
 }
 
-void ConfigObject::setMaxHandOverTime(uint32_t val)
+void ConfigObject::setItemInLB(uint32_t val)
 {
 	if(val == 0)
 	{
 		MXT_THROW_EX(ConfigObject::InvalidDataException);
 	}
-	mMaxHandOverTime = val;
+	mItemInLB = val;
 }
 
 void ConfigObject::setStartToHs(uint32_t val)
@@ -152,7 +155,7 @@ void ConfigObject::setSwitchToEnd(uint32_t val)
 
 void ConfigObject::setTimeTolerance(float val)
 {
-	if(val > 1 || val <= 0)
+	if(val < 0 || val > 1)
 	{
 		MXT_THROW_EX(ConfigObject::InvalidDataException);
 	}
@@ -177,13 +180,13 @@ uint16_t ConfigObject::heightSensorMax(void)
 	return mHeightSensorMax;
 }
 
-uint32_t ConfigObject::maxHandOverTime(void)
+uint32_t ConfigObject::itemInLB(void)
 {
 	if(!isValid())
 	{
 		MXT_THROW_EX(ConfigObject::InvalidObjectException);
 	}
-	return mMaxHandOverTime;
+	return mItemInLB;
 }
 
 uint32_t ConfigObject::startToHs(void)

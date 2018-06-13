@@ -24,7 +24,19 @@ namespace esep
 			enum class Type : uint8_t
 			{
 				UNKNOWN,
-				DEFAULT
+				DEFAULT,
+				UPSIDEDOWN,
+				FLAT,
+				HOLLOW,
+				HOLLOW_METAL,
+				CODED_000,
+				CODED_001,
+				CODED_010,
+				CODED_011,
+				CODED_100,
+				CODED_101,
+				CODED_110,
+				CODED_111
 			};
 
 			typedef std::vector<data::Data_ptr> data_t;

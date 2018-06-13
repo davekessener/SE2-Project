@@ -1,5 +1,5 @@
-#ifndef ESEP_ANALYSE_ANALYSE_H
-#define ESEP_ANALYSE_ANALYSE_H
+#ifndef ESEP_ANALYSE_CLUSTERING_H
+#define ESEP_ANALYSE_CLUSTERING_H
 
 #include <vector>
 
@@ -11,7 +11,7 @@ namespace esep
 {
 	namespace analyse
 	{
-		class Analyser
+		class Clustering
 		{
 			typedef data::HeightMap::value_type in_type;
 			typedef V<double, 2> out_type;

@@ -69,6 +69,13 @@ Logic::Logic(IRecipient *s, Analyser *a)
 	builder.transition(idle, config_m1_rdy, Event::fromParts(Location::BASE_M, Message::Master::CONFIG));
 	builder.transition(idle, config_m1_rdy, Event::fromParts(Location::BASE_S, Message::Master::CONFIG));
 
+	builder.transition(config_m1_rdy, config_m1_running, Event::fromParts(Location::BASE_M, Message::Config::START));
+	builder.transition(config_m1_running, config_m2_rdy, Event::fromParts(Location::BASE_M, Message::Config::DONE),
+		[this, s](State&, State&, event_t) { s->accept(std::make_shared<Packet>(Location::MASTER, Location::BASE, Message::Run::RESUME)); });
+	builder.transition(config_m2_rdy, config_m2_running, Event::fromParts(Location::BASE_S, Message::Config::START),
+		[this, s](State&, State&, event_t) { s->accept(std::make_shared<Packet>(Location::MASTER, Location::BASE_M, Message::Run::SUSPEND)); });
+	builder.transition(config_m2_running, idle, Event::fromParts(Location::BASE_S, Message::Config::DONE));
+
 	builder.transition(idle, run, Event::fromParts(Location::BASE_M, Message::Master::RUN));
 	builder.transition(idle, run, Event::fromParts(Location::BASE_S, Message::Master::RUN));
 

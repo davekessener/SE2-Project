@@ -20,7 +20,7 @@ namespace esep
 				MXT_DEFINE_E(InvalidDataException);
 
 			public:
-				ConfigObject(const std::string& path = "system.conf", float ft = TOLERANCE);
+				ConfigObject(const std::string& path = "system.conf", float ft = TOLERANCE, uint32_t rt = RAMP_TIME, uint32_t ho = HANDOVER_TIME);
 				void save();
 				bool isValid();
 
@@ -29,17 +29,19 @@ namespace esep
 				uint32_t startToHs();
 				uint32_t hsToSwitch();
 				uint32_t switchToEnd();
-				uint32_t maxHandOverTime();
+				uint32_t itemInLB();
 				float timeTolerance();
-				float tolerance( ) const { return mFlatTolerance; }
+				uint32_t maxHandOverTime() const { return mMaxHandOverTime; };
+				uint32_t rampTime() const { return mRampTime; };
+				float tolerance() const { return mFlatTolerance; }
 
 				void setHeightSensorMin(uint16_t);
 				void setHeightSensorMax(uint16_t);
 				void setStartToHs(uint32_t);
 				void setHsToSwitch(uint32_t);
 				void setSwitchToEnd(uint32_t);
-				void setMaxHandOverTime(uint32_t);
 				void setTimeTolerance(float);
+				void setItemInLB(uint32_t);
 
 			private:
 				const std::string mPath;
@@ -49,11 +51,15 @@ namespace esep
 				uint32_t mStartToHs;			// Time between LB_Start and LB_HeightSensor [ms]
 				uint32_t mHsToSwitch;			// Time between LB_HeightSensor and LB_Switch [ms]
 				uint32_t mSwitchToEnd;			// Time between LB_Switch and LB_End [ms]
-				uint32_t mMaxHandOverTime;	// Max Time for handing over an ITEM
+				uint32_t mMaxHandOverTime;		// Maximal time for handing over an item to another module [ms]
+				uint32_t mRampTime;				// Time LB_RAMP has to wait until an event should be sent [ms]
+				uint32_t mItemInLB;				// Time an item needs to pass a LB
 				float mTimeTolerance;			// TimeTolerance depending on ITEM going either the short or the long way [%]
-				const float mFlatTolerance;
+				const float mFlatTolerance;		// Tolerance for all sensor values
 
-				static constexpr float TOLERANCE = 0.1; // Tolerance for all sensor values
+				static constexpr float TOLERANCE = 0.1;
+				static constexpr uint32_t HANDOVER_TIME = 3000;
+				static constexpr uint32_t RAMP_TIME = 3000;
 		};
 
 }

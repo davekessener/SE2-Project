@@ -48,9 +48,9 @@ namespace esep
 				bool running( ) const { return mRunning.load(); }
 
 			private:
-				void handleBase(Message::Base);
 				void doSwitch(IManager *m);
-				void handleHAL(Event);
+				void processBase(Message::Base);
+				void processHAL(Event);
 
 			private:
 				communication::IRecipient * mMaster;

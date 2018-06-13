@@ -15,7 +15,11 @@ Data_ptr RunManagerTimer::deserialize(lib::ByteStream& bs)
 		MXT_THROW_EX(DataManager::UnexpectedEOSException);
 	}
 
-	return Data_ptr(new RunManagerTimer(static_cast<TimerEvent> (bs.remove())));
+	TimerEvent e;
+
+	bs >> e;
+
+	return Data_ptr(new RunManagerTimer(e));
 }
 
 }}
