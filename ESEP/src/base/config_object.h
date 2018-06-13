@@ -20,7 +20,7 @@ namespace esep
 				MXT_DEFINE_E(InvalidDataException);
 
 			public:
-				ConfigObject(const std::string& path = "system.conf", float ft = TOLERANCE, uint32_t rt = RAMP_TIME, uint32_t ho = HANDOVER_TIME);
+				ConfigObject(const std::string& path = "system.conf", uint32_t dt = DISCARD_TIME, float ft = TOLERANCE, uint32_t rt = RAMP_TIME, uint32_t ho = HANDOVER_TIME);
 				void save();
 				bool isValid();
 
@@ -33,7 +33,8 @@ namespace esep
 				float timeTolerance();
 				uint32_t maxHandOverTime() const { return mMaxHandOverTime; };
 				uint32_t rampTime() const { return mRampTime; };
-				float tolerance() const { return mFlatTolerance; }
+				float tolerance() const { return mFlatTolerance; };
+				float discardTime() const { return mDiscardTime; };
 
 				void setHeightSensorMin(uint16_t);
 				void setHeightSensorMax(uint16_t);
@@ -56,10 +57,12 @@ namespace esep
 				uint32_t mItemInLB;				// Time an item needs to pass a LB
 				float mTimeTolerance;			// TimeTolerance depending on ITEM going either the short or the long way [%]
 				const float mFlatTolerance;		// Tolerance for all sensor values
+				uint32_t mDiscardTime;			// Time the module need to discard an ITEM
 
 				static constexpr float TOLERANCE = 0.1;
 				static constexpr uint32_t HANDOVER_TIME = 3000;
-				static constexpr uint32_t RAMP_TIME = 3000;
+				static constexpr uint32_t RAMP_TIME = 500;
+				static constexpr uint32_t DISCARD_TIME = 3000;
 		};
 
 }

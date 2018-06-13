@@ -50,9 +50,12 @@ Base::Base(IRecipient *b, Client_ptr c)
 				{
 					lib::ByteStream bs(lib::byte_stream::from_container(mSerial->read()));
 
-					MXT_LOG_INFO("Received ", bs.size(), " bytes of data.");
+					auto s = bs.size();
+					auto p = Packet::deserialize(bs);
 
-					mBuffer.insert(Packet::deserialize(bs));
+					MXT_LOG_INFO("Received ", p, " [", s, "B]");
+
+					mBuffer.insert(p);
 				}
 			}
 			catch(const serial::Connection::ConnectionClosedException& e)
@@ -104,7 +107,7 @@ void Base::send(Packet_ptr p)
 
 		p->serialize(bs);
 
-		MXT_LOG_INFO("Sending ", bs.size(), " bytes of data.");
+		MXT_LOG_INFO("Sending ", p, " [", bs.size(), "B]");
 
 		mSerial->write(serial::Client::buffer_t(bs.cbegin(), bs.cend()));
 	}
