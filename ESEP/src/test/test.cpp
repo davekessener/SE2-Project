@@ -13,6 +13,7 @@
 #include "test/ft/configmanager.h"
 #include "test/ft/plugins.h"
 #include "test/ft/configmanager.h"
+#include "test/ft/measure_delay.h"
 
 #include "lib/logger.h"
 
@@ -36,6 +37,7 @@ test_fn getTest(const std::string& id)
 		t["hs"]      = &functional::testHeightSensor;
 		t["plugins"] = &functional::testPlugins;
 		t["config"]  = &functional::testConfigManager;
+		t["measure"] = &functional::measureDelay;
 	}
 
 	auto i = t.find(id);

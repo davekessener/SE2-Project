@@ -42,7 +42,6 @@ RunManager::~RunManager()
 void RunManager::enter()
 {
 	HAL_LIGHTS.turnOn(Light::GREEN);
-	mTimeCtrl.resumeAllTimerDelayed(200);
 
 	MXT_LOG_INFO("Entering RunManager.");
 }
@@ -146,7 +145,7 @@ void RunManager::accept(Packet_ptr p)
 		case Message::Run::RESUME:
 				HAL_MOTOR.right();
 				HAL_MOTOR.start();
-				mTimeCtrl.resumeAllTimerDelayed(200);
+				mTimeCtrl.resumeAllTimerDelayed(120);
 				break;
 
 		case Message::Run::SUSPEND:
