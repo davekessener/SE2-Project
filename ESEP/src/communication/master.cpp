@@ -23,7 +23,10 @@ void Master::accept(Packet_ptr p)
 	switch(p->target())
 	{
 	case Packet::Location::MASTER:
-		p->source(Packet::Location::BASE_M);
+		if(p->source() == Packet::Location::BASE)
+		{
+			p->source(Packet::Location::BASE_M);
+		}
 		Base::accept(p);
 		break;
 

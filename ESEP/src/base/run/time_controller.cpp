@@ -36,10 +36,9 @@ void TimeCtrl::resumeAllTimer()
 
 void TimeCtrl::resumeAllTimerDelayed(uint delay)
 {
-	mDelayTimer = lib::Timer::instance().registerAsync([this](void)
-			{
-				resumeAllTimer();
-			}, delay);
+	mDelayTimer = lib::Timer::instance().registerAsync([this](void) {
+		resumeAllTimer();
+	}, delay);
 }
 
 void TimeCtrl::setTimer(State state, TimerEvent e, uint r, uint p)

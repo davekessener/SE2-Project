@@ -114,11 +114,6 @@ namespace esep
 						s = s.map(Filter{});
 					}
 
-//					double y_max = (decltype(s){s})
-//						.map([](const out_type& v) { return v.y(); })
-//						.select([](double a, double b) { return b > a; });
-
-//					s.map([&y_max](const out_type& v) { return out_type(v.x(), v.y() / y_max); })
 					s.collect([&](const out_type& v) { r.push_back(v); });
 				}
 

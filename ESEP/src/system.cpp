@@ -62,6 +62,7 @@ void Impl::run(const lib::Arguments& args)
 {
 	typedef std::unique_ptr<serial::Connection> Connection_ptr;
 	typedef std::unique_ptr<serial::Client> Client_ptr;
+	typedef hal::HAL::Event Event;
 
 	if(HAL_BUTTONS.isPressed(Button::ESTOP))
 	{
@@ -132,7 +133,7 @@ void Impl::run(const lib::Arguments& args)
 
 		com.reset(m);
 		master.reset(new master::Master(com.get(), [](const master::Item& item) {
-			HAL_CONSOLE.println(item.ID());
+			HAL_CONSOLE.println("Item reached end. ID is ", item.ID());
 		}));
 
 		master->add(master::Plugin_ptr(new SimplePlugin));
@@ -146,7 +147,7 @@ void Impl::run(const lib::Arguments& args)
 
 	handler.setMaster(com.get());
 
-	mHAL->setCallback([&handler](hal::HAL::Event e) {
+	mHAL->setCallback([&handler](Event e) {
 		handler.handle(e);
 	});
 
@@ -157,6 +158,8 @@ void Impl::run(const lib::Arguments& args)
 	{
 		lib::Timer::instance().sleep(10);
 	}
+
+	mHAL->setCallback([](Event e) { });
 
 	MXT_LOG_INFO("End of system::run.");
 }

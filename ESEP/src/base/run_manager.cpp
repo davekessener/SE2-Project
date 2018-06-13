@@ -43,12 +43,16 @@ void RunManager::enter()
 {
 	HAL_LIGHTS.turnOn(Light::GREEN);
 	mTimeCtrl.resumeAllTimerDelayed(200);
+
+	MXT_LOG_INFO("Entering RunManager.");
 }
 
 void RunManager::leave()
 {
 	mTimeCtrl.pauseAllTimer();
 	HAL_LIGHTS.turnOff(Light::GREEN);
+
+	MXT_LOG_INFO("Leaving RunManager.");
 }
 
 void RunManager::handle(Event e)
