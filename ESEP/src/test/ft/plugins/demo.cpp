@@ -50,12 +50,50 @@ namespace
 		Action decide(const history_t&) override { return Action::KEEP; }
 	};
 
+	struct FlatItemPlugin : SamplePlugin
+	{
+		typedef std::function<bool(double)> pred_fn;
+
+		FlatItemPlugin(PluginType t, processor_t *p, pred_fn f)
+			: Plugin(t)
+		    , SamplePlugin(t, p, ItemProfile::FLAT)
+		 	, mCheck(f) { }
+
+		float match(const data_t& d)
+		{
+			float f = SamplePlugin::match(d);
+			double y = 0;
+
+			for(const auto& p : d)
+			{
+				if(p->type() == data::DataPoint::Type::HEIGHT_MAP)
+				{
+					const auto& data(use(dynamic_cast<data::HeightMap *>(p.get())).get<master::plugin::Hausdorff::Station::NORMALIZED>());
+
+					for(uint i = 10 ; i < data.size() - 20 ; ++i)
+					{
+						y += data[i].y();
+					}
+
+					y /= data.size() - 20;
+				}
+			}
+
+			return mCheck(y) ? f : 0;
+		}
+
+		pred_fn mCheck;
+	};
+
 	std::string ITEM_NAME(PluginType t)
 	{
 		switch(t)
 		{
 		case PluginType::FLAT:
 			return "FLAT";
+
+		case PluginType::UPSIDEDOWN:
+			return "UPSIDE-DOWN";
 
 		case PluginType::HOLLOW:
 			return "HOLLOW";
@@ -108,6 +146,8 @@ Demo::~Demo(void)
 	HAL_CONSOLE.println("================================================================");
 }
 
+#define MXT_FLAT_UD_THRESH 0.63
+
 void Demo::run(void)
 {
 	typedef hal::HAL::Event Event;
@@ -118,7 +158,8 @@ void Demo::run(void)
 	master::plugin::Hausdorff::processor_t processor;
 	std::vector<std::unique_ptr<master::Plugin>> plugins;
 
-	plugins.emplace_back(new SamplePlugin(PluginType::FLAT, &processor, ItemProfile::FLAT));
+	plugins.emplace_back(new FlatItemPlugin(PluginType::FLAT, &processor, [](double y) { return y < MXT_FLAT_UD_THRESH; }));
+	plugins.emplace_back(new FlatItemPlugin(PluginType::UPSIDEDOWN, &processor, [](double y) { return y > MXT_FLAT_UD_THRESH; }));
 	plugins.emplace_back(new SamplePlugin(PluginType::HOLLOW, &processor, ItemProfile::HOLLOW));
 	plugins.emplace_back(new SamplePlugin(PluginType::CODED_101, &processor, ItemProfile::CODED_101));
 	plugins.emplace_back(new SamplePlugin(PluginType::CODED_010, &processor, ItemProfile::CODED_010));
@@ -164,8 +205,11 @@ void Demo::run(void)
 
 	State state = State::IDLE;
 	std::atomic<bool> running(true);
+	timer::Manager cb;
 
 	uint64_t ts = 0;
+	uint count = 0;
+	bool hs_done = false;
 
 	HAL_LIGHTS.turnOn(Light::GREEN);
 
@@ -193,7 +237,7 @@ void Demo::run(void)
 			if(e == Event::HEIGHT_SENSOR && HAL_HEIGHT_SENSOR.measure())
 			{
 				hm.reset(new data::HeightMap);
-				fout.reset(new lib::FileWriter("item.hm"));
+				fout.reset(new lib::FileWriter(lib::stringify("item_",  lib::hex<8>(count++), ".hm")));
 				state = State::IN_HS;
 				HAL_LIGHTS.turnOn(Light::RED);
 				ts = lib::Timer::instance().elapsed();
@@ -202,25 +246,39 @@ void Demo::run(void)
 			break;
 
 		case State::IN_HS:
-			if(uint16_t v = HAL_HEIGHT_SENSOR.measure())
+		{
+			if(e == Event::HEIGHT_SENSOR)
 			{
-				uint16_t t = lib::Timer::instance().elapsed() - ts;
-				hm->addHeightValue(t, v);
-				fout->writeLine(lib::stringify(t, " ", lib::hex<16>(v)));
+				if(uint16_t v = HAL_HEIGHT_SENSOR.measure())
+				{
+					uint16_t t = lib::Timer::instance().elapsed() - ts;
+					std::string l = lib::stringify(t, " ", v, ";");
+
+					hm->addHeightValue(t, v);
+					fout->writeLine(l);
+
+					if(hs_done) cb.reset();
+					hs_done = false;
+				}
+				else if(!hs_done)
+				{
+					hs_done = true;
+
+					cb = lib::Timer::instance().registerAsync([&](void) {
+						fout.reset();
+
+						do_analysis(data::Data_ptr(hm.release()));
+
+						processor.clear();
+
+						HAL_MOTOR.left();
+						HAL_LIGHTS.turnOff(Light::RED);
+
+						state = State::RETURNING;
+					}, 15);
+				}
 			}
-			else
-			{
-				fout.reset();
-
-				do_analysis(data::Data_ptr(hm.release()));
-
-				processor.clear();
-
-				HAL_MOTOR.left();
-				HAL_LIGHTS.turnOff(Light::RED);
-
-				state = State::RETURNING;
-			}
+		}
 			break;
 
 		case State::RETURNING:

@@ -25,6 +25,7 @@ namespace esep
 			{
 				UNKNOWN,
 				DEFAULT,
+				UPSIDEDOWN,
 				FLAT,
 				HOLLOW,
 				HOLLOW_METAL,

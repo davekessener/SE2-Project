@@ -3,10 +3,12 @@
 #define MXT_SAMPLES 100
 #define MXT_PROFILES 10
 
-#define MXT_TOP 0.95
-#define MXT_BOTTOM 0.15
-#define MXT_HIGH 0.82
-#define MXT_LOW 0.65
+#define MXT_TOP 0.79
+#define MXT_BOTTOM 0.11
+#define MXT_HIGH 0.7
+#define MXT_LOW 0.49
+#define MXT_FLAT 0.62
+
 
 namespace esep { namespace analyse {
 
@@ -65,7 +67,7 @@ namespace
 			};
 		};
 
-		assign(Item::FLAT, [](double x) { return MXT_TOP; });
+		assign(Item::FLAT, [](double x) { return MXT_FLAT; });
 		assign(Item::HOLLOW, [](double x) { return (x >= 0.33 && x <= 0.66) ? MXT_BOTTOM : MXT_TOP; });
 		assign(Item::CODED_000, coded(0));
 		assign(Item::CODED_001, coded(1));

@@ -37,10 +37,10 @@ namespace esep
 			using Stream = lib::stream::Stream<TT>;
 
 			static constexpr primitive_t NORMALIZE = static_cast<height_t>(~0);
-			static constexpr primitive_t LOWPASS_DEFAULT = 0.95;
+			static constexpr primitive_t LOWPASS_DEFAULT = 0.75;
 			static constexpr size_t SEGMENTS = 100;
 			static constexpr size_t N_LOWPASS = 2;
-			static constexpr size_t M_LOWPASS = 3;
+			static constexpr size_t M_LOWPASS = 2;
 
 			public:
 				container_type operator()(const data::HeightMap *hm)
@@ -64,10 +64,10 @@ namespace esep
 				template<typename I, typename std::enable_if<IsRandomAccessIterator<I>::value>::type * = nullptr>
 				void process(container_type& r, I&& i1, I&& i2)
 				{
-					typedef utils::LowPass<primitive_t, M_LOWPASS> low_pass_t;
+					typedef utils::LowPass<primitive_t, N_LOWPASS> low_pass_t;
 					typedef utils::Interpolation<out_type> inter_t;
 
-					time_t time_max = 0;
+					time_t time_max = 0, time_min = 0;
 					size_t n = 0;
 
 					utils::trim(i1, i2, 0.85, 10);
@@ -79,13 +79,14 @@ namespace esep
 
 					r.reserve(SEGMENTS);
 
+					time_min = i1->first;
 					for(auto i = i1 ; i != i2 ; ++i, ++n)
 					{
 						if(i->first > time_max) time_max = i->first;
 					}
 
-					auto transform = [time_max](const in_type& v) -> out_type {
-						return {v.first / (primitive_t) time_max, v.second / NORMALIZE};
+					auto transform = [time_min, time_max](const in_type& v) -> out_type {
+						return {(v.first - time_min) / (primitive_t) (time_max - time_min), v.second / NORMALIZE};
 					};
 
 					auto get = [&](size_t i) { return transform(i1[i]); };
@@ -108,17 +109,17 @@ namespace esep
 						low_pass_t f;
 					};
 
-					for(uint i = 0 ; i < N_LOWPASS ; ++i)
+					for(uint i = 0 ; i < M_LOWPASS ; ++i)
 					{
 						s = s.map(Filter{});
 					}
 
-					double y_max = (decltype(s){s})
-						.map([](const out_type& v) { return v.y(); })
-						.select([](double a, double b) { return b > a; });
+//					double y_max = (decltype(s){s})
+//						.map([](const out_type& v) { return v.y(); })
+//						.select([](double a, double b) { return b > a; });
 
-					s.map([&y_max](const out_type& v) { return out_type(v.x(), v.y() / y_max); })
-					 .collect([&](const out_type& v) { r.push_back(v); });
+//					s.map([&y_max](const out_type& v) { return out_type(v.x(), v.y() / y_max); })
+					s.collect([&](const out_type& v) { r.push_back(v); });
 				}
 
 		};

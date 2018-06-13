@@ -18,7 +18,7 @@ namespace esep
 				static constexpr size_t SAMPLES = N;
 
 				public:
-					LowPass(T initial = 0) : mIdx(0) { for(uint i = 0 ; i < N ; ++i) mBuf[i] = initial; }
+					LowPass(T initial = 0) : mIdx(0), mDamp(calcDamp()) { for(uint i = 0 ; i < N ; ++i) mBuf[i] = initial; }
 					T operator()(const T& v)
 					{
 						T r = 0;
@@ -32,15 +32,28 @@ namespace esep
 
 						mIdx = inc(mIdx);
 
-						return r;
+						return r / mDamp;
 					}
 
 				private:
 					static constexpr uint inc(uint v) { return (v + 1) % N; }
 					static constexpr uint dec(uint v) { return (v + N - 1) % N; }
 
+					static T calcDamp( )
+					{
+						T d = 0;
+
+						for(uint i = 0 ; i < N ; ++i)
+						{
+							d += static_cast<T>(1) / (N - i);
+						}
+
+						return d;
+					}
+
 				private:
 					uint mIdx;
+					const T mDamp;
 					std::array<T, N> mBuf;
 			};
 		}
