@@ -16,6 +16,7 @@ namespace esep
 
 				public:
 					ItemDisappeared(communication::IRecipient *);
+					void enter() override;
 					void handle(Event) override;
 					void accept(Packet_ptr) override { };
 

@@ -12,6 +12,14 @@ ItemStuck::ItemStuck(communication::IRecipient * handler, Location location)
 {
 }
 
+void ItemStuck::enter(void)
+{
+	HAL_CONSOLE.println("Error: Item stuck in ", mLocation, "!");
+	MXT_LOG_ERROR("Error: Item stuck in ", mLocation, "!");
+
+	ResetAck::enter();
+}
+
 void ItemStuck::handle(Event e)
 {
 	switch(e)
