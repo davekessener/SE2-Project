@@ -5,37 +5,42 @@
 namespace esep { namespace base { namespace run {
 
 ItemScanner::ItemScanner()
-	:	mCurrentHM(nullptr),
-		mSuspend(false),
-		mFirstStamp(0),
-		mLastMappingTime(0)
+	: mSuspend(false)
+	, mDone(false)
+	, mFirstStamp(0)
+	, mLastMappingTime(0)
 {
-
 }
 
-void ItemScanner::takeMeasurement(uint16_t height)
+void ItemScanner::takeMeasurement(uint16_t h)
 {
 	if(!mSuspend)
 	{
-		uint64_t hvalStamp = lib::Timer::instance().elapsed();
-		if(mCurrentHM == nullptr)
+		uint64_t t = lib::Timer::instance().elapsed();
+
+		if(h)
 		{
-			MXT_LOG_INFO("ItemScanner: Started a new hightmap!");
-			mFirstStamp = hvalStamp;
-			mCurrentHM->addHeightValue(hvalStamp, height);
-		}
-		else if (height == 0)
-		{
-			MXT_LOG_INFO("ItemScanner: Got 0 while measuring!");
-			mFinishTimer = lib::Timer::instance().registerCallback([this](void)
+			if(!static_cast<bool>(mCurrentHM))
 			{
-				finishMeasurement();
-			}, 10);
-		}
-		else
-		{
+				MXT_LOG_INFO("ItemScanner: Started a new hightmap!");
+
+				mFirstStamp = t;
+				mCurrentHM.reset(new data::HeightMap);
+			}
+
+			mDone = false;
 			mFinishTimer.reset();
-			mCurrentHM->addHeightValue(hvalStamp-mFirstStamp, height);
+			mCurrentHM->addHeightValue(t - mFirstStamp, h);
+		}
+		else if(static_cast<bool>(mCurrentHM))
+		{
+			if(!mDone)
+			{
+				mDone = true;
+				mFinishTimer = lib::Timer::instance().registerCallback([this](void) {
+					finishMeasurement();
+				}, 10);
+			}
 		}
 	}
 }
@@ -45,7 +50,8 @@ void ItemScanner::finishMeasurement()
 	if(mCurrentHM->size() > LOWERBOUND && mCurrentHM->size() < UPPERBOUND)
 	{
 		MXT_LOG_INFO("ItemScanner: Finished one hightmap with ", mCurrentHM->size(), " values.");
-		mFinishedHM.emplace_back(mCurrentHM);
+
+		mFinishedHM.emplace_back(mCurrentHM.release());
 	}
 	else
 	{
@@ -53,25 +59,17 @@ void ItemScanner::finishMeasurement()
 		uint32_t U = UPPERBOUND;
 		MXT_LOG_WARN("ItemScanner: Measured heightmap got: ", mCurrentHM->size(), " values! \tLowerbound: ", L,", Upperbound: ", U);
 	}
-
-	mCurrentHM.reset();
-	mFirstStamp = 0;
-	mLastMappingTime = 0;
 }
 
 void ItemScanner::suspend()
 {
 	mSuspend = true;
-
 	mLastMappingTime = lib::Timer::instance().elapsed() - mFirstStamp;
 }
 
 void ItemScanner::resume()
 {
-	if(mCurrentHM != nullptr && mFirstStamp != 0)
-	{
-		mFirstStamp = lib::Timer::instance().elapsed() - mLastMappingTime;
-	}
+	mFirstStamp = lib::Timer::instance().elapsed() - mLastMappingTime;
 	mSuspend = false;
 }
 
@@ -83,7 +81,9 @@ data::Data_ptr ItemScanner::getHeightmap()
 	}
 
 	Data_ptr d = mFinishedHM.front();
+
 	mFinishedHM.pop_front();
+
 	return d;
 }
 

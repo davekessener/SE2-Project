@@ -32,16 +32,14 @@ namespace esep
 					ConcretePlugin(Hausdorff::processor_t *p) : Plugin(T), Hausdorff(p, T, PROFILE), SortingPolicy(T) { }
 			};
 
-			typedef ConcretePlugin<Plugin::Type::FLAT, Constant<Plugin::Action::TOSS_M>> Flat;
-			typedef ConcretePlugin<Plugin::Type::UPSIDEDOWN, Constant<Plugin::Action::TOSS>> UpsideDown;
-			typedef ConcretePlugin<Plugin::Type::HOLLOW, SortOrder> Hollow;
-
-			class HollowMetal : public ConcretePlugin<Plugin::Type::HOLLOW_METAL, SortOrder>
+			template<Plugin::Type T>
+			class HollowItem : public ConcretePlugin<T, SortOrder>
 			{
-				typedef ConcretePlugin<Plugin::Type::HOLLOW_METAL, SortOrder> Super;
+				typedef ConcretePlugin<T, SortOrder> Super;
+				typedef typename Super::data_t data_t;
 
 				public:
-					HollowMetal(Hausdorff::processor_t *p) : Plugin(Plugin::Type::HOLLOW_METAL), Super(p) { }
+					HollowItem(Hausdorff::processor_t *p) : Plugin(T), Super(p) { }
 
 					float match(const data_t& data) override
 					{
@@ -51,7 +49,7 @@ namespace esep
 						{
 							if(p->type() == data::DataPoint::Type::METAL_SENSOR)
 							{
-								if(static_cast<data::MetalSensor&>(*p).isMetal())
+								if(static_cast<data::MetalSensor&>(*p).isMetal() == (T == Plugin::Type::HOLLOW_METAL))
 								{
 									r = Super::match(data);
 								}
@@ -61,6 +59,11 @@ namespace esep
 						return r;
 					}
 			};
+
+			typedef ConcretePlugin<Plugin::Type::FLAT, Constant<Plugin::Action::TOSS_M>> Flat;
+			typedef ConcretePlugin<Plugin::Type::UPSIDEDOWN, Constant<Plugin::Action::TOSS>> UpsideDown;
+			typedef HollowItem<Plugin::Type::HOLLOW> Hollow;
+			typedef HollowItem<Plugin::Type::HOLLOW_METAL> HollowMetal;
 		}
 	}
 }

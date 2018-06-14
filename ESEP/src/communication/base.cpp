@@ -65,7 +65,7 @@ Base::Base(Client_ptr c)
 			{
 				if(mRunning.load())
 				{
-					MXT_LOG_INFO("Com detected a dead connection.");
+					MXT_LOG_INFO("Com detected a dead connection: ", e.what());
 
 					accept(std::make_shared<Packet>(Location::MASTER, Location::BASE, Message::Error::SERIAL));
 					accept(std::make_shared<Packet>(Location::BASE, Location::MASTER, Message::Error::SERIAL));

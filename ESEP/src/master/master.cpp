@@ -6,7 +6,62 @@
 
 #include "lib/logger.h"
 
+#include "hal.h"
+
 namespace esep { namespace master {
+
+namespace
+{
+	std::string item_type_to_s(Plugin::Type t)
+	{
+		switch(t)
+		{
+		case Plugin::Type::CODED_000:
+			return "CODED (000)";
+
+		case Plugin::Type::CODED_001:
+			return "CODED (001)";
+
+		case Plugin::Type::CODED_010:
+			return "CODED (010)";
+
+		case Plugin::Type::CODED_011:
+			return "CODED (011)";
+
+		case Plugin::Type::CODED_100:
+			return "CODED (100)";
+
+		case Plugin::Type::CODED_101:
+			return "CODED (101)";
+
+		case Plugin::Type::CODED_110:
+			return "CODED (110)";
+
+		case Plugin::Type::CODED_111:
+			return "CODED (111)";
+
+		case Plugin::Type::FLAT:
+			return "FLAT";
+
+		case Plugin::Type::HOLLOW:
+			return "HOLLOW (PLASTIC)";
+
+		case Plugin::Type::HOLLOW_METAL:
+			return "HOLLOW (METAL)";
+
+		case Plugin::Type::UPSIDEDOWN:
+			return "UPSIDE-DOWN";
+
+		case Plugin::Type::UNKNOWN:
+			return "UNKNOWN";
+
+		case Plugin::Type::DEFAULT:
+			return "DEFAULT";
+		}
+
+		return "ERROR";
+	}
+}
 
 Master::Master(IRecipient *com, item_handler_fn f)
 	: mCom(com)
@@ -39,8 +94,12 @@ void Master::accept(Packet_ptr p)
 		return;
 	}
 
-	mLogic.process(e);
-	mLogic.accept(p);
+	try
+	{
+		mLogic.process(e);
+		mLogic.accept(p);
+	}
+	MXT_CATCH_ALL_STRAY
 }
 
 void Master::analyse(Item& item, const data_t& data)
@@ -71,6 +130,8 @@ void Master::analyse(Item& item, const data_t& data)
 		}
 
 		item.plugin(m);
+
+		HAL_CONSOLE.println("Identified Item #", item.ID(), ": ", item_type_to_s(m->type()), " on module ", item.location() == Packet::Location::BASE_S ? 2 : 1);
 	}
 	else
 	{

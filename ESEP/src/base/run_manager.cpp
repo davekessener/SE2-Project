@@ -1,30 +1,14 @@
-#include <memory>
-#include <tuple>
+#include "base/run_manager.h"
 
-#include "run_manager.h"
-
-#include "lib/petri_net.h"
-#include "lib/timer.h"
 #include "lib/logger.h"
-#include "lib/utils.h"
-
-#include "run/time_controller.h"
-#include "run/types.h"
-
-#include "data/location_data.h"
-#include "data/data_point.h"
-
-#include "system.h"
-#include "hal.h"
-
-
-namespace esep { namespace base {
 
 #define MXT_P_NR_STATES			16
 #define MXT_CAST(t)				static_cast<uint8_t>(t)
 #define MXT_FINISHED			0
 #define MXT_FIRSTTIME			1
 #define MXT_HM					2
+
+namespace esep { namespace base {
 
 RunManager::RunManager(communication::IRecipient* m, ConfigObject * c)
 	:	mMaster(m)
@@ -37,7 +21,6 @@ RunManager::RunManager(communication::IRecipient* m, ConfigObject * c)
 
 RunManager::~RunManager()
 {
-
 }
 
 void RunManager::enter()
@@ -49,10 +32,26 @@ void RunManager::enter()
 
 void RunManager::leave()
 {
-	mTimeCtrl.pauseAllTimer();
+	suspend();
+
 	HAL_LIGHTS.turnOff(Light::GREEN);
 
 	MXT_LOG_INFO("Leaving RunManager.");
+}
+
+void RunManager::suspend(void)
+{
+	HAL_MOTOR.stop();
+	mTimeCtrl.pauseAllTimer();
+	mScanner.suspend();
+}
+
+void RunManager::resume(void)
+{
+	mScanner.resume();
+	mTimeCtrl.resumeAllTimerDelayed(120);
+	HAL_MOTOR.right();
+	HAL_MOTOR.start();
 }
 
 void RunManager::handle(Event e)
@@ -103,32 +102,34 @@ void RunManager::handle(Event e)
 
 void RunManager::takeMeasurement()
 {
-	uint16_t hval = HAL_HEIGHT_SENSOR.measure();
-	uint64_t hvalStamp = lib::Timer::instance().elapsed();
+	mScanner.takeMeasurement(HAL_HEIGHT_SENSOR.measure());
 
-	if(mHeightMapBuffer.empty() || std::get<MXT_FINISHED>(mHeightMapBuffer.back()))
-	{
-		if(hval)
-		{
-			heightMap_ptr hm(new data::HeightMap);
-			mHeightMapBuffer.emplace_back(std::make_tuple(false, hvalStamp, hm));
-			std::get<MXT_HM>(mHeightMapBuffer.back())->addHeightValue(0, hval);
-			MXT_LOG_INFO("Starting height map record.");
-		}
-	}
-	else
-	{
-		if(hval == 0)
-		{
-			std::get<MXT_FINISHED>(mHeightMapBuffer.back()) = true;
-
-			MXT_LOG_INFO("Finished height map.");
-		}
-		else
-		{
-			std::get<MXT_HM>(mHeightMapBuffer.back())->addHeightValue(timeDiff(std::get<MXT_FIRSTTIME>(mHeightMapBuffer.back()), hvalStamp), hval);
-		}
-	}
+//	uint16_t hval = HAL_HEIGHT_SENSOR.measure();
+//	uint64_t hvalStamp = lib::Timer::instance().elapsed();
+//
+//	if(mHeightMapBuffer.empty() || std::get<MXT_FINISHED>(mHeightMapBuffer.back()))
+//	{
+//		if(hval)
+//		{
+//			heightMap_ptr hm(new data::HeightMap);
+//			mHeightMapBuffer.emplace_back(std::make_tuple(false, hvalStamp, hm));
+//			std::get<MXT_HM>(mHeightMapBuffer.back())->addHeightValue(0, hval);
+//			MXT_LOG_INFO("Starting height map record.");
+//		}
+//	}
+//	else
+//	{
+//		if(hval == 0)
+//		{
+//			std::get<MXT_FINISHED>(mHeightMapBuffer.back()) = true;
+//
+//			MXT_LOG_INFO("Finished height map.");
+//		}
+//		else
+//		{
+//			std::get<MXT_HM>(mHeightMapBuffer.back())->addHeightValue(timeDiff(std::get<MXT_FIRSTTIME>(mHeightMapBuffer.back()), hvalStamp), hval);
+//		}
+//	}
 }
 
 uint64_t RunManager::timeDiff(uint64_t oldstamp, uint64_t currstamp)
@@ -146,30 +147,28 @@ void RunManager::accept(Packet_ptr p)
 		switch(auto runM = m.as<Message::Run>())
 		{
 		case Message::Run::RESUME:
-				HAL_MOTOR.right();
-				HAL_MOTOR.start();
-				mTimeCtrl.resumeAllTimerDelayed(120);
-				break;
+			resume();
+			break;
 
 		case Message::Run::SUSPEND:
-				HAL_MOTOR.stop();
-				mTimeCtrl.pauseAllTimer();
-				break;
+			suspend();
+			break;
 
 		case Message::Run::TIMER:
-				for (data::Data_ptr d : *p)
+			for (data::Data_ptr d : *p)
+			{
+				if(d->type() == data::DataPoint::Type::RUN_MANAGER_TIMER)
 				{
-					if(d->type() == data::DataPoint::Type::RUN_MANAGER_TIMER)
-					{
-						auto te = static_cast<data::RunManagerTimer&>(*d).event();
-						mLogic.process(te);
-					}
+					auto te = static_cast<data::RunManagerTimer&>(*d).event();
+					mLogic.process(te);
 				}
-				break;
+			}
+			break;
 
 		//if its not resume or suspend, proceed this msg to logic
 		default:
-				mLogic.process(runM);
+			mLogic.process(runM);
+			break;
 		}
 	}
 	else

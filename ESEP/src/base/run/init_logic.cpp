@@ -179,15 +179,16 @@ void RunManager::initLogic()
 			{
 				mTimeCtrl.deleteTimer(State::BF_LB_SWITCH);
 				//check if there is measured date to send
-				if(mHeightMapBuffer.empty() || !std::get<MXT_FINISHED>(mHeightMapBuffer.front()))
+				if(!mScanner.ready())
 				{
-
+					MXT_LOG_ERROR("Did not measure a height map!");
+				}
+				else
+				{
+					// send item info to master (heightmap, metalsensor)
+					sendItemInfo(mScanner.getHeightmap(), MXT_SHARE(data::MetalSensor, HAL_METAL_SENSOR.isMetal()));
 				}
 
-				// send item info to master (heightmap, metalsensor)
-				sendItemInfo(data::Data_ptr(std::get<MXT_HM>(mHeightMapBuffer.front())), MXT_SHARE(data::MetalSensor, HAL_METAL_SENSOR.isMetal()));
-				// delete the old hightmap
-				mHeightMapBuffer.pop_front();
 				mTimeCtrl.setTimer(State::IN_LB_SWITCH, TimerEvent::SWITCH_1, mConfig->discardTime());
 			});
 	//LB_SWITCH_E

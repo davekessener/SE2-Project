@@ -5,6 +5,7 @@
 
 #include "lib/utils.h"
 #include "lib/logger.h"
+#include "lib/stream_intercept.h"
 
 namespace esep { namespace test { namespace unit {
 
@@ -30,7 +31,11 @@ void TestSuite::doTest(void)
 		{
 			MXT_LOG("Executing UT '", p.first, "'");
 
-			p.second();
+			{
+				lib::StreamIntercept clean_cout(std::cout);
+
+				p.second();
+			}
 
 			mResults.push_back(std::make_pair(Result::SUCCESS, ""));
 
