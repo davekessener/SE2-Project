@@ -56,9 +56,8 @@ void Tester::run(void)
 	typedef hal::HAL::Event Event;
 	typedef hal::Buttons::Button Button;
 
-	mHandler.reset(new base::Handler(&mConfig));
+	mHandler.reset(new base::Handler(this, &mConfig));
 
-	mHandler->setMaster(this);
 	mRunning = true;
 
 	mHAL->setCallback([this](Event e) {
@@ -92,9 +91,13 @@ void Tester::run(void)
 		if(line == "reset")
 		{
 			HAL_CONSOLE.println("Resetting!");
+			HAL_MOTOR.right();
+			HAL_MOTOR.fast();
+			HAL_MOTOR.stop();
+			HAL_SWITCH.close();
+			mKeep = false;
 
-			mHandler.reset(new base::Handler(&mConfig));
-			mHandler->setMaster(this);
+			mHandler.reset(new base::Handler(this, &mConfig));
 			mItemCount = 0;
 		}
 	});

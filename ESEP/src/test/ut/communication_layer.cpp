@@ -52,9 +52,11 @@ void CommunicationLayer::setup(void)
 		lib::Timer::instance().sleep(10);
 	}
 
-	mMasterCom = new communication::Master(mBaseM, std::move(c0));
-	mSlaveCom = new communication::Slave(mBaseS, std::move(c1));
+	mMasterCom = new communication::Master(std::move(c0));
+	mSlaveCom = new communication::Slave(std::move(c1));
 
+	mMasterCom->setBase(mBaseM);
+	mSlaveCom->setBase(mBaseS);
 	mMasterCom->setMaster(mMaster);
 
 	lib::Timer::instance().sleep(MXT_TIMEOUT / 10);

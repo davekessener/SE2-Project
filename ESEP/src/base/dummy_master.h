@@ -47,6 +47,9 @@ namespace esep
 						case Message::Master::READY:
 							send(Location::BASE, Message::Base::READY);
 							break;
+						case Message::Master::VALID:
+							send(Location::BASE, Message::Base::VALID);
+							break;
 						case Message::Master::FIXED:
 							if(!--mErrors)
 							{
