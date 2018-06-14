@@ -14,16 +14,20 @@ namespace esep
 			class ItemStuck : public ResetAck
 			{
 				typedef communication::Packet_ptr Packet_ptr;
-				typedef data::Location::Type Location;
+				typedef data::DataPoint::Type DataType;
+				typedef data::Location Location;
 
 				public:
-					ItemStuck(communication::IRecipient *, Location);
+					MXT_DEFINE_E(NoLocationInPacket);
+
+				public:
+					ItemStuck(communication::IRecipient *, Packet_ptr);
 					void enter() override;
 					void handle(Event) override;
 					void accept(Packet_ptr) override { };
 
 				private:
-					Location mLocation;
+					std::shared_ptr<Location> mLocation;
 			};
 		}
 	}
