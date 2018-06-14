@@ -27,7 +27,7 @@ void ActualConnection::write(const byte_t* b, size_t l)
 {
 	if(!isOpen())
 	{
-		throw Connection::ConnectionClosedException();
+		MXT_THROW_EX(Connection::ConnectionClosedException);
 	}
 
     if(::write(mFD, b, l) != (ssize_t) l)
@@ -54,14 +54,14 @@ void ActualConnection::read(byte_t* b, size_t size)
 	{
 		if(!isOpen())
 		{
-			throw ConnectionClosedException();
+			MXT_THROW_EX(ConnectionClosedException);
 		}
 
 		if((r = readcond(mFD, b + bytes_read, size - bytes_read, 1, 0, 1)) == -1)
 		{
 			if(!isOpen())
 			{
-				throw ConnectionClosedException();
+				MXT_THROW_EX(ConnectionClosedException);
 			}
 			else
 			{

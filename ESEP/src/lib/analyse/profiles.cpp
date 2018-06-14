@@ -1,5 +1,7 @@
 #include "lib/analyse/profiles.h"
 
+#include "lib/logger.h"
+
 #define MXT_SAMPLES 100
 #define MXT_PROFILES 11
 
@@ -62,7 +64,8 @@ namespace
 					return (code & (1 << (2 - (s - 1) / 2))) ? MXT_HIGH : MXT_LOW;
 
 				default:
-					throw 0; // TODO
+					MXT_LOG_FATAL("This should never be encountered!");
+					std::terminate();
 				}
 			};
 		};

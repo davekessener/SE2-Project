@@ -66,6 +66,9 @@ void Plugins::teardown(void)
 void Plugins::define(void)
 {
 	typedef std::pair<PluginType, data::Data_ptr> data_t;
+	typedef master::Plugin::Type Type;
+	typedef master::Plugin::Action Action;
+	typedef std::vector<Type> History;
 
 	UNIT_TEST("can identify one")
 	{
@@ -140,6 +143,30 @@ void Plugins::define(void)
 
 			ASSERT_EQUALS(find(d.second), d.first);
 		}
+	};
+
+	UNIT_TEST("Can sort")
+	{
+		History h{
+			Type::CODED_000,
+			Type::FLAT,
+			Type::HOLLOW_METAL,
+			Type::CODED_010,
+			Type::UPSIDEDOWN
+		};
+
+		ASSERT_EQUALS(mPlugins[0]->decide(h),  Action::KEEP);
+		ASSERT_EQUALS(mPlugins[1]->decide(h),  Action::TOSS_M);
+		ASSERT_EQUALS(mPlugins[2]->decide(h),  Action::TOSS_S);
+		ASSERT_EQUALS(mPlugins[3]->decide(h),  Action::KEEP);
+		ASSERT_EQUALS(mPlugins[4]->decide(h),  Action::TOSS_M);
+		ASSERT_EQUALS(mPlugins[5]->decide(h),  Action::KEEP);
+		ASSERT_EQUALS(mPlugins[6]->decide(h),  Action::KEEP);
+		ASSERT_EQUALS(mPlugins[7]->decide(h),  Action::TOSS_S);
+		ASSERT_EQUALS(mPlugins[8]->decide(h),  Action::TOSS_M);
+		ASSERT_EQUALS(mPlugins[9]->decide(h),  Action::TOSS);
+		ASSERT_EQUALS(mPlugins[10]->decide(h), Action::KEEP);
+		ASSERT_EQUALS(mPlugins[11]->decide(h), Action::KEEP);
 	};
 }
 

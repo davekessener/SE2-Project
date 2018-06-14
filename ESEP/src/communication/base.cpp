@@ -46,7 +46,7 @@ Base::Base(IRecipient *b, Client_ptr c)
 		{
 			try
 			{
-				while(mRunning.load())
+				try { while(mRunning.load())
 				{
 					lib::ByteStream bs(lib::byte_stream::from_container(mSerial->read()));
 
@@ -56,6 +56,14 @@ Base::Base(IRecipient *b, Client_ptr c)
 					MXT_LOG_INFO("Received ", p, " [", s, "B]");
 
 					mBuffer.insert(p);
+				}}
+				catch(const serial::Connection::ConnectionClosedException& e) { throw; }
+				catch(const container_t::InterruptedException& e) { throw; }
+				catch(...)
+				{
+					MXT_LOG_LAST_E;
+
+					MXT_THROW_EX(serial::Connection::ConnectionClosedException);
 				}
 			}
 			catch(const serial::Connection::ConnectionClosedException& e)

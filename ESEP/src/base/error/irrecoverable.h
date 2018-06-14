@@ -23,7 +23,7 @@ namespace esep
 
 					void accept(communication::Packet_ptr) override { };
 
-					int priority( ) const { return 10; } // TODO
+					int priority( ) const { return 10; }
 
 				private:
 					communication::IRecipient * const mHandler;

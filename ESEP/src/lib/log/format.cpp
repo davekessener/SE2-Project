@@ -53,7 +53,7 @@ Parser::State Parser::onIdle(char c)
 Parser::State Parser::onAnticipating(char c)
 {
 	if(c == '\0')
-		throw lib::stringify("Not properly terminated format string in '", mBak.str(), "'!");
+		MXT_THROW("Not properly terminated format string in '", mBak.str(), "'!");
 
 	mID.str("");
 	mSpacing = 0;
@@ -85,7 +85,7 @@ Parser::State Parser::onAnticipating(char c)
 Parser::State Parser::onSpacing(char c)
 {
 	if(c == '\0')
-		throw lib::stringify("Not properly terminated format string in '", mBak.str(), "'!");
+		MXT_THROW("Not properly terminated format string in '", mBak.str(), "'!");
 
 	if(uint v = offsetInt(c))
 	{
@@ -104,7 +104,7 @@ Parser::State Parser::onSpacing(char c)
 Parser::State Parser::onProcessing(char c)
 {
 	if(c == '\0')
-		throw lib::stringify("Not properly terminated format string in '", mBak.str(), "'!");
+		MXT_THROW("Not properly terminated format string in '", mBak.str(), "'!");
 
 	if(c != '%')
 	{
@@ -126,7 +126,7 @@ Parser::State Parser::onProcessing(char c)
 			}
 		}
 
-		throw lib::stringify("Unknown ID '", s, "' in format string '", mBak.str(), "'!");
+		MXT_THROW("Unknown ID '", s, "' in format string '", mBak.str(), "'!");
 	}
 }
 

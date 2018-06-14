@@ -88,7 +88,7 @@ Playback::Playback(Reader_ptr in, hal::HAL_ptr hal)
 
 	next();
 
-	// TODO warn if first entry has offset of 0
+	MXT_LOG_WARN("EMP was initialized with an event @0ms. This may not work!");
 }
 
 void Playback::out(Field f, uint32_t v)

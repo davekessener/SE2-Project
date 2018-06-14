@@ -20,7 +20,7 @@ BSPClient::Impl::Impl(BSPClient::connection_ptr c, uint t)
 	mRunning = true;
 
 	if(!mBaseConnection->isOpen())
-		throw Connection::ConnectionClosedException();
+		MXT_THROW_EX(Connection::ConnectionClosedException);
 
 	mReaderThread.construct([this](void) {
 		try

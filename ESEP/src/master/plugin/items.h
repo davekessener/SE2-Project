@@ -32,7 +32,7 @@ namespace esep
 					ConcretePlugin(Hausdorff::processor_t *p) : Plugin(T), Hausdorff(p, T, PROFILE), SortingPolicy(T) { }
 			};
 
-			typedef ConcretePlugin<Plugin::Type::FLAT, Constant<Plugin::Action::TOSS>> Flat;
+			typedef ConcretePlugin<Plugin::Type::FLAT, Constant<Plugin::Action::TOSS_M>> Flat;
 			typedef ConcretePlugin<Plugin::Type::UPSIDEDOWN, Constant<Plugin::Action::TOSS>> UpsideDown;
 			typedef ConcretePlugin<Plugin::Type::HOLLOW, SortOrder> Hollow;
 

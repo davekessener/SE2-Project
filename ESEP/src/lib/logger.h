@@ -47,6 +47,7 @@
 		MXT_LOG_WARN("Caught an unknown exception!"); \
 	}
 
+#define MXT_LOG_LAST_E try { throw; } MXT_CATCH_ALL_STRAY
 
 #define MXT_LOCK_2(l,m) \
 		l lock; \

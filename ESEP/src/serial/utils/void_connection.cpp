@@ -7,7 +7,7 @@ namespace esep { namespace serial {
 void VoidConnection::write(const byte_t *, size_t)
 {
 	if(!mOpen.load())
-		throw Connection::ConnectionClosedException();
+		MXT_THROW_EX(Connection::ConnectionClosedException);
 }
 
 void VoidConnection::read(byte_t *, size_t)
@@ -16,7 +16,7 @@ void VoidConnection::read(byte_t *, size_t)
 
 	mCond.wait(lock, [this](void) { return !mOpen.load(); });
 
-	throw Connection::ConnectionClosedException();
+	MXT_THROW_EX(Connection::ConnectionClosedException);
 }
 
 void VoidConnection::close( )

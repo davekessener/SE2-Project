@@ -12,6 +12,8 @@
 
 #include "lib/logger.h"
 
+#include "hal.h"
+
 namespace esep { namespace test { namespace functional { namespace m {
 
 typedef data::Data_ptr Data_ptr;
@@ -131,7 +133,7 @@ System::System(lib::Reader_ptr in, lib::Writer_ptr out)
 	: mIn(std::move(in))
 	, mOut(std::move(out))
 	, mRunning(false)
-	, mMaster(this, [this](const master::Item& item) {  }) // TODO
+	, mMaster(this, [this](const master::Item& item) { HAL_CONSOLE.println("Item ", item.ID(), " reached the end!"); })
 	, mNextItemID(0)
 {
 	mBeltActive[0] = mBeltActive[1] = false;

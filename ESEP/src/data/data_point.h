@@ -20,6 +20,8 @@ namespace esep
 				HEIGHT_MAP
 			};
 
+			MXT_DEFINE_E(MangledDataException);
+
 			public:
 				DataPoint(Type t) : mType(t) { }
 				virtual ~DataPoint() {}

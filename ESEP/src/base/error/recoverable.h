@@ -32,7 +32,7 @@ namespace esep
 					void enter() override;
 					void leave() override;
 
-					int priority( ) const override { return 0; } // TODO
+					int priority( ) const override { return 0; }
 
 				protected:
 					void solve( );
