@@ -68,7 +68,7 @@ void RunManager::handle(Event e)
 	{
 		case(Event::BTN_STOP):
 			if(HAL_BUTTONS.isPressed(Button::STOP))
-				sendMasterMessage(Message::Run::RQST_STOP);
+				sendMasterMessage(Message::Run::REQUEST_STOP);
 			return;
 
 		case(Event::LB_START):

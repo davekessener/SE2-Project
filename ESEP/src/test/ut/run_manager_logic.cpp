@@ -654,7 +654,7 @@ void RunManagerLogic::define(void)
 		hal().trigger(Event::BTN_STOP);
 
 		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
-		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::RQST_STOP);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::REQUEST_STOP);
 	};
 }
 

@@ -51,7 +51,7 @@ namespace esep
 				ITEM_STUCK,
 				TIMER,
 				ITEM_REMOVED,
-				RQST_STOP
+				REQUEST_STOP
 			};
 
 			enum class Error : uint8_t
