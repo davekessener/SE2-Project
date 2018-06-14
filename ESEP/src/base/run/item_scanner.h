@@ -18,12 +18,17 @@ namespace esep
 		{
 			class ItemScanner
 			{
+				public:
 				MXT_DEFINE_E(NoMeasuredHeighMap);
+
+				private:
 				static constexpr uint32_t UPPERBOUND = 500;
 				static constexpr uint32_t LOWERBOUND = 100;
 
 				typedef data::Data_ptr Data_ptr;
 				typedef std::unique_ptr<data::HeightMap> heightMap_ptr;
+				typedef data::HeightMap::time_t time_t;
+				typedef data::HeightMap::height_t height_t;
 
 				public:
 					ItemScanner(uint32_t lb = LOWERBOUND, uint32_t ub = UPPERBOUND);
@@ -43,8 +48,8 @@ namespace esep
 					heightMap_ptr mCurrentHM;
 					timer::Manager mFinishTimer;
 					bool mSuspend;
-					uint64_t mFirstStamp;
-					uint64_t mLastMappingTime;
+					time_t mFirstStamp;
+					time_t mLastMappingTime;
 			};
 		}
 	}
