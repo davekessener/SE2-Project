@@ -17,6 +17,7 @@
 #include "data/data_point.h"
 #include "data/location_data.h"
 #include "data/heightmap_data.h"
+#include "hal/buttons.h"
 
 
 namespace esep
@@ -39,6 +40,7 @@ namespace esep
 			typedef communication::Packet::Location Location;
 			typedef data::RunManagerTimer::TimerEvent TimerEvent;
 			typedef hal::LightBarriers::LightBarrier LightBarrier;
+			typedef hal::Buttons::Button Button;
 			typedef hal::Lights::Light Light;
 			typedef run::State State;
 			typedef tml::MakeCompoundEnum<run::HalEvent, Message::Run, TimerEvent, Auto> petriEvents_t;
