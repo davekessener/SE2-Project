@@ -14,16 +14,20 @@ namespace esep
 			class ItemAppeared : public ResetAck
 			{
 				typedef communication::Packet_ptr Packet_ptr;
-				typedef data::Location::Type Location;
+				typedef data::Location Location;
+				typedef data::DataPoint::Type DataType;
 
 				public:
-					ItemAppeared(communication::IRecipient *, Location);
+					MXT_DEFINE_E(NoLocationInPacket);
+
+				public:
+					ItemAppeared(communication::IRecipient *, Packet_ptr);
 					void enter() override;
 					void handle(Event) override;
 					void accept(Packet_ptr) override { };
 
 				private:
-					Location mLocation;
+					std::shared_ptr<Location> mLocation;
 			};
 		}
 	}

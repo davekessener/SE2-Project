@@ -71,23 +71,13 @@ void ErrorManager::accept(Packet_ptr packet)
 				break;
 
 			case Error::ITEM_APPEARED:
-				for (auto& p : *packet)
-				{
-					if(p->type() == DataType::LOCATION)
-					m = Error_ptr(new error::ItemAppeared(this, static_cast<data::Location&>(*p).location()));
-				}
-				if (mCurrentError.get() == m.get()) MXT_THROW_EX(ErrorManager::NoLocationInPacket);
+				m = Error_ptr(new error::ItemAppeared(this, packet));
 				break;
 			case Error::ITEM_DISAPPEARED:
 				m = Error_ptr(new error::ItemDisappeared(this));
 				break;
 			case Error::ITEM_STUCK:
-				for (auto& p : *packet)
-				{
-					if(p->type() == DataType::LOCATION)
-					m = Error_ptr(new error::ItemStuck(this, static_cast<data::Location&>(*p).location()));
-				}
-				if (mCurrentError.get() == m.get()) MXT_THROW_EX(ErrorManager::NoLocationInPacket);
+				m = Error_ptr(new error::ItemStuck(this, packet));
 				break;
 
 			default:

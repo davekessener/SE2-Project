@@ -26,7 +26,6 @@ namespace esep
 				void leave( ) override;
 				void accept(Packet_ptr) override;
 				void handle(Event) override;
-//				static Error_ptr create(communication::IRecipient *, communication::Packet_ptr);
 
 			private:
 				IRecipient * const mHandler;
