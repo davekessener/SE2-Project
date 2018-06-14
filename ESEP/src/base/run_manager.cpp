@@ -17,6 +17,7 @@
 #include "system.h"
 #include "hal.h"
 
+
 namespace esep { namespace base {
 
 #define MXT_P_NR_STATES			16
@@ -65,6 +66,11 @@ void RunManager::handle(Event e)
 
 	switch(e)
 	{
+		case(Event::BTN_STOP):
+			if(HAL_BUTTONS.isPressed(Button::STOP))
+				sendMasterMessage(Message::Run::RQST_STOP);
+			return;
+
 		case(Event::LB_START):
 			he = HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_START) ? run::HalEvent::LB_START : run::HalEvent::I_LB_START;
 			break;
@@ -109,9 +115,6 @@ void RunManager::takeMeasurement()
 			mHeightMapBuffer.emplace_back(std::make_tuple(false, hvalStamp, hm));
 			std::get<MXT_HM>(mHeightMapBuffer.back())->addHeightValue(0, hval);
 			MXT_LOG_INFO("Starting height map record.");
-
-			// new item is in HeightSensor! let master know
-			sendMasterMessage(Message::Run::IN_HEIGHTSENSOR);
 		}
 	}
 	else

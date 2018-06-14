@@ -21,6 +21,7 @@ namespace ut
 #define MXT_BM_LIGHT_G 		(1u << 18)
 #define MXT_BM_SWITCH 		(1u << 19)
 #define MXT_BM_MOTOR_START	(1u << 12)
+#define MXT_BM_BTN_STOP		(1u << 23)
 
 struct RunManagerLogic::HandlerDummy: public communication::IRecipient
 {
@@ -61,7 +62,7 @@ RunManagerLogic::RunManagerLogic()
 
 void RunManagerLogic::setup(void)
 {
-	mConfig = new config_t("ut.conf", 0.2, 5, 5);
+	mConfig = new config_t("ut.conf", 5, 0.1, 5, 5);
 	mConfig->setStartToHs(10);
 	mConfig->setHsToSwitch(10);
 	mConfig->setSwitchToEnd(10);
@@ -484,6 +485,10 @@ void RunManagerLogic::define(void)
 		blockLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
 
+		MXT_SLEEP(1);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::IN_HEIGHTSENSOR);
+
 		MXT_SLEEP(maxTime(mConfig->itemInLB()));
 
 		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
@@ -637,6 +642,19 @@ void RunManagerLogic::define(void)
 		MXT_SLEEP(1);
 		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
 		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::ITEM_STUCK);
+	};
+
+	UNIT_TEST("requests stop")
+	{
+		mRunManager->enter();
+
+		hal().setField(Field::GPIO_0, hal().getField(Field::GPIO_0) & ~MXT_BM_BTN_STOP);
+		hal().trigger(Event::BTN_STOP);
+		hal().setField(Field::GPIO_0, hal().getField(Field::GPIO_0) | MXT_BM_BTN_STOP);
+		hal().trigger(Event::BTN_STOP);
+
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::RQST_STOP);
 	};
 }
 
