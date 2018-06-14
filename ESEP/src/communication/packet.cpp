@@ -44,6 +44,8 @@ namespace
 				return "Master::READY";
 			case Message::Master::FIXED:
 				return "Master::FIXED";
+			case Message::Master::VALID:
+				return "Master::VALID";
 		}
 		else if(m.is<Message::Base>())
 			switch(m.as<Message::Base>())
@@ -58,6 +60,8 @@ namespace
 				return "Base::READY";
 			case Message::Base::SHUTDOWN:
 				return "Base::SHUTDOWN";
+			case Message::Base::VALID:
+				return "Base::VALID";
 		}
 		else if(m.is<Message::Config>())
 			switch(m.as<Message::Config>())
@@ -102,6 +106,8 @@ namespace
 				return "Run::TIMER";
 			case Message::Run::ITEM_REMOVED:
 				return "Run::ITEM_REMOVED";
+			case Message::Run::REQUEST_STOP:
+				return "Run::REQUEST_STOP";
 		}
 		else if(m.is<Message::Error>())
 			switch(m.as<Message::Error>())

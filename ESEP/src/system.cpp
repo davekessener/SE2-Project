@@ -99,7 +99,6 @@ void Impl::run(const lib::Arguments& args)
 
 	std::unique_ptr<master::Master> master;
 	std::unique_ptr<communication::Base> com;
-	base::Handler handler(&mConfig);
 	master::plugin::Hausdorff::processor_t analyser;
 
 	Connection_ptr c(new serial::ActualConnection(MXT_DEFAULT_DEVICE));
@@ -131,14 +130,16 @@ void Impl::run(const lib::Arguments& args)
 
 	if(is_master)
 	{
-		auto m = new communication::Master(&handler, std::move(serial));
+		com.reset(lib::with_temporary(new communication::Master(std::move(serial)), [&](communication::Master *m) {
+			master.reset(new master::Master(m, [](const master::Item& item) {
+				HAL_CONSOLE.println("Item reached end. ID is ", item.ID());
+			}));
 
-		com.reset(m);
-		master.reset(new master::Master(com.get(), [](const master::Item& item) {
-			HAL_CONSOLE.println("Item reached end. ID is ", item.ID());
+			m->setMaster(master.get());
+
+			return m;
 		}));
 
-//		master->add(master::Plugin_ptr(new SimplePlugin));
 		master->add(master::Plugin_ptr(new master::plugin::Coded_000(&analyser)));
 		master->add(master::Plugin_ptr(new master::plugin::Coded_001(&analyser)));
 		master->add(master::Plugin_ptr(new master::plugin::Coded_010(&analyser)));
@@ -151,15 +152,15 @@ void Impl::run(const lib::Arguments& args)
 		master->add(master::Plugin_ptr(new master::plugin::UpsideDown(&analyser)));
 		master->add(master::Plugin_ptr(new master::plugin::Hollow(&analyser)));
 		master->add(master::Plugin_ptr(new master::plugin::HollowMetal(&analyser)));
-
-		m->setMaster(master.get());
 	}
 	else
 	{
-		com.reset(new communication::Slave(&handler, std::move(serial)));
+		com.reset(new communication::Slave(std::move(serial)));
 	}
 
-	handler.setMaster(com.get());
+	base::Handler handler(com.get(), &mConfig);
+
+	com->setBase(&handler);
 
 	mHAL->setCallback([&handler](Event e) {
 		handler.handle(e);

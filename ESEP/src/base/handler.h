@@ -40,9 +40,8 @@ namespace esep
 			MXT_DEFINE_E(UndefinedMasterException);
 
 			public:
-				Handler(ConfigObject *); //requires the IRecipient of the higher comm. layer
+				Handler(communication::IRecipient *, ConfigObject *); //requires the IRecipient of the higher comm. layer
 				~Handler();
-				void setMaster(communication::IRecipient *p) { mMaster = p; }
 				void handle(Event); //for event listening registration
 				void accept(Packet_ptr);
 				bool running( ) const { return mRunning.load(); }
@@ -53,11 +52,17 @@ namespace esep
 				void processHAL(Event);
 
 			private:
-				communication::IRecipient * mMaster;
+				communication::IRecipient * const mMaster;
 				ConfigObject * const mConfigData;
 				std::atomic<bool> mRunning;
 				qnx::Connection mConnection;
-				std::unique_ptr<IManager> mConfigManager,  mRunManager, mIdleManager, mReadyManager, mErrorManager;
+				std::unique_ptr<IManager>
+					mConfigManager,
+					mRunManager,
+					mIdleManager,
+					mValidManager,
+					mReadyManager,
+					mErrorManager;
 				//ErrorManager::Error_ptr mErrorManager;
 				IManager* mCurrentManager;
 				container_t mPacketBuffer;

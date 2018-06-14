@@ -8,6 +8,7 @@
 
 #include "base/idle/idle_manager.h"
 #include "base/idle/ready_manager.h"
+#include "base/idle/valid_manager.h"
 
 #include "base/config_manager.h"
 #include "base/error_manager.h"
@@ -15,16 +16,19 @@
 
 #include "hal.h"
 
+#define ESEP_DEBUG // TODO
+
 namespace esep { namespace base {
 
 typedef hal::Buttons::Button Button;
 
-Handler::Handler(ConfigObject *co)
-	: mMaster(nullptr)
+Handler::Handler(communication::IRecipient *m, ConfigObject *co)
+	: mMaster(m)
 	, mConfigData(co)
 	, mRunning(true)
 {
 	mIdleManager.reset(new IdleManager(this, mConfigData));
+	mValidManager.reset(new ValidManager(this));
 	mReadyManager.reset(new ReadyManager(this));
 	mConfigManager.reset(new ConfigManager(this, mConfigData));
 	mRunManager.reset(new RunManager(this, mConfigData));
@@ -39,6 +43,8 @@ Handler::Handler(ConfigObject *co)
 			qnx::Channel channel;
 
 			mConnection = channel.connect();
+
+			mCurrentManager->enter();
 
 			while(mRunning.load()) try
 			{
@@ -164,19 +170,28 @@ void Handler::processBase(Message::Base msg)
 		break;
 
 	case Message::Base::RUN:
+		MXT_LOG_INFO("Switching to Run ...");
 		doSwitch(mRunManager.get());
 		break;
 
 	case Message::Base::CONFIG:
+		MXT_LOG_INFO("Switching to Config ...");
 		doSwitch(mConfigManager.get());
 		break;
 
 	case Message::Base::IDLE:
+		MXT_LOG_INFO("Switching to Idle ...");
 		doSwitch(mIdleManager.get());
 		break;
 
 	case Message::Base::READY:
+		MXT_LOG_INFO("Switching to Ready ...");
 		doSwitch(mReadyManager.get());
+		break;
+
+	case Message::Base::VALID:
+		MXT_LOG_INFO("Switching to Valid ...");
+		doSwitch(mValidManager.get());
 		break;
 	}
 }
@@ -187,10 +202,12 @@ void Handler::processHAL(Event e)
 	{
 		mMaster->accept(std::make_shared<Packet>(Location::BASE, Location::MASTER, Message::Error::ESTOP));
 	}
+#ifdef ESEP_DEBUG
 	else if(e == Event::BTN_STOP && HAL_BUTTONS.isPressed(Button::STOP))
 	{
 		mMaster->accept(std::make_shared<Packet>(Location::BASE, Location::BASE, Message::Base::SHUTDOWN));
 	}
+#endif
 	else
 	{
 		mCurrentManager->handle(e);

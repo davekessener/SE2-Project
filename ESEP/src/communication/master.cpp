@@ -2,8 +2,8 @@
 
 namespace esep { namespace communication {
 
-Master::Master(IRecipient *com, Client_ptr p)
-	: Base(com, std::move(p))
+Master::Master(Client_ptr p)
+	: Base(std::move(p))
 	, mMaster(nullptr)
 {
 }
