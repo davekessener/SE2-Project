@@ -4,8 +4,10 @@
 
 namespace esep { namespace base { namespace run {
 
-ItemScanner::ItemScanner()
-	:	mCurrentHM(nullptr),
+ItemScanner::ItemScanner(uint32_t lb, uint32_t ub)
+	:	mUB(ub),
+		mLB(lb),
+		mCurrentHM(nullptr),
 		mSuspend(false),
 		mFirstStamp(0),
 		mLastMappingTime(0)
@@ -18,11 +20,12 @@ void ItemScanner::takeMeasurement(uint16_t height)
 	if(!mSuspend)
 	{
 		uint64_t hvalStamp = lib::Timer::instance().elapsed();
-		if(mCurrentHM == nullptr)
+		if(static_cast<bool>(mCurrentHM))
 		{
 			MXT_LOG_INFO("ItemScanner: Started a new hightmap!");
 			mFirstStamp = hvalStamp;
-			mCurrentHM->addHeightValue(hvalStamp, height);
+			mCurrentHM.reset(new data::HeightMap);
+			mCurrentHM->addHeightValue(0, height);
 		}
 		else if (height == 0)
 		{
@@ -45,7 +48,7 @@ void ItemScanner::finishMeasurement()
 	if(mCurrentHM->size() > LOWERBOUND && mCurrentHM->size() < UPPERBOUND)
 	{
 		MXT_LOG_INFO("ItemScanner: Finished one hightmap with ", mCurrentHM->size(), " values.");
-		mFinishedHM.emplace_back(mCurrentHM);
+		mFinishedHM.emplace_back(mCurrentHM.release());
 	}
 	else
 	{
@@ -68,7 +71,7 @@ void ItemScanner::suspend()
 
 void ItemScanner::resume()
 {
-	if(mCurrentHM != nullptr && mFirstStamp != 0)
+	if(static_cast<bool>(mCurrentHM))
 	{
 		mFirstStamp = lib::Timer::instance().elapsed() - mLastMappingTime;
 	}
