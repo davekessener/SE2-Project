@@ -6,7 +6,11 @@
 #include "hal.h"
 #include "lib/stream_intercept.h"
 
+#define CLEAR_OUTP lib::StreamIntercept console_redirect(std::cout)
+
 namespace esep { namespace test { namespace ut {
+
+
 
 typedef communication::Packet Packet;
 typedef communication::Packet_ptr Packet_ptr;
@@ -60,6 +64,7 @@ void ErrorManagerLogic::define()
 {
 	UNIT_TEST("can acknowledge estop error")
 	{
+		CLEAR_OUTP;
 		mErrManager->enter();
 
 		hal().setField(Field::GPIO_0, ~static_cast<uint32_t>(Button::ESTOP));
@@ -84,6 +89,7 @@ void ErrorManagerLogic::define()
 
 	UNIT_TEST("won't leave estop error with wrong acknowledgment")
 	{
+		CLEAR_OUTP;
 		mErrManager->enter();
 
 		hal().setField(Field::GPIO_0, ~static_cast<uint32_t>(Button::ESTOP));
@@ -102,6 +108,7 @@ void ErrorManagerLogic::define()
 
 	UNIT_TEST("can acknowledge ramp error")
 	{
+		CLEAR_OUTP;
 		mErrManager->enter();
 		send(Location::BASE, Message::Error::RAMP_FULL);
 
@@ -124,6 +131,7 @@ void ErrorManagerLogic::define()
 
 	UNIT_TEST("can set warning error")
 	{
+		CLEAR_OUTP;
 		mErrManager->enter();
 		send(Location::BASE, Message::Error::WARNING);
 
@@ -136,6 +144,7 @@ void ErrorManagerLogic::define()
 
 	UNIT_TEST("can acknowledge item appeared error")
 	{
+		CLEAR_OUTP;
 		// LB_HEIGHTSENSOR TEST
 		mErrManager->enter();
 		sendl(Location::BASE, Message::Error::ITEM_APPEARED, dloc_t::LB_HEIGHTSENSOR);
@@ -209,6 +218,7 @@ void ErrorManagerLogic::define()
 
 	UNIT_TEST("item appeared can be fixed after acknowledgment")
 	{
+		CLEAR_OUTP;
 		mErrManager->enter();
 		sendl(Location::BASE, Message::Error::ITEM_APPEARED, dloc_t::LB_END);
 
@@ -225,12 +235,14 @@ void ErrorManagerLogic::define()
 
 	UNIT_TEST("item appeared wont work without location data")
 	{
+		CLEAR_OUTP;
 		mErrManager->enter();
 		ASSERT_FAILURE(send(Location::BASE, Message::Error::ITEM_APPEARED), base::ErrorManager::NoLocationInPacket);
 	};
 
 	UNIT_TEST("can acknowledge item disappeared error")
 	{
+		CLEAR_OUTP;
 		mErrManager->enter();
 		send(Location::BASE, Message::Error::ITEM_DISAPPEARED);
 
@@ -248,6 +260,7 @@ void ErrorManagerLogic::define()
 
 	UNIT_TEST("can acknowledge item stuck error")
 	{
+		CLEAR_OUTP;
 		// LB_HEIGHTSENSOR TEST
 		mErrManager->enter();
 		sendl(Location::BASE, Message::Error::ITEM_STUCK, dloc_t::LB_HEIGHTSENSOR);
@@ -321,6 +334,7 @@ void ErrorManagerLogic::define()
 
 	UNIT_TEST("item stuck can be fixed after acknowledgment")
 	{
+		CLEAR_OUTP;
 		mErrManager->enter();
 		sendl(Location::BASE, Message::Error::ITEM_STUCK, dloc_t::LB_END);
 
@@ -337,12 +351,14 @@ void ErrorManagerLogic::define()
 
 	UNIT_TEST("item appeared wont work without location data")
 	{
+		CLEAR_OUTP;
 		mErrManager->enter();
 		ASSERT_FAILURE(send(Location::BASE, Message::Error::ITEM_STUCK), base::ErrorManager::NoLocationInPacket);
 	};
 
 	UNIT_TEST("can switch to higher prioritized error")
 	{
+		CLEAR_OUTP;
 		mErrManager->enter();
 		send(Location::BASE, Message::Error::RAMP_FULL);
 
@@ -369,6 +385,7 @@ void ErrorManagerLogic::define()
 
 	UNIT_TEST("will not switch to lower prioritized error")
 	{
+		CLEAR_OUTP;
 		mErrManager->enter();
 
 		hal().setField(Field::GPIO_0, ~static_cast<uint32_t>(Button::ESTOP));
@@ -397,7 +414,7 @@ void ErrorManagerLogic::define()
 
 	UNIT_TEST("can set (irrecoverable) serial error")
 	{
-		lib::StreamIntercept console_redirect(std::cout);
+		CLEAR_OUTP;
 		mErrManager->enter();
 		ASSERT_EQUALS(console_redirect.getBuffer().length() == 0, true);
 		send(Location::BASE, Message::Error::SERIAL);
@@ -407,7 +424,7 @@ void ErrorManagerLogic::define()
 
 	UNIT_TEST("can set (irrecoverable) config error")
 	{
-		lib::StreamIntercept console_redirect(std::cout);
+		CLEAR_OUTP;
 		mErrManager->enter();
 		ASSERT_EQUALS(console_redirect.getBuffer().length() == 0, true);
 		send(Location::BASE, Message::Error::CONFIG);
