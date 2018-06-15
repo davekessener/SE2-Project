@@ -83,10 +83,11 @@ void testConfigManager(const lib::Arguments&)
 				manager.leave();
 				std::cout << "The following calibration data was measured:" << std::endl;
 				std::cout << "----------------------------------" << std::endl;
-				std::cout << "Start to HS     " << config.startToHs() << "s" << std::endl;
-				std::cout << "HS to Switch    " << config.hsToSwitch() << "s" << std::endl;
-				std::cout << "Switch to End:  " << config.switchToEnd() << "s" << std::endl;
+				std::cout << "Start to HS     " << config.startToHs() << "ms" << std::endl;
+				std::cout << "HS to Switch    " << config.hsToSwitch() << "ms" << std::endl;
+				std::cout << "Switch to End:  " << config.switchToEnd() << "ms" << std::endl;
 				std::cout << "Time Tolerance: " << config.timeTolerance() << std::endl;
+				std::cout << "Time in LB: " << config.itemInLB() << "ms" << std::endl;
 				std::cout << "----------------------------------" << std::endl;
 				std::cout << "Press [START] for another Measurement..." << std::endl;
 			}
