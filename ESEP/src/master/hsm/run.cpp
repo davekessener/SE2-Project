@@ -136,6 +136,8 @@ Run::Run(uint c, State *p, IRecipient *m, Analyser *a)
 		{{S_RUN_PAUSED, 1}, {S_M2RDY, 1}},
 		{{S_M2RDY, 1}, {S_RUNNING, 1}});
 
+// # -----------------------------------------------------------------------------------------------------------------------------
+
 	mLogic.transition(to_loc(LocationType::LB_HEIGHTSENSOR) | Event::fromParts(Location::BASE_M, Message::Run::ITEM_DISAPPEARED),
 		{{S_M1_START, 1}, {S_COUNT, 1}},
 		{},
@@ -148,6 +150,18 @@ Run::Run(uint c, State *p, IRecipient *m, Analyser *a)
 		chain(
 			item_displacement(Location::BASE_M, LocationType::LB_SWITCH, Message::Error::ITEM_DISAPPEARED),
 			do_remove(S_M1_HS)));
+	mLogic.transition(to_loc(LocationType::LB_SWITCH) | Event::fromParts(Location::BASE_M, Message::Run::ITEM_DISAPPEARED),
+		{{S_M1_SWITCH, 1}, {S_COUNT, 1}},
+		{},
+		chain(
+			item_displacement(Location::BASE_M, LocationType::LB_SWITCH, Message::Error::ITEM_DISAPPEARED),
+			do_remove(S_M1_SWITCH)));
+	mLogic.transition(to_loc(LocationType::LB_RAMP) | Event::fromParts(Location::BASE_M, Message::Run::ITEM_DISAPPEARED),
+		{{S_M1_SWITCH, 1}, {S_COUNT, 1}},
+		{},
+		chain(
+			item_displacement(Location::BASE_M, LocationType::LB_RAMP, Message::Error::ITEM_DISAPPEARED),
+			do_remove(S_M1_SWITCH)));
 	mLogic.transition(to_loc(LocationType::LB_END) | Event::fromParts(Location::BASE_M, Message::Run::ITEM_DISAPPEARED),
 		{{S_M1_PREEND, 1}, {S_COUNT, 1}},
 		{},
@@ -155,12 +169,13 @@ Run::Run(uint c, State *p, IRecipient *m, Analyser *a)
 			item_displacement(Location::BASE_M, LocationType::LB_END, Message::Error::ITEM_DISAPPEARED),
 			do_remove(S_M1_PREEND)));
 
+
 	mLogic.transition(to_loc(LocationType::LB_START) | Event::fromParts(Location::BASE_S, Message::Run::ITEM_DISAPPEARED),
 		{{S_M2_PRESTART, 1}, {S_COUNT, 1}},
 		{{S_M2RDY, 1}},
 		chain(
 			item_displacement(Location::BASE_S, LocationType::LB_START, Message::Error::ITEM_DISAPPEARED),
-			do_remove(S_M2_PRESTART)));
+			do_remove(S_M1_END)));
 	mLogic.transition(to_loc(LocationType::LB_HEIGHTSENSOR) | Event::fromParts(Location::BASE_S, Message::Run::ITEM_DISAPPEARED),
 		{{S_M2_START, 1}},
 		{{S_M2RDY, 1}},
@@ -173,12 +188,73 @@ Run::Run(uint c, State *p, IRecipient *m, Analyser *a)
 		chain(
 			item_displacement(Location::BASE_S, LocationType::LB_SWITCH, Message::Error::ITEM_DISAPPEARED),
 			do_remove(S_M2_HS)));
+	mLogic.transition(to_loc(LocationType::LB_SWITCH) | Event::fromParts(Location::BASE_S, Message::Run::ITEM_DISAPPEARED),
+		{{S_M2_SWITCH, 1}},
+		{{S_M2RDY, 1}},
+		chain(
+			item_displacement(Location::BASE_S, LocationType::LB_SWITCH, Message::Error::ITEM_DISAPPEARED),
+			do_remove(S_M2_SWITCH)));
+	mLogic.transition(to_loc(LocationType::LB_RAMP) | Event::fromParts(Location::BASE_S, Message::Run::ITEM_DISAPPEARED),
+		{{S_M2_SWITCH, 1}},
+		{{S_M2RDY, 1}},
+		chain(
+			item_displacement(Location::BASE_S, LocationType::LB_RAMP, Message::Error::ITEM_DISAPPEARED),
+			do_remove(S_M2_SWITCH)));
 	mLogic.transition(to_loc(LocationType::LB_END) | Event::fromParts(Location::BASE_S, Message::Run::ITEM_DISAPPEARED),
 		{{S_M2_PREEND, 1}},
 		{{S_M2RDY, 1}},
 		chain(
 			item_displacement(Location::BASE_S, LocationType::LB_END, Message::Error::ITEM_DISAPPEARED),
 			do_remove(S_M2_PREEND)));
+
+// # -----------------------------------------------------------------------------------------------------------------------------
+
+	mLogic.transition(to_loc(LocationType::LB_START) | Event::fromParts(Location::BASE_M, Message::Run::ITEM_STUCK),
+		{{S_M1_START, 1}, {S_COUNT, 1}},
+		{},
+		chain(
+			item_displacement(Location::BASE_M, LocationType::LB_START, Message::Error::ITEM_STUCK),
+			do_remove(S_M1_START)));
+	mLogic.transition(to_loc(LocationType::LB_HEIGHTSENSOR) | Event::fromParts(Location::BASE_M, Message::Run::ITEM_STUCK),
+		{{S_M1_HS, 1}, {S_COUNT, 1}},
+		{},
+		chain(
+			item_displacement(Location::BASE_M, LocationType::LB_HEIGHTSENSOR, Message::Error::ITEM_STUCK),
+			do_remove(S_M1_HS)));
+	mLogic.transition(to_loc(LocationType::LB_SWITCH) | Event::fromParts(Location::BASE_M, Message::Run::ITEM_STUCK),
+		{{S_M1_SWITCH, 1}, {S_COUNT, 1}},
+		{},
+		chain(
+			item_displacement(Location::BASE_M, LocationType::LB_SWITCH, Message::Error::ITEM_STUCK),
+			do_remove(S_M1_SWITCH)));
+	mLogic.transition(to_loc(LocationType::LB_END) | Event::fromParts(Location::BASE_M, Message::Run::ITEM_STUCK),
+		{{S_M1_PREEND, 1}, {S_COUNT, 1}},
+		{},
+		chain(
+			item_displacement(Location::BASE_M, LocationType::LB_END, Message::Error::ITEM_STUCK),
+			do_remove(S_M1_PREEND)));
+
+
+	mLogic.transition(to_loc(LocationType::LB_START) | Event::fromParts(Location::BASE_S, Message::Run::ITEM_STUCK),
+		{{S_M2_START, 1}, {S_COUNT, 1}},
+		{{S_M2RDY, 1}},
+		chain(
+			item_displacement(Location::BASE_S, LocationType::LB_START, Message::Error::ITEM_STUCK),
+			do_remove(S_M2_START)));
+	mLogic.transition(to_loc(LocationType::LB_HEIGHTSENSOR) | Event::fromParts(Location::BASE_S, Message::Run::ITEM_STUCK),
+		{{S_M2_HS, 1}},
+		{{S_M2RDY, 1}},
+		chain(
+			item_displacement(Location::BASE_S, LocationType::LB_HEIGHTSENSOR, Message::Error::ITEM_STUCK),
+			do_remove(S_M2_HS)));
+	mLogic.transition(to_loc(LocationType::LB_SWITCH) | Event::fromParts(Location::BASE_S, Message::Run::ITEM_STUCK),
+		{{S_M2_SWITCH, 1}},
+		{{S_M2RDY, 1}},
+		chain(
+			item_displacement(Location::BASE_S, LocationType::LB_SWITCH, Message::Error::ITEM_STUCK),
+			do_remove(S_M2_SWITCH)));
+
+// # -----------------------------------------------------------------------------------------------------------------------------
 
 	mLogic.transition(Event::fromParts(Location::BASE_M, Message::Run::ITEM_REMOVED),
 		{{S_M1_SWITCH, 1}, {S_COUNT, 1}},

@@ -128,6 +128,8 @@ namespace
 				return "Error::ESTOP";
 			case Message::Error::RAMP_FULL:
 				return "Error::RAMP_FULL";
+			case Message::Error::ANALYSE:
+				return "Error::ANALYSE";
 			case Message::Error::WARNING:
 				return "Error::WARNING";
 		}

@@ -182,7 +182,7 @@ void RunManager::sendMasterMessage(Message::Run msg)
 	mMaster->accept(std::make_shared<communication::Packet>(Location::BASE, Location::MASTER, msg));
 }
 
-void RunManager::sendMessageWithData(Location target, Message::Run msg, data::Data_ptr data)
+void RunManager::sendMessageWithData(Location target, msg_t msg, data::Data_ptr data)
 {
 	auto packet = std::make_shared<communication::Packet>(Location::BASE, target, msg);
 	packet->addDataPoint(data);

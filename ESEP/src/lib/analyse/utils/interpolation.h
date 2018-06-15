@@ -19,6 +19,15 @@ namespace esep
 						return f(i1) * (1 - x) + f(i2) * x;
 					}
 				};
+
+				template<typename T>
+				struct First
+				{
+					T operator()(size_t i, T x, std::function<T(size_t)> f, size_t n) const
+					{
+						return f(i - 1);
+					}
+				};
 			}
 
 			template<typename T>

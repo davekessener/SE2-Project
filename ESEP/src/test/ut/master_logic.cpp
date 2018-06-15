@@ -56,7 +56,7 @@ MasterLogic::MasterLogic(void)
 void MasterLogic::setup(void)
 {
 	mCom = new BasicRecipient;
-	mMaster = new master::Master(mCom, [this](const Item& item) { mItems.push_back(item); });
+	mMaster = new master::Master(&mProcessor, mCom, [this](const Item& item) { mItems.push_back(item); });
 
 	mMaster->add(Plugin_ptr(new SimplePlugin(Plugin::Action::KEEP, 0.1f)));
 }

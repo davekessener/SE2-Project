@@ -20,85 +20,86 @@ namespace esep { namespace master {
 
 namespace
 {
-//	analyse::Profiles::Item type_to_item(Plugin::Type t)
-//	{
-//		switch(t)
-//		{
-//		case Plugin::Type::CODED_001:
-//			return analyse::Profiles::Item::CODED_001;
-//
-//		case Plugin::Type::CODED_010:
-//			return analyse::Profiles::Item::CODED_010;
-//
-//		case Plugin::Type::CODED_011:
-//			return analyse::Profiles::Item::CODED_011;
-//
-//		case Plugin::Type::CODED_100:
-//			return analyse::Profiles::Item::CODED_100;
-//
-//		case Plugin::Type::CODED_101:
-//			return analyse::Profiles::Item::CODED_101;
-//
-//		case Plugin::Type::CODED_110:
-//			return analyse::Profiles::Item::CODED_110;
-//
-//		case Plugin::Type::CODED_111:
-//			return analyse::Profiles::Item::CODED_111;
-//
-//		case Plugin::Type::CODED_000:
-//			return analyse::Profiles::Item::CODED_000;
-//
-//		case Plugin::Type::HOLLOW:
-//		case Plugin::Type::HOLLOW_METAL:
-//			return analyse::Profiles::Item::HOLLOW;
-//
-//		case Plugin::Type::FLAT:
-//			return analyse::Profiles::Item::FLAT;
-//
-//		case Plugin::Type::UPSIDEDOWN:
-//			return analyse::Profiles::Item::UPSIDEDOWN;
-//
-//		default:
-//			throw 0;
-//		}
-//	}
-//
-//	template<typename C>
-//	void save_data(uint id, Plugin::Type t, const C& c)
-//	{
-//		for(const auto& d : c)
-//		{
-//			if(d->type() == data::DataPoint::Type::HEIGHT_MAP)
-//			{
-//				std::ofstream out(lib::stringify("item_data_", lib::hex<16>(id), ".txt"));
-//				plugin::Hausdorff::processor_t p;
-//				auto r = p.use(dynamic_cast<data::HeightMap *>(&*d)).get<plugin::Hausdorff::Station::NORMALIZED>();
-//
-//				out << "[";
-//				for(const auto& e : r)
-//				{
-//					out << e.x() << " " << e.y() << "; ";
-//				}
-//				out << "];" << std::endl;
-//
-//				out << "[";
-//				for(const auto& e : analyse::Profiles::get(type_to_item(t)))
-//				{
-//					out << e.x() << " " << e.y() << "; ";
-//				}
-//				out << "];" << std::endl;
-//
-//				out.flush();
-//				out.close();
-//
-//				return;
-//			}
-//		}
-//	}
+	analyse::Profiles::Item type_to_item(Plugin::Type t)
+	{
+		switch(t)
+		{
+		case Plugin::Type::CODED_001:
+			return analyse::Profiles::Item::CODED_001;
+
+		case Plugin::Type::CODED_010:
+			return analyse::Profiles::Item::CODED_010;
+
+		case Plugin::Type::CODED_011:
+			return analyse::Profiles::Item::CODED_011;
+
+		case Plugin::Type::CODED_100:
+			return analyse::Profiles::Item::CODED_100;
+
+		case Plugin::Type::CODED_101:
+			return analyse::Profiles::Item::CODED_101;
+
+		case Plugin::Type::CODED_110:
+			return analyse::Profiles::Item::CODED_110;
+
+		case Plugin::Type::CODED_111:
+			return analyse::Profiles::Item::CODED_111;
+
+		case Plugin::Type::CODED_000:
+			return analyse::Profiles::Item::CODED_000;
+
+		case Plugin::Type::HOLLOW:
+		case Plugin::Type::HOLLOW_METAL:
+			return analyse::Profiles::Item::HOLLOW;
+
+		case Plugin::Type::FLAT:
+			return analyse::Profiles::Item::FLAT;
+
+		case Plugin::Type::UPSIDEDOWN:
+			return analyse::Profiles::Item::UPSIDEDOWN;
+
+		default:
+			throw 0;
+		}
+	}
+
+	template<typename C>
+	void save_data(const std::string& name, Plugin::Type t, const C& c)
+	{
+		for(const auto& d : c)
+		{
+			if(d->type() == data::DataPoint::Type::HEIGHT_MAP)
+			{
+				std::ofstream out(lib::stringify("item_", name, ".txt"));
+				plugin::Hausdorff::processor_t p;
+				auto r = p.use(dynamic_cast<data::HeightMap *>(&*d)).get<plugin::Hausdorff::Station::NORMALIZED>();
+
+				out << "[";
+				for(const auto& e : r)
+				{
+					out << e.x() << " " << e.y() << "; ";
+				}
+				out << "];" << std::endl;
+
+				out << "[";
+				for(const auto& e : analyse::Profiles::get(type_to_item(t)))
+				{
+					out << e.x() << " " << e.y() << "; ";
+				}
+				out << "];" << std::endl;
+
+				out.flush();
+				out.close();
+
+				return;
+			}
+		}
+	}
 }
 
-Master::Master(IRecipient *com, item_handler_fn f)
+Master::Master(Processor *p, IRecipient *com, item_handler_fn f)
 	: mCom(com)
+	, mProcessor(p)
 	, mCallback(f)
 	, mLogic(com, this)
 {
@@ -141,6 +142,8 @@ void Master::analyse(Item& item, const data_t& data)
 	Plugin *m = nullptr;
 	float c = 0.0f;
 
+	mProcessor->clear();
+
 	item.data().push_back(data);
 
 	for(auto& p : mPlugins)
@@ -160,7 +163,14 @@ void Master::analyse(Item& item, const data_t& data)
 		{
 			MXT_LOG_WARN("Conflicting types for item ", item.ID(), ": previously determined to be ", Plugin::type_to_s(item.plugin()->type()), ", now it's ", Plugin::type_to_s(m->type()), "!");
 
+			save_data(lib::stringify(item.ID(), "_1"), item.plugin()->type(), item.data().at(0));
+			save_data(lib::stringify(item.ID(), "_2"), m->type(), item.data().at(1));
+
 			item.action(Action::TOSS);
+
+//			auto p = std::make_shared<Packet>(item.location(), Location::MASTER, Message::Error::ANALYSE);
+//			p->addDataPoint(Data_ptr(new data::Message(lib::stringify("Item ", item.ID(), " could not be analysed!"))));
+//			mCom->accept(p);
 		}
 
 		item.plugin(m);

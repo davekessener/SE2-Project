@@ -8,6 +8,7 @@
 #include "base/error/item_appeared.h"
 #include "base/error/item_disappeared.h"
 #include "base/error/item_stuck.h"
+#include "base/error/analyse.h"
 
 #include "lib/logger.h"
 
@@ -54,33 +55,40 @@ void ErrorManager::accept(Packet_ptr packet)
 	else
 	{
 		Error_ptr m;
+
 		switch (auto e = packet->message().as<Error>())
 		{
 			case Error::SERIAL:
 			case Error::CONFIG:
-				m = Error_ptr(new error::Irrecoverable(this, e));
+				m.reset(new error::Irrecoverable(this, e));
 				break;
 
 			case Error::ESTOP:
-				m = Error_ptr(new error::Estop(this));
+				m.reset(new error::Estop(this));
 				break;
 
 			case Error::RAMP_FULL:
-				m = Error_ptr(new error::Ramp(this));
+				m.reset(new error::Ramp(this));
 				break;
 
 			case Error::WARNING:
-				m = Error_ptr(new error::Warning(this));
+				m.reset(new error::Warning(this));
 				break;
 
 			case Error::ITEM_APPEARED:
-				m = Error_ptr(new error::ItemAppeared(this, packet));
+				m.reset(new error::ItemAppeared(this, packet));
 				break;
+
 			case Error::ITEM_DISAPPEARED:
-				m = Error_ptr(new error::ItemDisappeared(this));
+				m.reset(new error::ItemDisappeared(this));
 				break;
+
 			case Error::ITEM_STUCK:
-				m = Error_ptr(new error::ItemStuck(this, packet));
+				m.reset(new error::ItemStuck(this, packet));
+				break;
+
+			case Error::ANALYSE:
+				m.reset(new error::Analyse(this, packet));
 				break;
 
 			default:

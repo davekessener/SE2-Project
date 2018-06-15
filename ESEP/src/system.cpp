@@ -62,7 +62,10 @@ void Impl::run(const lib::Arguments& args)
 {
 	typedef std::unique_ptr<serial::Connection> Connection_ptr;
 	typedef std::unique_ptr<serial::Client> Client_ptr;
+	typedef hal::LEDs::LED LED;
 	typedef hal::HAL::Event Event;
+
+	MXT_LOG_INFO("==========================================================================================================");
 
 	if(HAL_BUTTONS.isPressed(Button::ESTOP))
 	{
@@ -99,6 +102,7 @@ void Impl::run(const lib::Arguments& args)
 	std::unique_ptr<master::Master> master;
 	std::unique_ptr<communication::Base> com;
 	master::plugin::Hausdorff::processor_t analyser;
+	uint16_t hs = 0;
 
 	Connection_ptr c(new serial::ActualConnection(MXT_DEFAULT_DEVICE));
 	Client_ptr bsp(new serial::BSPClient(std::move(c)));
@@ -130,7 +134,7 @@ void Impl::run(const lib::Arguments& args)
 	if(is_master)
 	{
 		com.reset(lib::with_temporary(new communication::Master(std::move(serial)), [&](communication::Master *m) {
-			master.reset(new master::Master(m, [](const master::Item& item) {
+			master.reset(new master::Master(&analyser, m, [](const master::Item& item) {
 				HAL_CONSOLE.println("Item reached end. ID is ", item.ID());
 			}));
 
@@ -161,12 +165,28 @@ void Impl::run(const lib::Arguments& args)
 
 	com->setBase(&handler);
 
-	mHAL->setCallback([&handler](Event e) {
-		handler.handle(e);
+	mHAL->setCallback([&handler, &hs](Event e) {
+		if(e == Event::HEIGHT_SENSOR)
+		{
+			uint16_t n = HAL_HEIGHT_SENSOR.measure();
+
+			if(n != hs)
+			{
+				handler.handle(e);
+			}
+
+			hs = n;
+		}
+		else
+		{
+			handler.handle(e);
+		}
 	});
 
 	MXT_LOG_INFO("Successfully connected. Starting main program now.");
+
 	HAL_CONSOLE.println("Starting main program");
+	HAL_LEDS.turnOn(LED::START);
 
 	while(handler.running())
 	{

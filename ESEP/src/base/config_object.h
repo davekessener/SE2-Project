@@ -60,7 +60,7 @@ namespace esep
 				uint32_t mDiscardTime;			// Time the module need to discard an ITEM
 
 				static constexpr float TOLERANCE = 0.1;
-				static constexpr uint32_t HANDOVER_TIME = 3000;
+				static constexpr uint32_t HANDOVER_TIME = 1000;
 				static constexpr uint32_t RAMP_TIME = 500;
 				static constexpr uint32_t DISCARD_TIME = 3000;
 		};

@@ -204,8 +204,7 @@ void RunManagerLogic::define(void)
 		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::ANALYSE);
 
 		sendPacket(Message::Run::KEEP_NEXT);
-		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
-		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::KEEP_NEXT);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 0u);
 
 		ASSERT_EQUALS(hal().writes().back().get<Field>(), Field::GPIO_1);
 		ASSERT_EQUALS(hal().writes().back().get<uint32_t>() & MXT_BM_SWITCH, MXT_BM_SWITCH);
@@ -621,8 +620,7 @@ void RunManagerLogic::define(void)
 		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::ANALYSE);
 
 		sendPacket(Message::Run::KEEP_NEXT);
-		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
-		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::KEEP_NEXT);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 0u);
 
 		ASSERT_EQUALS(hal().writes().back().get<Field>(), Field::GPIO_1);
 		ASSERT_EQUALS(hal().writes().back().get<uint32_t>() & MXT_BM_SWITCH, MXT_BM_SWITCH);

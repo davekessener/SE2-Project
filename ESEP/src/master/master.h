@@ -14,6 +14,8 @@
 #include "master/analyser.h"
 #include "master/logic.h"
 
+#include "master/plugin/hausdorff.h"
+
 #include "master/hsm/base.h"
 
 namespace esep
@@ -30,10 +32,11 @@ namespace esep
 			typedef Packet::msg_t msg_t;
 			typedef Plugin::Action Action;
 			typedef data::Data_ptr Data_ptr;
+			typedef plugin::Hausdorff::processor_t Processor;
 			typedef std::function<void(const Item&)> item_handler_fn;
 
 			public:
-				Master(IRecipient *, item_handler_fn);
+				Master(Processor *, IRecipient *, item_handler_fn);
 				virtual ~Master( );
 
 				void accept(Packet_ptr) override;
@@ -48,6 +51,7 @@ namespace esep
 
 			private:
 				IRecipient * const mCom;
+				Processor * const mProcessor;
 				const item_handler_fn mCallback;
 				std::vector<Plugin *> mPlugins;
 				Logic mLogic;

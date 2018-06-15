@@ -66,7 +66,8 @@ namespace esep
 				ITEM_STUCK,
 				ESTOP,
 				RAMP_FULL,
-				WARNING
+				WARNING,
+				ANALYSE
 			};
 
 			private:

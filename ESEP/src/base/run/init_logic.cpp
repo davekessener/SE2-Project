@@ -28,6 +28,14 @@ namespace esep { namespace base {
 #define MXT_HM					2
 #define MXT_FINISHED			0
 
+namespace
+{
+	communication::Packet::msg_t isStuckOrDisappeared(hal::LightBarriers::LightBarrier lb)
+	{
+		return HAL_LIGHT_BARRIERS.isBroken(lb) ? communication::Message::Run::ITEM_STUCK : communication::Message::Run::ITEM_DISAPPEARED;
+	}
+}
+
 void RunManager::initLogic()
 {
 	//--------- Eingabe bis zur Hoehenmessung
@@ -55,7 +63,7 @@ void RunManager::initLogic()
 			[this](void)
 			{
 				sendMasterMessage(Message::Run::NEW_ITEM);
-				mTimeCtrl.setTimer(State::IN_LB_START, TimerEvent::START_1, computeMaxTime(mConfig->itemInLB()));
+				mTimeCtrl.setTimer(State::IN_LB_START, TimerEvent::START_1, 1.5 * computeMaxTime(mConfig->itemInLB()));
 			});
 	//LB_START_2
 	mLogic.transition(run::HalEvent::LB_START,
@@ -72,7 +80,7 @@ void RunManager::initLogic()
 			[this](void)
 			{
 				mTimeCtrl.deleteTimer(State::IN_LB_START);
-				sendMessageWithData(Location::MASTER, Message::Run::ITEM_STUCK, MXT_SHARE(data::Location, data::Location::Type::LB_START));
+				sendMessageWithData(Location::MASTER, isStuckOrDisappeared(LightBarrier::LB_START), MXT_SHARE(data::Location, data::Location::Type::LB_START));
 			});
 	//!LB_START
 	mLogic.transition(run::HalEvent::I_LB_START,
@@ -138,7 +146,7 @@ void RunManager::initLogic()
 			[this](void)
 			{
 				mTimeCtrl.deleteTimer(State::IN_LB_HS);
-				sendMessageWithData(Location::MASTER, Message::Run::ITEM_STUCK, MXT_SHARE(data::Location, data::Location::Type::LB_HEIGHTSENSOR));
+				sendMessageWithData(Location::MASTER, isStuckOrDisappeared(LightBarrier::LB_HEIGHTSENSOR), MXT_SHARE(data::Location, data::Location::Type::LB_HEIGHTSENSOR));
 			});
 
 	//!LB_HS
@@ -185,6 +193,8 @@ void RunManager::initLogic()
 				if(!mScanner.ready())
 				{
 					MXT_LOG_ERROR("Did not measure a height map!");
+
+					p->message(Message::Error::ANALYSE);
 				}
 				else
 				{
@@ -216,7 +226,6 @@ void RunManager::initLogic()
 			[this](void)
 			{
 				HAL_SWITCH.open();
-				sendMasterMessage(Message::Run::KEEP_NEXT);
 			});
 	//TIMER_SWITCH_1
 	mLogic.transition(TimerEvent::SWITCH_1,
@@ -225,7 +234,7 @@ void RunManager::initLogic()
 			[this](void)
 			{
 				mTimeCtrl.deleteTimer(State::IN_LB_SWITCH);
-				sendMessageWithData(Location::MASTER, Message::Run::ITEM_STUCK, MXT_SHARE(data::Location, data::Location::Type::LB_SWITCH));
+				sendMessageWithData(Location::MASTER, isStuckOrDisappeared(LightBarrier::LB_SWITCH), MXT_SHARE(data::Location, data::Location::Type::LB_SWITCH));
 			});
 	//!LB_SWITCH
 	mLogic.transition(run::HalEvent::I_LB_SWITCH,
@@ -234,13 +243,25 @@ void RunManager::initLogic()
 			[this](void)
 			{
 				mTimeCtrl.deleteTimer(State::IN_LB_SWITCH);
+				mTimeCtrl.setTimer(State::BF_LB_RAMP, TimerEvent::LOST_IN_RAMP, mConfig->discardTime());
 			});
+
+	mLogic.transition(TimerEvent::LOST_IN_RAMP,
+			{{MXT_CAST(State::BF_LB_RAMP), 1}},
+			{},
+			[this](void)
+			{
+				mTimeCtrl.deleteTimer(State::BF_LB_RAMP);
+				sendMessageWithData(Location::MASTER, Message::Run::ITEM_DISAPPEARED, MXT_SHARE(data::Location, data::Location::Type::LB_RAMP));
+			});
+
 	//LB_RAMP
 	mLogic.transition(run::HalEvent::LB_RAMP,
 			{{MXT_CAST(State::BF_LB_RAMP), 1}},
 			{{MXT_CAST(State::IN_LB_RAMP), 1}},
 			[this](void)
 			{
+				mTimeCtrl.deleteTimer(State::BF_LB_RAMP);
 				mTimeCtrl.setTimer(State::IN_LB_RAMP, TimerEvent::RAMP, mConfig->rampTime());
 			});
 	//LB_RAMP_E
@@ -292,6 +313,7 @@ void RunManager::initLogic()
 			{},
 			[this](void)
 			{
+				sendMasterMessage(Message::Run::KEEP_NEXT);
 				mTimeCtrl.deleteTimer(State::SWITCH_CTRL);
 				HAL_SWITCH.close();
 			});
@@ -321,6 +343,7 @@ void RunManager::initLogic()
 			[this](void)
 			{
 				mTimeCtrl.deleteTimer(State::BF_END);
+				mTimeCtrl.setTimer(State::IN_LB_END, TimerEvent::STUCK_IN_END, computeMaxTime(mConfig->itemInLB()));
 				sendMasterMessage(Message::Run::REACHED_END);
 			});
 
@@ -338,7 +361,17 @@ void RunManager::initLogic()
 			{},
 			[this](void)
 			{
+				mTimeCtrl.deleteTimer(State::IN_LB_END);
 				sendMasterMessage(Message::Run::END_FREE);
+			});
+
+	mLogic.transition(TimerEvent::STUCK_IN_END,
+			{{MXT_CAST(State::IN_LB_END), 1}},
+			{},
+			[this](void)
+			{
+				mTimeCtrl.deleteTimer(State::IN_LB_END);
+				sendMessageWithData(Location::MASTER, isStuckOrDisappeared(LightBarrier::LB_END), MXT_SHARE(data::Location, data::Location::Type::LB_END));
 			});
 }
 

@@ -6,6 +6,8 @@
 #include "master/master.h"
 #include "master/item.h"
 
+#include "master/plugin/hausdorff.h"
+
 namespace esep
 {
 	namespace test
@@ -36,6 +38,7 @@ namespace esep
 					void send(Location, msg_t);
 
 				private:
+					master::plugin::Hausdorff::processor_t mProcessor;
 					BasicRecipient *mCom;
 					master::Master *mMaster;
 					std::vector<Item> mItems;

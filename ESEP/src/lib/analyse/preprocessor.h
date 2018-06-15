@@ -93,7 +93,7 @@ namespace esep
 
 					auto get = [&](size_t i) { return transform(i1[i]); };
 
-					inter_t value_of(n, get, utils::inter::Linear<primitive_t>{});
+					inter_t value_of(n, get, utils::inter::First<primitive_t>{});
 
 					primitive_t q = SEGMENTS - 1;
 					auto abcdef = SEGMENTS;

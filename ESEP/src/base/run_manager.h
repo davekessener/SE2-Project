@@ -71,7 +71,7 @@ namespace esep
 			   void takeTimerEvent(TimerEvent);
 			   uint64_t timeDiff(uint64_t old, uint64_t curr);
 			   void sendMasterMessage(Message::Run msg);
-			   void sendMessageWithData(Location target, Message::Run msg, data::Data_ptr data);
+			   void sendMessageWithData(Location target, msg_t msg, data::Data_ptr data);
 
 			   void suspend( );
 			   void resume( );
