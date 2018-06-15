@@ -105,7 +105,7 @@ void Watchdog::write(const Client::buffer_t& o)
 {
 	if(mTimedOut.load())
 	{
-		throw Connection::ConnectionClosedException();
+		MXT_THROW_EX(Connection::ConnectionClosedException);
 	}
 
 	auto b(o);
@@ -119,7 +119,7 @@ Client::buffer_t Watchdog::read(void)
 {
 	if(mTimedOut.load())
 	{
-		throw Connection::ConnectionClosedException();
+		MXT_THROW_EX(Connection::ConnectionClosedException);
 	}
 
 	try
@@ -128,7 +128,7 @@ Client::buffer_t Watchdog::read(void)
 	}
 	catch(const decltype(mReadBuf)::InterruptedException& e)
 	{
-		throw Connection::ConnectionClosedException();
+		MXT_THROW_EX(Connection::ConnectionClosedException);
 	}
 }
 

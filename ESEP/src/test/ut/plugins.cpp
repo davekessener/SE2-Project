@@ -1,9 +1,9 @@
+#include <master/plugin/hausdorff.h>
 #include "test/ut/plugins.h"
 
 #include "test/unit/assertions.h"
 
-#include "master/plugin/hausdorff_item.h"
-#include "master/plugin/sortable.h"
+#include "master/plugin/items.h"
 
 #include "lib/utils/storage.h"
 #include "lib/logger.h"
@@ -37,22 +37,38 @@ void Plugins::setup(void)
 {
 	mProcessor.reset(new Processor);
 
-	mPlugins.emplace_back(new SamplePlugin(PluginType::FLAT, mProcessor.get(), ItemProfile::FLAT));
-	mPlugins.emplace_back(new SamplePlugin(PluginType::HOLLOW, mProcessor.get(), ItemProfile::HOLLOW));
-	mPlugins.emplace_back(new SamplePlugin(PluginType::CODED_101, mProcessor.get(), ItemProfile::CODED_101));
-	mPlugins.emplace_back(new SamplePlugin(PluginType::CODED_010, mProcessor.get(), ItemProfile::CODED_010));
-	mPlugins.emplace_back(new SamplePlugin(PluginType::CODED_110, mProcessor.get(), ItemProfile::CODED_110));
+	mPlugins.emplace_back(new master::plugin::Coded_000(mProcessor.get()));
+	mPlugins.emplace_back(new master::plugin::Coded_001(mProcessor.get()));
+	mPlugins.emplace_back(new master::plugin::Coded_010(mProcessor.get()));
+	mPlugins.emplace_back(new master::plugin::Coded_011(mProcessor.get()));
+	mPlugins.emplace_back(new master::plugin::Coded_100(mProcessor.get()));
+	mPlugins.emplace_back(new master::plugin::Coded_101(mProcessor.get()));
+	mPlugins.emplace_back(new master::plugin::Coded_110(mProcessor.get()));
+	mPlugins.emplace_back(new master::plugin::Coded_111(mProcessor.get()));
+	mPlugins.emplace_back(new master::plugin::Flat(mProcessor.get()));
+	mPlugins.emplace_back(new master::plugin::UpsideDown(mProcessor.get()));
+	mPlugins.emplace_back(new master::plugin::Hollow(mProcessor.get()));
+	mPlugins.emplace_back(new master::plugin::HollowMetal(mProcessor.get()));
+
+//	mPlugins.emplace_back(new SamplePlugin(PluginType::FLAT, mProcessor.get(), ItemProfile::FLAT));
+//	mPlugins.emplace_back(new SamplePlugin(PluginType::HOLLOW, mProcessor.get(), ItemProfile::HOLLOW));
+//	mPlugins.emplace_back(new SamplePlugin(PluginType::CODED_101, mProcessor.get(), ItemProfile::CODED_101));
+//	mPlugins.emplace_back(new SamplePlugin(PluginType::CODED_010, mProcessor.get(), ItemProfile::CODED_010));
+//	mPlugins.emplace_back(new SamplePlugin(PluginType::CODED_110, mProcessor.get(), ItemProfile::CODED_110));
 }
 
 void Plugins::teardown(void)
 {
-	mProcessor.reset();
 	mPlugins.clear();
+	mProcessor.reset();
 }
 
 void Plugins::define(void)
 {
 	typedef std::pair<PluginType, data::Data_ptr> data_t;
+	typedef master::Plugin::Type Type;
+	typedef master::Plugin::Action Action;
+	typedef std::vector<Type> History;
 
 	UNIT_TEST("can identify one")
 	{
@@ -127,6 +143,30 @@ void Plugins::define(void)
 
 			ASSERT_EQUALS(find(d.second), d.first);
 		}
+	};
+
+	UNIT_TEST("Can sort")
+	{
+		History h{
+			Type::CODED_000,
+			Type::FLAT,
+			Type::HOLLOW_METAL,
+			Type::CODED_010,
+			Type::UPSIDEDOWN
+		};
+
+		ASSERT_EQUALS(mPlugins[0]->decide(h),  Action::KEEP);
+		ASSERT_EQUALS(mPlugins[1]->decide(h),  Action::TOSS_M);
+		ASSERT_EQUALS(mPlugins[2]->decide(h),  Action::TOSS_S);
+		ASSERT_EQUALS(mPlugins[3]->decide(h),  Action::KEEP);
+		ASSERT_EQUALS(mPlugins[4]->decide(h),  Action::TOSS_M);
+		ASSERT_EQUALS(mPlugins[5]->decide(h),  Action::KEEP);
+		ASSERT_EQUALS(mPlugins[6]->decide(h),  Action::KEEP);
+		ASSERT_EQUALS(mPlugins[7]->decide(h),  Action::TOSS_S);
+		ASSERT_EQUALS(mPlugins[8]->decide(h),  Action::TOSS_M);
+		ASSERT_EQUALS(mPlugins[9]->decide(h),  Action::TOSS);
+		ASSERT_EQUALS(mPlugins[10]->decide(h), Action::KEEP);
+		ASSERT_EQUALS(mPlugins[11]->decide(h), Action::KEEP);
 	};
 }
 

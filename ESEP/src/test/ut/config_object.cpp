@@ -48,8 +48,9 @@ void ConfigObject::define()
 		float tol = 0.99;
 		uint32_t rt = 4000;
 		uint32_t ho = 2000;
+		uint32_t dt = 3000;
 
-		mConfig = new config_t("ut.conf", tol, rt, ho);
+		mConfig = new config_t("ut.conf", dt, tol, rt, ho);
 		mConfig->setHeightSensorMax(1);
 		mConfig->setHeightSensorMin(1);
 		mConfig->setHsToSwitch(1);
@@ -58,6 +59,7 @@ void ConfigObject::define()
 		mConfig->setSwitchToEnd(1);
 		mConfig->setTimeTolerance(0.5);
 
+		ASSERT_EQUALS(mConfig->discardTime(), dt);
 		ASSERT_EQUALS(mConfig->tolerance(), tol);
 		ASSERT_EQUALS(mConfig->rampTime(), rt);
 		ASSERT_EQUALS(mConfig->maxHandOverTime(), ho);

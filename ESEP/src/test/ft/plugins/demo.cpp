@@ -1,4 +1,5 @@
 #include <lib/analyse/clustering.h>
+#include <master/plugin/hausdorff.h>
 #include "test/ft/plugins/demo.h"
 
 #include "lib/utils.h"
@@ -16,7 +17,6 @@
 #include "hal.h"
 #include "hal/physical.h"
 
-#include "master/plugin/hausdorff_item.h"
 #include "master/plugin/sortable.h"
 
 #include "lib/utils/storage.h"

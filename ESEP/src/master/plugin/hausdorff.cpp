@@ -1,4 +1,4 @@
-#include "master/plugin/hausdorff_item.h"
+#include "master/plugin/hausdorff.h"
 
 namespace esep { namespace master { namespace plugin {
 
@@ -12,7 +12,13 @@ float Hausdorff::match(const data_t& data)
 	{
 		if(d->type() == Type::HEIGHT_MAP)
 		{
-			r = 1.0 - use(dynamic_cast<impl::key_type>(d.get())).get<Station::HAUSDORFF>().distance(mProfile);
+			try
+			{
+				r = 1.0 - use(dynamic_cast<impl::key_type>(d.get())).get<Station::HAUSDORFF>().distance(mProfile);
+			}
+			catch(const analyse::InvalidProfileException& e)
+			{
+			}
 		}
 	}
 

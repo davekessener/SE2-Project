@@ -12,6 +12,14 @@ ItemAppeared::ItemAppeared(communication::IRecipient * handler, Location locatio
 {
 }
 
+void ItemAppeared::enter(void)
+{
+	HAL_CONSOLE.println("Error: Item appeared in ", mLocation, "!");
+	MXT_LOG_ERROR("Error: Item appeared in ", mLocation, "!");
+
+	ResetAck::enter();
+}
+
 void ItemAppeared::handle(Event e)
 {
 	switch(e)

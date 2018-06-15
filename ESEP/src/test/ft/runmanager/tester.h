@@ -29,6 +29,19 @@ namespace esep
 					typedef Packet::Location Location;
 					typedef Packet::msg_t msg_t;
 
+					struct Counter
+					{
+						Counter(int v) : v(v) { }
+						operator int( ) const { return v; }
+						Counter& operator=(int v) { this->v = v; return *this; }
+						Counter operator++(int) { Counter t(*this); ++*this; return t; }
+						Counter operator--(int) { Counter t(*this); --*this; return t; }
+						Counter& operator++( );
+						Counter& operator--( );
+
+						int v = 0;
+					};
+
 					public:
 						Tester( );
 						~Tester( );
@@ -44,7 +57,7 @@ namespace esep
 						base::ConfigObject mConfig;
 						std::unique_ptr<base::Handler> mHandler;
 						std::atomic<bool> mRunning, mKeep;
-						uint32_t mItemCount;
+						Counter mItemCount;
 				};
 			}
 		}

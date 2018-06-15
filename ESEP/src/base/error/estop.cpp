@@ -24,6 +24,11 @@ void Estop::enter(void)
 		acknowledge();
 		solve();
 	}
+	else
+	{
+		HAL_CONSOLE.println("E-Stop was pushed!");
+		MXT_LOG_WARN("E-Stop was pushed!");
+	}
 }
 
 void Estop::handle(Event e)

@@ -16,6 +16,8 @@ namespace esep
 				typedef communication::Packet_ptr Packet_ptr;
 				typedef Packet::Location Location;
 
+				static constexpr uint ONE_HZ = 1000;
+
 				public:
 					Warning(communication::IRecipient *);
 

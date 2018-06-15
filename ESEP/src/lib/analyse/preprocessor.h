@@ -17,6 +17,8 @@ namespace esep
 {
 	namespace analyse
 	{
+		MXT_DEFINE_E(InvalidProfileException);
+
 		template<typename T, typename C = std::vector<T>>
 		class Preprocessor
 		{
@@ -74,7 +76,7 @@ namespace esep
 
 					if(i1 == i2)
 					{
-						throw 0; // TODO
+						MXT_THROW_EX(InvalidProfileException);
 					}
 
 					r.reserve(SEGMENTS);

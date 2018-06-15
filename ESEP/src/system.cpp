@@ -13,6 +13,7 @@
 #include "base/handler.h"
 
 #include "master/master.h"
+#include "master/plugin/items.h"
 
 #include "communication/base.h"
 #include "communication/master.h"
@@ -99,6 +100,7 @@ void Impl::run(const lib::Arguments& args)
 	std::unique_ptr<master::Master> master;
 	std::unique_ptr<communication::Base> com;
 	base::Handler handler(&mConfig);
+	master::plugin::Hausdorff::processor_t analyser;
 
 	Connection_ptr c(new serial::ActualConnection(MXT_DEFAULT_DEVICE));
 	Client_ptr bsp(new serial::BSPClient(std::move(c)));
@@ -136,7 +138,19 @@ void Impl::run(const lib::Arguments& args)
 			HAL_CONSOLE.println("Item reached end. ID is ", item.ID());
 		}));
 
-		master->add(master::Plugin_ptr(new SimplePlugin));
+//		master->add(master::Plugin_ptr(new SimplePlugin));
+		master->add(master::Plugin_ptr(new master::plugin::Coded_000(&analyser)));
+		master->add(master::Plugin_ptr(new master::plugin::Coded_001(&analyser)));
+		master->add(master::Plugin_ptr(new master::plugin::Coded_010(&analyser)));
+		master->add(master::Plugin_ptr(new master::plugin::Coded_011(&analyser)));
+		master->add(master::Plugin_ptr(new master::plugin::Coded_100(&analyser)));
+		master->add(master::Plugin_ptr(new master::plugin::Coded_101(&analyser)));
+		master->add(master::Plugin_ptr(new master::plugin::Coded_110(&analyser)));
+		master->add(master::Plugin_ptr(new master::plugin::Coded_111(&analyser)));
+		master->add(master::Plugin_ptr(new master::plugin::Flat(&analyser)));
+		master->add(master::Plugin_ptr(new master::plugin::UpsideDown(&analyser)));
+		master->add(master::Plugin_ptr(new master::plugin::Hollow(&analyser)));
+		master->add(master::Plugin_ptr(new master::plugin::HollowMetal(&analyser)));
 
 		m->setMaster(master.get());
 	}

@@ -92,7 +92,7 @@ void OverflowBuffer::define(void)
 	UNIT_TEST("does not iterate over empty buffer")
 	{
 		ASSERT_TRUE(mBuf->empty());
-		ASSERT_TRUE(mBuf->begin() == mBuf->end()); // TODO
+		ASSERT_TRUE(mBuf->begin() == mBuf->end());
 	};
 }
 

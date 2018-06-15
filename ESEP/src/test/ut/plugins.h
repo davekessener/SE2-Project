@@ -3,11 +3,11 @@
 
 #include <vector>
 #include <memory>
+#include "../../master/plugin/hausdorff.h"
 
 #include "test/unit/unit.h"
 
 #include "master/plugin.h"
-#include "master/plugin/hausdorff_item.h"
 
 namespace esep
 {

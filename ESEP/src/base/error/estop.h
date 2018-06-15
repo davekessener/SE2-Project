@@ -19,7 +19,7 @@ namespace esep
 					void enter( ) override;
 					void accept(communication::Packet_ptr) override { };
 
-					int priority( ) const override { return 9; }	//TODO Priority
+					int priority( ) const override { return 9; }
 			};
 		}
 	}

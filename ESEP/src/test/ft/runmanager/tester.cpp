@@ -12,9 +12,26 @@
 
 namespace esep { namespace test { namespace functional { namespace r {
 
+Tester::Counter& Tester::Counter::operator++( )
+{
+	++v;
+
+	HAL_CONSOLE.println("Items: ", v);
+
+	return *this;
+}
+
+Tester::Counter& Tester::Counter::operator--( )
+{
+	--v;
+
+	HAL_CONSOLE.println("Items: ", v);
+
+	return *this;
+}
+
 Tester::Tester(void)
-	: mConfig("runtest.conf", 0.1, 500)
-	, mHandler(new base::Handler(&mConfig))
+	: mConfig("system.conf")
 	, mRunning(false)
 	, mKeep(false)
 	, mItemCount(0)
@@ -38,6 +55,8 @@ void Tester::run(void)
 {
 	typedef hal::HAL::Event Event;
 	typedef hal::Buttons::Button Button;
+
+	mHandler.reset(new base::Handler(&mConfig));
 
 	mHandler->setMaster(this);
 	mRunning = true;
@@ -68,6 +87,17 @@ void Tester::run(void)
 	});
 
 	std::cout << "Config data is " << (mConfig.isValid() ? "" : "NOT ") << "valid!" << std::endl;
+
+	HAL_CONSOLE.setCallback([this](const std::string& line) {
+		if(line == "reset")
+		{
+			HAL_CONSOLE.println("Resetting!");
+
+			mHandler.reset(new base::Handler(&mConfig));
+			mHandler->setMaster(this);
+			mItemCount = 0;
+		}
+	});
 
 	while(mRunning.load())
 	{
@@ -128,33 +158,30 @@ void Tester::accept(Packet_ptr p)
 				break;
 
 			case Message::Run::REACHED_END:
-			case Message::Run::ITEM_REMOVED:
 				send(Message::Run::SUSPEND);
-				mItemCount--;
-				HAL_CONSOLE.println("Message: \t", (p->message() == Message::Run::REACHED_END ? "REACHED_END" : "ITEM_REMOVED"));
+				break;
+
+			case Message::Run::ITEM_REMOVED:
+				if(!--mItemCount)
+					send(Message::Run::SUSPEND);
 				break;
 
 			case Message::Run::ITEM_APPEARED:
 				send(Message::Run::SUSPEND);
-				HAL_CONSOLE.println("Error: \tITEM_APPEARED", " in ",static_cast<data::Location&>(**p->begin()).location());
 				break;
 
 			case Message::Run::ITEM_DISAPPEARED:
 				send(Message::Run::SUSPEND);
-				HAL_CONSOLE.println("Error: \tITEM_", (p->message() == Message::Run::ITEM_APPEARED ? "APPEARED" : "DISAPPEARED"), " in ",
-						static_cast<data::Location&>(**p->begin()).location());
 				mItemCount--;
 				break;
 
 			case Message::Run::RAMP_FULL:
 				send(Message::Run::SUSPEND);
-				HAL_CONSOLE.println("Error: \tRAMP_FULL");
 				break;
 
 			case Message::Run::ITEM_STUCK:
 				send(Message::Run::SUSPEND);
 				mItemCount--;
-				HAL_CONSOLE.println("Error: \tITEM_STUCK in ", static_cast<data::Location&>(**p->begin()).location());
 				break;
 
 			case Message::Run::ANALYSE:
@@ -165,13 +192,11 @@ void Tester::accept(Packet_ptr p)
 				break;
 
 			case Message::Run::END_FREE:
-				HAL_CONSOLE.println("Message: \tEND_FREE");
-				if(mItemCount > 0)
+				if(--mItemCount > 0)
 					send(Message::Run::RESUME);
 				break;
 
 			default:
-				HAL_CONSOLE.println("Items on module: ", mItemCount);
 				break;
 
 		}

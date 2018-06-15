@@ -187,7 +187,7 @@ void RunManager::initLogic()
 				sendItemInfo(data::Data_ptr(std::get<MXT_HM>(mHeightMapBuffer.front())), MXT_SHARE(data::MetalSensor, HAL_METAL_SENSOR.isMetal()));
 				// delete the old hightmap
 				mHeightMapBuffer.pop_front();
-				mTimeCtrl.setTimer(State::IN_LB_SWITCH, TimerEvent::SWITCH_1, 3000);
+				mTimeCtrl.setTimer(State::IN_LB_SWITCH, TimerEvent::SWITCH_1, mConfig->discardTime());
 			});
 	//LB_SWITCH_E
 	mLogic.transition(run::HalEvent::LB_SWITCH,

@@ -1,7 +1,9 @@
 #include "lib/analyse/profiles.h"
 
+#include "lib/logger.h"
+
 #define MXT_SAMPLES 100
-#define MXT_PROFILES 10
+#define MXT_PROFILES 11
 
 #define MXT_TOP 0.79
 #define MXT_BOTTOM 0.11
@@ -62,12 +64,14 @@ namespace
 					return (code & (1 << (2 - (s - 1) / 2))) ? MXT_HIGH : MXT_LOW;
 
 				default:
-					throw 0; // TODO
+					MXT_LOG_FATAL("This should never be encountered!");
+					std::terminate();
 				}
 			};
 		};
 
 		assign(Item::FLAT, [](double x) { return MXT_FLAT; });
+		assign(Item::UPSIDEDOWN, [](double x) { return MXT_TOP; });
 		assign(Item::HOLLOW, [](double x) { return (x >= 0.33 && x <= 0.66) ? MXT_BOTTOM : MXT_TOP; });
 		assign(Item::CODED_000, coded(0));
 		assign(Item::CODED_001, coded(1));

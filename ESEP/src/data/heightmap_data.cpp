@@ -38,8 +38,7 @@ Data_ptr HeightMap::deserialize(lib::ByteStream& bs)
 
 	if(bs.size() < len)
 	{
-		// TODO
-		throw 0;
+		MXT_THROW_EX(MangledDataException);
 	}
 
 	while(len--)

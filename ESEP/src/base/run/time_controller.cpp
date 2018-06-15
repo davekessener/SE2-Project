@@ -20,6 +20,7 @@ void TimeCtrl::pauseAllTimer()
 			lib::Timer::instance().pauseCallback(t);
 		}
 	}
+	mDelayTimer.reset();
 }
 
 void TimeCtrl::resumeAllTimer()
@@ -36,9 +37,13 @@ void TimeCtrl::resumeAllTimer()
 
 void TimeCtrl::resumeAllTimerDelayed(uint delay)
 {
-	mDelayTimer = lib::Timer::instance().registerAsync([this](void) {
-		resumeAllTimer();
-	}, delay);
+	if(mPaused.load())
+	{
+		mPaused = false;
+		mDelayTimer = lib::Timer::instance().registerAsync([this](void) {
+			resumeAllTimer();
+		}, delay);
+	}
 }
 
 void TimeCtrl::setTimer(State state, TimerEvent e, uint r, uint p)

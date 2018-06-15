@@ -117,8 +117,8 @@ Run::Run(uint c, State *p, IRecipient *m, Analyser *a)
 
 	mLogic.transition(Event::fromParts(Location::BASE_S, Message::Run::NEW_ITEM),
 		{{S_M2_PRESTART, 0}},
-		{});
-//	,item_displacement(Location::BASE_S, LocationType::LB_START, Message::Error::ITEM_APPEARED)); TODO
+		{}
+	,item_displacement(Location::BASE_S, LocationType::LB_START, Message::Error::ITEM_APPEARED));
 
 	mLogic.transition(NIL,
 		{{S_M1_END, 1}, {S_M2RDY, 1}, {S_RUN_PAUSED, 0}},

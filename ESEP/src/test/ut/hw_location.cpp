@@ -59,7 +59,7 @@ void HWLocation::define(void)
 
 			ASSERT_EQUALS(l.field, f);
 			ASSERT_EQUALS(l.pin, p);
-			ASSERT_TRUE(l == emp::Location::byHW(f, p)); // TODO
+			ASSERT_TRUE(l == emp::Location::byHW(f, p));
 		}
 	};
 }
