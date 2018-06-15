@@ -34,6 +34,7 @@ Logic::Logic(IRecipient *s, Analyser *a)
 	State *error_s = new Leaf(error);
 
 	State *idle = new hsm::Manager(working, s, Message::Base::IDLE);
+	State *valid = new hsm::Manager(working, s, Message::Base::VALID);
 	State *ready = new hsm::Manager(working, s, Message::Base::READY);
 	State *config = new hsm::Manager(working, s, Message::Base::CONFIG);
 	State *run = new hsm::Run(MXT_MAX_DEPTH, working, s, a);
@@ -51,10 +52,15 @@ Logic::Logic(IRecipient *s, Analyser *a)
 	State *config_m2_rdy = new Leaf(config_m2);
 	State *config_m2_running = new Leaf(config_m2);
 
+	State *idle_either = new Leaf(idle);
+	State *idle_m1 = new Leaf(idle);
+	State *idle_m2 = new Leaf(idle);
+
 	builder.add(State_ptr(root), State_ptr(working), State_ptr(error),
 		State_ptr(error_both), State_ptr(error_m), State_ptr(error_s),
-		State_ptr(idle), State_ptr(ready), State_ptr(config), State_ptr(run),
+		State_ptr(idle), State_ptr(ready), State_ptr(config), State_ptr(run), State_ptr(valid),
 		State_ptr(run_both_empty), State_ptr(run_m_empty), State_ptr(run_s_empty),
+		State_ptr(idle_either), State_ptr(idle_m1), State_ptr(idle_m2),
 		State_ptr(config_m1), State_ptr(config_m1_rdy), State_ptr(config_m1_running),
 		State_ptr(config_m2), State_ptr(config_m2_rdy), State_ptr(config_m2_running));
 
@@ -68,16 +74,22 @@ Logic::Logic(IRecipient *s, Analyser *a)
 
 	builder.transition(idle, config_m1_rdy, Event::fromParts(Location::BASE_M, Message::Master::CONFIG));
 	builder.transition(idle, config_m1_rdy, Event::fromParts(Location::BASE_S, Message::Master::CONFIG));
+	builder.transition(valid, config_m1_rdy, Event::fromParts(Location::BASE_M, Message::Master::CONFIG));
+	builder.transition(valid, config_m1_rdy, Event::fromParts(Location::BASE_S, Message::Master::CONFIG));
+	builder.transition(idle_either, idle_m2, Event::fromParts(Location::BASE_M, Message::Master::VALID));
+	builder.transition(idle_either, idle_m1, Event::fromParts(Location::BASE_S, Message::Master::VALID));
+	builder.transition(idle_m1, valid, Event::fromParts(Location::BASE_M, Message::Master::VALID));
+	builder.transition(idle_m2, valid, Event::fromParts(Location::BASE_S, Message::Master::VALID));
 
 	builder.transition(config_m1_rdy, config_m1_running, Event::fromParts(Location::BASE_M, Message::Config::START));
 	builder.transition(config_m1_running, config_m2_rdy, Event::fromParts(Location::BASE_M, Message::Config::DONE),
 		[this, s](State&, State&, event_t) { s->accept(std::make_shared<Packet>(Location::MASTER, Location::BASE, Message::Run::RESUME)); });
 	builder.transition(config_m2_rdy, config_m2_running, Event::fromParts(Location::BASE_S, Message::Config::START),
 		[this, s](State&, State&, event_t) { s->accept(std::make_shared<Packet>(Location::MASTER, Location::BASE_M, Message::Run::SUSPEND)); });
-	builder.transition(config_m2_running, idle, Event::fromParts(Location::BASE_S, Message::Config::DONE));
+	builder.transition(config_m2_running, valid, Event::fromParts(Location::BASE_S, Message::Config::DONE));
 
-	builder.transition(idle, run, Event::fromParts(Location::BASE_M, Message::Master::RUN));
-	builder.transition(idle, run, Event::fromParts(Location::BASE_S, Message::Master::RUN));
+	builder.transition(valid, run, Event::fromParts(Location::BASE_M, Message::Master::RUN));
+	builder.transition(valid, run, Event::fromParts(Location::BASE_S, Message::Master::RUN));
 
 	builder.transition(ready, run, Event::fromParts(Location::BASE_M, Message::Master::RUN));
 	builder.transition(ready, run, Event::fromParts(Location::BASE_S, Message::Master::RUN));
@@ -99,12 +111,13 @@ Logic::Logic(IRecipient *s, Analyser *a)
 
 	root->initial(working);
 	working->initial(idle);
+	idle->initial(idle_either);
 	config->initial(config_m1);
 	config_m1->initial(config_m1_rdy);
 	run->initial(run_both_empty);
 	error->initial(error_both);
 
-	builder.initial(idle);
+	builder.initial(idle_either);
 
 	mLogic = builder.build();
 }

@@ -15,6 +15,7 @@ namespace esep
 				RUN,
 				IDLE,
 				READY,
+				VALID,
 				FIXED
 			};
 
@@ -24,6 +25,7 @@ namespace esep
 				RUN,
 				IDLE,
 				READY,
+				VALID,
 				SHUTDOWN
 			};
 

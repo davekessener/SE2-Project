@@ -16,7 +16,7 @@ namespace esep
 			typedef std::unique_ptr<serial::Client> Client_ptr;
 
 			public:
-				Master(IRecipient *, Client_ptr);
+				Master(Client_ptr);
 				~Master( );
 				void setMaster(IRecipient *m) { mMaster = m; }
 				void accept(Packet_ptr) override;

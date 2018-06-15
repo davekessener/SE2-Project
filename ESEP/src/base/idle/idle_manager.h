@@ -18,6 +18,7 @@ namespace esep
 			public:
 				IdleManager(communication::IRecipient *com, ConfigObject *c) : mCom(com), mConfig(c) { }
 
+				void enter( ) override;
 				void leave( ) override;
 
 			protected:

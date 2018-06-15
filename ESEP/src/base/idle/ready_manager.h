@@ -1,5 +1,5 @@
-#ifndef SRC_BASE_READY_MANAGER_H
-#define SRC_BASE_READY_MANAGER_H
+#ifndef ESEP_BASE_READYMANAGER_H
+#define ESEP_BASE_READYMANAGER_H
 
 #include "base/IManager.h"
 

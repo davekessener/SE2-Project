@@ -8,15 +8,10 @@ namespace esep { namespace communication {
 typedef communication::Message Message;
 typedef Packet::Location Location;
 
-Base::Base(IRecipient *b, Client_ptr c)
-	: mBase(b)
+Base::Base(Client_ptr c)
+	: mBase(nullptr)
 	, mSerial(std::move(c))
 {
-	if(!mBase)
-	{
-		MXT_THROW_EX(MissingBaseException);
-	}
-
 	mRunning = false;
 	mShuttingDown = false;
 
@@ -92,6 +87,16 @@ Base::~Base(void)
 	}
 }
 
+void Base::setBase(IRecipient *b)
+{
+	if(mBase)
+	{
+		MXT_THROW_EX(BaseOverrideException);
+	}
+
+	mBase = b;
+}
+
 void Base::shutdown(void)
 {
 	mRunning = false;
@@ -122,6 +127,16 @@ void Base::send(Packet_ptr p)
 	catch(serial::Connection::ConnectionClosedException& e)
 	{
 	}
+}
+
+IRecipient& Base::base(void)
+{
+	if(!mBase)
+	{
+		MXT_THROW_EX(MissingBaseException);
+	}
+
+	return *mBase;
 }
 
 }}

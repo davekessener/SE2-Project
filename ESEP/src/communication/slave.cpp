@@ -4,8 +4,8 @@
 
 namespace esep { namespace communication {
 
-Slave::Slave(IRecipient *b, Client_ptr p)
-	: Base(b, std::move(p))
+Slave::Slave(Client_ptr p)
+	: Base(std::move(p))
 {
 }
 

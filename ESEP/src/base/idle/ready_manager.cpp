@@ -17,7 +17,7 @@ void ReadyManager::handle(hal::HAL::Event event)
 	typedef hal::HAL::Event Event;
 	typedef hal::Buttons::Button Button;
 
-	if(event == Event::BTN_START && HAL_BUTTONS.isPressed(Button::START))
+	if(event == Event::BTN_START && !HAL_BUTTONS.isPressed(Button::START))
 	{
 		mBaseHandler->accept(std::make_shared<Packet>(Location::BASE, Location::MASTER, Message::Master::RUN));
 	}
