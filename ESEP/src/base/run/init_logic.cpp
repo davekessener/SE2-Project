@@ -115,6 +115,7 @@ void RunManager::initLogic()
 			{{MXT_CAST(State::IN_LB_HS), 1}},
 			[this](void)
 			{
+				sendMasterMessage(Message::Run::IN_HEIGHTSENSOR);
 				mTimeCtrl.deleteTimer(State::BF_LB_HS);
 				mTimeCtrl.setTimer(State::IN_LB_HS, TimerEvent::HS_1, computeMaxTime(mConfig->itemInLB()));
 			});
@@ -180,7 +181,7 @@ void RunManager::initLogic()
 				//check if there is measured date to send
 				if(mHeightMapBuffer.empty() || !std::get<MXT_FINISHED>(mHeightMapBuffer.front()))
 				{
-					MXT_THROW_EX(NoMeasuredHighMap);
+
 				}
 
 				// send item info to master (heightmap, metalsensor)

@@ -41,6 +41,7 @@
 #include "test/ut/any.h"
 #include "test/ut/plugins.h"
 #include "test/ut/plugins_sortable.h"
+#include "test/ut/item_scanner.h"
 #include "system.h"
 
 namespace esep { namespace test { namespace functional {
@@ -71,7 +72,7 @@ bool runUnitTests(bool verbose)
 		.addTest<ut::TestHAL>()
 		.addTest<ut::ErrorManagerLogic>()
 		.addTest<ut::RunManagerTimeCtrl>()
-//		.addTest<ut::RunManagerLogic>()
+		.addTest<ut::RunManagerLogic>()
 		.addTest<ut::ProcessTree>()
 		.addTest<ut::OverflowBuffer>()
 		.addTest<ut::FunChain>()
@@ -81,6 +82,7 @@ bool runUnitTests(bool verbose)
 		.addTest<ut::Any>()
 		.addTest<ut::Plugins>()
 		.addTest<ut::PluginSortable>()
+		.addTest<ut::ItemScannerUT>()
 		.run();
 
 	uint w = 0;
