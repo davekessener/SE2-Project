@@ -18,9 +18,6 @@ void Warning::enter()
 	HAL_LIGHTS.flash(Light::RED, ONE_HZ);
 	HAL_LIGHTS.turnOn(Light::YELLOW);
 
-	HAL_CONSOLE.println("Warning: Other module got an error!");
-	MXT_LOG_WARN("Warning: Other module got an error!");
-
 	mHandler->accept(std::make_shared<Packet>(Location::BASE, Location::MASTER, Message::Master::FIXED));
 }
 

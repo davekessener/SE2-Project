@@ -9,7 +9,7 @@
 
 #include "lib/logger.h"
 
-#define MXT_MAX_DEPTH 3
+#define MXT_MAX_DEPTH 500
 
 namespace esep { namespace master {
 

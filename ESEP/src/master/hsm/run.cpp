@@ -252,16 +252,7 @@ void Run::handle(Packet_ptr p)
 		}
 	}
 
-	if(!mLogic.process(e))
-	{
-//		MXT_LOG_WARN("Received a packet that can't be processed: ", lib::hex<32>(e));
-	}
-
-//	MXT_LOG_WARN("### Processing ", lib::hex<32>(e));
-//	for(uint i = 0 ; i < STATE_COUNT ; ++i)
-//	{
-//		MXT_LOG_WARN(i, ": ", mLogic.get(i));
-//	}
+	mLogic.process(e);
 
 	if(p->message() == Message::Run::ANALYSE)
 	{
@@ -299,7 +290,12 @@ Run::history_t Run::history(id_t id)
 
 		for(; i1 != i2 ; ++i1)
 		{
-			h.push_back(i1->plugin() ? i1->plugin()->type() : Plugin::Type::UNKNOWN);
+			if(i1->plugin() && i1->action() == Plugin::Action::KEEP)
+			{
+				h.push_back(i1->plugin()->type());
+			}
+
+//			h.push_back(i1->plugin() ? i1->plugin()->type() : Plugin::Type::UNKNOWN);
 		}
 	}
 

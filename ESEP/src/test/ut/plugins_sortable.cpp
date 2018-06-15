@@ -88,6 +88,18 @@ void PluginSortable::define(void)
 		ASSERT_EQUALS(p1.decide(h), Action::TOSS_S);
 		ASSERT_EQUALS(p2.decide(h), Action::KEEP);
 	};
+
+	UNIT_TEST("doesn't forget previous")
+	{
+		TestPlugin<Type::HOLLOW> p;
+		History h{
+			Type::UPSIDEDOWN, Type::UPSIDEDOWN, Type::UPSIDEDOWN,
+			Type::UPSIDEDOWN, Type::UPSIDEDOWN, Type::UPSIDEDOWN,
+			Type::UPSIDEDOWN, Type::UPSIDEDOWN, Type::UPSIDEDOWN,
+			Type::HOLLOW };
+
+		ASSERT_EQUALS(p.decide(h), Action::TOSS_S);
+	};
 }
 
 }}}

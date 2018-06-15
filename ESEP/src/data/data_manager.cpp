@@ -4,6 +4,7 @@
 #include "data/location_data.h"
 #include "data/run_manager_timer_data.h"
 #include "data/heightmap_data.h"
+#include "data/message_data.h"
 
 namespace esep { namespace data {
 
@@ -14,23 +15,25 @@ Data_ptr DataManager::deserialize(lib::ByteStream& bs)
 		MXT_THROW_EX(UnexpectedEOSException);
 	}
 
-	switch(bs.remove())
+	switch(static_cast<DataPoint::Type>(bs.remove()))
 	{
-	case static_cast<byte_t>(DataPoint::Type::METAL_SENSOR):
+	case DataPoint::Type::METAL_SENSOR:
 		return MetalSensor::deserialize(bs);
 
-	case static_cast<byte_t>(DataPoint::Type::LOCATION):
+	case DataPoint::Type::LOCATION:
 		return Location::deserialize(bs);
 
-	case static_cast<byte_t>(DataPoint::Type::RUN_MANAGER_TIMER):
+	case DataPoint::Type::RUN_MANAGER_TIMER:
 		return RunManagerTimer::deserialize(bs);
 
-	case static_cast<byte_t>(DataPoint::Type::HEIGHT_MAP):
+	case DataPoint::Type::HEIGHT_MAP:
 		return HeightMap::deserialize(bs);
 
-	default:
-		MXT_THROW_EX(UnknownTypeException);
+	case DataPoint::Type::MESSAGE:
+		return Message::deserialize(bs);
 	}
+
+	MXT_THROW_EX(UnknownTypeException);
 }
 
 }}

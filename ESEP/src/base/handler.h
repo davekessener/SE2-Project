@@ -48,7 +48,7 @@ namespace esep
 
 			private:
 				void doSwitch(IManager *m);
-				void processBase(Message::Base);
+				void processBase(Packet_ptr);
 				void processHAL(Event);
 
 			private:

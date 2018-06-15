@@ -189,13 +189,5 @@ void RunManager::sendMessageWithData(Location target, Message::Run msg, data::Da
 	mMaster->accept(packet);
 }
 
-void RunManager::sendItemInfo(data::Data_ptr hm, data::Data_ptr metal)
-{
-	auto packet = std::make_shared<communication::Packet>(Location::BASE, Location::MASTER, Message::Run::ANALYSE);
-	packet->addDataPoint(hm);
-	packet->addDataPoint(metal);
-	mMaster->accept(packet);
-}
-
 }
 }

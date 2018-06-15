@@ -172,25 +172,31 @@ void RunManager::initLogic()
 				sendMessageWithData(Location::MASTER, Message::Run::ITEM_DISAPPEARED, MXT_SHARE(data::Location, data::Location::Type::LB_SWITCH));
 			});
 	//LB_SWITCH
+
 	mLogic.transition(run::HalEvent::LB_SWITCH,
 			{{MXT_CAST(State::BF_LB_SWITCH), 1}},
 			{{MXT_CAST(State::IN_SWITCH), 1},{MXT_CAST(State::IN_LB_SWITCH), 1}},
 			[this](void)
 			{
-				mTimeCtrl.deleteTimer(State::BF_LB_SWITCH);
-				//check if there is measured date to send
+				auto p = std::make_shared<communication::Packet>(Location::BASE, Location::MASTER, Message::Run::ANALYSE);
+
+				p->addDataPoint(Data_ptr(new data::MetalSensor(HAL_METAL_SENSOR.isMetal())));
+
 				if(!mScanner.ready())
 				{
 					MXT_LOG_ERROR("Did not measure a height map!");
 				}
 				else
 				{
-					// send item info to master (heightmap, metalsensor)
-					sendItemInfo(mScanner.getHeightmap(), MXT_SHARE(data::MetalSensor, HAL_METAL_SENSOR.isMetal()));
+					p->addDataPoint(mScanner.getHeightmap());
 				}
 
+				mMaster->accept(p);
+
+				mTimeCtrl.deleteTimer(State::BF_LB_SWITCH);
 				mTimeCtrl.setTimer(State::IN_LB_SWITCH, TimerEvent::SWITCH_1, mConfig->discardTime());
 			});
+
 	//LB_SWITCH_E
 	mLogic.transition(run::HalEvent::LB_SWITCH,
 			{{MXT_CAST(State::BF_LB_SWITCH), 0}},
@@ -252,6 +258,7 @@ void RunManager::initLogic()
 			[this](void)
 			{
 				mTimeCtrl.deleteTimer(State::IN_LB_RAMP);
+				sendMasterMessage(Message::Run::ITEM_REMOVED);
 				sendMasterMessage(Message::Run::RAMP_FULL);
 			});
 	//!LB_RAMP
@@ -337,7 +344,7 @@ void RunManager::initLogic()
 
 uint32_t RunManager::computeMinTime(uint32_t time)
 {
-	return time * (1 - mConfig->tolerance());
+	return time * (1 - MXT_TOLERANCE_MULT * mConfig->tolerance());
 }
 
 uint32_t RunManager::computeMaxTime(uint32_t time)

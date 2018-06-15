@@ -3,6 +3,8 @@
 
 #include "base/error/recoverable.h"
 
+#include "hal.h"
+
 namespace esep
 {
 	namespace base
@@ -11,6 +13,8 @@ namespace esep
 		{
 			class Estop : public Recoverable
 			{
+				typedef hal::Buttons::Button Button;
+
 				public:
 					Estop(communication::IRecipient *);
 
@@ -19,7 +23,7 @@ namespace esep
 					void enter( ) override;
 					void accept(communication::Packet_ptr) override { };
 
-					int priority( ) const override { return 9; }
+					int priority( ) const override { return HAL_BUTTONS.isPressed(Button::ESTOP) ? 5 : 4; }
 			};
 		}
 	}

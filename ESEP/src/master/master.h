@@ -28,6 +28,7 @@ namespace esep
 			typedef communication::Packet_ptr Packet_ptr;
 			typedef Packet::Location Location;
 			typedef Packet::msg_t msg_t;
+			typedef Plugin::Action Action;
 			typedef data::Data_ptr Data_ptr;
 			typedef std::function<void(const Item&)> item_handler_fn;
 
@@ -40,9 +41,10 @@ namespace esep
 				void add(Plugin_ptr p) { mPlugins.push_back(p.release()); }
 
 			private:
+				void process(Item& item) override { mCallback(item); }
 				void analyse(Item&, const data_t&) override;
 				void evaluate(Item&, const history_t&) override;
-				void process(Item& item) override { mCallback(item); }
+				void message(Location, const std::string&);
 
 			private:
 				IRecipient * const mCom;

@@ -52,6 +52,9 @@ namespace esep
 				virtual float match(const data_t&) = 0;
 				virtual Action decide(const history_t&) = 0;
 
+				static std::string type_to_s(Type);
+				static std::string action_to_s(Action);
+
 			private:
 				const Type mType;
 		};

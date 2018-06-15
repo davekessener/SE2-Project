@@ -175,7 +175,7 @@ void Plugins::define(void)
 		ASSERT_EQUALS(mPlugins[8]->decide(h),  Action::TOSS_M);
 		ASSERT_EQUALS(mPlugins[9]->decide(h),  Action::TOSS);
 		ASSERT_EQUALS(mPlugins[10]->decide(h), Action::KEEP);
-		ASSERT_EQUALS(mPlugins[11]->decide(h), Action::KEEP);
+		ASSERT_EQUALS(mPlugins[11]->decide(h), Action::TOSS_S);
 	};
 }
 

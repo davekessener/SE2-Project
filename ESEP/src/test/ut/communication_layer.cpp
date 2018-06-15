@@ -162,17 +162,13 @@ void CommunicationLayer::define(void)
 
 		lib::Timer::instance().sleep(MXT_TIMEOUT * 2);
 
-		ASSERT_EQUALS(mMaster->packets.size(), 2u);
+		ASSERT_EQUALS(mMaster->packets.size(), 1u);
 		ASSERT_EQUALS(mBaseM->packets.size(), 1u);
 		ASSERT_EQUALS(mBaseS->packets.size(), 1u);
 
 		ASSERT_EQUALS(mMaster->packets[0]->target(),  Location::MASTER);
 		ASSERT_EQUALS(mMaster->packets[0]->source(),  Location::BASE_M);
 		ASSERT_EQUALS(mMaster->packets[0]->message().as<Message::Run>(), Message::Run::RESUME);
-
-		ASSERT_EQUALS(mMaster->packets[1]->target(),  Location::MASTER);
-		ASSERT_EQUALS(mMaster->packets[1]->source(),  Location::BASE_M);
-		ASSERT_EQUALS(mMaster->packets[1]->message().as<Message::Error>(), Message::Error::SERIAL);
 
 		ASSERT_EQUALS(mBaseM->packets.front()->target(),  Location::BASE);
 		ASSERT_EQUALS(mBaseM->packets.front()->source(),  Location::MASTER);

@@ -53,11 +53,11 @@ void TimeCtrl::setTimer(State state, TimerEvent e, uint r, uint p)
 	if(s < N_STATES)
 	{
 		auto f = [this, e, state](void) {
-			MXT_LOG_INFO("Timer in ", state, " expired; sending ", e);
+//			MXT_LOG_INFO("Timer in ", state, " expired; sending ", e);
 			mCallback(e);
 		};
 
-		MXT_LOG_INFO("Registering timer for ", state, " on ", e, " in ", r);
+//		MXT_LOG_INFO("Registering timer for ", state, " on ", e, " in ", r);
 
 		mTimer[s].emplace_back(lib::Timer::instance().registerCallback(f, r, p));
 
@@ -78,7 +78,7 @@ void TimeCtrl::deleteTimer(State state)
 
 	if(!mTimer[s].empty() && s < N_STATES)
 	{
-		MXT_LOG_INFO("Deleting timer for ", state);
+//		MXT_LOG_INFO("Deleting timer for ", state);
 
 		mTimer[s].pop_front();
 	}

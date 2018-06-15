@@ -9,9 +9,13 @@
 
 namespace esep { namespace test { namespace ut {
 
-typedef data::Data_ptr Data_ptr;
-typedef data::Location::Type LocationType;
-typedef communication::Packet_ptr Packet_ptr;
+namespace
+{
+	typedef data::Data_ptr Data_ptr;
+	typedef data::Location::Type LocationType;
+	typedef communication::Packet_ptr Packet_ptr;
+	typedef communication::Message Message;
+}
 
 struct MasterLogic::BasicRecipient : public communication::IRecipient
 {
@@ -20,7 +24,10 @@ struct MasterLogic::BasicRecipient : public communication::IRecipient
 
 	void accept(Packet_ptr p) override
 	{
-		packets.push_back(p);
+		if(p->message() != Message::Base::PRINT)
+		{
+			packets.push_back(p);
+		}
 	}
 
 	std::vector<Packet_ptr> packets;

@@ -14,10 +14,16 @@ Ramp::Ramp(communication::IRecipient *handler)
 
 void Ramp::enter(void)
 {
-	HAL_CONSOLE.println("Error: Ramp is full!");
-	MXT_LOG_ERROR("Error: Ramp is full!");
-
 	ResetAck::enter();
+
+	if(!HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_RAMP))
+	{
+		solve();
+	}
+	else
+	{
+		HAL_CONSOLE.println("Ramp full!");
+	}
 }
 
 void Ramp::handle(Event e)

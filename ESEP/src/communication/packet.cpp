@@ -62,6 +62,8 @@ namespace
 				return "Base::SHUTDOWN";
 			case Message::Base::VALID:
 				return "Base::VALID";
+			case Message::Base::PRINT:
+				return "Base::PRINT";
 		}
 		else if(m.is<Message::Config>())
 			switch(m.as<Message::Config>())

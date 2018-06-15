@@ -21,7 +21,7 @@ namespace esep
 			typedef Coded<Plugin::Type::CODED_110, Plugin::Action::KEEP>   Coded_110;
 			typedef Coded<Plugin::Type::CODED_111, Plugin::Action::TOSS_S> Coded_111;
 
-			typedef Sortable<Plugin::Type::HOLLOW, Plugin::Type::HOLLOW_METAL, Plugin::Type::HOLLOW_METAL> SortOrder;
+			typedef Sortable<Plugin::Type::HOLLOW, Plugin::Type::HOLLOW, Plugin::Type::HOLLOW_METAL> SortOrder;
 
 			template<Plugin::Type T, typename SortingPolicy>
 			class ConcretePlugin : public Hausdorff, public SortingPolicy

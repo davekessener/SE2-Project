@@ -17,7 +17,7 @@ ItemScannerUT::ItemScannerUT()
 
 void ItemScannerUT::setup()
 {
-	mItemScanner = new ItemScanner(5,10);
+	mItemScanner = new ItemScanner(10);
 }
 
 void ItemScannerUT::teardown()
@@ -38,25 +38,25 @@ void ItemScannerUT::define()
 
 		mItemScanner->takeMeasurement(0);
 
-		MXT_SLEEP(15);
+		MXT_SLEEP(20);
 		Data_ptr d = mItemScanner->getHeightmap();
 
 		ASSERT_EQUALS(d->type(), data::DataPoint::Type::HEIGHT_MAP);
 		ASSERT_EQUALS(d->to_s(), "HM [6]");
 	};
 
-	UNIT_TEST("make a hm too small")
-	{
-		for (int i = 0; i < 3; i++)
-		{
-			mItemScanner->takeMeasurement(1);
-			MXT_SLEEP(1);
-		}
-		mItemScanner->takeMeasurement(0);
-
-		MXT_SLEEP(15);
-		ASSERT_FAILURE(mItemScanner->getHeightmap(), ItemScanner::NoMeasuredHeighMap);
-	};
+//	UNIT_TEST("make a hm too small")
+//	{
+//		for (int i = 0; i < 3; i++)
+//		{
+//			mItemScanner->takeMeasurement(1);
+//			MXT_SLEEP(1);
+//		}
+//		mItemScanner->takeMeasurement(0);
+//
+//		MXT_SLEEP(20);
+//		ASSERT_FAILURE(mItemScanner->getHeightmap(), ItemScanner::NoMeasuredHeighMap);
+//	};
 
 	UNIT_TEST("taking non existing hm")
 	{
@@ -74,7 +74,7 @@ void ItemScannerUT::define()
 
 		ASSERT_FAILURE(mItemScanner->getHeightmap(), ItemScanner::NoMeasuredHeighMap);
 
-		MXT_SLEEP(15);
+		MXT_SLEEP(20);
 		Data_ptr d = mItemScanner->getHeightmap();
 
 		ASSERT_EQUALS(d->type(), data::DataPoint::Type::HEIGHT_MAP);
@@ -89,7 +89,7 @@ void ItemScannerUT::define()
 			MXT_SLEEP(1);
 		}
 		mItemScanner->takeMeasurement(0);
-		MXT_SLEEP(15);
+		MXT_SLEEP(20);
 
 		for (int i = 0; i < 8; i++)
 		{
@@ -97,7 +97,7 @@ void ItemScannerUT::define()
 			MXT_SLEEP(1);
 		}
 		mItemScanner->takeMeasurement(0);
-		MXT_SLEEP(15);
+		MXT_SLEEP(20);
 
 		Data_ptr d = mItemScanner->getHeightmap();
 
@@ -118,7 +118,7 @@ void ItemScannerUT::define()
 			MXT_SLEEP(1);
 		}
 		mItemScanner->takeMeasurement(0);
-		MXT_SLEEP(15);
+		MXT_SLEEP(20);
 
 		ASSERT_FAILURE(mItemScanner->getHeightmap(), ItemScanner::NoMeasuredHeighMap);
 	};
@@ -148,7 +148,7 @@ void ItemScannerUT::define()
 		}
 		mItemScanner->takeMeasurement(0);
 
-		MXT_SLEEP(15);
+		MXT_SLEEP(20);
 
 		Data_ptr d2 = mItemScanner->getHeightmap();
 

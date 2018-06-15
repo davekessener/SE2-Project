@@ -24,6 +24,8 @@ Base::Base(Client_ptr c)
 			{
 				auto p = mBuffer.remove();
 
+				MXT_LOG_INFO(p);
+
 				if(!mRunning.load())
 					break;
 
@@ -45,10 +47,10 @@ Base::Base(Client_ptr c)
 				{
 					lib::ByteStream bs(lib::byte_stream::from_container(mSerial->read()));
 
-					auto s = bs.size();
+//					auto s = bs.size();
 					auto p = Packet::deserialize(bs);
 
-					MXT_LOG_INFO("Received ", p, " [", s, "B]");
+//					MXT_LOG_INFO("Received ", p, " [", s, "B]");
 
 					mBuffer.insert(p);
 				}}
@@ -68,7 +70,6 @@ Base::Base(Client_ptr c)
 					MXT_LOG_INFO("Com detected a dead connection: ", e.what());
 
 					accept(std::make_shared<Packet>(Location::MASTER, Location::BASE, Message::Error::SERIAL));
-					accept(std::make_shared<Packet>(Location::BASE, Location::MASTER, Message::Error::SERIAL));
 				}
 			}
 		}
@@ -120,7 +121,7 @@ void Base::send(Packet_ptr p)
 
 		p->serialize(bs);
 
-		MXT_LOG_INFO("Sending ", p, " [", bs.size(), "B]");
+//		MXT_LOG_INFO("Sending ", p, " [", bs.size(), "B]");
 
 		mSerial->write(serial::Client::buffer_t(bs.cbegin(), bs.cend()));
 	}

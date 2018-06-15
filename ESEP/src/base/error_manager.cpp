@@ -32,8 +32,11 @@ void ErrorManager::enter()
 
 void ErrorManager::leave()
 {
-	mCurrentError->leave();
-	mCurrentError.reset();
+	if(static_cast<bool>(mCurrentError))
+	{
+		mCurrentError->leave();
+		mCurrentError.reset();
+	}
 
 	MXT_LOG_INFO("Leaving ErrorManager.");
 }
@@ -91,7 +94,7 @@ void ErrorManager::accept(Packet_ptr packet)
 			mCurrentError = std::move(m);
 			mCurrentError->enter();
 		}
-		else if (m->priority() >= mCurrentError->priority())
+		else if (m->priority() > mCurrentError->priority())
 		{
 			mCurrentError->leave();
 			mCurrentError = std::move(m);

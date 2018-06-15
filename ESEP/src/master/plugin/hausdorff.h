@@ -37,7 +37,7 @@ namespace esep
 				typedef analyse::Profiles::Item profile_type;
 				typedef analyse::Profiles::profile_t profile_t;
 
-				protected:
+				public:
 				enum class Station
 				{
 					NORMALIZED,

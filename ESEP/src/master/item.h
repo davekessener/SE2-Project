@@ -33,12 +33,12 @@ namespace esep
 				data_vec_t& data( ) { return mData; }
 
 				void timestamp(uint64_t v) { mTime = v; }
-				void action(Plugin::Action a) { if(static_cast<uint>(mAction) < static_cast<uint>(a)) mAction = a; }
+				void action(Plugin::Action a) { mAction = a; }
 				void plugin(Plugin *p) { mPlugin = p; }
 				void location(Location l) { mLocation = l; }
 
 			private:
-				const id_t mID;
+				id_t mID;
 				uint64_t mTime;
 				Plugin::Action mAction;
 				Plugin *mPlugin;

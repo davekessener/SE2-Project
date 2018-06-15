@@ -19,9 +19,6 @@ namespace esep
 		>
 		class SegmentedBuffer
 		{
-			typedef std::function<void(C&)> insert_fn;
-			typedef std::function<void(C&)> remove_fn;
-
 			public:
 			typedef T value_type;
 			typedef C container_type;
@@ -34,9 +31,7 @@ namespace esep
 			static constexpr segment_t NO_SEGMENTS = N;
 
 			public:
-				SegmentedBuffer(uint,
-					insert_fn = [](C& c) { c.emplace_front(); },
-					remove_fn = [](C& c) { c.pop_back(); });
+				SegmentedBuffer(uint);
 				void advance(segment_t);
 				void remove(segment_t);
 				value_type& get(segment_t);
@@ -44,18 +39,16 @@ namespace esep
 				iterator end(segment_t = NO_SEGMENTS);
 
 			private:
+				void do_remove(segment_t s) { --mSizes[s]; }
+
+			private:
 				const uint mBuffer;
-				const insert_fn mInsert;
-				const remove_fn mRemove;
 				container_type mContainer;
 				size_t mSizes[NO_SEGMENTS + 1];
 		};
 
 		template<typename T, size_t N, typename C>
-		SegmentedBuffer<T, N, C>::SegmentedBuffer(uint b, insert_fn insert, remove_fn remove)
-			: mBuffer(b)
-			, mInsert(insert)
-			, mRemove(remove)
+		SegmentedBuffer<T, N, C>::SegmentedBuffer(uint b) : mBuffer(b)
 		{
 			for(uint i = 0 ; i < NO_SEGMENTS + 1 ; ++i)
 			{
@@ -73,11 +66,11 @@ namespace esep
 
 			if(!s)
 			{
-				mInsert(mContainer);
+				mContainer.emplace_front();
 			}
 			else
 			{
-				remove(s - 1);
+				do_remove(s - 1);
 			}
 
 			++mSizes[s];
@@ -85,7 +78,7 @@ namespace esep
 			while(mSizes[NO_SEGMENTS] > mBuffer)
 			{
 				--mSizes[NO_SEGMENTS];
-				mRemove(mContainer);
+				mContainer.pop_back();
 			}
 		}
 
@@ -102,7 +95,8 @@ namespace esep
 				MXT_THROW_EX(EmptySegmentException);
 			}
 
-			--mSizes[s];
+			mContainer.erase(--end(s));
+			do_remove(s);
 		}
 
 		template<typename T, size_t N, typename C>

@@ -14,11 +14,19 @@
 #include "base/error_manager.h"
 #include "base/run_manager.h"
 
+#include "data/data_point.h"
+#include "data/message_data.h"
+
 #include "hal.h"
 
 #define ESEP_DEBUG // TODO
 
 namespace esep { namespace base {
+
+namespace
+{
+	typedef data::Data_ptr Data_ptr;
+}
 
 typedef hal::Buttons::Button Button;
 
@@ -59,7 +67,7 @@ Handler::Handler(communication::IRecipient *m, ConfigObject *co)
 
 					if(msg.is<Message::Base>())
 					{
-						processBase(msg.as<Message::Base>());
+						processBase(packet);
 					}
 					else if(msg.is<Message::Error>())
 					{
@@ -91,7 +99,7 @@ Handler::Handler(communication::IRecipient *m, ConfigObject *co)
 				MXT_LOG_WARN(e.what());
 			}
 
-			mCurrentManager->leave();
+//			mCurrentManager->leave();
 
 			mConnection.close();
 		}
@@ -119,7 +127,7 @@ void Handler::accept(Packet_ptr p)
 		MXT_THROW_EX(UndefinedMasterException);
 	}
 
-	MXT_LOG("Received packet ", p);
+//	MXT_LOG("Received packet ", p);
 
 	if(p->target() == Location::MASTER)
 	{
@@ -160,9 +168,9 @@ void Handler::doSwitch(IManager *m)
 	}
 }
 
-void Handler::processBase(Message::Base msg)
+void Handler::processBase(Packet_ptr p)
 {
-	switch(msg)
+	switch(p->message().as<Message::Base>())
 	{
 	case Message::Base::SHUTDOWN:
 		MXT_LOG("Shutting down ...");
@@ -192,6 +200,17 @@ void Handler::processBase(Message::Base msg)
 	case Message::Base::VALID:
 		MXT_LOG_INFO("Switching to Valid ...");
 		doSwitch(mValidManager.get());
+		break;
+
+	case Message::Base::PRINT:
+		MXT_LOG_INFO("Printing message from master!");
+		for(const auto& d : *p)
+		{
+			if(d->type() == data::DataPoint::Type::MESSAGE)
+			{
+				HAL_CONSOLE.println(static_cast<data::Message&>(*d).message());
+			}
+		}
 		break;
 	}
 }

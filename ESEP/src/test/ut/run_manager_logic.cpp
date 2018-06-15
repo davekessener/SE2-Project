@@ -118,7 +118,7 @@ void RunManagerLogic::freeLB(LightBarrier lb)
 void RunManagerLogic::createHeightmap(void)
 {
 	hal().setField(Field::ANALOG, 1);
-	for(uint i = 0 ; i < base::run::ItemScanner::LOWERBOUND + 1 ; ++i) hal().trigger(Event::HEIGHT_SENSOR);
+	hal().trigger(Event::HEIGHT_SENSOR);
 	hal().setField(Field::ANALOG, 0);
 	hal().trigger(Event::HEIGHT_SENSOR);
 }
@@ -362,7 +362,8 @@ void RunManagerLogic::define(void)
 		mRunManager->accept(packet);
 
 		MXT_SLEEP(1);
-		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
+		ASSERT_EQUALS(mHandlerDummy->queueSize(), 2u);
+		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::ITEM_REMOVED);
 		ASSERT_EQUALS(mHandlerDummy->takeFirstPacket()->message(), Message::Run::RAMP_FULL);
 	};
 

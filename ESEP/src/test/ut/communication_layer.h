@@ -28,7 +28,10 @@ namespace esep
 				{
 					void accept(communication::Packet_ptr p)
 					{
-						packets.push_back(p);
+						if(p->message() != Message::Base::PRINT)
+						{
+							packets.push_back(p);
+						}
 					}
 
 					std::vector<communication::Packet_ptr> packets;

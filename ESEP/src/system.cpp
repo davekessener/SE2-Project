@@ -9,7 +9,6 @@
 #include "lib/logger.h"
 #include "lib/timer.h"
 
-#include "base/dummy_master.h"
 #include "base/handler.h"
 
 #include "master/master.h"

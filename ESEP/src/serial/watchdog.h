@@ -28,7 +28,7 @@ namespace esep
 			};
 
 			public:
-			static constexpr uint DEFAULT_TIMEOUT = 300;
+			static constexpr uint DEFAULT_TIMEOUT = 200;
 
 			MXT_DEFINE_E(CantSendException);
 

@@ -18,16 +18,21 @@ Watchdog::Watchdog(client_ptr c, uint t)
 		if(mRunning.load()) try
 		{
 			auto e = elapsed();
+			auto w = mLastWrite.load();
+			auto r = mLastRead.load();
 
-			if(e - mLastWrite.load() > mTimeout / 2)
+			if(e > w && e - w > mTimeout / 2)
 			{
 				sendWatchdog();
 			}
 
-			if(e - mLastRead.load() > mTimeout)
+			if(e > r && e - r > mTimeout)
 			{
+				MXT_LOG_ERROR("Watchdog triggered time-out (", mTimeout, "ms): {e=",e, ", last_read=", r, "}");
+
 				mTimedOut = true;
 				mReadBuf.interrupt();
+				mTimer.reset();
 			}
 		}
 		catch(const Connection::ConnectionClosedException& e)

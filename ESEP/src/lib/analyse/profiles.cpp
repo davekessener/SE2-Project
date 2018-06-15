@@ -5,10 +5,10 @@
 #define MXT_SAMPLES 100
 #define MXT_PROFILES 11
 
-#define MXT_TOP 0.79
+#define MXT_TOP 0.825
 #define MXT_BOTTOM 0.11
 #define MXT_HIGH 0.7
-#define MXT_LOW 0.49
+#define MXT_LOW 0.55
 #define MXT_FLAT 0.62
 
 
@@ -73,14 +73,14 @@ namespace
 		assign(Item::FLAT, [](double x) { return MXT_FLAT; });
 		assign(Item::UPSIDEDOWN, [](double x) { return MXT_TOP; });
 		assign(Item::HOLLOW, [](double x) { return (x >= 0.33 && x <= 0.66) ? MXT_BOTTOM : MXT_TOP; });
-		assign(Item::CODED_000, coded(0));
-		assign(Item::CODED_001, coded(1));
-		assign(Item::CODED_010, coded(2));
-		assign(Item::CODED_011, coded(3));
-		assign(Item::CODED_100, coded(4));
-		assign(Item::CODED_101, coded(5));
-		assign(Item::CODED_110, coded(6));
-		assign(Item::CODED_111, coded(7));
+		assign(Item::CODED_000, coded(7));
+		assign(Item::CODED_001, coded(6));
+		assign(Item::CODED_010, coded(5));
+		assign(Item::CODED_011, coded(4));
+		assign(Item::CODED_100, coded(3));
+		assign(Item::CODED_101, coded(2));
+		assign(Item::CODED_110, coded(1));
+		assign(Item::CODED_111, coded(0));
 
 		return r;
 	}

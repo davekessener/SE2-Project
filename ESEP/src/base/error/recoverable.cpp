@@ -32,6 +32,7 @@ void Recoverable::solve(void)
 	switch(mState)
 	{
 	case State::PENDING:
+		HAL_LIGHTS.flash(Light::RED, HALF_HZ);
 		mState = State::GONE;
 		break;
 
