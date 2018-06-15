@@ -123,6 +123,14 @@ void Master::accept(Packet_ptr p)
 	{
 		e = Event::ERROR;
 	}
+	else if(p->message() == Message::Master::SHUTDOWN)
+	{
+		mCom->accept(std::make_shared<Packet>(Location::MASTER, Location::BASE, Message::Base::SHUTDOWN));
+	}
+	else if(p->message() == Message::Run::REQUEST_STOP)
+	{
+		mCom->accept(std::make_shared<Packet>(p->source(), Location::MASTER, mLogic.isEmpty() ? Message::Base::IDLE : Message::Base::READY));
+	}
 	else if(p->message().is<Message::Base>())
 	{
 		MXT_LOG_ERROR("Master received message intended for Base!: ", lib::hex<32>(e));
@@ -167,19 +175,29 @@ void Master::analyse(Item& item, const data_t& data)
 			save_data(lib::stringify(item.ID(), "_2"), m->type(), item.data().at(1));
 
 			item.action(Action::TOSS);
+			item.plugin(nullptr);
 
 //			auto p = std::make_shared<Packet>(item.location(), Location::MASTER, Message::Error::ANALYSE);
 //			p->addDataPoint(Data_ptr(new data::Message(lib::stringify("Item ", item.ID(), " could not be analysed!"))));
 //			mCom->accept(p);
 		}
-
-		item.plugin(m);
+		else
+		{
+			item.plugin(m);
+		}
 
 //		save_data(item.ID(), m->type(), data);
 
 		MXT_LOG_INFO("Identified Item #", item.ID(), ": ", Plugin::type_to_s(m->type()), " on module ", item.location() == Packet::Location::BASE_S ? 2 : 1);
 
-		message(item.location(), lib::stringify("ITEM #", item.ID(), ": ", Plugin::type_to_s(m->type())));
+//		message(item.location(), lib::stringify("ITEM #", item.ID(), ": ", Plugin::type_to_s(m->type())));
+
+		if(item.plugin() &&
+				static_cast<uint>(m->type()) >= static_cast<uint>(Plugin::Type::CODED_000) &&
+				static_cast<uint>(m->type()) <= static_cast<uint>(Plugin::Type::CODED_111))
+		{
+			message(item.location(), item.to_s());
+		}
 	}
 	else
 	{

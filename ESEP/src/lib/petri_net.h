@@ -35,7 +35,7 @@ namespace esep
 				}
 
 				void set(uint s, uint v) { mStates.at(s) = v; }
-				uint get(uint s) { return mStates.at(s); }
+				uint get(uint s) const { return mStates.at(s); }
 
 				void listen(uint s, trans_fn f) { mWatchers[s] = f; }
 

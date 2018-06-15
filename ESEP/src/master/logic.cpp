@@ -4,7 +4,6 @@
 
 #include "master/hsm/error.h"
 #include "master/hsm/manager.h"
-#include "master/hsm/run.h"
 #include "master/hsm/forward.h"
 
 #include "lib/logger.h"
@@ -15,7 +14,6 @@ namespace esep { namespace master {
 
 Logic::Logic(IRecipient *s, Analyser *a)
 {
-	typedef lib::hsm::State<hsm::Base> State;
 	typedef lib::hsm::Machine<hsm::Base> Machine;
 	typedef lib::hsm::Leaf<hsm::Base> Leaf;
 	typedef std::unique_ptr<State> State_ptr;
@@ -37,7 +35,8 @@ Logic::Logic(IRecipient *s, Analyser *a)
 	State *valid = new hsm::Manager(working, s, Message::Base::VALID);
 	State *ready = new hsm::Manager(working, s, Message::Base::READY);
 	State *config = new hsm::Manager(working, s, Message::Base::CONFIG);
-	State *run = new hsm::Run(MXT_MAX_DEPTH, working, s, a);
+	mRun = new hsm::Run(MXT_MAX_DEPTH, working, s, a);
+	State *run = mRun;
 
 	State *run_both_empty = new hsm::Forward(run, run);
 	State *run_m_empty = new hsm::Forward(run, run);
@@ -93,6 +92,11 @@ Logic::Logic(IRecipient *s, Analyser *a)
 
 	builder.transition(ready, run, Event::fromParts(Location::BASE_M, Message::Master::RUN));
 	builder.transition(ready, run, Event::fromParts(Location::BASE_S, Message::Master::RUN));
+
+	builder.transition(run, ready, Event::fromParts(Location::BASE_M, Message::Master::READY));
+	builder.transition(run, ready, Event::fromParts(Location::BASE_S, Message::Master::READY));
+	builder.transition(run, valid, Event::fromParts(Location::BASE_M, Message::Master::IDLE));
+	builder.transition(run, valid, Event::fromParts(Location::BASE_S, Message::Master::IDLE));
 
 	builder.transition(run_both_empty, run_m_empty, Event::fromParts(Location::BASE_S, Message::Run::RAMP_FULL),
 			[this](State&, State&, event_t) { mRampFull[1] = true; });

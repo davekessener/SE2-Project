@@ -11,6 +11,7 @@
 #include "master/analyser.h"
 
 #include "master/hsm/base.h"
+#include "master/hsm/run.h"
 
 namespace esep
 {
@@ -23,14 +24,17 @@ namespace esep
 			typedef communication::Packet_ptr Packet_ptr;
 			typedef Packet::Location Location;
 			typedef lib::hsm::Hierarchy<event_t, hsm::Base> hsm_t;
+			typedef lib::hsm::State<hsm::Base> State;
 
 			public:
 				Logic(IRecipient *, Analyser *);
 				void process(event_t);
 				void accept(Packet_ptr);
+				bool isEmpty( ) const { return mRun->isEmpty(); }
 				bool isRampFull(Location l) const { return mRampFull[l == Location::BASE_M ? 0 : 1]; }
 
 			private:
+				hsm::Run * mRun;
 				hsm_t mLogic;
 				bool mRampFull[2];
 		};

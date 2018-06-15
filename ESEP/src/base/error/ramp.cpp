@@ -18,6 +18,7 @@ void Ramp::enter(void)
 
 	if(!HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_RAMP))
 	{
+		acknowledge();
 		solve();
 	}
 	else

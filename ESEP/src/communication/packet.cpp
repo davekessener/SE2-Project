@@ -46,6 +46,8 @@ namespace
 				return "Master::FIXED";
 			case Message::Master::VALID:
 				return "Master::VALID";
+			case Message::Master::SHUTDOWN:
+				return "Master::SHUTDOWN";
 		}
 		else if(m.is<Message::Base>())
 			switch(m.as<Message::Base>())

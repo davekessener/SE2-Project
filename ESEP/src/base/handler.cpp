@@ -19,8 +19,6 @@
 
 #include "hal.h"
 
-#define ESEP_DEBUG // TODO
-
 namespace esep { namespace base {
 
 namespace
@@ -221,12 +219,6 @@ void Handler::processHAL(Event e)
 	{
 		mMaster->accept(std::make_shared<Packet>(Location::BASE, Location::MASTER, Message::Error::ESTOP));
 	}
-#ifdef ESEP_DEBUG
-	else if(e == Event::BTN_STOP && HAL_BUTTONS.isPressed(Button::STOP))
-	{
-		mMaster->accept(std::make_shared<Packet>(Location::BASE, Location::BASE, Message::Base::SHUTDOWN));
-	}
-#endif
 	else
 	{
 		mCurrentManager->handle(e);

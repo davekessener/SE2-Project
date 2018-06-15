@@ -5,6 +5,8 @@
 
 #include "hal.h"
 
+#include "data/message_data.h"
+
 #include "hal/physical.h"
 #include "lib/logger.h"
 #include "lib/timer.h"
@@ -64,6 +66,10 @@ void Impl::run(const lib::Arguments& args)
 	typedef std::unique_ptr<serial::Client> Client_ptr;
 	typedef hal::LEDs::LED LED;
 	typedef hal::HAL::Event Event;
+	typedef communication::Packet Packet;
+	typedef communication::Message Message;
+	typedef Packet::Location Location;
+	typedef data::Data_ptr Data_ptr;
 
 	MXT_LOG_INFO("==========================================================================================================");
 
@@ -131,11 +137,15 @@ void Impl::run(const lib::Arguments& args)
 
 	lib::Timer::instance().reset();
 
+
+
 	if(is_master)
 	{
 		com.reset(lib::with_temporary(new communication::Master(std::move(serial)), [&](communication::Master *m) {
-			master.reset(new master::Master(&analyser, m, [](const master::Item& item) {
-				HAL_CONSOLE.println("Item reached end. ID is ", item.ID());
+			master.reset(new master::Master(&analyser, m, [&com](const master::Item& item) {
+				auto p = std::make_shared<Packet>(Location::MASTER, Location::BASE, Message::Base::PRINT);
+				p->addDataPoint(Data_ptr(new data::Message(item.to_s())));
+				com->accept(p);
 			}));
 
 			m->setMaster(master.get());
@@ -187,6 +197,17 @@ void Impl::run(const lib::Arguments& args)
 
 	HAL_CONSOLE.println("Starting main program");
 	HAL_LEDS.turnOn(LED::START);
+
+	HAL_CONSOLE.setCallback([&](const std::string& line) {
+		if(line == "quit")
+		{
+			com->accept(std::make_shared<Packet>(Location::BASE, Location::MASTER, Message::Master::SHUTDOWN));
+		}
+		else if(line == "force")
+		{
+			handler.accept(std::make_shared<Packet>(Location::MASTER, Location::BASE, Message::Base::SHUTDOWN));
+		}
+	});
 
 	while(handler.running())
 	{

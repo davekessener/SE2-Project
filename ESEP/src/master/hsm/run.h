@@ -9,7 +9,7 @@
 #include "master/hsm/manager.h"
 
 #include "master/types.h"
-#include "master/master.h"
+//#include "master/master.h"
 #include "master/analyser.h"
 
 namespace esep
@@ -38,6 +38,8 @@ namespace esep
 					void leave( ) override;
 
 					void handle(Packet_ptr) override;
+
+					bool isEmpty( ) const;
 
 				private:
 					history_t history(id_t);

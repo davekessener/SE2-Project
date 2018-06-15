@@ -35,6 +35,7 @@ void RunManager::leave()
 	suspend();
 
 	HAL_LIGHTS.turnOff(Light::GREEN);
+	HAL_SWITCH.close();
 
 	MXT_LOG_INFO("Leaving RunManager.");
 }

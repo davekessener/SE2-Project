@@ -16,6 +16,7 @@ namespace esep
 				IDLE,
 				READY,
 				VALID,
+				SHUTDOWN,
 				FIXED
 			};
 

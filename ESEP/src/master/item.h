@@ -31,11 +31,14 @@ namespace esep
 				Plugin *plugin( ) const { return mPlugin; }
 				Location location( ) const { return mLocation; }
 				data_vec_t& data( ) { return mData; }
+				const data_vec_t& data( ) const { return mData; }
 
 				void timestamp(uint64_t v) { mTime = v; }
 				void action(Plugin::Action a) { mAction = a; }
 				void plugin(Plugin *p) { mPlugin = p; }
 				void location(Location l) { mLocation = l; }
+
+				std::string to_s( ) const;
 
 			private:
 				id_t mID;

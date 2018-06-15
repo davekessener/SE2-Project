@@ -305,10 +305,15 @@ void Run::enter(void)
 		send(Location::BASE_M, Message::Run::RESUME);
 	}
 
-	if(!mLogic.get(S_M2RDY))
+	if(!mLogic.get(S_M2RDY) && !mLogic.get(S_M2_END))
 	{
 		send(Location::BASE_S, Message::Run::RESUME);
 	}
+}
+
+bool Run::isEmpty(void) const
+{
+	return mLogic.get(S_COUNT) || !mLogic.get(S_M2RDY);
 }
 
 void Run::leave(void)
