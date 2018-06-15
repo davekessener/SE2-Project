@@ -3,22 +3,25 @@
 
 #include <memory>
 #include <tuple>
+
 #include "communication/packet.h"
-#include "IManager.h"
+
+#include "base/IManager.h"
+#include "base/config_object.h"
+
 #include "lib/enum.h"
-#include "hal/hal.h"
 #include "lib/petri_net.h"
 #include "lib/timer.h"
-#include "config_object.h"
+
 #include "run/time_controller.h"
+#include "run/item_scanner.h"
 #include "run/types.h"
-#include "hal/light_barriers.h"
-#include "hal/lights.h"
+
 #include "data/data_point.h"
 #include "data/location_data.h"
 #include "data/heightmap_data.h"
-#include "hal/buttons.h"
 
+#include "hal.h"
 
 namespace esep
 {
@@ -31,7 +34,7 @@ namespace esep
 			MXT_DEFINE_E(NoMeasuredHighMap);
 
 			private:
-			enum class Auto : uint8_t {FIRE};
+			enum class Auto : uint8_t { FIRE };
 
 			typedef communication::Packet Packet;
 			typedef communication::Packet_ptr Packet_ptr;
@@ -47,10 +50,6 @@ namespace esep
 			typedef lib::PetriNet<petriEvents_t> petri_t;
 			typedef lib::Timer Timer;
 			typedef uint64_t timeStamp_t;
-			typedef std::shared_ptr<data::HeightMap> heightMap_ptr;
-			// bool is for checking if the heightmap is finished
-			typedef std::deque<std::tuple<bool, timeStamp_t, heightMap_ptr>> buffer_t;
-
 
 			public:
 			   RunManager(communication::IRecipient *, ConfigObject *);
@@ -71,12 +70,15 @@ namespace esep
 			   void sendMessageWithData(Location target, Message::Run msg, data::Data_ptr data);
 			   void sendItemInfo(data::Data_ptr, data::Data_ptr);
 
+			   void suspend( );
+			   void resume( );
+
 			private:
-			   communication::IRecipient * mMaster;
-			   ConfigObject * mConfig;
+			   communication::IRecipient * const mMaster;
+			   ConfigObject * const mConfig;
 			   run::TimeCtrl mTimeCtrl;
 			   petri_t mLogic;
-			   buffer_t mHeightMapBuffer;
+			   run::ItemScanner mScanner;
 		};
 	}
 }

@@ -10,8 +10,6 @@
 
 #include "lib/io/container_reader.h"
 
-#include "lib/stream_intercept.h"
-
 namespace esep { namespace test { namespace ut {
 
 typedef std::unique_ptr<hal::HAL> HAL_ptr;
@@ -41,8 +39,6 @@ EMPPlayback::EMPPlayback(void)
 {
 }
 
-#define CLEAN_COUT lib::StreamIntercept cout_cleaner(std::cout)
-
 void EMPPlayback::define(void)
 {
 	UNIT_TEST("can be created and destroyed")
@@ -53,8 +49,6 @@ void EMPPlayback::define(void)
 
 	UNIT_TEST("can parse sample file")
 	{
-		CLEAN_COUT;
-
 		buf_t buf = default_buf();
 		lib::Timer::instance().reset();
 		HAL_ptr hal(new emp::Playback(reader(buf)));
@@ -62,8 +56,6 @@ void EMPPlayback::define(void)
 
 	UNIT_TEST("sends events in correct order")
 	{
-		CLEAN_COUT;
-
 		std::vector<Event> received;
 
 		received.reserve(10);
@@ -83,8 +75,6 @@ void EMPPlayback::define(void)
 
 	UNIT_TEST("sends events with correct timing")
 	{
-		CLEAN_COUT;
-
 		std::vector<Event> received;
 
 		received.reserve(10);

@@ -3,6 +3,8 @@
 
 #include "master/plugin.h"
 
+#include "lib/logger.h"
+
 namespace esep
 {
 	namespace master
@@ -199,17 +201,33 @@ namespace esep
 						}
 					}
 
-					Action decide(const history_t& h) override
+					Action decide(const history_t& history) override
 					{
-						return type() == predictNext(h) ? Action::KEEP : Action::TOSS_S;
+						history_t h(history);
+						std::deque<Type> p;
+
+						while(!h.empty())
+						{
+							predictNext(p, h);
+
+							if(!p.empty())
+							{
+								auto i = std::find(p.begin(), p.end(), type());
+
+								return (i != p.end()) ? Action::KEEP : Action::TOSS_S;
+							}
+
+							h.pop_back();
+						}
+
+						return Action::KEEP;
 					}
 
 				private:
 					static bool contained(Type t) { return impl::Includes<types_t>::eval(t); }
 
-					Type predictNext(const history_t& h) const
+					void predictNext(std::deque<Type>& possibilities, const history_t& h) const
 					{
-						std::deque<Type> possibilities;
 						std::deque<Type> history;
 
 						for(const auto& t : h)
@@ -218,25 +236,7 @@ namespace esep
 							if(history.size() == SIZE) break;
 						}
 
-						if(history.empty())
-						{
-							return type();
-						}
-
 						impl::Find<types_t>::eval(possibilities, history);
-
-						if(possibilities.empty())
-						{
-							MXT_THROW_EX(InvalidStateException);
-						}
-						else if(std::find(possibilities.begin(), possibilities.end(), type()) != possibilities.end())
-						{
-							return type();
-						}
-						else
-						{
-							return possibilities.front();
-						}
 					}
 			};
 		}

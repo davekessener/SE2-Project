@@ -48,6 +48,7 @@ namespace esep
 				   uint32_t maxTime(uint32_t);
 				   void blockLB(LightBarrier);
 				   void freeLB(LightBarrier);
+				   void createHeightmap( );
 
 				private:
 				   HandlerDummy *mHandlerDummy;

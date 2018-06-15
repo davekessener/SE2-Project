@@ -15,7 +15,7 @@ namespace esep
 			typedef std::unique_ptr<Connection> connection_ptr;
 
 			public:
-			static constexpr uint DEFAULT_TIMEOUT = 50;
+			static constexpr uint DEFAULT_TIMEOUT = 100;
 
 			public:
 				explicit BSPClient(connection_ptr, uint = DEFAULT_TIMEOUT);

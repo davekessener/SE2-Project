@@ -1,15 +1,17 @@
-#include <master/plugin/hausdorff.h>
 #include "test/ut/plugins.h"
 
 #include "test/unit/assertions.h"
 
 #include "master/plugin/items.h"
+#include "master/plugin/hausdorff.h"
 
 #include "lib/utils/storage.h"
 #include "lib/logger.h"
 
 #include "lib/analyse/hausdorff.h"
 #include "lib/analyse/profiles.h"
+
+#include "data/metalsensor_data.h"
 
 namespace esep { namespace test { namespace ut {
 
@@ -33,8 +35,12 @@ Plugins::Plugins(void)
 {
 }
 
+#define MXT_BM_ISMETAL (1 << 7)
+
 void Plugins::setup(void)
 {
+	typedef hal::HAL::Field Field;
+
 	mProcessor.reset(new Processor);
 
 	mPlugins.emplace_back(new master::plugin::Coded_000(mProcessor.get()));
@@ -49,6 +55,8 @@ void Plugins::setup(void)
 	mPlugins.emplace_back(new master::plugin::UpsideDown(mProcessor.get()));
 	mPlugins.emplace_back(new master::plugin::Hollow(mProcessor.get()));
 	mPlugins.emplace_back(new master::plugin::HollowMetal(mProcessor.get()));
+
+	hal().setField(Field::GPIO_0, hal().getField(Field::GPIO_0) & ~MXT_BM_ISMETAL);
 
 //	mPlugins.emplace_back(new SamplePlugin(PluginType::FLAT, mProcessor.get(), ItemProfile::FLAT));
 //	mPlugins.emplace_back(new SamplePlugin(PluginType::HOLLOW, mProcessor.get(), ItemProfile::HOLLOW));
@@ -122,6 +130,7 @@ void Plugins::define(void)
 			PluginType t;
 
 			a.push_back(d);
+			a.emplace_back(new data::MetalSensor(false));
 
 			for(auto& p : mPlugins)
 			{

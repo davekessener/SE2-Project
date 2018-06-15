@@ -17,7 +17,7 @@ namespace test
 namespace ut
 {
 
-#define MXT_SLEEP(t)		lib::Timer::instance().sleep(t)
+#define MXT_SLEEP(t)		lib::Timer::instance().sleep(t * 3 / 2)
 #define MXT_BM_LIGHT_G 		(1u << 18)
 #define MXT_BM_SWITCH 		(1u << 19)
 #define MXT_BM_MOTOR_START	(1u << 12)
@@ -63,6 +63,7 @@ RunManagerLogic::RunManagerLogic()
 void RunManagerLogic::setup(void)
 {
 	mConfig = new config_t("ut.conf", 5, 0.1, 5, 5);
+
 	mConfig->setStartToHs(10);
 	mConfig->setHsToSwitch(10);
 	mConfig->setSwitchToEnd(10);
@@ -82,14 +83,14 @@ void RunManagerLogic::teardown(void)
 {
 	hal().setCallback([](Event){});
 
-	delete mConfig;
-	mConfig = nullptr;
+	delete mRunManager;
+	mRunManager = nullptr;
 
 	delete mHandlerDummy;
 	mHandlerDummy = nullptr;
 
-	delete mRunManager;
-	mRunManager = nullptr;
+	delete mConfig;
+	mConfig = nullptr;
 }
 
 void RunManagerLogic::sendPacket(msg_t msg)
@@ -112,6 +113,14 @@ void RunManagerLogic::freeLB(LightBarrier lb)
 {
 	hal().setField(Field::GPIO_0,
 			hal().getField(Field::GPIO_0) | static_cast<uint32_t>(lb));
+}
+
+void RunManagerLogic::createHeightmap(void)
+{
+	hal().setField(Field::ANALOG, 1);
+	for(uint i = 0 ; i < base::run::ItemScanner::LOWERBOUND + 1 ; ++i) hal().trigger(Event::HEIGHT_SENSOR);
+	hal().setField(Field::ANALOG, 0);
+	hal().trigger(Event::HEIGHT_SENSOR);
 }
 
 void RunManagerLogic::define(void)
@@ -171,10 +180,7 @@ void RunManagerLogic::define(void)
 		hal().trigger(Event::LB_HEIGHTSENSOR);
 
 		//LB_HS -> LB_SWITCH
-		hal().setField(Field::ANALOG, 1);
-		hal().trigger(Event::HEIGHT_SENSOR);
-		hal().setField(Field::ANALOG, 0);
-		hal().trigger(Event::HEIGHT_SENSOR);
+		createHeightmap();
 
 		MXT_SLEEP(1);
 		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
@@ -255,10 +261,7 @@ void RunManagerLogic::define(void)
 		blockLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
 
-		hal().setField(Field::ANALOG, 1);
-		hal().trigger(Event::HEIGHT_SENSOR);
-		hal().setField(Field::ANALOG, 0);
-		hal().trigger(Event::HEIGHT_SENSOR);
+		createHeightmap();
 
 		MXT_SLEEP(1);
 		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
@@ -320,10 +323,7 @@ void RunManagerLogic::define(void)
 		blockLB(LightBarrier::LB_HEIGHTSENSOR);
 		hal().trigger(Event::LB_HEIGHTSENSOR);
 
-		hal().setField(Field::ANALOG, 1);
-		hal().trigger(Event::HEIGHT_SENSOR);
-		hal().setField(Field::ANALOG, 0);
-		hal().trigger(Event::HEIGHT_SENSOR);
+		createHeightmap();
 
 		MXT_SLEEP(1);
 		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
@@ -531,10 +531,7 @@ void RunManagerLogic::define(void)
 		hal().trigger(Event::LB_HEIGHTSENSOR);
 
 		//LB_HS -> LB_SWITCH
-		hal().setField(Field::ANALOG, 1);
-		hal().trigger(Event::HEIGHT_SENSOR);
-		hal().setField(Field::ANALOG, 0);
-		hal().trigger(Event::HEIGHT_SENSOR);
+		createHeightmap();
 
 		MXT_SLEEP(1);
 		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
@@ -599,10 +596,7 @@ void RunManagerLogic::define(void)
 		hal().trigger(Event::LB_HEIGHTSENSOR);
 
 		//LB_HS -> LB_SWITCH
-		hal().setField(Field::ANALOG, 1);
-		hal().trigger(Event::HEIGHT_SENSOR);
-		hal().setField(Field::ANALOG, 0);
-		hal().trigger(Event::HEIGHT_SENSOR);
+		createHeightmap();
 
 		MXT_SLEEP(1);
 		ASSERT_EQUALS(mHandlerDummy->queueSize(), 1u);
