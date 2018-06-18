@@ -177,6 +177,13 @@ void RunManager::initLogic()
 			[this](void)
 			{
 				mTimeCtrl.deleteTimer(State::BF_LB_SWITCH);
+
+				//discard hightmap, if an item disappeared bw hs and switch
+				if(mScanner.ready())
+				{
+					mScanner.getHeightmap();
+				}
+
 				sendMessageWithData(Location::MASTER, Message::Run::ITEM_DISAPPEARED, MXT_SHARE(data::Location, data::Location::Type::LB_SWITCH));
 			});
 	//LB_SWITCH
