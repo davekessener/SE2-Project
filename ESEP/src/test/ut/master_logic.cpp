@@ -151,6 +151,8 @@ void MasterLogic::define(void)
 
 	UNIT_TEST("can route past switch")
 	{
+		mMaster->add(Plugin_ptr(new SimplePlugin(Plugin::Action::KEEP, 1.0f)));
+
 		send(Location::BASE_M, Message::Master::VALID);
 		send(Location::BASE_S, Message::Master::VALID);
 		send(Location::BASE_M, Message::Master::RUN);
@@ -217,6 +219,8 @@ void MasterLogic::define(void)
 
 	UNIT_TEST("can route throgh entire system")
 	{
+		mMaster->add(Plugin_ptr(new SimplePlugin(Plugin::Action::KEEP, 1.0f)));
+
 		send(Location::BASE_M, Message::Master::VALID);
 		send(Location::BASE_S, Message::Master::VALID);
 		send(Location::BASE_M, Message::Master::RUN);

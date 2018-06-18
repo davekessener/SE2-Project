@@ -30,6 +30,8 @@ void ItemStuck::enter(void)
 	MXT_LOG_ERROR("Error: Item stuck in ", mLocation->to_s(), "!");
 
 	ResetAck::enter();
+
+	tryResolve();
 }
 
 void ItemStuck::handle(Event e)
@@ -37,42 +39,57 @@ void ItemStuck::handle(Event e)
 	switch(e)
 	{
 	case Event::LB_START:
-		if(mLocation->location() == Location::Type::LB_START && !HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_START))
-		{
-			solve();
-		}
-		break;
-
 	case Event::LB_HEIGHTSENSOR:
-		if(mLocation->location() == Location::Type::LB_HEIGHTSENSOR && !HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_HEIGHTSENSOR))
-		{
-			solve();
-		}
-		break;
-
 	case Event::LB_RAMP:
-		if(mLocation->location() == Location::Type::LB_RAMP && !HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_RAMP))
-		{
-			solve();
-		}
-		break;
-
 	case Event::LB_SWITCH:
-		if(mLocation->location() == Location::Type::LB_SWITCH && !HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_SWITCH))
-		{
-			solve();
-		}
-		break;
-
 	case Event::LB_END:
-		if(mLocation->location() == Location::Type::LB_END && !HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_END))
-		{
-			solve();
-		}
+		tryResolve();
 		break;
 
 	default:
+		tryResolve();
 		ResetAck::handle(e);
+		break;
+	}
+}
+
+void ItemStuck::tryResolve(void)
+{
+	switch(mLocation->location())
+	{
+	case Location::Type::LB_START:
+		if(!HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_START))
+		{
+			solve();
+		}
+		break;
+
+	case Location::Type::LB_HEIGHTSENSOR:
+		if(!HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_HEIGHTSENSOR))
+		{
+			solve();
+		}
+		break;
+
+	case Location::Type::LB_RAMP:
+		if(!HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_RAMP))
+		{
+			solve();
+		}
+		break;
+
+	case Location::Type::LB_SWITCH:
+		if(!HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_SWITCH))
+		{
+			solve();
+		}
+		break;
+
+	case Location::Type::LB_END:
+		if(!HAL_LIGHT_BARRIERS.isBroken(LightBarrier::LB_END))
+		{
+			solve();
+		}
 		break;
 	}
 }

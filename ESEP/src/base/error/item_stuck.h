@@ -27,6 +27,9 @@ namespace esep
 					void accept(Packet_ptr) override { };
 
 				private:
+					void tryResolve( );
+
+				private:
 					std::shared_ptr<Location> mLocation;
 			};
 		}

@@ -32,15 +32,26 @@ std::string Item::to_s(void) const
 		{
 			if(d->type() == data::DataPoint::Type::HEIGHT_MAP)
 			{
+				std::vector<uint16_t> vals;
 				uint16_t min = 0xFFFF, max = 0;
+				uint64_t mean = 0;
 
-				for(const auto& p : static_cast<data::HeightMap&>(*d))
+				for(const auto& v : static_cast<data::HeightMap&>(*d))
 				{
-					if(min > p.second) min = p.second;
-					if(max < p.second) max = p.second;
+					vals.push_back(v.second);
+
+					if(min > v.second) min = v.second;
+					if(max < v.second) max = v.second;
+
+					mean += v.second;
 				}
 
-				ss << "On M" << (i+1) << " measured {min = " << min << ", max = " << max << ", mean = " << (min / 2 + max / 2) << "}\n";
+				std::sort(vals.begin(), vals.end());
+
+				ss << "On M" << (i+1) << " measured {min = " << min
+						<< ", max = " << max
+						<< ", mean = " << (mean / vals.size())
+						<< ", median = " << (vals.at(vals.size() / 2)) << "}\n";
 			}
 		}
 

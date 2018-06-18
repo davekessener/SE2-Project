@@ -236,7 +236,7 @@ Run::Run(uint c, State *p, IRecipient *m, Analyser *a)
 
 
 	mLogic.transition(to_loc(LocationType::LB_START) | Event::fromParts(Location::BASE_S, Message::Run::ITEM_STUCK),
-		{{S_M2_START, 1}, {S_COUNT, 1}},
+		{{S_M2_START, 1}},
 		{{S_M2RDY, 1}},
 		chain(
 			item_displacement(Location::BASE_S, LocationType::LB_START, Message::Error::ITEM_STUCK),
@@ -313,7 +313,7 @@ void Run::enter(void)
 
 bool Run::isEmpty(void) const
 {
-	return mLogic.get(S_COUNT) || !mLogic.get(S_M2RDY);
+	return !mLogic.get(S_COUNT) && (mLogic.get(S_M2RDY) || mLogic.get(S_M2_END));
 }
 
 void Run::leave(void)

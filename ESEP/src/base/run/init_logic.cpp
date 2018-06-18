@@ -32,7 +32,8 @@ namespace
 {
 	communication::Packet::msg_t isStuckOrDisappeared(hal::LightBarriers::LightBarrier lb)
 	{
-		return HAL_LIGHT_BARRIERS.isBroken(lb) ? communication::Message::Run::ITEM_STUCK : communication::Message::Run::ITEM_DISAPPEARED;
+		return communication::Message::Run::ITEM_STUCK;
+//		return HAL_LIGHT_BARRIERS.isBroken(lb) ? communication::Message::Run::ITEM_STUCK : communication::Message::Run::ITEM_DISAPPEARED;
 	}
 }
 

@@ -129,7 +129,7 @@ void Master::accept(Packet_ptr p)
 	}
 	else if(p->message() == Message::Run::REQUEST_STOP)
 	{
-		mCom->accept(std::make_shared<Packet>(p->source(), Location::MASTER, mLogic.isEmpty() ? Message::Base::IDLE : Message::Base::READY));
+		mCom->accept(std::make_shared<Packet>(p->source(), Location::MASTER, mLogic.isEmpty() ? Message::Master::IDLE : Message::Master::READY));
 	}
 	else if(p->message().is<Message::Base>())
 	{
@@ -165,7 +165,7 @@ void Master::analyse(Item& item, const data_t& data)
 		}
 	}
 
-	if(m)
+	if(c > 0.8 && m)
 	{
 		if(item.plugin() && item.plugin() != m)
 		{
@@ -188,7 +188,7 @@ void Master::analyse(Item& item, const data_t& data)
 
 //		save_data(item.ID(), m->type(), data);
 
-		MXT_LOG_INFO("Identified Item #", item.ID(), ": ", Plugin::type_to_s(m->type()), " on module ", item.location() == Packet::Location::BASE_S ? 2 : 1);
+		MXT_LOG_INFO("Identified Item #", item.ID(), " (", ((int)(c * 1000))/10.0 , "): ", Plugin::type_to_s(m->type()), " on module ", item.location() == Packet::Location::BASE_S ? 2 : 1);
 
 //		message(item.location(), lib::stringify("ITEM #", item.ID(), ": ", Plugin::type_to_s(m->type())));
 
@@ -201,7 +201,9 @@ void Master::analyse(Item& item, const data_t& data)
 	}
 	else
 	{
-		MXT_LOG_WARN("Could not identify item #", lib::hex<32>(item.ID()), "!");
+		MXT_LOG_WARN("Could not identify item #", lib::hex<32>(item.ID()), "! (", c, ")");
+
+		mCom->accept(std::make_shared<Packet>(Location::BASE, Location::MASTER, Message::Error::ANALYSE));
 
 		item.action(Action::TOSS);
 	}

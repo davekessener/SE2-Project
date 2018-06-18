@@ -328,7 +328,7 @@ void ErrorManagerLogic::define()
 		hal().setField(Field::GPIO_0, static_cast<uint32_t>(Button::RESET));
 		hal().trigger(Event::BTN_RESET);
 
-		ASSERT_EQUALS(mHandler->packets.size(), 0u);
+		ASSERT_EQUALS(mHandler->packets.size(), 1u);
 
 		hal().setField(Field::GPIO_0, static_cast<uint32_t>(LightBarrier::LB_END));
 		hal().trigger(Event::LB_END);
