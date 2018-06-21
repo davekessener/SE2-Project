@@ -23,7 +23,10 @@ namespace esep
 					void enter( ) override;
 					void accept(communication::Packet_ptr) override { };
 
-					int priority( ) const override { return HAL_BUTTONS.isPressed(Button::ESTOP) ? 5 : 4; }
+					int priority( ) const override { return mPriority; }
+
+				private:
+					const int mPriority;
 			};
 		}
 	}

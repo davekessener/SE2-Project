@@ -23,6 +23,7 @@ typedef data::DataPoint::Type DataType;
 
 ErrorManager::ErrorManager(communication::IRecipient * handler)
 	: mHandler(handler)
+	, mFixed(false)
 {
 }
 
@@ -39,6 +40,8 @@ void ErrorManager::leave()
 		mCurrentError.reset();
 	}
 
+	mFixed = false;
+
 	MXT_LOG_INFO("Leaving ErrorManager.");
 }
 
@@ -46,6 +49,11 @@ void ErrorManager::accept(Packet_ptr packet)
 {
 	if (packet->target() == Location::MASTER)
 	{
+		if(packet->message() == Message::Master::FIXED)
+		{
+			mFixed = true;
+		}
+
 		mHandler->accept(packet);
 	}
 	else if(!packet->message().is<Error>())
@@ -99,16 +107,18 @@ void ErrorManager::accept(Packet_ptr packet)
 
 		if(!static_cast<bool>(mCurrentError))
 		{
+			mFixed = false;
 			mCurrentError = std::move(m);
 			mCurrentError->enter();
 		}
 		else if (m->priority() > mCurrentError->priority())
 		{
+			mFixed = false;
 			mCurrentError->leave();
 			mCurrentError = std::move(m);
 			mCurrentError->enter();
 		}
-		else
+		else if(mFixed)
 		{
 			mHandler->accept(std::make_shared<Packet>(Location::BASE, Location::MASTER, Message::Master::FIXED));
 		}

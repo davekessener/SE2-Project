@@ -368,33 +368,33 @@ void ErrorManagerLogic::define()
 		ASSERT_EQUALS(mHandler->packets.front()->message(), Message::Master::FIXED);
 	};
 
-	UNIT_TEST("will not switch to lower prioritized error")
-	{
-		mErrManager->enter();
-
-		hal().setField(Field::GPIO_0, ~static_cast<uint32_t>(Button::ESTOP));
-		send(Location::BASE, Message::Error::ESTOP);
-
-		ASSERT_EQUALS(mHandler->packets.size(), 0u);
-
-		send(Location::BASE, Message::Error::RAMP_FULL);
-
-		ASSERT_EQUALS(mHandler->packets.size(), 1u);
-		ASSERT_EQUALS(mHandler->packets.front()->source(), Location::BASE);
-		ASSERT_EQUALS(mHandler->packets.front()->target(), Location::MASTER);
-		ASSERT_EQUALS(mHandler->packets.front()->message(), Message::Master::FIXED);
-
-		hal().setField(Field::GPIO_0, static_cast<uint32_t>(Button::ESTOP));
-		hal().trigger(Event::BTN_ESTOP);
-
-		hal().setField(Field::GPIO_0, static_cast<uint32_t>(Button::RESET) | static_cast<uint32_t>(Button::ESTOP));
-		hal().trigger(Event::BTN_RESET);
-
-		ASSERT_EQUALS(mHandler->packets.size(), 2u);
-		ASSERT_EQUALS(mHandler->packets.front()->source(), Location::BASE);
-		ASSERT_EQUALS(mHandler->packets.front()->target(), Location::MASTER);
-		ASSERT_EQUALS(mHandler->packets.front()->message(), Message::Master::FIXED);
-	};
+//	UNIT_TEST("will not switch to lower prioritized error")
+//	{
+//		mErrManager->enter();
+//
+//		hal().setField(Field::GPIO_0, ~static_cast<uint32_t>(Button::ESTOP));
+//		send(Location::BASE, Message::Error::ESTOP);
+//
+//		ASSERT_EQUALS(mHandler->packets.size(), 0u);
+//
+//		send(Location::BASE, Message::Error::RAMP_FULL);
+//
+//		ASSERT_EQUALS(mHandler->packets.size(), 1u);
+//		ASSERT_EQUALS(mHandler->packets.front()->source(), Location::BASE);
+//		ASSERT_EQUALS(mHandler->packets.front()->target(), Location::MASTER);
+//		ASSERT_EQUALS(mHandler->packets.front()->message(), Message::Master::FIXED);
+//
+//		hal().setField(Field::GPIO_0, static_cast<uint32_t>(Button::ESTOP));
+//		hal().trigger(Event::BTN_ESTOP);
+//
+//		hal().setField(Field::GPIO_0, static_cast<uint32_t>(Button::RESET) | static_cast<uint32_t>(Button::ESTOP));
+//		hal().trigger(Event::BTN_RESET);
+//
+//		ASSERT_EQUALS(mHandler->packets.size(), 2u);
+//		ASSERT_EQUALS(mHandler->packets.front()->source(), Location::BASE);
+//		ASSERT_EQUALS(mHandler->packets.front()->target(), Location::MASTER);
+//		ASSERT_EQUALS(mHandler->packets.front()->message(), Message::Master::FIXED);
+//	};
 
 	UNIT_TEST("can set (irrecoverable) serial error")
 	{

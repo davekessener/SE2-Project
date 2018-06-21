@@ -30,6 +30,7 @@ namespace esep
 			private:
 				IRecipient * const mHandler;
 				Error_ptr mCurrentError;
+				bool mFixed;
 		};
 	}
 }

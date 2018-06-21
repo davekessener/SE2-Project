@@ -12,6 +12,7 @@ typedef hal::LEDs::LED LED;
 
 Estop::Estop(communication::IRecipient *handler)
 	: Recoverable(handler)
+	, mPriority(HAL_BUTTONS.isPressed(Button::ESTOP) ? 5 : 4)
 {
 }
 

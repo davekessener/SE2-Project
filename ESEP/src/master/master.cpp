@@ -257,6 +257,11 @@ void Master::evaluate(Item& item, const history_t& history)
 	{
 		item.action(item.plugin()->decide(history));
 
+		if(item.action() == Action::TOSS_M && item.location() != Location::BASE_M)
+		{
+			item.action(Action::TOSS);
+		}
+
 		switch(item.action())
 		{
 		case Action::KEEP:
